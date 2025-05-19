@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PROXIMOS CONTENIDOS EN VIVO - Llutid+</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a1a; /* Fondo oscuro */
+            font-family: 'Roboto', sans-serif;
+            color: #e0e0e0; /* Texto gris claro */
+            overflow-x: hidden;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Pantalla de inicio */
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1s ease-in-out; /* Añadimos transición para la desaparición */
+        }
+
+        .intro-screen.fade-out {
+            opacity: 0;
+            visibility: hidden; /* Oculta el elemento para que no bloquee interacciones */
+        }
+
+        .logo-container {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #00bfff;
+            opacity: 0;
+            animation: aparecer 2s ease forwards;
+            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 4px;
+        }
+
+        @keyframes aparecer {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1); /* Mantenemos la opacidad al final de la animación */
+            }
+        }
+
+        /* Main content */
+        .main-content {
+            display: none; /* Inicialmente oculto */
+            opacity: 0; /* Inicialmente invisible */
+            transition: opacity 1s ease-in-out; /* Transición suave */
+            padding-top: 20px;
+        }
+
+        .main-content.visible {
+            display: block; /* Se muestra cuando la clase 'visible' se añade */
+            opacity: 1; /* Visible después de la animación */
+        }
+
+        /* Barra fija */
+        .sticky-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(26, 26, 26, 0.9); /* Fondo oscuro con transparencia */
+            padding: 15px 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px); /* Efecto de desenfoque */
+            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-bar {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-bar h1 {
+            font-size: 2.5rem;
+            color: #00bfff;
+            text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 5px;
+            margin-bottom: 0;
+            margin-right: 20px;
+        }
+
+        .logo-bar h1 span {
+            color: white;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .sticky-bar input {
+            padding: 12px 20px;
+            width: 200px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: 1px solid #666; /* Borde más sutil */
+            outline: none;
+            background-color: #333; /* Fondo más oscuro */
+            color: #fff;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .sticky-bar input:focus {
+            border-color: #00bfff;
+            box-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+        }
+
+        .sticky-bar input::placeholder {
+            color: #999;
+        }
+
+        /* Icono del menú */
+        .menu-icon {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        .menu-icon div {
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* Menú desplegable */
+        .menu-dropdown {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background-color: rgba(26, 26, 26, 0.95); /* Fondo oscuro con más transparencia */
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: -8px 8px 10px rgba(0, 191, 255, 0.1); /* Sombra más sutil */
+            z-index: 101;
+            border-radius: 5px;
+        }
+
+        .menu-dropdown a {
+            color: #ddd; /* Color de enlace más claro */
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            text-align: center;
+            display: block;
+        }
+
+        .menu-dropdown a:hover {
+            color: #00bfff;
+        }
+
+        /* Video Header */
+        .video-header {
+            width: 100%;
+            max-height: 500px; /* Ajusta la altura si es necesario */
+            overflow: hidden;
+            margin-bottom: 20px; /* Reducido el margen */
+            border-bottom: 1px solid #444;
+            position: relative; /* Para posicionar los controles absolute */
+        }
+
+        .video-header iframe {
+            display: block;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .video-controls button {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            display: none; /* Ocultamos el contenedor de controles */
+        }
+
+        .video-controls button:hover {
+            opacity: 1;
+        }
+
+        /* Contenedor de información del en vivo y hora */
+        .live-info-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #bbb;
+        }
+
+        .live-info-container p {
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        .live-info-container p strong {
+            color: #eee;
+        }
+
+        .live-info-container #hora-actual {
+            font-size: 1.2rem;
+            color: #00bfff;
+        }
+
+        /* Contenedor del enlace de En Vivo */
+        .en-vivo-link-container {
+            width: 100%;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .en-vivo-link {
+            background-color: #ff0000; /* Rojo llamativo */
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: pulsar 1.5s infinite alternate;
+        }
+
+        @keyframes pulsar {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        /* Cronograma de Próximos En Vivos */
+        .cronograma-envivos-container {
+            padding: 30px; /* Más espacio */
+            margin-bottom: 40px;
+            border-bottom: 1px solid #444; /* Línea más fina */
+        }
+
+        .cronograma-envivos-container h2 {
+            color: #00bfff;
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 20px; /* Más espacio */
+            font-size: 2.2rem;
+            text-align: center;
+        }
+
+        .cronograma-envivos-container h2 span {
+            color: white;
+        }
+
+        .proximos-envivos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Ajusta el ancho mínimo según necesites */
+            gap: 20px; /* Espacio entre los elementos del cronograma */
+            padding-bottom: 25px;
+        }
+
+        .envivo-item {
+            background-color: #333; /* Fondo más oscuro */
+            border-radius: 12px; /* Bordes más redondeados */
+            padding: 20px;
+            box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1); /* Sombra más sutil */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+        }
+
+        .envivo-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 25px rgba(0, 191, 255, 0.2); /* Sombra más pronunciada al pasar el ratón */
+        }
+
+        .envivo-item h3 {
+            color: #f0f0f0;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .envivo-item p {
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 8px;
+        }
+
+        .envivo-item p strong {
+            color: #eee;
+        }
+
+        .proximo-envivo-anuncio {
+            background-color: rgba(0, 191, 255, 0.1);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Enlace de Administrador */
+        .admin-link {
+            text-align: center;
+            margin-top: 30px; /* Más espacio */
+            opacity: 0.8; /* Más visible */
+            font-size: 1rem;
+        }
+
+        .admin-link a {
+            color: #bbb;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .admin-link a:hover {
+            color: #00bfff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sticky-bar {
+                padding: 10px;
+            }
+
+            .logo-bar h1 {
+                font-size: 2rem;
+                margin-right: 10px;
+            }
+
+            .sticky-bar input {
+                width: 150px;
+                font-size: 14px;
+            }
+
+            .menu-dropdown {
+                top: 50px;
+                right: 10px;
+                padding: 15px;
+            }
+
+            .menu-dropdown a {
+                font-size: 1rem;
+            }
+
+            .video-header {
+                max-height: 350px;
+                margin-bottom: 15px;
+            }
+
+            .en-vivo-link-container {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .en-vivo-link {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+
+            .youtube-player-container {
+                display: none; /* Ocultamos el contenedor del reproductor */
+                max-height: 350px;
+                margin-bottom: 20px;
+            }
+
+            .live-info-container {
+                margin-bottom: 10px;
+            }
+
+            .live-info-container p {
+                font-size: 0.9rem;
+            }
+
+            .live-info-container #hora-actual {
+                font-size: 1.1rem;
+            }
+
+            .cronograma-envivos-container {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .cronograma-envivos-container h2 {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+            }
+
+            .proximos-envivos-list {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+                padding-bottom: 15px;
+            }
+
+            .envivo-item {
+                padding: 15px;
+            }
+
+            .envivo-item h3 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+
+            .envivo-item p {
+                font-size: 0.8rem;
+                margin-bottom: 5px;
+            }
+
+            .proximo-envivo-anuncio {
+                padding: 10px;
+                margin-bottom: 15px;
+                font-size: 0.9rem;
+            }
+
+            .admin-link {
+                margin-top: 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .logo-bar h1 {
+                font-size: 1.7rem;
+            }
+
+            .sticky-bar input {
+                display: none; /* Ocultar el buscador en pantallas pequeñas */
+            }
+
+            .menu-dropdown {
+                right: 5px;
+            }
+
+            .video-header {
+                max-height: 250px;margin-bottom: 15px;
+            }
+
+            .en-vivo-link-container {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .en-vivo-link {
+                font-size: 1rem;
+                padding: 10px 20px;
+            }
+
+            .youtube-player-container {
+                display: none; /* Ocultamos el contenedor del reproductor */
+                max-height: 250px;
+                margin-bottom: 15px;
+            }
+
+            .live-info-container p {
+                font-size: 0.8rem;
+            }
+
+            .live-info-container #hora-actual {
+                font-size: 1rem;
+            }
+
+            .proximos-envivos-list {
+                grid-template-columns: 1fr; /* Un elemento por fila en pantallas muy pequeñas */
+            }
+
+            .proximo-envivo-anuncio p {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="intro-screen" id="introScreen">
+        <div class="logo-container">Llutid<span>+</span></div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+
+        <div class="sticky-bar">
+            <div class="logo-bar">
+                <h1>Llutid<span>+</span></h1>
+            </div>
+            <div class="search-container">
+                <input type="text" id="search" placeholder="Buscar contenido..." onkeyup="buscarPelicula()">
+                <div class="menu-icon" onclick="toggleMenu()">
+                    <div></div>
+                    <div></div>
+                    <div></div></div>
+            </div>
+        </div>
+
+        <div class="menu-dropdown" id="menuDropdown">
+            <a href="home.html">HOME</a>
+            <a href="recientemente_agregado.html">RECIEN AGREGADO</a>
+            <a href="proximasenlanzamiento.html">PROXIMAS EN LANZAMIENTO</a>
+            <a href="envivo.html">EN VIVO STREAMING DE NUEVAS LANZAMIENTOS</a>
+        </div>
+
+        <div class="video-header">
+            <div style="padding:56.25% 0 0 0;position:relative;">
+                <iframe id="vimeo-player" src="https://player.vimeo.com/video/1084690853?h=9891385ed9&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=0" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="TODOS LOS TRÁILERS DE LAS MEJORES PRÓXIMAS PELÍCULAS (2025)"></iframe>
+            </div>
+            <div class="video-controls">
+                </div><script src="https://player.vimeo.com/api/player.js"></script>
+        </div>
+
+        <div class="live-info-container">
+            <p><strong>Ahora son las:</strong> <span id="hora-actual"></span></p>
+            <p id="proximo-envivo-info"></p>
+        </div>
+
+        <div class="en-vivo-link-container" id="enVivoLinkContainer" style="display: none;">
+            <a href="https://www.youtube.com/watch?v=hct5qjC_n9M" class="en-vivo-link">🔴 ¡MIRA EL EN VIVO AQUÍ! 🔴</a>
+        </div>
+
+        <div class="cronograma-envivos-container">
+            <h2>Próximos <span>En Vivos</span></h2>
+            <div class="proximos-envivos-list" id="proximos-envivos-list">
+            </div>
+        </div>
+
+        <div class="admin-link">
+            <p><a href="#">Panel de Administrador</a></p>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const introScreen = document.getElementById('introScreen');
+            const mainContent = document.getElementById('mainContent');
+
+            setTimeout(function() {
+                introScreen.classList.add('fade-out');
+                setTimeout(function() {
+                    introScreen.style.display = 'none'; // Ocultar completamente después de la transición
+                    mainContent.style.display = 'block'; // Asegurarse de que se muestre el contenido
+                    setTimeout(function() {
+                        mainContent.classList.add('visible'); // Iniciar la transición de opacidad
+                    }, 50); // Un pequeño delay para asegurar la transición
+                }, 1000); // Duración de la transición de fade-out
+            }, 5000); // Duración de la pantalla de inicio
+        });
+
+        function toggleMenu() {
+            var menu = document.getElementById('menuDropdown');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        const proximosEnVivos = [
+            {
+                titulo: "ESTRENO LOST Y FOUND",
+                fecha: "2025-05-20",
+                hora: "20:00",
+                duracion: "2h 00m",
+                link: "#"
+            },
+            {
+                titulo: "ESTRENO TED",
+                fecha: "2025-06-27",
+                hora: "20:00",
+                duracion: "2h 30m",
+                link: "#"
+            },
+            {
+                titulo: "ENTREVISTA Y OPINIONES ACERCA DE LA APP",
+                fecha: "2025-06-09",
+                hora: "20:00",
+                duracion: "1h 00m",
+                link: "#"
+            },
+            {
+                titulo: "CHARLA DE NUEVOS PROXIMOS CONTENIDOS",
+                fecha: "2025-05-23",
+                hora: "19:00",
+                duracion: "1h 00m",
+                link: "#"
+            },
+        ];
+
+        function mostrarHoraAmPm(hora24) {
+            const [horas, minutos] = hora24.split(':');
+            let horas12 = parseInt(horas);
+            const periodo = horas12 >= 12 ? 'PM' : 'AM';
+            horas12 = horas12 % 12;
+            horas12 = horas12 ? horas12 : 12;
+            return `${horas12}:${minutos} ${periodo}`;
+        }
+
+        function formatearFecha(fecha) {
+            const partes = fecha.split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
+
+        function calcularFinEnVivo(horaInicio, duracion) {
+            const [horasInicio, minutosInicio] = horaInicio.split(':');
+            const [horasDuracion, minutosDuracion] = duracion.replace('h ', ':').replace('m', '').split(':');
+
+            let finHoras = parseInt(horasInicio) + parseInt(horasDuracion);
+            let finMinutos = parseInt(minutosInicio) + parseInt(minutosDuracion);
+
+            if (finMinutos >= 60) {
+                finHoras += Math.floor(finMinutos / 60);
+                finMinutos %= 60;
+            }
+
+            return `${String(finHoras).padStart(2, '0')}:${String(finMinutos).padStart(2, '0')}`;
+        }
+
+        function actualizarHoraActual() {
+            const ahora = new Date();
+            const horas = String(ahora.getHours()).padStart(2, '0');
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            document.getElementById('hora-actual').textContent = mostrarHoraAmPm(`${horas}:${minutos}`);
+        }function mostrarProximoEnVivoInfo(proximoEnVivo) {
+            const proximoEnVivoInfoElement = document.getElementById('proximo-envivo-info');
+            if (proximoEnVivo) {
+                proximoEnVivoInfoElement.textContent = `Próximo en vivo: ${proximoEnVivo.titulo} - ${formatearFecha(proximoEnVivo.fecha)} ${mostrarHoraAmPm(proximoEnVivo.hora)}`;
+            } else {
+                proximoEnVivoInfoElement.textContent = '';
+            }
+        }
+
+        function mostrarProximosEnVivos(envivos) {
+            const listaEnVivos = document.getElementById('proximos-envivos-list');
+            listaEnVivos.innerHTML = '';
+            const enVivoLinkContainer = document.getElementById('enVivoLinkContainer');
+
+            const ahora = new Date();
+            const diaActual = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+            const horaActual24 = `${String(ahora.getHours()).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')}`;
+
+            let enVivoAhora = null;
+            let proximoEnVivo = null;
+            let proximosOrdenados = [];
+
+            envivos.forEach(envivo => {
+                if (envivo.fecha === diaActual) {
+                    const finEnVivo = calcularFinEnVivo(envivo.hora, envivo.duracion);
+                    if (horaActual24 >= envivo.hora && horaActual24 < finEnVivo) {
+                        enVivoAhora = envivo;
+                    } else if (envivo.hora > horaActual24) {
+                        proximosOrdenados.push(envivo);
+                    }
+                } else if (envivo.fecha > diaActual) {
+                    proximosOrdenados.push(envivo);
+                }
+            });
+
+            proximosOrdenados.sort((a, b) => {
+                if (a.fecha !== b.fecha) {
+                    return a.fecha.localeCompare(b.fecha);
+                }
+                return a.hora.localeCompare(b.hora);
+            });
+
+            if (enVivoAhora) {
+                enVivoLinkContainer.style.display = 'flex'; // Mostrar el enlace del en vivo
+                const envivoDiv = document.createElement('div');
+                envivoDiv.classList.add('envivo-item');
+                envivoDiv.innerHTML = `
+                    <h3>${enVivoAhora.titulo} <span style="color: #ff0000; font-weight: bold;">(EN VIVO)</span></h3>
+                    <p><strong>Estado:</strong> <span style="color: #00ff00;">En vivo ahora</span></p>
+                    <p><strong>Finaliza a las:</strong> ${mostrarHoraAmPm(calcularFinEnVivo(enVivoAhora.hora, enVivoAhora.duracion))}</p>
+                    <p><strong>Duración:</strong> ${enVivoAhora.duracion}</p>
+                    <a href="${enVivoAhora.link}" style="display: block; text-decoration: none; color: inherit;"></a>
+                `;
+                listaEnVivos.appendChild(envivoDiv);
+
+                const [horasDuracion, minutosDuracion] = enVivoAhora.duracion.replace('h ', ':').replace('m', '').split(':');
+                const duracionEnMilisegundos = (parseInt(horasDuracion) * 60 + parseInt(minutosDuracion)) * 60 * 1000;
+
+                setTimeout(() => {
+                    // Ocultar el enlace si ya no hay evento actual
+                    const nuevoEnVivoAhora = envivos.find(envivo => {
+                        if (envivo.fecha === diaActual) {
+                            const fin = calcularFinEnVivo(envivo.hora, envivo.duracion);
+                            return horaActual24 >= envivo.hora && horaActual24 < fin;
+                        }
+                        return false;
+                    });
+                    if (!nuevoEnVivoAhora) {
+                        enVivoLinkContainer.style.display = 'none';
+                    }
+                    mostrarProximosEnVivos(proximosEnVivos);
+                }, duracionEnMilisegundos);
+
+            } else {
+                enVivoLinkContainer.style.display = 'none'; // Ocultar el enlace si no hay en vivo
+
+                if (proximosOrdenados.length > 0) {
+                    proximoEnVivo = proximosOrdenados[0];
+                    const proximoEnVivoDiv = document.createElement('div');
+                    proximoEnVivoDiv.classList.add('proximo-envivo-anuncio');
+                    proximoEnVivoDiv.innerHTML = `
+                        <p style="text-align: center; font-size: 1.1rem; color: #00bfff; margin-bottom: 10px;"><strong>Próximo en vivo:</strong> ${proximoEnVivo.titulo}</p>
+                        <p style="text-align: center; font-size: 1rem; color: #ddd;"><strong>Fecha:</strong> ${formatearFecha(proximoEnVivo.fecha)}</p>
+                        <p style="text-align: center; font-size: 1rem; color: #ddd;"><strong>Hora:</strong> ${mostrarHoraAmPm(proximoEnVivo.hora)}</p>
+                    `;
+                    listaEnVivos.appendChild(proximoEnVivoDiv);
+
+                    proximosOrdenados.forEach(envivo => {
+                        const envivoDiv = document.createElement('div');
+                        envivoDiv.classList.add('envivo-item');
+                        const estaEnVivoProximamente = envivo.fecha === diaActual && horaActual24 < envivo.hora;
+                        envivoDiv.innerHTML = `
+                            <h3>${envivo.titulo} ${estaEnVivoProximamente ? '' : ''}</h3>
+                            <p><strong>Fecha:</strong> ${formatearFecha(envivo.fecha)}</p>
+                            <p><strong>Hora:</strong> ${mostrarHoraAmPm(envivo.hora)}</p>
+                            <p><strong>Duración:</strong> ${envivo.duracion}</p>
+                            <a href="${envivo.link}" style="display: block; text-decoration: none; color: inherit;"></a>
+                        `;
+                        listaEnVivos.appendChild(envivoDiv);
+                    });
+
+                } else {
+                    const mensajeDiv = document.createElement('div');
+                    mensajeDiv.innerHTML = `<p style="text-align: center;">No hay próximos en vivos programados.</p>`;
+                    listaEnVivos.appendChild(mensajeDiv);
+                }
+            }
+
+            mostrarProximoEnVivoInfo(enVivoAhora || proximoEnVivo);
+        }
+
+        function buscarPelicula() {
+            const inputBusqueda = document.getElementById('search');
+            const textoBusqueda = inputBusqueda.value.toLowerCase();
+            const envivosFiltrados = proximosEnVivos.filter(envivo =>
+                envivo.titulo.toLowerCase().includes(textoBusqueda)
+            );
+            mostrarProximosEnVivos(envivosFiltrados);
+        }
+
+        setInterval(actualizarHoraActual, 1000);
+        mostrarProximosEnVivos(proximosEnVivos);
+
+        // El código relacionado con el botón de silencio ha sido removido
+    </script>
+
+</body>
+</html>
