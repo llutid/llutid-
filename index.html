@@ -20,6 +20,7 @@
       justify-content: center;
       height: 100vh;
       overflow: hidden;
+      position: relative; /* Importante para el botón flotante */
     }
 
     /* Animación de la pantalla de bienvenida */
@@ -171,16 +172,68 @@
         transform: translateY(0);
       }
     }
+
+    /* Estilos para el botón de soporte flotante */
+    .support-button {
+      position: fixed;
+      bottom: 20px; /* Distancia desde abajo */
+      right: 20px; /* Distancia desde la derecha */
+      z-index: 999; /* Asegura que esté sobre otros elementos */
+      display: none; /* Oculto inicialmente, se mostrará con el formulario */
+    }
+
+    .support-button a {
+      display: block; /* Para que el enlace ocupe todo el espacio del div */
+      width: 60px; /* Tamaño del botón */
+      height: 60px;
+      background-color: #2196f3; /* Color de fondo del botón */
+      border-radius: 50%; /* Lo hace circular */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidad */
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .support-button a:hover {
+      background-color: #0bc36a; /* Color al pasar el mouse */
+      transform: scale(1.05); /* Pequeña animación de escala */
+    }
+
+    .support-button img {
+      width: 60%; /* Ajusta el tamaño de la imagen dentro del botón */
+      height: 60%;
+      object-fit: contain; /* Para que la imagen se ajuste sin distorsionarse */
+      filter: invert(100%); /* Cambia el color de la imagen a blanco para que resalte en el fondo azul */
+      /* No necesitamos quitar el fondo, la imagen ya es PNG con transparencia. */
+      /* Además, al estar la imagen dentro de un círculo con color de fondo, el fondo de la imagen se "oculta" */
+    }
+
+    /* Animación de la imagen del botón de soporte */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .support-button a:hover .support-icon {
+      animation: bounce 1s infinite;
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- Pantalla de animación de bienvenida -->
   <div class="intro-screen">
     <div class="logo-container">LLUTID+</div>
   </div>
 
-  <!-- Formulario de login -->
   <div class="container">
     <h1><span>Llutid</span><span>+</span></h1>
 
@@ -199,12 +252,19 @@
     </div>
   </div>
 
+  <div class="support-button" id="supportButton">
+    <a href="https://llutid.github.io/chat-bot-llutid-/" target="_blank" title="Soporte al Cliente">
+      <img src="https://w1.pngwing.com/pngs/306/490/png-transparent-call-logo-customer-service-call-centre-technical-support-help-desk-customer-support-callcenterworld-customer-experience.png" alt="Soporte al Cliente" class="support-icon">
+    </a>
+  </div>
+
   <script>
-    // Después de 5.5 segundos, ocultar la animación y mostrar el formulario
+    // Después de 5.5 segundos, ocultar la animación y mostrar el formulario y el botón de soporte
     setTimeout(() => {
       document.querySelector('.intro-screen').style.display = 'none';
       document.querySelector('.container').style.display = 'block';
       document.querySelector('.container').style.animation = 'fadeIn 1s ease-in-out'; // Añadir animación fadeIn al formulario
+      document.getElementById('supportButton').style.display = 'block'; // Mostrar el botón de soporte
     }, 5500);
 
     function verificarPIN() {
