@@ -7,6 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap'); /* Nueva fuente cursiva */
 
         * {
             margin: 0;
@@ -221,6 +222,42 @@
             border-bottom: 2px solid #555;
         }
 
+        /* Estilo para el mensaje de saludo */
+        .greeting-message {
+            color: #00bfff; /* Color azul */
+            font-family: 'Dancing Script', cursive; /* Fuente cursiva */
+            font-size: 1.8rem; /* Tamaño un poco más pequeño que el título del Top 10 */
+            margin-bottom: 10px;
+            text-align: left; /* Alineado a la izquierda */
+            white-space: nowrap; /* Asegura que no se rompa la línea durante la animación */
+            overflow: hidden; /* Oculta el texto que excede el ancho del contenedor */
+            border-right: .15em solid #00bfff; /* Efecto de "cursor" azul */
+            /* Animaciones: typing para escribir, blink-caret para el cursor. Se detiene con forwards. */
+            animation: typing var(--typing-duration) steps(var(--steps), end) forwards, blink-caret .75s step-end infinite;
+            width: 0; /* Empieza con ancho 0 para el efecto de escritura */
+            max-width: 100%; /* Asegura que no se desborde en pantallas pequeñas */
+        }
+
+        /* Animación de escritura */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        /* Animación del cursor */
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #00bfff; } /* Cursor azul */
+        }
+
+        /* Estilo para cuando la animación de escritura termine */
+        .greeting-message.finished {
+            border-right: none; /* Quita el cursor cuando termina de escribir */
+            animation: none; /* Detiene todas las animaciones del elemento */
+            width: auto; /* Asegura que el texto ocupe su ancho normal */
+        }
+
+
         .top-10-container h2 {
             color: #00bfff;
             font-family: 'Montserrat', sans-serif;
@@ -399,6 +436,10 @@
                 font-size: 1.5rem;
             }
 
+            .greeting-message {
+                font-size: 1.3rem; /* Ajuste para dispositivos móviles */
+            }
+
             .top-10-list .movie-top-10 {
                 width: 120px;
             }
@@ -461,7 +502,9 @@
         </div>
 
         <div class="top-10-container">
-            <h2>Top 10 Películas Llutid<span>+</span></h2><div class="top-10-list" id="top-10-list">
+            <h3 class="greeting-message" id="greetingMessage"></h3>
+            <h2>Top 10 Películas Llutid<span>+</span></h2>
+            <div class="top-10-list" id="top-10-list">
                 <div class="movie-top-10">
                     <a href="larazondeestarcontico2.html">
                         <div class="movie-top-10-image-container">
@@ -556,7 +599,7 @@
         </div>
 
         <div class="movie-container" id="movie-container">
-            </div>
+        </div>
 
         <script>
             // Mostrar contenido después de 5 segundos (ajuste para la animación)
@@ -604,8 +647,7 @@
                 { title: "2 Tontos", image: "https://i.postimg.cc/yNFB2J4K/2-tontos.png", link: "2tontos.html" },
                 { title: "It 2", image: "https://i.postimg.cc/2SrP30gs/payaso-it.png", link: "payasoit.html" },
                 { title: "Desastre: La Película", image: "https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png", link: "desastredelapelicula.html" }
-                
-              ];
+            ];
 
             // Función para mostrar las películas
             function mostrarPeliculas(peliculas) {
@@ -642,6 +684,39 @@
                 const menu = document.getElementById('menuDropdown');
                 menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
             }
+
+            // Función para obtener el saludo según la hora del día
+            function obtenerSaludo() {
+                const hora = new Date().getHours();
+                if (hora >= 5 && hora < 12) {
+                    return "¡Buenos días!";
+                } else if (hora >= 12 && hora < 19) {
+                    return "¡Buenas tardes!";
+                } else {
+                    return "¡Buenas noches!";
+                }
+            }
+
+            // Establecer el mensaje de saludo y aplicar el efecto de escritura estático
+            document.addEventListener('DOMContentLoaded', () => {
+                const greetingElement = document.getElementById('greetingMessage');
+                const greetingText = obtenerSaludo();
+                
+                // Duración de la animación de escritura (aprox. 0.15s por letra)
+                const typingDuration = (greetingText.length * 0.15); // en segundos
+                const steps = greetingText.length;
+
+                greetingElement.style.setProperty('--steps', steps);
+                greetingElement.style.setProperty('--typing-duration', typingDuration + 's');
+                greetingElement.textContent = greetingText;
+
+                // Cuando la animación de escritura (typing) termina, se detiene el cursor.
+                greetingElement.addEventListener('animationend', (event) => {
+                    if (event.animationName === 'typing') {
+                        greetingElement.classList.add('finished');
+                    }
+                });
+            });
         </script>
 
     </div>
