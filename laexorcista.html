@@ -1,196 +1,498 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Llutid+ | Reproductor de Películas</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LLUTID+ | La Exorcista</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Define Netflix Sans si está disponible, sino usa Roboto/Montserrat */
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2');
+            font-weight: 700;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2');
+            font-weight: 800;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2');
+            font-weight: 900;
+            font-display: swap;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        body {
+            font-family: 'Netflix Sans', 'Roboto', sans-serif; /* Prefer Netflix Sans */
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    body {
-      background-color: #0e0e0e;
-      font-family: 'Roboto', sans-serif;
-      color: #ffffff;
-      padding: 30px 20px;
-      overflow-x: hidden;
-    }
+        /* --- Intro Screen --- */
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-    .intro-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #000000, #0a0a0a);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+        .logo-container-intro {
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            opacity: 0;
+            letter-spacing: 4px;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
+            font-family: 'Montserrat', sans-serif; /* Keeping Montserrat for the intro for distinctiveness */
+        }
 
-    .logo-container {
-      font-size: 4rem;
-      font-weight: 800;
-      color: white;
-      opacity: 0;
-      letter-spacing: 4px;
-      animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
-      text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-      font-family: 'Montserrat', sans-serif;
-    }
+        @keyframes fadeInZoom {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
 
-    @keyframes fadeInZoom {
-      0% {
-        opacity: 0;
-        transform: scale(0.5);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(1.05); }
+        }
 
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: scale(1.05);
-      }
-    }
+        .main-content {
+            display: none; /* Oculto inicialmente por JS */
+            flex-grow: 1; /* Para que ocupe el espacio restante */
+        }
 
-    .main-content {
-      display: none;
-    }
+        /* --- Header (simulando barra superior de Netflix) --- */
+        header {
+            /* CAMBIO AQUÍ: Fondo oscuro transparente */
+            background-color: rgba(0, 0, 0, 0.7); /* Negro con 70% de opacidad */
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
 
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
 
-    .logo {
-      font-size: 3.2rem;
-      font-weight: bold;
-      color: #1e90ff;
-      text-shadow: 0 0 12px #1e90ff;
-    }
+        .header-back {
+            color: #fff;
+            font-size: 28px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
 
-    .logo span {
-      color: white;
-    }
+        .header-logo {
+            font-size: 1.8rem;
+            font-weight: 800; /* Más grueso para el logo */
+            color: #1e90ff; /* Azul para Llutid */
+            text-shadow: 0 0 8px rgba(30, 144, 255, 0.4);
+        }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        .header-logo span {
+            color: white;
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-left: 20px;
+        }
 
-    .player-wrapper {
-      background-color: #111;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 0 35px rgba(30, 144, 255, 0.3);
-      margin-bottom: 40px;
-      position: relative;
-    }
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
 
-    .player-wrapper::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 70%);
-      pointer-events: none;
-    }
+        .header-right i {
+            color: #fff;
+            font-size: 24px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
 
-    .responsive-iframe {
-      width: 100%;
-      height: 700px;
-      border: none;
-    }
+        /* Sección de la película ahora contiene un video de fondo */
+        .movie-hero {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio (height / width * 100%) */
+            background-color: #000; /* Fondo negro por si el video tarda en cargar */
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            overflow: hidden; /* Asegura que el video no se desborde */
+        }
 
-    .metadata {
-      background-color: #181818;
-      border-radius: 14px;
-      padding: 30px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.6);
-    }
+        .movie-hero .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Detrás del overlay */
+        }
 
-    .title {
-      font-size: 2.3rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #fff;
-    }
+        .movie-hero .video-background iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-    .summary {
-      font-size: 1.1rem;
-      color: #ccc;
-      margin-bottom: 25px;
-      line-height: 1.7;
-    }
+        .movie-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+            z-index: 2; /* Encima del video */
+        }
 
-    .info {
-      color: #aaa;
-      line-height: 1.6;
-    }
+        .movie-overlay-content {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 3; /* Encima del overlay para que sea visible */
+            color: #fff;
+        }
 
-    @media (max-width: 768px) {
-      .title {
-        font-size: 1.8rem;
-      }
-      .summary {
-        font-size: 1rem;
-      }
-      .responsive-iframe {
-        height: 400px;
-      }
-    }
-  </style>
+        .movie-badge {
+            background-color: #1e90ff; /* Azul para Llutid */
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .movie-title-main { /* Renombrado para evitar conflicto con el del modal */
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .movie-info-line {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #a3a3a3;
+            margin-bottom: 15px;
+        }
+
+        .movie-info-line span {
+            margin-right: 15px;
+        }
+
+        .movie-info-line .rating {
+            border: 1px solid #a3a3a3;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        /* Controles de acción (Botones) */
+        .actions {
+            display: flex;
+            flex-direction: column; /* Cambiado a columna para dos botones */
+            gap: 15px;
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .btn-play {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .btn-play:hover {
+            background-color: #e6e6e6;
+        }
+
+        .btn-share { /* Nuevo estilo para el botón de compartir */
+            background-color: #282828;
+            color: #fff;
+        }
+
+        .btn-share:hover {
+            background-color: #404040;
+        }
+
+
+        /* Descripción y Detalles */
+        .details-section {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .info-details { /* Nuevo estilo para la información detallada */
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #a3a3a3;
+        }
+
+        .info-details strong {
+            color: #fff;
+        }
+
+        /* Contenedor del reproductor en pantalla completa (para el video principal de Google Drive) */
+        .player-fullscreen-container {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 9999; /* Muy alto para que esté por encima de todo */
+        }
+
+        .player-fullscreen-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block; /* Asegura que el iframe ocupe todo el espacio */
+        }
+
+        /* Media Queries para Responsive Design */
+        @media (max-width: 768px) {
+            .header-title {
+                display: none; /* Oculta el título de la película en móviles para limpiar el header */
+            }
+            .movie-hero {
+                padding-top: 100%; /* Para un aspecto más cuadrado en móviles */
+            }
+            .movie-title-main {
+                font-size: 2rem;
+            }
+            .movie-info-line {
+                font-size: 0.9rem;
+            }
+            .summary, .info-details {
+                font-size: 0.9rem;
+            }
+            .btn {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+        }
+
+        /* Iconos de Font Awesome */
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+    </style>
 </head>
 <body>
 
-  <!-- Pantalla de animación inicial -->
-  <div class="intro-screen">
-    <div class="logo-container">LLUTID</div>
-  </div>
-
-  <!-- Contenido principal del reproductor -->
-  <div class="main-content">
-    <header>
-      <div class="logo">Llutid<span>+</span></div>
-    </header>
-
-    <div class="container">
-      <div class="player-wrapper">
-        <iframe class="responsive-iframe" src="https://drive.google.com/file/d/1eyWI4X0M3RFHDCskBcAtJSyMC2vvDBuM/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>
-
-      <div class="metadata">
-        <div class="title">La Exorcista</div>
-        <div class="summary">
-          Una historia de horror y posesión demoníaca donde lo sobrenatural desafía la fe y el coraje de quienes se enfrentan al mal. 
-          Prepárate para un viaje de terror psicológico y fenómenos paranormales.
-        </div>
-        <div class="info">
-          <strong>Duración:</strong> 95 min<br>
-          <strong>Género:</strong> Terror / Suspenso<br>
-          <strong>Idioma:</strong> Español<br>
-          <strong>Clasificación:</strong> +16
-        </div>
-      </div>
+    <div class="intro-screen">
+        <div class="logo-container-intro">LLUTID</div>
     </div>
-  </div>
 
-  <script>
-    setTimeout(() => {
-      document.querySelector('.intro-screen').style.display = 'none';
-      document.querySelector('.main-content').style.display = 'block';
-    }, 5500);
-  </script>
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <i class="fas fa-arrow-left header-back"></i> <div class="header-logo">Llutid<span>+</span></div>
+                <div class="header-title">La Exorcista</div>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-cast"></i> <i class="fas fa-user-circle"></i> </div>
+        </header>
+
+        <section class="movie-hero">
+            <div class="video-background">
+                <iframe
+                    src="https://player.vimeo.com/video/1093146361?h=ff55eadf04&autoplay=1&loop=1&background=1&badge=0&autopause=0&player_id=0&app_id=58479"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                    title="La Exorcista Tráiler Oficial">
+                </iframe>
+            </div>
+            <div class="movie-overlay-content">
+                <div class="movie-badge">PELÍCULA</div>
+                <h1 class="movie-title-main">La Exorcista</h1>
+                <div class="movie-info-line">
+                    <span>2025</span>
+                    <span class="rating">+16</span>
+                    <span>95 min</span>
+                    <span>AD</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn btn-play" id="playButton">
+                <i class="fas fa-play"></i> Ver
+            </button>
+            <button class="btn btn-share" id="shareButton">
+                <i class="fas fa-share-alt"></i> Compartir
+            </button>
+        </section>
+
+        <section class="details-section">
+            <p class="summary">
+                Una historia de horror y posesión demoníaca donde lo sobrenatural desafía la fe y el coraje de quienes se enfrentan al mal.
+                Prepárate para un viaje de terror psicológico y fenómenos paranormales.
+            </p>
+            <div class="info-details">
+                <strong>Duración:</strong> 95 min<br>
+                <strong>Género:</strong> Terror / Suspenso<br>
+                <strong>Idioma:</strong> Español<br>
+                <strong>Clasificación:</strong> +16
+            </div>
+        </section>
+
+    </div>
+
+    <div id="playerFullscreenContainer" class="player-fullscreen-container">
+        <iframe id="movieIframe"
+                src="https://drive.google.com/file/d/1eyWI4X0M3RFHDCskBcAtJSyMC2vvDBuM/preview"
+                allow="autoplay; encrypted-media; fullscreen" allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        // JS para la pantalla de inicio
+        setTimeout(() => {
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+        }, 5500); // Duración de la pantalla de inicio
+
+        const playButton = document.getElementById('playButton');
+        const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
+        const movieIframe = document.getElementById('movieIframe');
+        const shareButton = document.getElementById('shareButton');
+
+        // Guardamos la URL base sin autoplay para usarla al salir de fullscreen
+        const BASE_DRIVE_URL = "https://drive.google.com/file/d/1eyWI4X0M3RFHDCskBcAtJSyMC2vvDBuM/preview";
+
+        playButton.addEventListener('click', () => {
+            // 1. Mostrar el contenedor del reproductor
+            playerFullscreenContainer.style.display = 'block';
+
+            // 2. Asegurarse de que el iframe cargue la URL base (sin autoplay aquí, se activa el play manual)
+            if (movieIframe.src !== BASE_DRIVE_URL) {
+                movieIframe.src = BASE_DRIVE_URL;
+            }
+
+            // 3. Solicitar la pantalla completa para el contenedor del reproductor
+            if (playerFullscreenContainer.requestFullscreen) {
+                playerFullscreenContainer.requestFullscreen();
+            } else if (playerFullscreenContainer.mozRequestFullScreen) { /* Firefox */
+                playerFullscreenContainer.mozRequestFullScreen();
+            } else if (playerFullscreenContainer.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+                playerFullscreenContainer.webkitRequestFullscreen();
+            } else if (playerFullscreenContainer.msRequestFullscreen) { /* IE/Edge */
+                playerFullscreenContainer.msRequestFullscreen();
+            }
+
+            // Opcional: Intentar bloquear la orientación. Esto es muy restrictivo y puede no funcionar.
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(e => {
+                        console.warn("Could not lock screen orientation to landscape:", e);
+                    });
+                }
+            } catch (e) {
+                console.warn("Screen orientation API not available or blocked:", e);
+            }
+        });
+
+        // Función para el botón de compartir
+        shareButton.addEventListener('click', async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: document.title,
+                        text: '¡Mira esta película en LLUTID+!',
+                        url: window.location.href // Comparte la URL actual de la página
+                    });
+                    console.log('Contenido compartido con éxito');
+                } catch (error) {
+                    console.error('Error al compartir:', error);
+                }
+            } else {
+                // Fallback para navegadores que no soportan Web Share API (ej. desktop)
+                alert('Puedes compartir esta página copiando la URL: ' + window.location.href);
+            }
+        });
+
+        // Manejar el evento de salida de pantalla completa
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+        document.addEventListener('mozfullscreenchange', exitHandler);
+        document.addEventListener('MSFullscreenChange', exitHandler);
+
+        function exitHandler() {
+            if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                // El usuario ha salido de pantalla completa
+                playerFullscreenContainer.style.display = 'none'; // Ocultar el contenedor del reproductor
+                
+                // Detener la reproducción del video
+                // Reiniciar el src a la URL base sin autoplay para detener el video
+                movieIframe.src = BASE_DRIVE_URL;
+            }
+        }
+    </script>
 
 </body>
 </html>
