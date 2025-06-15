@@ -9,11 +9,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 
-        :root {
-            --typing-duration: 3.5s; /* Duración de la animación de escritura */
-            --steps: 25; /* Número de pasos para la animación de escritura (aproximadamente la longitud del mensaje) */
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -192,23 +187,34 @@
             color: #00bfff;
         }
 
-        /* Carrusel mejorado */
+        /* Carrusel principal */
         .slider-wrapper {
             position: relative;
-            width: 100%;
+            width: 100%; /* Ocupa el 100% de la pantalla */
             height: 550px;
             margin-bottom: 30px;
             border-radius: 15px;
             overflow: hidden;
             z-index: 1;
         }
+        /* Carrusel de destacadas - ocupa todo el ancho dentro del movie-container */
+        .highlight-slider-wrapper {
+            height: 350px; /* Altura para destacadas */
+            margin-top: 20px; /* Separación de la sección anterior */
+            margin-bottom: 30px; /* Espacio abajo */
+            grid-column: 1 / -1; /* CLAVE: hace que abarque desde la primera hasta la última columna del grid */
+            border-radius: 15px;
+            overflow: hidden;
+            width: 100%; /* Asegura que ocupe el 100% del espacio asignado por grid-column */
+        }
+
 
         .slider-container {
             width: 100%;
             height: 100%;
             display: flex;
             overflow-x: scroll;
-            scroll-snap-type: x mandatory; /* Esto se modificará con JS para el auto-avance */
+            scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -265,6 +271,23 @@
             z-index: 4;
             text-align: left;
         }
+        /* Ajuste para el contenido del carrusel de destacadas */
+        .highlight-slider-wrapper .static-carousel-content {
+            left: 30px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .highlight-slider-wrapper .slide-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 0 8px rgba(0,0,0,0.7);
+        }
+
 
         .slide-button {
             display: inline-block;
@@ -319,7 +342,7 @@
 
         /* Estilos para el Top 10 */
         .top-10-container {
-            padding: 20px;
+            padding: 20px 0; /* Padding vertical, el horizontal lo manejará .top-10-list */
             margin-bottom: 30px;
             margin-top: 20px;
         }
@@ -335,8 +358,9 @@
             overflow: hidden;
             border-right: .15em solid #00bfff;
             animation: typing var(--typing-duration) steps(var(--steps), end) forwards, blink-caret .75s step-end infinite;
-            width: 0; /* Inicialmente 0 para la animación de escritura */
+            width: 0;
             max-width: 100%;
+            padding-left: 20px; /* Padding para el saludo */
         }
 
         /* Animación de escritura */
@@ -377,6 +401,8 @@
             padding-bottom: 15px;
             -ms-overflow-style: none;
             scrollbar-width: none;
+            padding-left: 20px; 
+            padding-right: 20px;
         }
 
         .top-10-list::-webkit-scrollbar {
@@ -390,9 +416,8 @@
             box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
             overflow: hidden;
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
-            width: 150px;
+            width: 150px; /* Ancho fijo para cada película del Top 10 */
             flex-shrink: 0;
-            position: relative; /* Asegura que el número quede bien posicionado dentro de este contenedor */
         }
 
         .top-10-list .movie-top-10:hover {
@@ -401,15 +426,12 @@
         }
 
         .movie-top-10-image-container {
-            position: relative; /* Es crucial que este sea relativo para posicionar el número */
+            position: relative;
             width: 100%;
             height: 200px;
-            overflow: hidden; /* Oculta partes del número si se desbordan */
+            overflow: hidden;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
-            display: flex; /* Añadir display flex para centrar mejor la imagen y el número */
-            align-items: center; /* Centra el contenido verticalmente */
-            justify-content: center; /* Centra el contenido horizontalmente */
         }
 
         .movie-top-10-image-container img {
@@ -418,27 +440,6 @@
             object-fit: cover;
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
-            position: relative;  /* ASEGURADO: La imagen de la película debe tener position para que z-index funcione */
-            z-index: 2; /* ASEGURADO: La imagen debe estar encima del número */
-        }
-
-        /* REGLAS IMPORTANTES PARA EL NÚMERO DEL TOP 10 (AJUSTES MÁS VISIBLES) */
-        .top-10-number {
-            position: absolute;
-            top: 50%; /* Centra verticalmente */
-            left: 50%; /* Centra horizontalmente */
-            transform: translate(-50%, -50%); /* Ajuste para centrado real del texto */
-            font-size: 280px; /* Tamaño MUY grande para que ocupe todo el espacio */
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.25); /* AUMENTADO SIGNIFICATIVAMENTE: 25% de opacidad para el relleno */
-            z-index: 1; /* Asegura que esté detrás de la imagen */
-            line-height: 1;
-            font-family: 'Montserrat', sans-serif;
-            pointer-events: none; /* Permite hacer clic a través del número */
-            white-space: nowrap; /* Evita que el número se rompa en varias líneas */
-            -webkit-text-stroke: 2px rgba(0, 191, 255, 0.5); /* AUMENTADO: Borde más grueso y con 50% de opacidad, color azul */
-            text-shadow: none; /* Quitar cualquier sombra */
-            user-select: none; /* Evita que el usuario pueda seleccionar el texto del número */
         }
 
         .top-10-badge {
@@ -454,7 +455,6 @@
             font-size: 0.9rem;
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
-            z-index: 3; /* Asegura que el badge esté por encima de todo */
         }
 
         .top-10-list .movie-top-10 p {
@@ -471,12 +471,31 @@
             text-decoration: none;
         }
 
+        /* Título "Contenido sugerido para ti" */
+        .suggested-content-title {
+            color: #00bfff; /* Color base del título */
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            margin: 30px 0 20px 0; /* Margen superior e inferior, y 20px de padding lateral */
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+        /* Estilo para la palabra 'Ti' dentro del título sugerido */
+        .suggested-content-title .highlight-white {
+            color: white;
+        }
+
+
         /* Películas */
         .movie-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
-            padding: 20px;
+            padding-top: 0; /* Ya tiene margen del título de arriba */
+            padding-bottom: 20px;
+            padding-left: 20px; 
+            padding-right: 20px; 
         }
 
         .movie {
@@ -520,8 +539,20 @@
             .slider-wrapper {
                 height: 400px;
             }
+            .highlight-slider-wrapper {
+                height: 300px; /* Ajuste para móviles */
+            }
             .static-carousel-content {
                 left: 30px;
+            }
+            .highlight-slider-wrapper .static-carousel-content {
+                left: 20px;
+            }
+            .highlight-slider-wrapper .slide-title {
+                font-size: 1.8rem;
+            }
+            .suggested-content-title {
+                font-size: 1.5rem;
             }
         }
 
@@ -565,10 +596,20 @@
             .slider-wrapper {
                 height: 280px;
             }
+            .highlight-slider-wrapper {
+                height: 220px; /* Ajuste para móviles */
+            }
 
             .static-carousel-content {
                 bottom: 15px;
                 left: 20px;
+            }
+            .highlight-slider-wrapper .static-carousel-content {
+                left: 15px;
+                bottom: 15px;
+            }
+            .highlight-slider-wrapper .slide-title {
+                font-size: 1.5rem;
             }
 
             .slide-button {
@@ -588,6 +629,9 @@
 
             .movie-container {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                /* Ajuste el padding para pantallas pequeñas */
+                padding-left: 15px;
+                padding-right: 15px;
             }
 
             .movie p {
@@ -600,21 +644,23 @@
 
             .greeting-message {
                 font-size: 1.3rem;
+                padding-left: 15px;
+            }
+
+            .top-10-list {
+                /* Ajuste el padding para pantallas pequeñas */
+                padding-left: 15px; 
+                padding-right: 15px;
             }
 
             .top-10-list .movie-top-10 {
                 width: 120px;
             }
 
-            .movie-top-10-image-container {
+            .movie-top-10-image-container img {
                 height: 160px;
             }
-            /* Ajuste del número en móviles para que se vea similar al de la imagen */
-            .top-10-number {
-                font-size: 180px; /* Reducido para móviles pero aún grande */
-                color: rgba(255, 255, 255, 0.25); /* Mantener opacidad similar */
-                -webkit-text-stroke: 2px rgba(0, 191, 255, 0.5); /* Mantener el borde similar */
-            }
+
             .top-10-badge {
                 font-size: 0.8rem;
                 padding: 3px 0;
@@ -667,7 +713,7 @@
                 </div>
             </div>
             <div class="slider-dots" id="sliderDots">
-                </div>
+            </div>
             <div class="static-carousel-content">
                 <a href="#" class="slide-button">VER AHORA</a>
             </div>
@@ -680,7 +726,7 @@
                 <div class="movie-top-10">
                     <a href="larazondeestarcontico2.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">1</div> <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="LA RAZON DE ESTAR CONTIGO 2">
+                            <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="LA RAZON DE ESTAR CONTIGO 2">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>LA RAZON DE ESTAR CONTIGO 2</p>
@@ -689,7 +735,7 @@
                 <div class="movie-top-10">
                     <a href="lapasiondecristo.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">2</div> <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="THE PASSION">
+                            <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="THE PASSION">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>THE PASSION</p>
@@ -698,7 +744,7 @@
                 <div class="movie-top-10">
                     <a href="pata de guerra.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">3</div> <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="EN PIE PATA ">
+                            <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="EN PIE PATA ">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>EN PIE PATA DE GUERRA</p>
@@ -707,7 +753,7 @@
                 <div class="movie-top-10">
                     <a href="ungranchico.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">4</div> <img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="UN GRAN CHICO">
+                            <img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="UN GRAN CHICO">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>UN GRAN CHICO</p>
@@ -716,7 +762,7 @@
                 <div class="movie-top-10">
                     <a href="terrifer1.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">5</div> <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="TERRIFER">
+                            <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="TERRIFER">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>TERIFER</p>
@@ -725,7 +771,7 @@
                 <div class="movie-top-10">
                     <a href="laexorcista.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">6</div> <img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="LA EXORCISTA">
+                            <img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="LA EXORCISTA">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>LA EXORCISTA</p>
@@ -734,7 +780,7 @@
                 <div class="movie-top-10">
                     <a href="encanto.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">7</div> <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="LA EXORCISTA">
+                            <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="LA EXORCISTA">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>ENCANTO</p>
@@ -743,7 +789,7 @@
                 <div class="movie-top-10">
                     <a href="ole.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">8</div> <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="ENCANTO">
+                            <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="ENCANTO">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>OLE</p>
@@ -751,8 +797,7 @@
                 </div>
                 <div class="movie-top-10">
                     <a href="stuby.html">
-                        <div class="movie-top-10-image-container">
-                            <div class="top-10-number">9</div> <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="OLE">
+                        <div class="movie-top-10-image-container"> <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="OLE">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>SARGENTO STUBBY</p>
@@ -761,7 +806,7 @@
                 <div class="movie-top-10">
                     <a href="intensamente2.html">
                         <div class="movie-top-10-image-container">
-                            <div class="top-10-number">10</div> <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="SARGENTO STUBY">
+                            <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="SARGENTO STUBY">
                             <div class="top-10-badge">Top 10</div>
                         </div>
                         <p>INTENSAMENTE 2</p>
@@ -770,8 +815,10 @@
             </div>
         </div>
 
+        <h2 class="suggested-content-title">Contenido Sugerido para <span class="highlight-white">Ti</span></h2>
+
         <div class="movie-container" id="movie-container">
-        </div>
+            </div>
 
         <script>
             // Mostrar contenido después de 5 segundos (ajuste para la animación)
@@ -812,7 +859,7 @@
                 { title: "Hacker", image: "https://i.postimg.cc/zXLs9LKQ/hacker.png", link: "hacker.html" },
                 { title: "Reveldes a Los 16", image: "https://i.postimg.cc/g2snbygK/result-reveldes-a-los-16.jpg", link: "reveldesalos16.html" },
                 { title: "Hombre Araña", image: "https://i.postimg.cc/GtnXV2CW/hombre-ara-a.png", link: "hombrearaña2.html" },
-                { title: "Perro Rokero 2", image: "https://i.postimg.cc/tJ8MX5WM/perrorokero2.png", link: "perrorokero2.html" },
+                { title: "Perro Rokero 2", image: "https://i.postimg.cc/tJ8MX5WM/perro-rokero-2.png", link: "perrorokero2.html" },
                 { title: "El Voto", image: "https://i.postimg.cc/V6gwL3kH/el-voto.png", link: "elvoto.html" },
                 { title: "Instakiller", image: "https://i.postimg.cc/J4nrt4J3/instakiller.png", link: "instakiller.html" },
                 { title: "Leny", image: "https://i.postimg.cc/7LvwB3RX/leny.png", link: "leny.html" },
@@ -821,12 +868,103 @@
                 { title: "Desastre: La Película", image: "https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png", link: "desastredelapelicula.html" }
             ];
 
-            // Función para mostrar las películas
-            function mostrarPeliculas(peliculas) {
-                const container = document.getElementById('movie-container');
-                container.innerHTML = ''; // Limpiar el contenedor
+            // Datos para el nuevo carrusel de destacadas
+            const highlightedMovies = [
+                { title: "Un Gran Chico", image: "https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png", link: "ungranchico.html" },
+                { title: "La Razón de Estar Contigo 2", image: "https://i.postimg.cc/J46hQBmd/la-razon-2.png", link: "larazondeestarcontico2.html" },
+                { title: "En Pie de Guerra", image: "https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png", link: "pata de guerra.html" }
+            ];
 
-                peliculas.forEach(pelicula => {
+            // Función para inicializar un carrusel
+            function initializeCarousel(sliderId, dotsId, movies, hasStaticContent = false) {
+                const sliderContainer = document.getElementById(sliderId);
+                const sliderDots = document.getElementById(dotsId);
+
+                if (!sliderContainer || !sliderDots) {
+                    console.error(`Carousel elements not found for ID: ${sliderId} or ${dotsId}`);
+                    return;
+                }
+
+                sliderContainer.innerHTML = ''; // Limpiar slides existentes
+                sliderDots.innerHTML = ''; // Limpiar dots existentes
+
+                movies.forEach((movie, index) => {
+                    const slide = document.createElement('div');
+                    slide.classList.add('slide');
+                    slide.innerHTML = `<img src="${movie.image}" alt="${movie.title}">`;
+                    // Si este carrusel necesita contenido estático (título y botón), lo agregamos aquí
+                    if (hasStaticContent) {
+                        const staticContent = document.createElement('div');
+                        staticContent.classList.add('static-carousel-content');
+                        staticContent.innerHTML = `
+                            <h2 class="slide-title">${movie.title}</h2>
+                            <a href="${movie.link}" class="slide-button">VER AHORA</a>
+                        `;
+                        slide.appendChild(staticContent);
+                    }
+                    sliderContainer.appendChild(slide);
+
+                    const dot = document.createElement('div');
+                    dot.classList.add('dot');
+                    if (index === 0) {
+                        dot.classList.add('active');
+                    }
+                    dot.addEventListener('click', () => {
+                        sliderContainer.scrollTo({
+                            left: slide.offsetLeft,
+                            behavior: 'smooth'
+                        });
+                    });
+                    sliderDots.appendChild(dot);
+                });
+
+                const dots = Array.from(sliderDots.children);
+
+                sliderContainer.addEventListener('scroll', () => {
+                    const scrollLeft = sliderContainer.scrollLeft;
+                    const slideWidth = sliderContainer.firstElementChild.offsetWidth;
+                    const activeIndex = Math.round(scrollLeft / slideWidth);
+
+                    dots.forEach((dot, index) => {
+                        if (index === activeIndex) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                });
+
+                // Auto-advance
+                let currentSlide = 0;
+                const totalSlides = movies.length;
+
+                // Clear previous interval if any
+                if (sliderContainer.autoAdvanceInterval) {
+                    clearInterval(sliderContainer.autoAdvanceInterval);
+                }
+
+                sliderContainer.autoAdvanceInterval = setInterval(() => {
+                    currentSlide++;
+                    if (currentSlide >= totalSlides) {
+                        currentSlide = 0; // Vuelve al inicio
+                    }
+                    sliderContainer.scrollTo({
+                        left: currentSlide * sliderContainer.offsetWidth,
+                        behavior: 'smooth'
+                    });
+                }, 5000); // Cambia cada 5 segundos
+            }
+
+            // Función para mostrar las películas (modificada para insertar el carrusel de destacadas en el grid)
+            function mostrarPeliculas(peliculas) {
+                const movieContainer = document.getElementById('movie-container');
+                movieContainer.innerHTML = ''; // Limpiar el contenedor de películas
+
+                // Define el índice exacto después de cuántas películas quieres insertar el carrusel.
+                // 14 es después de "EL Retador" (índice 13 en el array de peliculasOriginales).
+                const insertIndex = 14; 
+
+                peliculas.forEach((pelicula, index) => {
                     const div = document.createElement('div');
                     div.classList.add('movie');
                     div.innerHTML = `
@@ -835,9 +973,29 @@
                             <p>${pelicula.title}</p>
                         </a>
                     `;
-                    container.appendChild(div);
+                    movieContainer.appendChild(div);
+
+                    // Insertar el carrusel de destacadas en la posición deseada dentro del movie-container
+                    if (index === insertIndex - 1) { // -1 porque el índice es base 0
+                        const highlightSliderHTML = `
+                            <div class="slider-wrapper highlight-slider-wrapper">
+                                <div class="slider-container" id="highlightSliderDynamic">
+                                </div>
+                                <div class="slider-dots" id="highlightSliderDotsDynamic">
+                                </div>
+                            </div>
+                        `;
+                        // Insertar el HTML del carrusel justo después de la película actual
+                        const movieElement = movieContainer.children[movieContainer.children.length -1]; // Obtener el último elemento agregado
+                        movieElement.insertAdjacentHTML('afterend', highlightSliderHTML);
+
+                        // Inicializar el carrusel de destacadas recién insertado
+                        // Pasamos true para indicar que necesita título y botón estático
+                        initializeCarousel('highlightSliderDynamic', 'highlightSliderDotsDynamic', highlightedMovies, true);
+                    }
                 });
             }
+
 
             // Filtrar películas
             function buscarPelicula() {
@@ -848,8 +1006,14 @@
                 mostrarPeliculas(peliculasFiltradas);
             }
 
-            // Mostrar todas las películas inicialmente
-            mostrarPeliculas(peliculasOriginales);
+            // Mostrar todas las películas inicialmente y luego inicializar carruseles
+            mostrarPeliculas(peliculasOriginales); // Esto también se encargará de insertar e inicializar el carrusel de destacadas
+            initializeCarousel('mainSlider', 'sliderDots', [ // Asegúrate de que este array coincida con tus slides principales
+                { image: "https://i.postimg.cc/FHxXMQSq/result-LLUTID-FONDO.jpg", title: "Anuncio 1", link: "#" },
+                { image: "https://i.postimg.cc/9QbHgCPg/result-llutid-cine-streaming.png", title: "Anuncio 2", link: "#" },
+                { image: "https://i.postimg.cc/JhRz9q2r/result-Black-White-Bold-Movie-Night-Landscape-Banner.png", title: "Anuncio 3", link: "#" },
+                { image: "https://i.postimg.cc/V5yCMtLJ/result-Portada-para-P-gina-de-Facebook-de-Cine-al-Aire-Libre-con-Foto-Retro.png", title: "Anuncio 4", link: "#" }
+            ]);
 
             // Función para mostrar/ocultar el menú desplegable
             function toggleMenu() {
@@ -864,166 +1028,35 @@
             // Función para obtener el saludo según la hora del día
             function obtenerSaludo() {
                 const hora = new Date().getHours();
-                let saludo;
                 if (hora >= 5 && hora < 12) {
-                    saludo = "¡Buenos días!";
-                } else if (hora >= 12 && hora < 18) {
-                    saludo = "¡Buenas tardes!";
+                    return "¡Buenos días!";
+                } else if (hora >= 12 && hora < 19) {
+                    return "¡Buenas tardes!";
                 } else {
-                    saludo = "¡Buenas noches!";
+                    return "¡Buenas noches!";
                 }
-                return saludo + " ¡Bienvenido a Llutid+!";
             }
 
             // Animación de escritura para el saludo
-            function animateGreeting() {
+            document.addEventListener('DOMContentLoaded', () => {
                 const greetingElement = document.getElementById('greetingMessage');
-                const text = obtenerSaludo();
-                
-                // Limpiar estilos de animación si ya existe
-                greetingElement.style.width = '0';
-                greetingElement.style.borderRight = '.15em solid #00bfff';
-                greetingElement.classList.remove('finished'); // Asegurar que no tenga la clase finished
-
-                const typingDuration = text.length * 0.15; // Ajustar la duración por carácter
-                const steps = text.length; // Cada carácter es un paso
+                const fullText = obtenerSaludo();
+                const typingDuration = 1.5; // segundos
+                const steps = fullText.length;
 
                 greetingElement.style.setProperty('--typing-duration', `${typingDuration}s`);
                 greetingElement.style.setProperty('--steps', steps);
-                
-                // Reiniciar la animación forzadamente
-                greetingElement.style.animation = 'none';
-                greetingElement.offsetHeight; /* trigger reflow */
-                greetingElement.style.animation = `typing ${typingDuration}s steps(${steps}, end) forwards, blink-caret .75s step-end infinite`;
-                
-                // Cuando la animación termine, quitar el cursor
-                greetingElement.addEventListener('animationend', function() {
-                    if (this.style.animationName.includes('typing')) {
-                        this.classList.add('finished');
-                    }
-                }, { once: true }); // Para que el evento se dispare solo una vez
-            }
 
-            // Llamar a la función de saludo cuando la página esté cargada
-            document.addEventListener('DOMContentLoaded', () => {
-                animateGreeting(); // Iniciar la animación del saludo
-            });
+                // Forzar el redibujado para que la animación se aplique desde el principio
+                void greetingElement.offsetWidth; // Trigger reflow
 
-            // Carrusel automático con arrastre
-            const mainSlider = document.getElementById('mainSlider');
-            const sliderDots = document.getElementById('sliderDots');
-            const slides = mainSlider.querySelectorAll('.slide');
-            let slideIndex = 0;
-            let slideInterval;
-            let isDragging = false;
-            let startX;
-            let scrollLeft;
-
-            function createDots() {
-                sliderDots.innerHTML = '';
-                slides.forEach((_, index) => {
-                    const dot = document.createElement('div');
-                    dot.classList.add('dot');
-                    if (index === 0) dot.classList.add('active');
-                    dot.addEventListener('click', () => {
-                        currentSlide(index);
-                        resetInterval();
-                    });
-                    sliderDots.appendChild(dot);
+                // Añadir la clase 'finished' cuando la animación termine
+                greetingElement.addEventListener('animationend', () => {
+                    greetingElement.classList.add('finished');
                 });
-            }
-
-            function updateDots() {
-                const dots = sliderDots.querySelectorAll('.dot');
-                dots.forEach((dot, index) => {
-                    if (index === slideIndex) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
-                });
-            }
-
-            function showSlides() {
-                mainSlider.scrollLeft = slides[slideIndex].offsetLeft;
-                updateDots();
-            }
-
-            function nextSlide() {
-                slideIndex = (slideIndex + 1) % slides.length;
-                showSlides();
-            }
-
-            function currentSlide(n) {
-                slideIndex = n;
-                showSlides();
-            }
-
-            function startInterval() {
-                slideInterval = setInterval(nextSlide, 5000); // Cambia cada 5 segundos
-            }
-
-            function resetInterval() {
-                clearInterval(slideInterval);
-                startInterval();
-            }
-
-            // Drag functionality
-            mainSlider.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                mainSlider.classList.add('grabbing');
-                startX = e.pageX - mainSlider.offsetLeft;
-                scrollLeft = mainSlider.scrollLeft;
-                clearInterval(slideInterval); // Detener auto-avance al arrastrar
+                greetingElement.textContent = fullText; // Establecer el texto completo para la animación
             });
-
-            mainSlider.addEventListener('mouseleave', () => {
-                isDragging = false;
-                mainSlider.classList.remove('grabbing');
-                resetInterval(); // Reiniciar auto-avance cuando el mouse sale
-            });
-
-            mainSlider.addEventListener('mouseup', () => {
-                isDragging = false;
-                mainSlider.classList.remove('grabbing');
-                resetInterval(); // Reiniciar auto-avance cuando se suelta el clic
-            });
-
-            mainSlider.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                e.preventDefault();
-                const x = e.pageX - mainSlider.offsetLeft;
-                const walk = (x - startX) * 2; // Ajustar la velocidad de arrastre
-                mainSlider.scrollLeft = scrollLeft - walk;
-            });
-
-            // Touch events for mobile
-            mainSlider.addEventListener('touchstart', (e) => {
-                isDragging = true;
-                startX = e.touches[0].pageX - mainSlider.offsetLeft;
-                scrollLeft = mainSlider.scrollLeft;
-                clearInterval(slideInterval);
-            });
-
-            mainSlider.addEventListener('touchend', () => {
-                isDragging = false;
-                resetInterval();
-            });
-
-            mainSlider.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                const x = e.touches[0].pageX - mainSlider.offsetLeft;
-                const walk = (x - startX) * 2;
-                mainSlider.scrollLeft = scrollLeft - walk;
-            });
-
-
-            // Initialize slider
-            createDots();
-            showSlides();
-            startInterval();
 
         </script>
-    </div>
-</body>
-</html>
+    </body>
+    </html>
