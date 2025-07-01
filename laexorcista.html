@@ -87,7 +87,6 @@
 
         /* --- Header (simulando barra superior de Netflix) --- */
         header {
-            /* CAMBIO AQUÍ: Fondo oscuro transparente */
             background-color: rgba(0, 0, 0, 0.7); /* Negro con 70% de opacidad */
             padding: 15px 20px;
             display: flex;
@@ -110,11 +109,16 @@
             cursor: pointer;
         }
 
+        /* ESTILO PARA EL LOGO LLUTID+ AHORA ES UN ENLACE */
         .header-logo {
             font-size: 1.8rem;
-            font-weight: 800; /* Más grueso para el logo */
-            color: #1e90ff; /* Azul para Llutid */
+            font-weight: 800;
+            color: #1e90ff;
             text-shadow: 0 0 8px rgba(30, 144, 255, 0.4);
+            text-decoration: none; /* Eliminar subrayado por defecto del enlace */
+        }
+        .header-logo:hover {
+            opacity: 0.8; /* Efecto hover para el logo */
         }
 
         .header-logo span {
@@ -229,7 +233,7 @@
         /* Controles de acción (Botones) */
         .actions {
             display: flex;
-            flex-direction: column; /* Cambiado a columna para dos botones */
+            flex-direction: column; /* Cambiado a columna para los botones */
             gap: 15px;
             padding: 0 20px;
             margin-bottom: 30px;
@@ -246,23 +250,71 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s ease;
+            position: relative; /* Necesario para la barra de progreso */
+            overflow: hidden; /* Asegura que la barra de progreso no se desborde */
         }
 
+        .btn i, .btn-text { /* Aseguramos que íconos y texto estén encima */
+            position: relative;
+            z-index: 1; /* Asegura que el icono y el texto estén encima de la barra */
+        }
         .btn i {
             margin-right: 10px;
             font-size: 20px;
         }
 
         .btn-play {
-            background-color: #fff;
-            color: #000;
+            background-color: #282828; /* Gris oscuro para el fondo inicial del botón */
+            color: #fff;
+        }
+
+        /* Si el botón ya está lleno (ver otra vez) */
+        .btn-play.loaded-state {
+            background-color: #fff; /* Fondo blanco */
+            color: #000; /* Texto negro */
         }
 
         .btn-play:hover {
-            background-color: #e6e6e6;
+            background-color: #404040;
         }
 
-        .btn-share { /* Nuevo estilo para el botón de compartir */
+        /* Estilos para la barra de progreso del botón de reproducción */
+        .progress-bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0; /* Empieza con ancho 0 */
+            background-color: #fff; /* El color que se llena */
+            z-index: 0; /* Detrás del texto y los iconos */
+        }
+
+        /* Animación para llenar la barra de progreso del botón */
+        @keyframes fillProgressBar {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .btn-play.loading .progress-bar-fill {
+            animation: fillProgressBar 22s linear forwards; /* 22 segundos para llenarse */
+        }
+
+        /* El texto y los iconos cambian a negro cuando la barra los cubre */
+        .btn-play.loading .btn-text,
+        .btn-play.loading .fa-play,
+        .btn-play.loading .fa-spinner {
+            color: #000; /* Cambiar el color del texto y los iconos a negro cuando la barra los cubre */
+            transition: color 0.1s linear; /* Transición suave para el color del texto/icono */
+        }
+
+        .btn-play.loading .fa-spinner {
+            display: inline-block; /* Mostrar el spinner durante la carga */
+        }
+        .btn-play .fa-spinner {
+            display: none; /* Ocultar el spinner por defecto */
+        }
+
+        .btn-share { /* Estilo base para compartir */
             background-color: #282828;
             color: #fff;
         }
@@ -271,6 +323,24 @@
             background-color: #404040;
         }
 
+        /* ESTILOS PARA LA BARRA DE PROGRESO DE VISUALIZACIÓN */
+        .watched-progress-container {
+            width: 100%;
+            height: 6px; /* Altura de la barra */
+            background-color: #404040; /* Color de fondo gris */
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px; /* Ajustada la separación con el botón de compartir */
+            display: none; /* Oculto por defecto, solo visible si hay progreso */
+        }
+
+        .watched-progress-bar {
+            height: 100%;
+            width: 0%; /* Empieza vacío */
+            background-color: #1e90ff; /* Color azul de la barra */
+            border-radius: 3px;
+            transition: width 0.5s ease-out; /* Animación suave al actualizar */
+        }
 
         /* Descripción y Detalles */
         .details-section {
@@ -350,7 +420,8 @@
     <div class="main-content">
         <header>
             <div class="header-left">
-                <i class="fas fa-arrow-left header-back"></i> <div class="header-logo">Llutid<span>+</span></div>
+                <i class="fas fa-arrow-left header-back"></i> 
+                <a href="home.html" class="header-logo">Llutid<span>+</span></a>
                 <div class="header-title">La Exorcista</div>
             </div>
             <div class="header-right">
@@ -381,11 +452,18 @@
 
         <section class="actions">
             <button class="btn btn-play" id="playButton">
-                <i class="fas fa-play"></i> Ver
+                <span class="progress-bar-fill"></span>
+                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-play"></i>
+                <span class="btn-text">Ver</span>
             </button>
             <button class="btn btn-share" id="shareButton">
                 <i class="fas fa-share-alt"></i> Compartir
             </button>
+            
+            <div class="watched-progress-container" id="watchedProgressBarContainer">
+                <div class="watched-progress-bar" id="watchedProgressBar"></div>
+            </div>
         </section>
 
         <section class="details-section">
@@ -411,72 +489,200 @@
     </div>
 
     <script>
-        // JS para la pantalla de inicio
-        setTimeout(() => {
-            document.querySelector('.intro-screen').style.display = 'none';
-            document.querySelector('.main-content').style.display = 'block';
-        }, 5500); // Duración de la pantalla de inicio
-
         const playButton = document.getElementById('playButton');
         const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
         const movieIframe = document.getElementById('movieIframe');
         const shareButton = document.getElementById('shareButton');
+        const playButtonText = playButton.querySelector('.btn-text');
+        const playButtonSpinner = playButton.querySelector('.fa-spinner');
+        const playIcon = playButton.querySelector('.fa-play');
+        const progressBarFill = playButton.querySelector('.progress-bar-fill');
+        const watchedProgressBarContainer = document.getElementById('watchedProgressBarContainer');
+        const watchedProgressBar = document.getElementById('watchedProgressBar');
 
-        // Guardamos la URL base sin autoplay para usarla al salir de fullscreen
         const BASE_DRIVE_URL = "https://drive.google.com/file/d/1eyWI4X0M3RFHDCskBcAtJSyMC2vvDBuM/preview";
+        const MOVIE_WATCHED_KEY = 'movieWatched_LaExorcista';
+        const MOVIE_PROGRESS_KEY = 'movieProgress_LaExorcista';
+        const MOVIE_DURATION_MINUTES = 101; // Duración total de la película en minutos (1 hora y 41 minutos)
+        const PROGRESS_UPDATE_INTERVAL_MS = 5000; // Actualizar progreso cada 5 segundos
 
-        playButton.addEventListener('click', () => {
-            // 1. Mostrar el contenedor del reproductor
+        let hasOpened = false;
+        let progressBarTimeout;
+        let progressTrackingInterval;
+        let startTimeFullScreen = 0;
+
+        // JS para la pantalla de inicio
+        setTimeout(() => {
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            
+            // Inicializar el estado del botón "Ver"
+            if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
+                setButtonToWatchedState();
+            } else {
+                startPlayButtonAnimation();
+            }
+            
+            // Inicializar el estado de la barra de progreso de visualización
+            updateWatchedProgressBar();
+
+        }, 5500); // Duración de la pantalla de inicio
+
+        function setButtonToWatchedState() {
+            playButton.classList.remove('loading');
+            playButton.classList.add('loaded-state'); 
+            
+            progressBarFill.style.width = '100%';
+            progressBarFill.style.transition = 'none';
+
+            playButtonSpinner.style.display = 'none';
+            playIcon.style.display = 'inline-block';
+            playButtonText.textContent = 'Ver otra vez';
+            playButton.style.cursor = 'pointer';
+            
+            playButtonText.style.color = '#000'; 
+            playIcon.style.color = '#000';
+        }
+
+        function startPlayButtonAnimation() {
+            playButton.classList.add('loading');
+            playButtonSpinner.style.display = 'inline-block';
+            playIcon.style.display = 'none';
+            playButtonText.textContent = 'Ver';
+            
+            progressBarFill.style.width = '0';
+            progressBarFill.style.transition = 'width 22s linear forwards';
+
+            progressBarTimeout = setTimeout(() => {
+                if (!hasOpened) {
+                    openMovieFullscreen();
+                }
+                setButtonToWatchedState();
+                localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+            }, 22000); // 22 segundos
+        }
+
+        function openMovieFullscreen() {
+            if (hasOpened) return;
+            hasOpened = true;
+            
+            if (progressBarTimeout) {
+                clearTimeout(progressBarTimeout);
+                progressBarTimeout = null;
+            }
+            setButtonToWatchedState();
+            localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+
             playerFullscreenContainer.style.display = 'block';
 
-            // 2. Asegurarse de que el iframe cargue la URL base (sin autoplay aquí, se activa el play manual)
             if (movieIframe.src !== BASE_DRIVE_URL) {
                 movieIframe.src = BASE_DRIVE_URL;
             }
 
-            // 3. Solicitar la pantalla completa para el contenedor del reproductor
+            // Iniciar el seguimiento del progreso cuando se solicita pantalla completa
+            startProgressTracking();
+
             if (playerFullscreenContainer.requestFullscreen) {
                 playerFullscreenContainer.requestFullscreen();
-            } else if (playerFullscreenContainer.mozRequestFullScreen) { /* Firefox */
+            } else if (playerFullscreenContainer.mozRequestFullScreen) {
                 playerFullscreenContainer.mozRequestFullScreen();
-            } else if (playerFullscreenContainer.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            } else if (playerFullscreenContainer.webkitRequestFullscreen) {
                 playerFullscreenContainer.webkitRequestFullscreen();
-            } else if (playerFullscreenContainer.msRequestFullscreen) { /* IE/Edge */
+            } else if (playerFullscreenContainer.msRequestFullscreen) {
                 playerFullscreenContainer.msRequestFullscreen();
             }
 
-            // Opcional: Intentar bloquear la orientación. Esto es muy restrictivo y puede no funcionar.
             try {
                 if (screen.orientation && screen.orientation.lock) {
                     screen.orientation.lock('landscape').catch(e => {
-                        console.warn("Could not lock screen orientation to landscape:", e);
+                        console.warn("No se pudo bloquear la orientación a paisaje:", e);
                     });
                 }
             } catch (e) {
-                console.warn("Screen orientation API not available or blocked:", e);
+                console.warn("API de orientación de pantalla no disponible o bloqueada:", e);
             }
-        });
+        }
 
-        // Función para el botón de compartir
+        // Función para iniciar el seguimiento del progreso de visualización
+        function startProgressTracking() {
+            startTimeFullScreen = Date.now();
+            if (progressTrackingInterval) {
+                clearInterval(progressTrackingInterval);
+            }
+
+            let lastProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+
+            progressTrackingInterval = setInterval(() => {
+                const elapsedTimeMs = Date.now() - startTimeFullScreen;
+                const elapsedTimeMinutes = elapsedTimeMs / (1000 * 60);
+                
+                let currentProgressMinutes = lastProgressMinutes + elapsedTimeMinutes;
+
+                if (currentProgressMinutes > MOVIE_DURATION_MINUTES) {
+                    currentProgressMinutes = MOVIE_DURATION_MINUTES;
+                }
+
+                localStorage.setItem(MOVIE_PROGRESS_KEY, currentProgressMinutes.toFixed(2));
+                updateWatchedProgressBar();
+                
+                if (currentProgressMinutes >= MOVIE_DURATION_MINUTES) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+
+            }, PROGRESS_UPDATE_INTERVAL_MS);
+        }
+
+        // Función para actualizar la barra de progreso de visualización
+        function updateWatchedProgressBar() {
+            const currentProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+            let percentage = (currentProgressMinutes / MOVIE_DURATION_MINUTES) * 100;
+            
+            percentage = Math.min(100, Math.max(0, percentage));
+
+            if (percentage > 0) {
+                watchedProgressBarContainer.style.display = 'block';
+                watchedProgressBar.style.width = percentage + '%';
+            } else {
+                watchedProgressBarContainer.style.display = 'none';
+            }
+        }
+
+        playButton.addEventListener('click', openMovieFullscreen);
+
         shareButton.addEventListener('click', async () => {
+            // Mensaje personalizado para WhatsApp o compartir nativo
+            const shareText = "¡Wow! 😱 Acabo de ver *La Exorcista* en LLUTID+ y me encantó. ¡Te la super recomiendo! Si aún no tienes la app, este es el enlace de descarga oficial: \n\n🔗 *Descarga LLUTID+ aquí:* https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n¿Necesitas saber cómo activar tu suscripción? ¡Es muy fácil! Entra a nuestro chatbot para resolver todas tus dudas o llámanos:\n\n🤖 *Chatea con nuestro bot:* https://llutid.github.io/chat-bot-llutid-/\n📞 *Llámanos:* +57 3181087834\n\n¡No te quedes fuera de la experiencia LLUTID+! 🔥";
+
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: document.title,
-                        text: '¡Mira esta película en LLUTID+!',
-                        url: window.location.href // Comparte la URL actual de la página
+                        title: 'LLUTID+ - La Exorcista',
+                        text: shareText,
+                        url: 'https://llutid.github.io/pelicula-la-exorcista/' // Puedes poner aquí la URL de la página actual si quieres que se comparta también
                     });
-                    console.log('Contenido compartido con éxito');
+                    console.log('Contenido compartido con éxito usando la API nativa.');
                 } catch (error) {
-                    console.error('Error al compartir:', error);
+                    console.error('Error al compartir con la API nativa:', error);
+                    // Fallback para WhatsApp Web/Desktop o si la API nativa falla
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                    window.open(whatsappUrl, '_blank');
+                    // Alert para navegadores que no abren ventanas emergentes o WhatsApp
+                    setTimeout(() => {
+                        alert('Si no se abrió WhatsApp, puedes copiar el mensaje y los enlaces:\n\n' + shareText);
+                    }, 500); // Pequeño retraso para dar tiempo a que se intente abrir la ventana
                 }
             } else {
-                // Fallback para navegadores que no soportan Web Share API (ej. desktop)
-                alert('Puedes compartir esta página copiando la URL: ' + window.location.href);
+                // Fallback directo para WhatsApp Web/Desktop en navegadores sin API nativa
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(whatsappUrl, '_blank');
+                // Alert para navegadores que no abren ventanas emergentes o WhatsApp
+                setTimeout(() => {
+                    alert('Si no se abrió WhatsApp, puedes copiar el mensaje y los enlaces:\n\n' + shareText);
+                }, 500);
             }
         });
 
-        // Manejar el evento de salida de pantalla completa
         document.addEventListener('fullscreenchange', exitHandler);
         document.addEventListener('webkitfullscreenchange', exitHandler);
         document.addEventListener('mozfullscreenchange', exitHandler);
@@ -485,13 +691,36 @@
         function exitHandler() {
             if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
                 // El usuario ha salido de pantalla completa
-                playerFullscreenContainer.style.display = 'none'; // Ocultar el contenedor del reproductor
-                
-                // Detener la reproducción del video
-                // Reiniciar el src a la URL base sin autoplay para detener el video
+                playerFullscreenContainer.style.display = 'none';
                 movieIframe.src = BASE_DRIVE_URL;
+                hasOpened = false;
+
+                // Detener el seguimiento de progreso cuando se sale de pantalla completa
+                if (progressTrackingInterval) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+                // Actualizar la barra de progreso de visualización para reflejar el progreso final
+                updateWatchedProgressBar();
             }
         }
+
+        screen.orientation.addEventListener('change', () => {
+            const isInFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
+            const isPortrait = screen.orientation.type.startsWith('portrait');
+
+            if (isInFullscreen && isPortrait) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        });
     </script>
 
 </body>
