@@ -23,17 +23,9 @@
             font-size: 16px;
         }
 
-        /* Pantalla de inicio */
+        /* Pantalla de inicio - REMOVIDA LA LÓGICA DE OCULTAR AQUÍ */
         .intro-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            display: none; /* Ahora siempre oculta */
         }
 
         .logo-container {
@@ -71,7 +63,7 @@
 
         /* Main content */
         .main-content {
-            display: none;
+            /* display: none;  QUITADO, ahora se muestra por defecto */
             padding-top: 80px;
         }
 
@@ -212,30 +204,28 @@
         .slider-container {
             width: 100%;
             height: 100%;
-            display: flex;
-            overflow-x: scroll;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .slider-container::-webkit-scrollbar {
-            display: none;
+            position: relative; /* Para posicionar los slides absolutametne */
         }
 
-        .slider-container.grabbing {
-            cursor: grabbing;
-        }
-
+        /* Modificaciones para el efecto fade del slide */
         .slide {
+            position: absolute; /* Posiciona todos los slides uno encima del otro */
+            top: 0;
+            left: 0;
             min-width: 100%;
             height: 100%;
-            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            scroll-snap-align: start;
+            opacity: 0; /* Por defecto invisibles */
+            transition: opacity 1s ease-in-out; /* Transición para el fade */
+            pointer-events: none; /* Permite clics a través de slides invisibles */
+        }
+
+        .slide.active-fade {
+            opacity: 1; /* El slide activo se hace visible */
+            pointer-events: auto; /* Permite interacción con el slide activo */
         }
 
         .slide img {
@@ -547,6 +537,7 @@
             }
             .highlight-slider-wrapper .static-carousel-content {
                 left: 20px;
+                bottom: 20px;
             }
             .highlight-slider-wrapper .slide-title {
                 font-size: 1.8rem;
@@ -699,25 +690,10 @@
 
         <div class="slider-wrapper">
             <div class="slider-container" id="mainSlider">
-                <div class="slide">
-                    <img src="https://i.postimg.cc/FHxXMQSq/result-LLUTID-FONDO.jpg" alt="Anuncio 1">
                 </div>
-                <div class="slide">
-                    <img src="https://i.postimg.cc/9QbHgCPg/result-llutid-cine-streaming.png" alt="Anuncio 2">
-                </div>
-                <div class="slide">
-                    <img src="https://i.postimg.cc/JhRz9q2r/result-Black-White-Bold-Movie-Night-Landscape-Banner.png" alt="Anuncio 3">
-                </div>
-                <div class="slide">
-                    <img src="https://i.postimg.cc/V5yCMtLJ/result-Portada-para-P-gina-de-Facebook-de-Cine-al-Aire-Libre-con-Foto-Retro.png" alt="Anuncio 4">
-                </div>
-            </div>
             <div class="slider-dots" id="sliderDots">
             </div>
-            <div class="static-carousel-content">
-                <a href="#" class="slide-button">VER AHORA</a>
             </div>
-        </div>
 
         <div class="top-10-container">
             <h3 class="greeting-message" id="greetingMessage"></h3>
@@ -818,14 +794,12 @@
         <h2 class="suggested-content-title">Contenido Sugerido para <span class="highlight-white">Ti</span></h2>
 
         <div class="movie-container" id="movie-container">
-            </div>
+        </div>
 
         <script>
-            // Mostrar contenido después de 5 segundos (ajuste para la animación)
-            setTimeout(() => {
-                document.querySelector('.intro-screen').style.display = 'none';
-                document.querySelector('.main-content').style.display = 'block';
-            }, 5000);
+            // Mostrar contenido inmediatamente (animación inicial eliminada)
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
 
             const peliculasOriginales = [
                 { title: "Intensamente 2", image: "https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png", link: "intensamente2.html" },
@@ -875,8 +849,8 @@
                 { title: "En Pie de Guerra", image: "https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png", link: "pata de guerra.html" }
             ];
 
-            // Función para inicializar un carrusel
-            function initializeCarousel(sliderId, dotsId, movies, hasStaticContent = false) {
+            // Función para inicializar un carrusel con efecto de desvanecimiento
+            function initializeFadeCarousel(sliderId, dotsId, movies) {
                 const sliderContainer = document.getElementById(sliderId);
                 const sliderDots = document.getElementById(dotsId);
 
@@ -892,8 +866,9 @@
                     const slide = document.createElement('div');
                     slide.classList.add('slide');
                     slide.innerHTML = `<img src="${movie.image}" alt="${movie.title}">`;
-                    // Si este carrusel necesita contenido estático (título y botón), lo agregamos aquí
-                    if (hasStaticContent) {
+                    
+                    // Añadir el contenido estático solo si es el carrusel de destacadas
+                    if (sliderId === 'highlightSliderDynamic') {
                         const staticContent = document.createElement('div');
                         staticContent.classList.add('static-carousel-content');
                         staticContent.innerHTML = `
@@ -902,56 +877,55 @@
                         `;
                         slide.appendChild(staticContent);
                     }
+
                     sliderContainer.appendChild(slide);
 
                     const dot = document.createElement('div');
                     dot.classList.add('dot');
                     if (index === 0) {
+                        slide.classList.add('active-fade'); // El primer slide es visible por defecto
                         dot.classList.add('active');
                     }
                     dot.addEventListener('click', () => {
-                        sliderContainer.scrollTo({
-                            left: slide.offsetLeft,
-                            behavior: 'smooth'
-                        });
+                        showSlideFade(sliderContainer, dots, index);
                     });
                     sliderDots.appendChild(dot);
                 });
 
+                const slides = Array.from(sliderContainer.children);
                 const dots = Array.from(sliderDots.children);
+                let currentSlideIndex = 0;
 
-                sliderContainer.addEventListener('scroll', () => {
-                    const scrollLeft = sliderContainer.scrollLeft;
-                    const slideWidth = sliderContainer.firstElementChild.offsetWidth;
-                    const activeIndex = Math.round(scrollLeft / slideWidth);
-
-                    dots.forEach((dot, index) => {
-                        if (index === activeIndex) {
+                function showSlideFade(container, dotsArray, indexToShow) {
+                    slides.forEach((slide, idx) => {
+                        if (idx === indexToShow) {
+                            slide.classList.add('active-fade');
+                        } else {
+                            slide.classList.remove('active-fade');
+                        }
+                    });
+                    dotsArray.forEach((dot, idx) => {
+                        if (idx === indexToShow) {
                             dot.classList.add('active');
                         } else {
                             dot.classList.remove('active');
                         }
                     });
-                });
+                    currentSlideIndex = indexToShow;
+                }
 
                 // Auto-advance
-                let currentSlide = 0;
-                const totalSlides = movies.length;
-
                 // Clear previous interval if any
                 if (sliderContainer.autoAdvanceInterval) {
                     clearInterval(sliderContainer.autoAdvanceInterval);
                 }
 
                 sliderContainer.autoAdvanceInterval = setInterval(() => {
-                    currentSlide++;
-                    if (currentSlide >= totalSlides) {
-                        currentSlide = 0; // Vuelve al inicio
+                    currentSlideIndex++;
+                    if (currentSlideIndex >= movies.length) {
+                        currentSlideIndex = 0; // Vuelve al inicio
                     }
-                    sliderContainer.scrollTo({
-                        left: currentSlide * sliderContainer.offsetWidth,
-                        behavior: 'smooth'
-                    });
+                    showSlideFade(sliderContainer, dots, currentSlideIndex);
                 }, 5000); // Cambia cada 5 segundos
             }
 
@@ -990,8 +964,8 @@
                         movieElement.insertAdjacentHTML('afterend', highlightSliderHTML);
 
                         // Inicializar el carrusel de destacadas recién insertado
-                        // Pasamos true para indicar que necesita título y botón estático
-                        initializeCarousel('highlightSliderDynamic', 'highlightSliderDotsDynamic', highlightedMovies, true);
+                        // Usamos initializeFadeCarousel para el efecto de desvanecimiento
+                        initializeFadeCarousel('highlightSliderDynamic', 'highlightSliderDotsDynamic', highlightedMovies);
                     }
                 });
             }
@@ -1008,7 +982,9 @@
 
             // Mostrar todas las películas inicialmente y luego inicializar carruseles
             mostrarPeliculas(peliculasOriginales); // Esto también se encargará de insertar e inicializar el carrusel de destacadas
-            initializeCarousel('mainSlider', 'sliderDots', [ // Asegúrate de que este array coincida con tus slides principales
+            
+            // Inicializar el carrusel principal con el efecto fade
+            initializeFadeCarousel('mainSlider', 'sliderDots', [ // Asegúrate de que este array coincida con tus slides principales
                 { image: "https://i.postimg.cc/FHxXMQSq/result-LLUTID-FONDO.jpg", title: "Anuncio 1", link: "#" },
                 { image: "https://i.postimg.cc/9QbHgCPg/result-llutid-cine-streaming.png", title: "Anuncio 2", link: "#" },
                 { image: "https://i.postimg.cc/JhRz9q2r/result-Black-White-Bold-Movie-Night-Landscape-Banner.png", title: "Anuncio 3", link: "#" },
