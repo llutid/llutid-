@@ -1,1038 +1,1449 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Llutid+</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LLUTID+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
+        /* Variables para colores */
+        :root {
+            --dark-bg-deep: #0a0a0c;
+            --dark-bg-mid: #1a1a1d;
+            --dark-bg-light: #2a2a2e;
+            --accent-blue: #007bff;
+            --accent-purple: #9b59b6;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-soft: #3a3a3e;
+            --shadow-strong: rgba(0, 0, 0, 0.7);
+            --shadow-soft: rgba(0, 0, 0, 0.3);
+            --transparent-bg-header: rgba(10, 10, 12, 0.85); /* Fondo semitransparente para el header */
 
+            /* Colores para el degradado "arcoíris" azul/morado/violeta - AJUSTADO */
+            --rainbow-blue-1: #007bff; /* Azul vibrante */
+            --rainbow-blue-2: #0056b3; /* Azul más oscuro */
+            --rainbow-purple-1: #8e44ad; /* Morado claro (menos prominente) */
+            --rainbow-violet-1: #5e35b1; /* Violeta (menos prominente) */
+            --rainbow-cyan: #00bcd4; /* Cian para un toque de azul verdoso */
+        }
+
+        /* --- Reset y Estilos Base --- */
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            height: 100%;
+            -ms-content-zooming: none;
+            -ms-touch-action: pan-x pan-y;
+            touch-action: pan-x pan-y;
+            overflow-x: hidden;
+            background-color: var(--dark-bg-deep); /* Fondo oscuro para evitar flashes blancos */
         }
 
         body {
-            background-color: #121212;
-            font-family: 'Roboto', sans-serif;
-            color: white;
-            overflow-x: hidden; /* Mantener hidden para el body */
-            font-size: 16px;
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(to bottom, var(--dark-bg-deep), var(--dark-bg-mid));
+            color: var(--text-light);
+            overflow-x: hidden;
+            overflow-y: auto;
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            min-height: 100vh;
+            scroll-behavior: smooth;
         }
 
-        /* Pantalla de inicio - REMOVIDA LA LÓGICA DE OCULTAR AQUÍ */
-        .intro-screen {
-            display: none; /* Ahora siempre oculta */
+        body.no-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Header Principal --- */
+        .main-header {
+            display: flex;
+            justify-content: space-between; /* Espacia los elementos */
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--transparent-bg-header);
+            /* border-bottom: 1px solid var(--border-soft); Removed as per user request */
+            box-shadow: 0 5px 20px var(--shadow-strong);
+            position: fixed; /* CAMBIO: De sticky a fixed */
+            top: 0;          /* Asegura que esté en la parte superior */
+            width: 100%;     /* Asegura que ocupe todo el ancho */
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: background-color 0.3s ease;
+            gap: 15px; /* Espacio entre los elementos del header */
         }
 
         .logo-container {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #00bfff;
-            opacity: 0;
-            animation: aparecer 2s ease forwards, desaparecer 1s ease forwards 4s;
-            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 4px;
-        }
-
-        .logo-container span {
-            color: white;
-        }
-
-        @keyframes aparecer {
-            0% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes desaparecer {
-            to {
-                opacity: 0;
-                transform: scale(1.05);
-            }
-        }
-
-        /* Main content */
-        .main-content {
-            /* display: none;  QUITADO, ahora se muestra por defecto */
-            padding-top: 80px;
-        }
-
-        /* Barra fija */
-        .sticky-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 80px;
-            background-color: rgba(18, 18, 18, 0.9);
-            padding: 15px 20px;
-            z-index: 100;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3);
+            font-size: 28px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            letter-spacing: -1px;
+            gap: 5px;
+            flex-shrink: 0; /* Evita que el logo se encoja */
         }
 
-        .logo-bar {
-            display: flex;
+        .logo-llutid {
+            color: var(--accent-blue); /* Solid blue as per request */
+            -webkit-background-clip: unset; /* Remove clip for solid color */
+            background-clip: unset; /* Remove clip for solid color */
+            text-shadow: none;
+            transition: transform 0.2s ease-out;
+            display: inline-block;
+        }
+        .logo-llutid:active {
+            transform: scale(0.95);
+        }
+
+        .logo-plus {
+            /* Fondo normal para el + - AJUSTADO */
+            color: var(--text-light); /* Hereda el color de texto claro */
+            font-size: 1em; /* Mantiene el tamaño */
+            font-weight: 700;
+            transition: transform 0.2s ease-out;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+            /* Eliminadas las propiedades que creaban el fondo ovalado */
+        }
+        .logo-plus:active {
+            transform: scale(0.95);
         }
 
-        .logo-bar h1 {
-            font-size: 2.5rem;
-            color: #00bfff;
-            text-transform: uppercase;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 5px;
-            margin-bottom: 0;
-            margin-right: 20px;
-        }
-
-        .logo-bar h1 span {
-            color: white;
-        }
-
-        .search-container {
+        /* --- Buscador en el Header --- */
+        .search-bar {
             display: flex;
-            align-items: center;
-        }
-
-        .sticky-bar input {
-            padding: 12px 20px;
-            width: 200px;
-            font-size: 16px;
+            background-color: var(--dark-bg-light);
             border-radius: 25px;
-            border: 2px solid #4e5d6a;
-            outline: none;
-            background-color: #2a2a2a;
-            color: white;
+            padding: 8px 15px;
+            flex-grow: 1; /* Ocupa el espacio disponible */
+            align-items: center;
             transition: all 0.3s ease;
-            margin-right: 10px;
+            box-shadow: inset 0 2px 5px var(--shadow-soft);
+            border: 1px solid var(--border-soft);
+            min-width: 100px; /* Asegura un mínimo para evitar que se aplaste */
         }
 
-        .sticky-bar input:focus {
-            border-color: #00bfff;
-            box-shadow: 0 0 8px rgba(0, 191, 255, 0.5);
+        .search-bar:focus-within {
+            box-shadow: 0 0 0 3px var(--accent-blue), inset 0 2px 5px var(--shadow-strong);
+            background-color: var(--dark-bg-mid);
         }
 
-        .sticky-bar input::placeholder {
-            color: #888;
+        .search-bar input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            padding: 0 8px;
+            outline: none;
+            font-size: 15px;
+            -webkit-appearance: none;
         }
 
-        /* Icono del menú */
-        .menu-icon {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 30px;
-            height: 22px;
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+
+        .search-icon {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 19px;
             cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s ease, transform 0.1s ease;
+            flex-shrink: 0; /* Evita que el icono se encoja */
         }
 
-        .menu-icon div {
+        .search-icon:active {
+            transform: scale(0.9);
+            color: var(--accent-blue);
+        }
+
+        /* --- Botón de Menú (Hamburguesa) --- */
+        .menu-button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 30px;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Asegura que el botón de menú no se encoja */
+        }
+
+        .menu-button:active {
+            transform: scale(0.9);
+            color: var(--accent-blue);
+        }
+
+        /* --- Barra de Navegación Principal --- */
+        .main-nav {
+            display: flex;
+            padding: 6px 20px;
+            background-color: rgba(10, 10, 12, 0.6);
+            border-bottom: none;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            position: fixed;
+            top: 60px;
+            width: 100%;
+            z-index: 999;
+            box-shadow: 0 3px 15px var(--shadow-strong);
+            backdrop-filter: blur(10px) brightness(0.7);
+            -webkit-backdrop-filter: blur(10px) brightness(0.7);
+            transition: background-color 0.3s ease;
+        }
+
+        .main-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 25px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            padding: 8px 0;
+            white-space: nowrap;
+            transition: color 0.3s ease, transform 0.1s ease;
+            font-size: 15px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-light);
+            transform: translateY(-2px);
+        }
+
+        .nav-item.active {
+            color: var(--accent-blue);
+            text-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 100%;
             height: 3px;
-            background-color: white;
+            background: linear-gradient(to right, var(--accent-purple), var(--accent-blue));
             border-radius: 2px;
-            transition: all 0.3s ease;
+            box-shadow: 0 0 10px var(--accent-blue);
+            transition: width 0.3s ease;
         }
 
-        /* Menú desplegable */
-        .menu-dropdown {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background-color: rgba(18, 18, 18, 0.95);
-            padding: 20px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            backdrop-filter: blur(8px);
-            box-shadow: -8px 8px 15px rgba(0, 191, 255, 0.3);
-            z-index: 101;
-            border-radius: 5px;
+        /* --- Contenido Principal --- */
+        .content {
+            padding-top: 120px; /* AJUSTE: Aumentado de 110px a 120px para más espacio */
+            padding-left: 15px;
+            padding-right: 15px;
+            padding-bottom: 20px;
         }
 
-        .menu-dropdown a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: color 0.3s ease;
-            text-align: center;
-            display: block;
-        }
-
-        .menu-dropdown a:hover {
-            color: #00bfff;
-        }
-
-        /* Carrusel principal */
-        .slider-wrapper {
+        /* --- Sección Hero (Carrusel de Anuncios) - Sin cambios --- */
+        .hero-section {
             position: relative;
-            width: 100%; /* Ocupa el 100% de la pantalla */
-            height: 550px;
             margin-bottom: 30px;
-            border-radius: 15px;
             overflow: hidden;
-            z-index: 1;
-        }
-        /* Carrusel de destacadas - ocupa todo el ancho dentro del movie-container */
-        .highlight-slider-wrapper {
-            height: 350px; /* Altura para destacadas */
-            margin-top: 20px; /* Separación de la sección anterior */
-            margin-bottom: 30px; /* Espacio abajo */
-            grid-column: 1 / -1; /* CLAVE: hace que abarque desde la primera hasta la última columna del grid */
-            border-radius: 15px;
-            overflow: hidden;
-            width: 100%; /* Asegura que ocupe el 100% del espacio asignado por grid-column */
-        }
-
-
-        .slider-container {
-            width: 100%;
-            height: 100%;
-            position: relative; /* Para posicionar los slides absolutametne */
-        }
-
-        /* Modificaciones para el efecto fade del slide */
-        .slide {
-            position: absolute; /* Posiciona todos los slides uno encima del otro */
-            top: 0;
-            left: 0;
-            min-width: 100%;
-            height: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow-strong);
+            height: 200px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
-            opacity: 0; /* Por defecto invisibles */
-            transition: opacity 1s ease-in-out; /* Transición para el fade */
-            pointer-events: none; /* Permite clics a través de slides invisibles */
+            justify-content: center;
+            background-color: var(--dark-bg-light);
         }
 
-        .slide.active-fade {
-            opacity: 1; /* El slide activo se hace visible */
-            pointer-events: auto; /* Permite interacción con el slide activo */
-        }
-
-        .slide img {
+        .carousel-image {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 15px;
-        }
-
-        /* Efecto de desvanecido elegante en la parte inferior */
-        .slide::after {
-            content: '';
+            display: block;
             position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 70%;
-            background: linear-gradient(to top, 
-                                        #121212 0%,
-                                        rgba(18, 18, 18, 0.9) 15%,
-                                        rgba(18, 18, 18, 0.6) 40%,
-                                        rgba(18, 18, 18, 0.2) 65%,
-                                        rgba(18, 18, 18, 0) 100%);
-            z-index: 2;
-            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
         }
 
-        /* Contenido estático sobre el carrusel */
-        .static-carousel-content {
+        .carousel-image.active {
+            opacity: 1;
+        }
+
+        .carousel-pagination {
             position: absolute;
-            bottom: 25px;
-            left: 50px;
-            z-index: 4;
-            text-align: left;
-        }
-        /* Ajuste para el contenido del carrusel de destacadas */
-        .highlight-slider-wrapper .static-carousel-content {
-            left: 30px;
-            bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .highlight-slider-wrapper .slide-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 10px;
-            text-shadow: 0 0 8px rgba(0,0,0,0.7);
-        }
-
-
-        .slide-button {
-            display: inline-block;
-            background-color: #00bfff;
-            color: white;
-            padding: 8px 20px;
-            text-decoration: none;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            border: none;
-            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .slide-button:hover {
-            background-color: #009acd;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 191, 255, 0.6);
-        }
-
-        /* Puntos de navegación */
-        .slider-dots {
-            position: absolute;
-            bottom: 15px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
-            z-index: 5;
+            gap: 8px;
+            z-index: 10;
         }
 
-        .dot {
-            width: 12px;
-            height: 12px;
-            background-color: rgba(255, 255, 255, 0.6);
+        .pagination-dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.4);
             border-radius: 50%;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease, border 0.3s ease;
-            border: 2px solid transparent;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.2);
         }
 
-        .dot.active {
-            background-color: #00bfff;
-            transform: scale(1.3);
-            border: 2px solid white;
+        .pagination-dot.active {
+            background-color: var(--accent-blue);
+            transform: scale(1.2);
+            box-shadow: 0 0 8px var(--accent-blue);
         }
 
-        /* Estilos para el Top 10 */
-        .top-10-container {
-            padding: 20px 0; /* Padding vertical, el horizontal lo manejará .top-10-list */
-            margin-bottom: 30px;
-            margin-top: 20px;
+        /* --- Secciones de Categorías - Sin cambios significativos --- */
+        .category-section {
+            margin-bottom: 20px;
         }
 
-        /* Estilo para el mensaje de saludo */
-        .greeting-message {
-            color: #00bfff;
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
+        .category-section h2 {
+            font-size: 20px;
             margin-bottom: 10px;
-            text-align: left;
-            white-space: nowrap;
-            overflow: hidden;
-            border-right: .15em solid #00bfff;
-            animation: typing var(--typing-duration) steps(var(--steps), end) forwards, blink-caret .75s step-end infinite;
-            width: 0;
-            max-width: 100%;
-            padding-left: 20px; /* Padding para el saludo */
+            color: var(--text-light);
+            border-left: 5px solid var(--accent-blue);
+            padding-left: 12px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
-        /* Animación de escritura */
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        /* Animación del cursor */
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: #00bfff; }
-        }
-
-        /* Estilo para cuando la animación de escritura termine */
-        .greeting-message.finished {
-            border-right: none;
-            animation: none;
-            width: auto;
-        }
-
-        .top-10-container h2 {
-            color: #00bfff;
-            font-family: 'Montserrat', sans-serif;
-            margin-bottom: 15px;
-            font-size: 2rem;
-            text-align: center;
-        }
-
-        .top-10-container h2 span {
-            color: white;
-        }
-
-        .top-10-list {
+        .movie-grid {
             display: flex;
             overflow-x: auto;
-            gap: 15px;
-            padding-bottom: 15px;
+            gap: 12px;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
             -ms-overflow-style: none;
             scrollbar-width: none;
-            padding-left: 20px; 
-            padding-right: 20px;
+            flex-wrap: nowrap;
         }
 
-        .top-10-list::-webkit-scrollbar {
+        .movie-grid::-webkit-scrollbar {
             display: none;
         }
 
-        .top-10-list .movie-top-10 {
-            background-color: #3a3a3a;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
-            width: 150px; /* Ancho fijo para cada película del Top 10 */
+        .movie-card {
             flex-shrink: 0;
-        }
-
-        .top-10-list .movie-top-10:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 191, 255, 0.3);
-        }
-
-        .movie-top-10-image-container {
-            position: relative;
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .movie-top-10-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-
-        .top-10-badge {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #1E90FF;
-            color: white;
+            width: 105px;
             text-align: center;
-            padding: 5px 0;
-            font-weight: bold;
-            font-size: 0.9rem;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
+            color: var(--text-light);
+            cursor: pointer;
+            background-color: var(--dark-bg-light);
+            border-radius: 10px;
+            padding-bottom: 10px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 5px 15px var(--shadow-strong);
+            transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* position: relative; Removed from here - only applies to specific sections now */
         }
 
-        .top-10-list .movie-top-10 p {
-            padding: 10px;
+        .movie-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 123, 255, 0.4), 0 5px 10px var(--shadow-strong);
+            background-color: #2f2f35;
+        }
+        .movie-card:active {
+             transform: translateY(-2px) scale(0.98);
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 155px;
+            object-fit: cover;
+            border-radius: 9px 9px 0 0;
+            margin-bottom: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .movie-card:hover img {
+            transform: scale(1.02);
+        }
+
+        .movie-card h3 {
             font-size: 14px;
-            font-weight: bold;
-            color: #d3d3d3;
+            margin: 0 6px 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            line-height: 1.2;
+            font-weight: 600;
         }
 
-        .top-10-list .movie-top-10 a {
-            text-decoration: none;
-        }
-
-        /* Título "Contenido sugerido para ti" */
-        .suggested-content-title {
-            color: #00bfff; /* Color base del título */
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.8rem;
-            margin: 30px 0 20px 0; /* Margen superior e inferior, y 20px de padding lateral */
-            text-align: center;
-            padding-left: 20px;
-            padding-right: 20px;
-        }
-        /* Estilo para la palabra 'Ti' dentro del título sugerido */
-        .suggested-content-title .highlight-white {
-            color: white;
-        }
-
-
-        /* Películas */
-        .movie-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-            padding-top: 0; /* Ya tiene margen del título de arriba */
-            padding-bottom: 20px;
-            padding-left: 20px; 
-            padding-right: 20px; 
-        }
-
-        .movie {
-            background-color: #3a3a3a;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        .movie-card p {
+            font-size: 11px;
+            color: var(--text-muted);
+            white-space: normal;
             overflow: hidden;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+            text-overflow: ellipsis;
+            height: 2.5em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            padding: 0 6px;
+            flex-grow: 1;
         }
 
-        .movie:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 191, 255, 0.3);
+        /* NEW: Styles for the movie numbers, only for the 'Top 10' section */
+        #top10MoviesSection .movie-card {
+            position: relative; /* Add position relative only to cards in this section */
         }
 
-        .movie img {
+        #top10MoviesSection .movie-number {
+            position: absolute;
+            top: 5px; /* Adjust as needed for vertical position */
+            left: 5px; /* Adjust as needed for horizontal position */
+            font-size: 3em; /* Large font size for the numbers */
+            font-weight: 700;
+            color: white; /* White color as requested */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Add shadow for better visibility */
+            z-index: 10; /* Ensure the number is above the image */
+            -webkit-text-stroke: 1px black; /* Optional: adds a black stroke for more definition */
+            text-stroke: 1px black; /* Standard property */
+        }
+
+        /* --- Banner Publicitario - Sin cambios --- */
+        .ad-banner {
+            margin: 30px 0;
+            text-align: center;
+            background: linear-gradient(45deg, #1f1f22, #333336);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px var(--shadow-strong);
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid var(--border-soft);
+            animation: pulseAd 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseAd {
+            0% { transform: scale(1); box-shadow: 0 6px 20px var(--shadow-strong); }
+            50% { transform: scale(1.01); box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2); }
+            100% { transform: scale(1); box-shadow: 0 6px 20px var(--shadow-strong); }
+        }
+
+        .ad-banner img {
             width: 100%;
-            height: 250px;
+            height: 100%;
+            display: block;
+            border-radius: 10px;
             object-fit: cover;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
         }
 
-        .movie p {
-            padding: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #d3d3d3;
+        /* --- Overlay de Búsqueda (NUEVO y separado del menú) --- */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9); /* Fondo oscuro más opaco */
+            z-index: 2000; /* Asegura que esté por encima del header y todo */
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(-100%); /* Desciende desde arriba */
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            overflow-y: auto;
         }
 
-        .movie a {
-            text-decoration: none;
+        .search-overlay.active {
+            opacity: 1;
+            transform: translateY(0);
+            display: flex;
+        }
+        .search-overlay.hiding {
+            opacity: 0;
+            transform: translateY(-100%);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sticky-bar input {
-                width: 180px;
-            }
-            .slider-wrapper {
-                height: 400px;
-            }
-            .highlight-slider-wrapper {
-                height: 300px; /* Ajuste para móviles */
-            }
-            .static-carousel-content {
-                left: 30px;
-            }
-            .highlight-slider-wrapper .static-carousel-content {
-                left: 20px;
-                bottom: 20px;
-            }
-            .highlight-slider-wrapper .slide-title {
-                font-size: 1.8rem;
-            }
-            .suggested-content-title {
-                font-size: 1.5rem;
-            }
+        .search-overlay-header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; /* Alinea el botón de cerrar a la derecha */
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        @media (max-width: 600px) {
-            .sticky-bar {
-                padding: 10px 15px;
-                height: 70px;
-            }
-            .main-content {
-                padding-top: 70px;
-            }
+        .close-search-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 32px;
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.1s ease;
+        }
+        .close-search-button:hover {
+            color: var(--text-light);
+        }
+        .close-search-button:active {
+            transform: scale(0.9);
+            color: var(--accent-blue);
+        }
 
-            .logo-bar h1 {
-                font-size: 2rem;
-                margin-right: 10px;
-            }
+        .overlay-search-input-container {
+            width: 95%;
+            max-width: 600px; /* Un poco más ancho para pantallas grandes */
+            background-color: var(--dark-bg-light);
+            border-radius: 30px;
+            padding: 12px 20px; /* Más padding */
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 6px var(--shadow-strong);
+            border: 1px solid var(--border-soft);
+            transition: all 0.3s ease;
+        }
+        .overlay-search-input-container:focus-within {
+             box-shadow: 0 0 0 3px var(--accent-blue), inset 0 2px 6px var(--shadow-strong);
+             background-color: #202022;
+        }
 
-            .sticky-bar input {
+        .overlay-search-input-container input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            color: var(--text-light);
+            outline: none;
+            font-size: 18px; /* Texto más grande en el buscador del overlay */
+            padding-right: 12px;
+            -webkit-appearance: none;
+        }
+        .overlay-search-input-container input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 650px;
+            overflow-y: auto;
+            padding-right: 8px;
+            -webkit-overflow-scrolling: touch;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            padding-bottom: 20px;
+            max-height: calc(100vh - 180px); /* Ajuste de altura */
+        }
+
+        .search-results-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Estilos para las tarjetas de película dentro del overlay de búsqueda */
+        .search-results-grid .movie-card {
+            width: auto;
+            height: auto;
+            margin: 0;
+            background-color: var(--dark-bg-mid);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+            border: 1px solid #38383c;
+        }
+        .search-results-grid .movie-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 9px 9px 0 0;
+        }
+        .search-results-grid .movie-card h3 {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        .search-results-grid .movie-card p {
+            display: none; /* Ocultar la descripción corta en los resultados de búsqueda para mayor limpieza */
+        }
+
+        .no-results-message {
+            color: var(--text-muted);
+            text-align: center;
+            width: 100%;
+            font-size: 1.1em;
+            padding-top: 30px;
+        }
+
+        /* --- Overlay de Menú (Separado del buscador) --- */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--dark-bg-deep), #101012);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateX(100%); /* Se despliega desde la derecha */
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            overflow-y: auto;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            transform: translateX(0);
+            display: flex;
+        }
+        .menu-overlay.hiding {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        .menu-overlay-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .menu-overlay-header h2 {
+            font-size: 26px;
+            color: var(--text-light);
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding-left: 5px;
+        }
+
+        .close-menu-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 32px;
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.1s ease;
+        }
+        .close-menu-button:hover {
+            color: var(--text-light);
+        }
+        .close-menu-button:active {
+            transform: scale(0.9);
+            color: var(--accent-blue);
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .menu-list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            background-color: var(--dark-bg-light);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .menu-list-item:hover {
+            transform: translateX(5px);
+            background-color: #38383f;
+        }
+        .menu-list-item:active {
+            transform: translateX(2px);
+            background-color: var(--dark-bg-mid);
+        }
+
+        .menu-list-item .icon {
+            margin-right: 15px;
+            font-size: 24px;
+            color: var(--accent-blue);
+        }
+        .menu-list-item .live-indicator {
+            margin-left: auto;
+            background-color: #e74c3c;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulseLive 1.5s infinite;
+        }
+        @keyframes pulseLive {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+
+        /* --- Media Queries (Ajustes para tabletas y pantallas más grandes) --- */
+        @media (min-width: 600px) {
+            .main-header {
+                padding: 20px 30px;
+            }
+            .search-bar {
+                max-width: 300px;
+            }
+            .main-nav {
+                padding: 8px 30px;
+            }
+            .nav-list {
+                gap: 30px;
+            }
+            .content {
+                padding: 30px 25px;
+                padding-top: 120px; /* AJUSTE: Mantener el ajuste para pantallas grandes también */
+            }
+            .hero-section {
+                height: 250px;
+            }
+            .movie-card {
                 width: 120px;
-                font-size: 14px;
-                padding: 8px 10px;
-                margin-right: 5px;
             }
-
-            .menu-icon {
-                width: 25px;
-                height: 18px;
+            .movie-card img {
+                height: 180px;
             }
-
-            .menu-dropdown {
-                top: 70px;
-                right: 15px;
-                padding: 15px;
-                gap: 10px;
+            .category-section h2 {
+                font-size: 22px;
             }
-
-            .menu-dropdown a {
-                font-size: 1rem;
+            .ad-banner {
+                height: 100px;
             }
-
-            .slider-wrapper {
-                height: 280px;
+            .search-overlay-header h2 {
+                font-size: 28px;
             }
-            .highlight-slider-wrapper {
-                height: 220px; /* Ajuste para móviles */
+            .overlay-search-input-container {
+                max-width: 700px;
             }
-
-            .static-carousel-content {
-                bottom: 15px;
-                left: 20px;
+            .search-results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                max-width: 900px;
+                gap: 25px;
+                max-height: calc(100vh - 220px);
             }
-            .highlight-slider-wrapper .static-carousel-content {
-                left: 15px;
-                bottom: 15px;
+            .search-results-grid .movie-card img {
+                height: 190px;
             }
-            .highlight-slider-wrapper .slide-title {
-                font-size: 1.5rem;
+            .menu-overlay-header h2 {
+                font-size: 28px;
             }
-
-            .slide-button {
-                padding: 8px 18px;
-                font-size: 0.9rem;
+            .menu-list-item {
+                font-size: 20px;
+                padding: 18px 25px;
             }
-
-            .slider-dots {
-                bottom: 8px;
-                gap: 6px;
+            .menu-list-item .icon {
+                font-size: 28px;
             }
-
-            .dot {
-                width: 8px;
-                height: 8px;
+            #top10MoviesSection .movie-number {
+                font-size: 3.5em; /* Larger numbers on bigger screens */
+                top: 8px;
+                left: 8px;
             }
-
-            .movie-container {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                /* Ajuste el padding para pantallas pequeñas */
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-
-            .movie p {
-                font-size: 14px;
-            }
-
-            .top-10-container h2 {
-                font-size: 1.5rem;
-            }
-
-            .greeting-message {
-                font-size: 1.3rem;
-                padding-left: 15px;
-            }
-
-            .top-10-list {
-                /* Ajuste el padding para pantallas pequeñas */
-                padding-left: 15px; 
-                padding-right: 15px;
-            }
-
-            .top-10-list .movie-top-10 {
-                width: 120px;
-            }
-
-            .movie-top-10-image-container img {
-                height: 160px;
-            }
-
-            .top-10-badge {
-                font-size: 0.8rem;
-                padding: 3px 0;
+        }
+        /* Adjustments for smaller screens if numbers are too large */
+        @media (max-width: 400px) {
+            #top10MoviesSection .movie-number {
+                font-size: 2.5em; /* Slightly smaller on very small screens */
+                top: 2px;
+                left: 2px;
             }
         }
     </style>
 </head>
 <body>
+    <header class="main-header">
+        <div class="logo-container">
+            <span class="logo-llutid">LLUTID</span><span class="logo-plus">+</span>
+        </div>
+        <div class="search-bar" id="mainSearchBar">
+            <input type="text" id="mainSearchInput" placeholder="Buscar">
+            <button class="search-icon" id="mainSearchTriggerButton">🔍</button>
+        </div>
+        <button class="menu-button" id="openMenuButton">☰</button>
+    </header>
 
-    <div class="intro-screen">
-        <div class="logo-container">Llutid<span>+</span></div>
+    <nav class="main-nav">
+        <ul class="nav-list">
+            <li class="nav-item active" data-category-id="recentlyAddedSection">Recién Agregado</li>
+            <li class="nav-item" data-category-id="top10MoviesSection">Top 10 Películas LLUTID+</li>
+            <li class="nav-item" data-category-id="tvSeriesSection">Drama</li>
+            <li class="nav-item" data-category-id="2025MovieSection">Terror/Suspenso</li>
+            <li class="nav-item" data-category-id="telenovelasSection">Acción/Crimen</li>
+            <li class="nav-item" data-category-id="netflixMovieSection">Animada/Familiar</li>
+            <li class="nav-item" data-category-id="netflixSeriesSection">Comedia</li>
+            <li class="nav-item" data-category-id="popularMoviesSection">Películas Populares</li>
+            <li class="nav-item" data-category-id="realityTvSection">Reality-TV</li>
+        </ul>
+    </nav>
+
+    <main class="content">
+        <section class="hero-section" id="heroSection">
+            <img class="carousel-image active" src="https://i.postimg.cc/FHxXMQSq/result-LLUTID-FONDO.jpg" alt="Anuncio 1">
+            <img class="carousel-image" src="https://i.postimg.cc/9QbHgCPg/result-llutid-cine-streaming.png" alt="Anuncio 2">
+            <img class="carousel-image" src="https://i.postimg.cc/JhRz9q2r/result-Black-White-Bold-Movie-Night-Landscape-Banner.png" alt="Anuncio 3">
+            <img class="carousel-image" src="https://i.postimg.cc/V5yCMtLJ/result-Portada-para-P-gina-de-Facebook-de-Cine-al-Aire-Libre-con-Foto-Retro.png" alt="Anuncio 4">
+            <div class="carousel-pagination"></div>
+        </section>
+
+        <section class="category-section" id="recentlyAddedSection">
+            <h2>Recién Agregado</h2>
+            <div class="movie-grid">
+                <a href="intensamente2.html" class="movie-card" data-title="Intensamente 2" data-category="recien agregado">
+                    <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Intensamente 2">
+                    <h3>Intensamente 2</h3>
+                </a>
+                <a href="dondeestanlasrubias.html" class="movie-card" data-title="Las Rubias" data-category="recien agregado">
+                    <img src="https://i.postimg.cc/rsrWDzWH/rubias.png" alt="Las Rubias">
+                    <h3>Las Rubias</h3>
+                </a>
+                <a href="virus.html" class="movie-card" data-title="Virus" data-category="recien agregado">
+                    <img src="https://i.postimg.cc/Pfg1hc0M/virus.png" alt="Virus">
+                    <h3>Virus</h3>
+                </a>
+                 <a href="ole.html" class="movie-card" data-title="Olé, El Viaje de Ferdinand" data-category="recien agregado">
+                    <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="Olé, El Viaje de Ferdinand">
+                    <h3>Olé, El Viaje...</h3>
+                </a>
+                <a href="stuby.html" class="movie-card" data-title="Sgt. Stubby" data-category="recien agregado">
+                    <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="Sgt. Stubby">
+                    <h3>Sgt. Stubby</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="top10MoviesSection">
+            <h2>Top 10 películas LLUTID+</h2>
+            <div class="movie-grid">
+                <a href="larazondeestarcontico2.html" class="movie-card" data-title="La Razón de Estar Contigo 2" data-category="top10">
+                    <div class="movie-number">1</div>
+                    <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="La Razón de Estar Contigo 2">
+                    <h3>La Razón de E... 2</h3>
+                </a>
+                <a href="lapasiondecristo.html" class="movie-card" data-title="la pasion de cristo" data-category="top10">
+                    <div class="movie-number">2</div>
+                    <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="Te Pasen">
+                    <h3>Te Pasen</h3>
+                </a>
+                <a href="pata de guerra.html" class="movie-card" data-title="En Pie de Guerra" data-category="top10">
+                    <div class="movie-number">3</div>
+                    <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="En Pie de Guerra">
+                    <h3>En Pie de G...</h3>
+                </a>
+                <a href="intensamente2.html" class="movie-card" data-title="Pata de Guerra" data-category="top10">
+                    <div class="movie-number">4</div>
+                    <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Pata de Guerra">
+                    <h3>intensamente 2</h3>
+                </a>
+                <a href="ungranchico.html" class="movie-card" data-title="Un Gran Chico" data-category="top10">
+                    <div class="movie-number">5</div>
+                    <img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="Un Gran Chico">
+                    <h3>Un Gran Chico</h3>
+                </a>
+                <a href="terrifer1.html" class="movie-card" data-title="Terrifer 1" data-category="top10">
+                    <div class="movie-number">6</div>
+                    <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="Terrifer 1">
+                    <h3>Terrifer 1</h3>
+                </a>
+                <a href="laexorcista.html" class="movie-card" data-title="La Exorcista" data-category="top10">
+                    <div class="movie-number">7</div>
+                    <img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="La Exorcista">
+                    <h3>La Exorcista</h3>
+                </a>
+                <a href="encanto.html" class="movie-card" data-title="Encanto" data-category="top10">
+                    <div class="movie-number">8</div>
+                    <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="Encanto">
+                    <h3>Encanto</h3>
+                </a>
+                <a href="ole.html" class="movie-card" data-title="Olé, El Viaje de Ferdinand" data-category="top10">
+                    <div class="movie-number">9</div>
+                    <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="Olé, El Viaje de Ferdinand">
+                    <h3>Olé, El Viaje...</h3>
+                </a>
+                <a href="stuby.html" class="movie-card" data-title="Sgt. Stubby" data-category="top10">
+                    <div class="movie-number">10</div>
+                    <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="Sgt. Stubby">
+                    <h3>Sgt. Stubby</h3>
+                </a>
+            </div>
+        </section>
+
+        <div class="ad-banner" id="adBanner">
+            <img src="https://i.postimg.cc/Yqk6wjSK/podcast.jpg" alt="Banner Publicitario - Simulación">
+        </div>
+
+        <section class="category-section" id="popularMoviesSection">
+            <h2>Películas Populares</h2>
+            <div class="movie-grid">
+                <a href="undonexepcional.html" class="movie-card" data-title="Un Don Excepcional" data-category="peliculas populares">
+                    <img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="Un Don Excepcional">
+                    <h3>Un Don Exc...</h3>
+                </a>
+                <a href="pata de guerra.html" class="movie-card" data-title="En Pie de Guerra" data-category="peliculas populares">
+                    <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="En Pie de Guerra">
+                    <h3>En Pie de G...</h3>
+                </a>
+                <a href="tiburontoro.html" class="movie-card" data-title="Tiburón Toro 2" data-category="peliculas populares">
+                    <img src="https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png" alt="Tiburón Toro 2">
+                    <h3>Tiburón Toro 2</h3>
+                </a>
+                <a href="larazondeestarcontigo.html" class="movie-card" data-title="La Razón de Estar Contigo 1" data-category="peliculas populares">
+                    <img src="https://i.postimg.cc/Y2x0hsP7/la-razon-1.png" alt="La Razón de Estar Contigo 1">
+                    <h3>La Razón de E... 1</h3>
+                </a>
+                <a href="larazondeestarcontico2.html" class="movie-card" data-title="La Razón de Estar Contigo 2" data-category="peliculas populares">
+                    <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="La Razón de Estar Contigo 2">
+                    <h3>La Razón de E... 2</h3>
+                </a>
+            </div>
+        </section>
+
+        <div class="ad-banner" id="adBanner">
+            <img src="https://i.postimg.cc/zfMwmjy0/risas-fest-verde.jpg" alt="Banner Publicitario - Simulación">
+        </div>
+
+        <section class="category-section" id="2025MovieSection">
+            <h2>Terror/Suspenso</h2>
+            <div class="movie-grid">
+                <a href="virus.html" class="movie-card" data-title="Virus" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/Pfg1hc0M/virus.png" alt="Virus">
+                    <h3>Virus</h3>
+                </a>
+                <a href="tiburontoro.html" class="movie-card" data-title="Tiburón Toro 2" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png" alt="Tiburón Toro 2">
+                    <h3>Tiburón Toro 2</h3>
+                </a>
+                <a href="terrifer1.html" class="movie-card" data-title="Terrifer 1" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="Terrifer 1">
+                    <h3>Terrifer 1</h3>
+                </a>
+                <a href="laexorcista.html" class="movie-card" data-title="La Exorcista" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="La Exorcista">
+                    <h3>La Exorcista</h3>
+                </a>
+                <a href="lareencarnacion.html" class="movie-card" data-title="La Reencarnación" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/8cWH9QLF/result-reencarnacion-port.jpg" alt="La Reencarnación">
+                    <h3>La Reencarnación</h3>
+                </a>
+                <a href="instakiller.html" class="movie-card" data-title="Instakiller" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/J4nrt4J3/instakiller.png" alt="Instakiller">
+                    <h3>Instakiller</h3>
+                </a>
+                <a href="payasoit.html" class="movie-card" data-title="It 2" data-category="terror/suspenso">
+                    <img src="https://i.postimg.cc/2SrP30gs/payaso-it.png" alt="It 2">
+                    <h3>It 2</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="tvSeriesSection">
+            <h2>Drama</h2>
+            <div class="movie-grid">
+                <a href="undonexepcional.html" class="movie-card" data-title="Un Don Excepcional" data-category="drama">
+                    <img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="Un Don Excepcional">
+                    <h3>Un Don Exc...</h3>
+                </a>
+                <a href="pata de guerra.html" class="movie-card" data-title="En Pie de Guerra" data-category="drama">
+                    <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="En Pie de Guerra">
+                    <h3>En Pie de G...</h3>
+                </a>
+                <a href="larazondeestarcontigo.html" class="movie-card" data-title="La Razón de Estar Contigo 1" data-category="drama">
+                    <img src="https://i.postimg.cc/Y2x0hsP7/la-razon-1.png" alt="La Razón de Estar Contigo 1">
+                    <h3>La Razón de E... 1</h3>
+                </a>
+                <a href="larazondeestarcontico2.html" class="movie-card" data-title="La Razón de Estar Contigo 2" data-category="drama">
+                    <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="La Razón de Estar Contigo 2">
+                    <h3>La Razón de E... 2</h3>
+                </a>
+                <a href="elretador.html" class="movie-card" data-title="EL Retador" data-category="drama">
+                    <img src="https://i.postimg.cc/XvDqpjSG/el-retador.png" alt="EL Retador">
+                    <h3>EL Retador</h3>
+                </a>
+                <a href="vals.html" class="movie-card" data-title="Vals" data-category="drama">
+                    <img src="https://i.postimg.cc/15xgG3gD/result-vals.jpg" alt="Vals">
+                    <h3>Vals</h3>
+                </a>
+                <a href="dioscambiosuvidaparasiempre.html" class="movie-card" data-title="Dios Cambió su Vida" data-category="drama">
+                    <img src="https://i.postimg.cc/BQshCXND/dios-cambio-su-vida.png" alt="Dios Cambió su Vida">
+                    <h3>Dios Cambió...</h3>
+                </a>
+                <a href="lapasiondecristo.html" class="movie-card" data-title="La Pasión de Cristo" data-category="drama">
+                    <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="La Pasión de Cristo">
+                    <h3>La Pasión de...</h3>
+                </a>
+                <a href="elvoto.html" class="movie-card" data-title="El Voto" data-category="drama">
+                    <img src="https://i.postimg.cc/V6gwL3kH/el-voto.png" alt="El Voto">
+                    <h3>El Voto</h3>
+                </a>
+                <a href="leny.html" class="movie-card" data-title="Leny" data-category="drama">
+                    <img src="https://i.postimg.cc/7LvwB3RX/leny.png" alt="Leny">
+                    <h3>Leny</h3>
+                </a>
+                <a href="lost.html" class="movie-card" data-title="Perdidos y Encontrados" data-category="drama">
+                    <img src="https://i.postimg.cc/1zQcLFyC/result-lost-and-found.jpg" alt="Perdidos y Encontrados">
+                    <h3>Perdidos y E...</h3>
+                </a>
+                <a href="reveldesalos16.html" class="movie-card" data-title="Reveldes a Los 16" data-category="drama">
+                    <img src="https://i.postimg.cc/g2snbygK/result-reveldes-a-los-16.jpg" alt="Reveldes a Los 16">
+                    <h3>Reveldes a L...</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="telenovelasSection">
+            <h2>Acción/Crimen</h2>
+            <div class="movie-grid">
+                <a href="elroboperfecto.html" class="movie-card" data-title="El Robo Perfecto" data-category="accion/crimen">
+                    <img src="https://i.postimg.cc/BQC2J20q/result-el-robo-perfecto.png" alt="El Robo Perfecto">
+                    <h3>El Robo Perf...</h3>
+                </a>
+                <a href="asaltoalfurgon.html" class="movie-card" data-title="El Gran Asalto" data-category="accion/crimen">
+                    <img src="https://i.postimg.cc/fL84hm8G/asalto-al-furgon.png" alt="El Gran Asalto">
+                    <h3>El Gran Asalto</h3>
+                </a>
+                <a href="hacker.html" class="movie-card" data-title="Hacker" data-category="accion/crimen">
+                    <img src="https://i.postimg.cc/zXLs9LKQ/hacker.png" alt="Hacker">
+                    <h3>Hacker</h3>
+                </a>
+                <a href="hombrearaña2.html" class="movie-card" data-title="Hombre Araña" data-category="accion/crimen">
+                    <img src="https://i.postimg.cc/GtnXV2CW/hombre-ara-a.png" alt="Hombre Araña">
+                    <h3>Hombre Araña</h3>
+                </a>
+                <a href="fautland.html" class="movie-card" data-title="Viaje Mágico" data-category="accion/crimen">
+                    <img src="https://i.postimg.cc/0j4LzxRZ/fautland.png" alt="Viaje Mágico">
+                    <h3>Viaje Mágico</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="netflixMovieSection">
+            <h2>Animada/Familiar</h2>
+            <div class="movie-grid">
+                <a href="intensamente2.html" class="movie-card" data-title="Intensamente 2" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Intensamente 2">
+                    <h3>Intensamente 2</h3>
+                </a>
+                <a href="ole.html" class="movie-card" data-title="Olé, El Viaje de Ferdinand" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="Olé, El Viaje de Ferdinand">
+                    <h3>Olé, El Viaje...</h3>
+                </a>
+                <a href="stuby.html" class="movie-card" data-title="Sgt. Stubby" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="Sgt. Stubby">
+                    <h3>Sgt. Stubby</h3>
+                </a>
+                <a href="encanto.html" class="movie-card" data-title="Encanto" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="Encanto">
+                    <h3>Encanto</h3>
+                </a>
+                <a href="patos.html" class="movie-card" data-title="Patos" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/66GsP2dm/patos.png" alt="Patos">
+                    <h3>Patos</h3>
+                </a>
+                <a href="perrorokero2.html" class="movie-card" data-title="Perro Rokero 2" data-category="animada/familiar">
+                    <img src="https://i.postimg.cc/tJ8MX5WM/perro-rokero-2.png" alt="Perro Rokero 2">
+                    <h3>Perro Rokero 2</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="netflixSeriesSection">
+            <h2>Comedia</h2>
+            <div class="movie-grid">
+                <a href="dondeestanlasrubias.html" class="movie-card" data-title="Las Rubias (¿Dónde están las rubias?)" data-category="comedia">
+                    <img src="https://i.postimg.cc/rsrWDzWH/rubias.png" alt="Las Rubias">
+                    <h3>Las Rubias</h3>
+                </a>
+                <a href="elpaseo5.html" class="movie-card" data-title="El Paseo 5" data-category="comedia">
+                    <img src="https://i.postimg.cc/Qdmv7p3H/paseo-5.png" alt="El Paseo 5">
+                    <h3>El Paseo 5</h3>
+                </a>
+                <a href="elpaseo6.html" class="movie-card" data-title="El Paseo 6" data-category="comedia">
+                    <img src="https://i.postimg.cc/6ptyPbf3/result-el-paseo-6.png" alt="El Paseo 6">
+                    <h3>El Paseo 6</h3>
+                </a>
+                <a href="elpaseo7.html" class="movie-card" data-title="El Paseo 7" data-category="comedia">
+                    <img src="https://i.postimg.cc/5ttTS64p/paseo-7.png" alt="El Paseo 7">
+                    <h3>El Paseo 7</h3>
+                </a>
+                <a href="ungranchico.html" class="movie-card" data-title="Un Gran Chico" data-category="comedia">
+                    <img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="Un Gran Chico">
+                    <h3>Un Gran Chico</h3>
+                </a>
+                <a href="campamentocoolkids.html" class="movie-card" data-title="Camp Cool Kids" data-category="comedia">
+                    <img src="https://i.postimg.cc/0ySqJ6NS/camp-cool-kids.png" alt="Camp Cool Kids">
+                    <h3>Camp Cool Kids</h3>
+                </a>
+                <a href="2tontos.html" class="movie-card" data-title="2 Tontos" data-category="comedia">
+                    <img src="https://i.postimg.cc/yNFB2J4K/2-tontos.png" alt="2 Tontos">
+                    <h3>2 Tontos</h3>
+                </a>
+                <a href="desastredelapelicula.html" class="movie-card" data-title="Desastre: La Película" data-category="comedia">
+                    <img src="https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png" alt="Desastre: La Película">
+                    <h3>Desastre: La...</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="category-section" id="realityTvSection">
+            <h2>Reality-TV</h2>
+            <div class="movie-grid">
+                <a href="2tontos.html" class="movie-card" data-title="2 Tontos" data-category="reality-tv">
+                    <img src="https://i.postimg.cc/yNFB2J4K/2-tontos.png" alt="2 Tontos">
+                    <h3>2 Tontos</h3>
+                </a>
+                <a href="payasoit.html" class="movie-card" data-title="It 2" data-category="reality-tv">
+                    <img src="https://i.postimg.cc/2SrP30gs/payaso-it.png" alt="It 2">
+                    <h3>It 2</h3>
+                </a>
+                <a href="desastredelapelicula.html" class="movie-card" data-title="Desastre: La Película" data-category="reality-tv">
+                    <img src="https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png" alt="Desastre: La Película">
+                    <h3>Desastre: La...</h3>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-header">
+            <button class="close-search-button" id="closeSearchButton">✖</button>
+        </div>
+        <div class="overlay-search-input-container">
+            <input type="text" id="overlaySearchInput" placeholder="Escribe para buscar...">
+        </div>
+        <div class="search-results-grid" id="overlaySearchResultsGrid">
+             <p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>
+        </div>
     </div>
 
-    <div class="main-content">
-
-        <div class="sticky-bar">
-            <div class="logo-bar">
-                <h1>Llutid<span>+</span></h1>
-            </div>
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Buscar película..." onkeyup="buscarPelicula()">
-                <div class="menu-icon" onclick="toggleMenu()">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                </div>
-            </div>
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-overlay-header">
+            <h2>Menú</h2>
+            <button class="close-menu-button" id="closeMenuButton">✖</button>
         </div>
-
-        <div class="menu-dropdown" id="menuDropdown">
-            <a href="home.html">HOME</a>
-            <a href="recientemente_agregado.html">RECIEN AGREGADO</a>
-            <a href="proximasenlanzamiento.html">PROXIMAS EN LANZAMIENTO</a>
-            <a href="envivo.html">EN VIVO STREAMING DE NUEVAS LANZAMIENTOS</a>
-        </div>
-
-        <div class="slider-wrapper">
-            <div class="slider-container" id="mainSlider">
-                </div>
-            <div class="slider-dots" id="sliderDots">
-            </div>
-            </div>
-
-        <div class="top-10-container">
-            <h3 class="greeting-message" id="greetingMessage"></h3>
-            <h2>Top 10 Películas Llutid<span>+</span></h2>
-            <div class="top-10-list" id="top-10-list">
-                <div class="movie-top-10">
-                    <a href="larazondeestarcontico2.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="LA RAZON DE ESTAR CONTIGO 2">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>LA RAZON DE ESTAR CONTIGO 2</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="lapasiondecristo.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="THE PASSION">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>THE PASSION</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="pata de guerra.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="EN PIE PATA ">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>EN PIE PATA DE GUERRA</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="ungranchico.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="UN GRAN CHICO">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>UN GRAN CHICO</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="terrifer1.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="TERRIFER">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>TERIFER</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="laexorcista.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="LA EXORCISTA">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>LA EXORCISTA</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="encanto.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="LA EXORCISTA">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>ENCANTO</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="ole.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="ENCANTO">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>OLE</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="stuby.html">
-                        <div class="movie-top-10-image-container"> <img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="OLE">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>SARGENTO STUBBY</p>
-                    </a>
-                </div>
-                <div class="movie-top-10">
-                    <a href="intensamente2.html">
-                        <div class="movie-top-10-image-container">
-                            <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="SARGENTO STUBY">
-                            <div class="top-10-badge">Top 10</div>
-                        </div>
-                        <p>INTENSAMENTE 2</p>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <h2 class="suggested-content-title">Contenido Sugerido para <span class="highlight-white">Ti</span></h2>
-
-        <div class="movie-container" id="movie-container">
-        </div>
-
-        <script>
-            // Mostrar contenido inmediatamente (animación inicial eliminada)
-            document.querySelector('.intro-screen').style.display = 'none';
-            document.querySelector('.main-content').style.display = 'block';
-
-            const peliculasOriginales = [
-                { title: "Intensamente 2", image: "https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png", link: "intensamente2.html" },
-                { title: "Las Rubias", image: "https://i.postimg.cc/rsrWDzWH/rubias.png", link: "dondeestanlasrubias.html" },
-                { title: "Virus", image: "https://i.postimg.cc/Pfg1hc0M/virus.png", link: "virus.html" },
-                { title: "Olé, El Viaje de Ferdinand", image: "https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png", link: "ole.html" },
-                { title: "Sgt. Stubby", image: "https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png", link: "stuby.html" },
-                { title: "Un Don Excepcional", image: "https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png", link: "undonexepcional.html" },
-                { title: "En Pie de Guerra", image: "https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png", link: "pata de guerra.html" },
-                { title: "Tiburón Toro 2", image: "https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png", link: "tiburontoro.html" },
-                { title: "La Razón de Estar Contigo 1", image: "https://i.postimg.cc/Y2x0hsP7/la-razon-1.png", link: "larazondeestarcontigo.html" },
-                { title: "La Razón de Estar Contigo 2", image: "https://i.postimg.cc/J46hQBmd/la-razon-2.png", link: "larazondeestarcontico2.html" },
-                { title: "Terrifer 1", image: "https://i.postimg.cc/GpYhr7DZ/terrifer-1.png", link: "terrifer1.html" },
-                { title: "La Exorcista", image: "https://i.postimg.cc/C5vwJWyf/la-exorcista.png", link: "laexorcista.html" },
-                { title: "La Reencarnacion", image: "https://i.postimg.cc/8cWH9QLF/result-reencarnacion-port.jpg", link: "lareencarnacion.html" },
-                { title: "EL Retador", image: "https://i.postimg.cc/XvDqpjSG/result-el-retador.jpg", link: "elretador.html" },
-                { title: "El Paseo 5", image: "https://i.postimg.cc/Qdmv7p3H/paseo-5.png", link: "elpaseo5.html" },
-                { title: "El Paseo 6", image: "https://i.postimg.cc/6ptyPbf3/result-el-paseo-6.png", link: "elpaseo6.html" },
-                { title: "El Paseo 7", image: "https://i.postimg.cc/5ttTS64p/paseo-7.png", link: "elpaseo7.html" },
-                { title: "vals", image: "https://i.postimg.cc/15xgG3gD/result-vals.jpg", link: "vals.html" },
-                { title: "Dios Cambió su Vida", image: "https://i.postimg.cc/BQshCXND/dios-cambio-su-vida.png", link: "dioscambiosuvidaparasiempre.html" },
-                { title: "la pasion de cristo", image: "https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg ", link: "lapasiondecristo.html" },
-                { title: "Encanto", image: "https://i.postimg.cc/QCnrc15Q/encanto.png", link: "encanto.html" },
-                { title: "Un Gran Chico", image: "https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png", link: "ungranchico.html" },
-                { title: "Camp Cool Kids", image: "https://i.postimg.cc/0ySqJ6NS/camp-cool-kids.png", link: "campamentocoolkids.html" },
-                { title: "El robo perfecto", image: "https://i.postimg.cc/BQC2J20q/result-el-robo-perfecto.png", link: "elroboperfecto.html" },
-                { title: "El Gran Asalto", image: "https://i.postimg.cc/fL84hm8G/asalto-al-furgon.png", link: "asaltoalfurgon.html" },
-                { title: "Patos", image: "https://i.postimg.cc/66GsP2dm/patos.png", link: "patos.html" },
-                { title: "Viaje Mágico", image: "https://i.postimg.cc/0j4LzxRZ/fautland.png", link: "fautland.html" },
-                { title: "lost y found", image: "https://i.postimg.cc/1zQcLFyC/result-lost-and-found.jpg", link: "lost.html" },
-                { title: "Hacker", image: "https://i.postimg.cc/zXLs9LKQ/hacker.png", link: "hacker.html" },
-                { title: "Reveldes a Los 16", image: "https://i.postimg.cc/g2snbygK/result-reveldes-a-los-16.jpg", link: "reveldesalos16.html" },
-                { title: "Hombre Araña", image: "https://i.postimg.cc/GtnXV2CW/hombre-ara-a.png", link: "hombrearaña2.html" },
-                { title: "Perro Rokero 2", image: "https://i.postimg.cc/tJ8MX5WM/perro-rokero-2.png", link: "perrorokero2.html" },
-                { title: "El Voto", image: "https://i.postimg.cc/V6gwL3kH/el-voto.png", link: "elvoto.html" },
-                { title: "Instakiller", image: "https://i.postimg.cc/J4nrt4J3/instakiller.png", link: "instakiller.html" },
-                { title: "Leny", image: "https://i.postimg.cc/7LvwB3RX/leny.png", link: "leny.html" },
-                { title: "2 Tontos", image: "https://i.postimg.cc/yNFB2J4K/2-tontos.png", link: "2tontos.html" },
-                { title: "It 2", image: "https://i.postimg.cc/2SrP30gs/payaso-it.png", link: "payasoit.html" },
-                { title: "Desastre: La Película", image: "https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png", link: "desastredelapelicula.html" }
-            ];
-
-            // Datos para el nuevo carrusel de destacadas
-            const highlightedMovies = [
-                { title: "Un Gran Chico", image: "https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png", link: "ungranchico.html" },
-                { title: "La Razón de Estar Contigo 2", image: "https://i.postimg.cc/J46hQBmd/la-razon-2.png", link: "larazondeestarcontico2.html" },
-                { title: "En Pie de Guerra", image: "https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png", link: "pata de guerra.html" }
-            ];
-
-            // Función para inicializar un carrusel con efecto de desvanecimiento
-            function initializeFadeCarousel(sliderId, dotsId, movies) {
-                const sliderContainer = document.getElementById(sliderId);
-                const sliderDots = document.getElementById(dotsId);
-
-                if (!sliderContainer || !sliderDots) {
-                    console.error(`Carousel elements not found for ID: ${sliderId} or ${dotsId}`);
-                    return;
-                }
-
-                sliderContainer.innerHTML = ''; // Limpiar slides existentes
-                sliderDots.innerHTML = ''; // Limpiar dots existentes
-
-                movies.forEach((movie, index) => {
-                    const slide = document.createElement('div');
-                    slide.classList.add('slide');
-                    slide.innerHTML = `<img src="${movie.image}" alt="${movie.title}">`;
-                    
-                    // Añadir el contenido estático solo si es el carrusel de destacadas
-                    if (sliderId === 'highlightSliderDynamic') {
-                        const staticContent = document.createElement('div');
-                        staticContent.classList.add('static-carousel-content');
-                        staticContent.innerHTML = `
-                            <h2 class="slide-title">${movie.title}</h2>
-                            <a href="${movie.link}" class="slide-button">VER AHORA</a>
-                        `;
-                        slide.appendChild(staticContent);
-                    }
-
-                    sliderContainer.appendChild(slide);
-
-                    const dot = document.createElement('div');
-                    dot.classList.add('dot');
-                    if (index === 0) {
-                        slide.classList.add('active-fade'); // El primer slide es visible por defecto
-                        dot.classList.add('active');
-                    }
-                    dot.addEventListener('click', () => {
-                        showSlideFade(sliderContainer, dots, index);
-                    });
-                    sliderDots.appendChild(dot);
-                });
-
-                const slides = Array.from(sliderContainer.children);
-                const dots = Array.from(sliderDots.children);
-                let currentSlideIndex = 0;
-
-                function showSlideFade(container, dotsArray, indexToShow) {
-                    slides.forEach((slide, idx) => {
-                        if (idx === indexToShow) {
-                            slide.classList.add('active-fade');
-                        } else {
-                            slide.classList.remove('active-fade');
-                        }
-                    });
-                    dotsArray.forEach((dot, idx) => {
-                        if (idx === indexToShow) {
-                            dot.classList.add('active');
-                        } else {
-                            dot.classList.remove('active');
-                        }
-                    });
-                    currentSlideIndex = indexToShow;
-                }
-
-                // Auto-advance
-                // Clear previous interval if any
-                if (sliderContainer.autoAdvanceInterval) {
-                    clearInterval(sliderContainer.autoAdvanceInterval);
-                }
-
-                sliderContainer.autoAdvanceInterval = setInterval(() => {
-                    currentSlideIndex++;
-                    if (currentSlideIndex >= movies.length) {
-                        currentSlideIndex = 0; // Vuelve al inicio
-                    }
-                    showSlideFade(sliderContainer, dots, currentSlideIndex);
-                }, 5000); // Cambia cada 5 segundos
-            }
-
-            // Función para mostrar las películas (modificada para insertar el carrusel de destacadas en el grid)
-            function mostrarPeliculas(peliculas) {
-                const movieContainer = document.getElementById('movie-container');
-                movieContainer.innerHTML = ''; // Limpiar el contenedor de películas
-
-                // Define el índice exacto después de cuántas películas quieres insertar el carrusel.
-                // 14 es después de "EL Retador" (índice 13 en el array de peliculasOriginales).
-                const insertIndex = 14; 
-
-                peliculas.forEach((pelicula, index) => {
-                    const div = document.createElement('div');
-                    div.classList.add('movie');
-                    div.innerHTML = `
-                        <a href="${pelicula.link}">
-                            <img src="${pelicula.image}" alt="${pelicula.title}">
-                            <p>${pelicula.title}</p>
-                        </a>
-                    `;
-                    movieContainer.appendChild(div);
-
-                    // Insertar el carrusel de destacadas en la posición deseada dentro del movie-container
-                    if (index === insertIndex - 1) { // -1 porque el índice es base 0
-                        const highlightSliderHTML = `
-                            <div class="slider-wrapper highlight-slider-wrapper">
-                                <div class="slider-container" id="highlightSliderDynamic">
-                                </div>
-                                <div class="slider-dots" id="highlightSliderDotsDynamic">
-                                </div>
-                            </div>
-                        `;
-                        // Insertar el HTML del carrusel justo después de la película actual
-                        const movieElement = movieContainer.children[movieContainer.children.length -1]; // Obtener el último elemento agregado
-                        movieElement.insertAdjacentHTML('afterend', highlightSliderHTML);
-
-                        // Inicializar el carrusel de destacadas recién insertado
-                        // Usamos initializeFadeCarousel para el efecto de desvanecimiento
-                        initializeFadeCarousel('highlightSliderDynamic', 'highlightSliderDotsDynamic', highlightedMovies);
-                    }
-                });
-            }
+        <ul class="menu-list">
+            <li class="menu-list-item" data-menu-action="home">
+                <span class="icon">🏠</span> Home
+            </li>
+            <li class="menu-list-item" data-menu-action="recently-added">
+                <span class="icon">✨</span> Recién Agregado
+            </li>
+            <li class="menu-list-item" data-menu-action="proximasenlanzamiento.html">
+                <span class="icon">🚀</span> Próximos Lanzamientos
+            </li>
+            <li class="menu-list-item" data-menu-action="envivo.html">
+                <span class="icon">🔴</span> En Vivo / Streaming
+                <span class="live-indicator">LIVE</span>
+            </li>
+        </ul>
+    </div>
 
 
-            // Filtrar películas
-            function buscarPelicula() {
-                const search = document.getElementById('search').value.toLowerCase();
-                const peliculasFiltradas = peliculasOriginales.filter(pelicula =>
-                    pelicula.title.toLowerCase().includes(search)
-                );
-                mostrarPeliculas(peliculasFiltradas);
-            }
+    <script>
+        // --- Carrusel de la Sección Hero ---
+        const carouselImages = document.querySelectorAll('.carousel-image');
+        const carouselPagination = document.querySelector('.carousel-pagination');
+        let currentImageIndex = 0;
+        let carouselInterval;
 
-            // Mostrar todas las películas inicialmente y luego inicializar carruseles
-            mostrarPeliculas(peliculasOriginales); // Esto también se encargará de insertar e inicializar el carrusel de destacadas
-            
-            // Inicializar el carrusel principal con el efecto fade
-            initializeFadeCarousel('mainSlider', 'sliderDots', [ // Asegúrate de que este array coincida con tus slides principales
-                { image: "https://i.postimg.cc/FHxXMQSq/result-LLUTID-FONDO.jpg", title: "Anuncio 1", link: "#" },
-                { image: "https://i.postimg.cc/9QbHgCPg/result-llutid-cine-streaming.png", title: "Anuncio 2", link: "#" },
-                { image: "https://i.postimg.cc/JhRz9q2r/result-Black-White-Bold-Movie-Night-Landscape-Banner.png", title: "Anuncio 3", link: "#" },
-                { image: "https://i.postimg.cc/V5yCMtLJ/result-Portada-para-P-gina-de-Facebook-de-Cine-al-Aire-Libre-con-Foto-Retro.png", title: "Anuncio 4", link: "#" }
-            ]);
-
-            // Función para mostrar/ocultar el menú desplegable
-            function toggleMenu() {
-                const menu = document.getElementById('menuDropdown');
-                if (menu.style.display === 'flex') {
-                    menu.style.display = 'none';
-                } else {
-                    menu.style.display = 'flex';
-                }
-            }
-
-            // Función para obtener el saludo según la hora del día
-            function obtenerSaludo() {
-                const hora = new Date().getHours();
-                if (hora >= 5 && hora < 12) {
-                    return "¡Buenos días!";
-                } else if (hora >= 12 && hora < 19) {
-                    return "¡Buenas tardes!";
-                } else {
-                    return "¡Buenas noches!";
-                }
-            }
-
-            // Animación de escritura para el saludo
-            document.addEventListener('DOMContentLoaded', () => {
-                const greetingElement = document.getElementById('greetingMessage');
-                const fullText = obtenerSaludo();
-                const typingDuration = 1.5; // segundos
-                const steps = fullText.length;
-
-                greetingElement.style.setProperty('--typing-duration', `${typingDuration}s`);
-                greetingElement.style.setProperty('--steps', steps);
-
-                // Forzar el redibujado para que la animación se aplique desde el principio
-                void greetingElement.offsetWidth; // Trigger reflow
-
-                // Añadir la clase 'finished' cuando la animación termine
-                greetingElement.addEventListener('animationend', () => {
-                    greetingElement.classList.add('finished');
-                });
-                greetingElement.textContent = fullText; // Establecer el texto completo para la animación
+        carouselImages.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('pagination-dot');
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                goToImage(index);
+                resetCarouselInterval();
             });
+            carouselPagination.appendChild(dot);
+        });
 
-        </script>
-    </body>
-    </html>
+        const paginationDots = document.querySelectorAll('.pagination-dot');
+
+        function updatePaginationDots() {
+            paginationDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentImageIndex);
+            });
+        }
+
+        function goToImage(index) {
+            carouselImages[currentImageIndex].classList.remove('active');
+            currentImageIndex = index;
+            carouselImages[currentImageIndex].classList.add('active');
+            updatePaginationDots();
+        }
+
+        function showNextImage() {
+            goToImage((currentImageIndex + 1) % carouselImages.length);
+        }
+
+        function resetCarouselInterval() {
+            clearInterval(carouselInterval);
+            carouselInterval = setInterval(showNextImage, 5000);
+        }
+
+        resetCarouselInterval();
+
+        // --- Datos de todas las películas para la búsqueda ---
+        const allMovieCardsElements = document.querySelectorAll('.movie-card');
+        const allMoviesData = [];
+        allMovieCardsElements.forEach(card => {
+            allMoviesData.push({
+                title: card.dataset.title.toLowerCase(),
+                originalTitle: card.dataset.title,
+                image: card.querySelector('img').src,
+                link: card.href,
+                category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
+            });
+        });
+
+        // --- Funcionalidad del Buscador (Overlay propio) ---
+        const mainSearchInput = document.getElementById('mainSearchInput');
+        const mainSearchTriggerButton = document.getElementById('mainSearchTriggerButton');
+        const searchOverlay = document.getElementById('searchOverlay');
+        const closeSearchButton = document.getElementById('closeSearchButton');
+        const overlaySearchInput = document.getElementById('overlaySearchInput');
+        const overlaySearchResultsGrid = document.getElementById('overlaySearchResultsGrid');
+
+        // Función de debounce para optimizar la llamada a funciones
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
+        function renderSearchResults(searchTerm) {
+            overlaySearchResultsGrid.innerHTML = '';
+            const filteredMovies = allMoviesData.filter(movie =>
+                movie.title.includes(searchTerm.toLowerCase())
+            );
+
+            if (searchTerm === '') {
+                overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
+                return;
+            }
+
+            if (filteredMovies.length === 0) {
+                overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">No se encontraron resultados para su búsqueda.</p>';
+                return;
+            }
+
+            filteredMovies.forEach(movie => {
+                const movieCard = document.createElement('a');
+                movieCard.href = movie.link;
+                movieCard.classList.add('movie-card');
+                movieCard.innerHTML = `
+                    <img src="${movie.image}" alt="${movie.originalTitle}">
+                    <h3>${movie.originalTitle}</h3>
+                `;
+                overlaySearchResultsGrid.appendChild(movieCard);
+            });
+        }
+
+        const debouncedRenderSearchResults = debounce(renderSearchResults, 300); // 300ms de retraso
+
+        function openSearchOverlay() {
+            searchOverlay.classList.remove('hiding');
+            searchOverlay.classList.add('active');
+            document.body.classList.add('no-scroll');
+            // Sincronizar el input del overlay con el del header al abrir
+            overlaySearchInput.value = mainSearchInput.value;
+            debouncedRenderSearchResults(overlaySearchInput.value); // Usar la versión debounced
+            overlaySearchInput.focus(); // Enfocar el input del overlay
+        }
+
+        function closeSearchOverlay() {
+            searchOverlay.classList.add('hiding');
+            searchOverlay.addEventListener('transitionend', function handler() {
+                searchOverlay.classList.remove('active', 'hiding');
+                searchOverlay.removeEventListener('transitionend', handler);
+                document.body.classList.remove('no-scroll');
+                // Limpiar el input del header y del overlay al cerrar
+                mainSearchInput.value = '';
+                overlaySearchInput.value = '';
+                overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
+            }, { once: true });
+        }
+
+        // Eventos para el buscador del header
+        mainSearchInput.addEventListener('focus', openSearchOverlay);
+        mainSearchInput.addEventListener('input', () => {
+            if (searchOverlay.classList.contains('active')) {
+                debouncedRenderSearchResults(mainSearchInput.value); // Usar la versión debounced
+            }
+        });
+        mainSearchTriggerButton.addEventListener('click', openSearchOverlay);
+
+        // Eventos para el buscador dentro del overlay
+        closeSearchButton.addEventListener('click', closeSearchOverlay);
+        overlaySearchInput.addEventListener('input', () => {
+            debouncedRenderSearchResults(overlaySearchInput.value); // Usar la versión debounced
+            // Sincronizar el input del header con el del overlay
+            mainSearchInput.value = overlaySearchInput.value;
+        });
+        overlaySearchInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Escape') {
+                closeSearchOverlay();
+            }
+        });
+
+
+        // --- Funcionalidad del Menú Overlay (Totalmente separado) ---
+        const openMenuButton = document.getElementById('openMenuButton');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const closeMenuButton = document.getElementById('closeMenuButton');
+        const menuListItems = document.querySelectorAll('.menu-list-item');
+
+        function openMenuOverlay() {
+            menuOverlay.classList.remove('hiding');
+            menuOverlay.classList.add('active');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeMenuOverlay() {
+            menuOverlay.classList.add('hiding');
+            menuOverlay.addEventListener('transitionend', function handler() {
+                menuOverlay.classList.remove('active', 'hiding');
+                menuOverlay.removeEventListener('transitionend', handler);
+                document.body.classList.remove('no-scroll');
+            }, { once: true });
+        }
+
+        openMenuButton.addEventListener('click', openMenuOverlay);
+        closeMenuButton.addEventListener('click', closeMenuOverlay);
+
+        // Manejar clics en los ítems del menú
+        menuListItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.dataset.menuAction;
+                closeMenuOverlay();
+
+                // Restablecer la barra de navegación principal al "Recién Agregado" por defecto
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                document.querySelector('.nav-item[data-category-id="recentlyAddedSection"]').classList.add('active');
+
+                // Mostrar todas las secciones de categorías por defecto después de cerrar el menú
+                document.querySelectorAll('.category-section').forEach(section => {
+                    section.style.display = 'block';
+                });
+                document.getElementById('heroSection').style.display = 'block';
+                document.getElementById('adBanner').style.display = 'flex';
+
+                if (action === 'home') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else if (action === 'recently-added') {
+                    // Si deseas que "Recién Agregado" realmente haga algo, implementa la lógica aquí.
+                    // Si es solo para cerrar el menú y volver a la vista principal, puedes dejarlo así.
+                    console.log('Funcionalidad "Recién Agregado" (ya gestionada por el botón de navegación principal).');
+                } else if (action === 'proximasenlanzamiento.html') { // Coincide con data-menu-action
+                    window.location.href = 'proximasenlanzamiento.html'; // Redirige a la página
+                } else if (action === 'envivo.html') { // Coincide con data-menu-action
+                    window.location.href = 'envivo.html'; // Redirige a la página
+                }
+            });
+        });
+
+        // --- Funcionalidad de los ítems de navegación principal (bajo el header) ---
+        const navItems = document.querySelectorAll('.nav-item');
+        const allSections = document.querySelectorAll('.category-section');
+        const adBanner = document.getElementById('adBanner');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+
+                const categoryText = this.textContent.trim().toLowerCase();
+                const targetSectionId = this.dataset.categoryId;
+
+                // Asegurarse de que ambos overlays estén cerrados al cambiar de categoría
+                if (menuOverlay.classList.contains('active')) {
+                    closeMenuOverlay();
+                }
+                if (searchOverlay.classList.contains('active')) {
+                    closeSearchOverlay();
+                }
+
+                // Limpiar el input de búsqueda principal al cambiar de categoría
+                mainSearchInput.value = '';
+
+                allSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.getElementById('heroSection').style.display = 'block';
+                adBanner.style.display = 'flex';
+
+                if (targetSectionId) {
+                    const targetSection = document.getElementById(targetSectionId);
+                    if (targetSection) {
+                        targetSection.style.display = 'block';
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+
+                if (categoryText === 'recién agregado') {
+                    allSections.forEach(section => {
+                        section.style.display = 'block';
+                    });
+                     document.getElementById('heroSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
