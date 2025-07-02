@@ -882,7 +882,7 @@
                     <img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="En Pie de Guerra">
                     <h3>En Pie de G...</h3>
                 </a>
-                <a href="intensamente2.html" class="movie-card" data-title="Pata de Guerra" data-category="top10">
+                <a href="intensamente2.html" class="movie-card" data-title="Intensamente 2" data-category="top10">
                     <div class="movie-number">4</div>
                     <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Pata de Guerra">
                     <h3>intensamente 2</h3>
@@ -1237,16 +1237,28 @@
 
         // --- Datos de todas las películas para la búsqueda ---
         const allMovieCardsElements = document.querySelectorAll('.movie-card');
-        const allMoviesData = [];
+        let allMoviesData = []; // Cambiado a 'let' para poder reasignar
+
+        // Paso 1: Recopilar todos los datos brutos (pueden contener duplicados)
         allMovieCardsElements.forEach(card => {
             allMoviesData.push({
                 title: card.dataset.title.toLowerCase(),
-                originalTitle: card.dataset.title,
+                originalTitle: card.dataset.title, // Usaremos esto para la unicidad
                 image: card.querySelector('img').src,
                 link: card.href,
                 category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
             });
         });
+
+        // Paso 2: Filtrar duplicados basándose en el 'originalTitle'
+        const uniqueMoviesMap = new Map();
+        allMoviesData.forEach(movie => {
+            if (!uniqueMoviesMap.has(movie.originalTitle)) {
+                uniqueMoviesMap.set(movie.originalTitle, movie);
+            }
+        });
+        allMoviesData = Array.from(uniqueMoviesMap.values()); // Convertir el mapa a un array de valores únicos
+
 
         // --- Funcionalidad del Buscador (Overlay propio) ---
         const mainSearchInput = document.getElementById('mainSearchInput');
