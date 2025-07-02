@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Llutid+ | Registro de Prueba Gratuita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Variables CSS para facilitar cambios de color */
+        :root {
+            --primary-color: #007bff; /* Azul vibrante */
+            --primary-dark: #0056b3;
+            --secondary-color: #28a745; /* Verde para WhatsApp */
+            --background-dark: #1a1a2e;
+            --background-light: #2c2c44;
+            --card-background: #252538;
+            --text-color-light: #f0f0f0;
+            --text-color-dark: #ccc;
+            --border-color: #444;
+            --shadow-color: rgba(0,0,0,0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Rubik', sans-serif;
+            background: linear-gradient(to bottom right, var(--background-dark), #121218);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Centrar verticalmente también en móviles */
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        .container {
+            background: var(--card-background);
+            padding: 30px; /* Aumentar padding */
+            border-radius: 20px; /* Bordes más redondeados */
+            width: 100%;
+            max-width: 480px; /* Aumentar ancho máximo */
+            box-shadow: 0 10px 40px var(--shadow-color); /* Sombra más pronunciada */
+            animation: fadeIn 0.8s ease-out; /* Animación más suave */
+            border: 1px solid rgba(255,255,255,0.05); /* Borde sutil */
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px; /* Tamaño de fuente más grande */
+            color: var(--primary-color);
+            margin-bottom: 15px; /* Más espacio */
+            font-weight: 700; /* Negrita */
+            letter-spacing: 1px;
+        }
+        h1 span {
+            color: var(--text-color-light);
+        }
+        .progress {
+            background: var(--border-color);
+            border-radius: 12px; /* Bordes más redondeados */
+            height: 18px; /* Un poco más alto */
+            margin-bottom: 25px;
+            overflow: hidden;
+            position: relative; /* Para texto del progreso */
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: var(--primary-color);
+            text-align: center;
+            color: var(--text-color-light);
+            font-size: 13px; /* Tamaño de fuente del progreso */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease-in-out, background 0.3s ease; /* Transición más suave */
+        }
+        .step {
+            display: none;
+            animation: slideIn 0.5s ease-out forwards; /* Animación más suave */
+            transform-origin: top;
+        }
+        .step.active {
+            display: block;
+        }
+        label {
+            margin-top: 20px; /* Más espacio */
+            display: block;
+            font-weight: 500; /* Peso de fuente */
+            color: var(--text-color-dark);
+            font-size: 15px;
+            margin-bottom: 5px; /* Espacio entre label e input */
+        }
+        input, select {
+            width: 100%;
+            padding: 12px; /* Aumentar padding */
+            border-radius: 12px; /* Bordes más redondeados */
+            margin-top: 0; /* Ya tenemos margen en el label */
+            border: 1px solid var(--border-color); /* Borde sutil */
+            background: var(--background-light);
+            color: var(--text-color-light);
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Sombra al enfocar */
+        }
+        input[type="file"] {
+            padding: 10px; /* Ajuste para inputs de archivo */
+        }
+        .buttons {
+            margin-top: 30px; /* Más espacio */
+            display: flex;
+            justify-content: space-between;
+            gap: 15px; /* Espacio entre botones */
+        }
+        button {
+            flex-grow: 1; /* Para que los botones ocupen el mismo espacio */
+            padding: 14px 25px; /* Más padding */
+            border: none;
+            border-radius: 12px; /* Bordes más redondeados */
+            font-weight: 700; /* Negrita */
+            background: var(--primary-color);
+            color: var(--text-color-light);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px); /* Pequeño efecto al pasar el cursor */
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button[onclick="nextPrev(-1)"] {
+            background: var(--background-light); /* Botón anterior con fondo más oscuro */
+            border: 1px solid var(--border-color);
+            color: var(--text-color-dark);
+        }
+        button[onclick="nextPrev(-1)"]:hover {
+            background: var(--border-color);
+        }
+
+        .link-btn, .share-box {
+            margin-top: 18px; /* Más espacio */
+            display: block;
+            background: var(--background-light);
+            padding: 15px; /* Más padding */
+            border-radius: 12px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color-light);
+            font-weight: 600; /* Peso de fuente */
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .link-btn:hover {
+            background: #3a3a50;
+            transform: translateY(-2px);
+        }
+        .share-box {
+            background: var(--card-background); /* Fondo del share box */
+            font-size: 15px;
+            color: var(--text-color-dark);
+            line-height: 1.5;
+            padding: 20px; /* Más padding para el share box */
+            border: 1px dashed var(--border-color); /* Borde punteado */
+        }
+        .share-box strong {
+            color: var(--primary-color);
+        }
+        .share-box a {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        .link-btn[href*="whatsapp.com/send"] {
+            background: var(--secondary-color); /* Color verde para compartir en WhatsApp */
+            margin-top: 25px;
+        }
+        .link-btn[href*="whatsapp.com/send"]:hover {
+            background: #218838;
+        }
+        p {
+            margin-top: 15px;
+            font-size: 15px;
+            color: var(--text-color-dark);
+            text-align: center;
+        }
+        p.small-text {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        .success-message {
+            text-align: center;
+            font-size: 18px;
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 10px;
+            border: 1px solid var(--secondary-color);
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @media screen and (min-width: 800px) {
+            body {
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Llutid<span>+</span></h1>
+        <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        <form id="formulario">
+            <div class="step active">
+                <label for="nombre">Nombre completo</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez Rodríguez" required>
+
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" placeholder="ejemplo@dominio.com" required>
+            </div>
+
+            <div class="step">
+                <label for="celular">Número de celular</label>
+                <input type="tel" id="celular" name="celular" placeholder="+57 3XX XXX XXXX" required>
+
+                <label for="fecha">Fecha de nacimiento</label>
+                <input type="date" id="fecha" name="fecha" required>
+            </div>
+
+            <div class="step">
+                <label for="pais">País de residencia</label>
+                <input type="text" id="pais" name="pais" placeholder="Ej: Colombia" required>
+
+                <label for="genero">Género</label>
+                <select id="genero" name="genero" required>
+                    <option value="">Selecciona tu género</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Otro">Otro</option>
+                    <option value="Prefiero no decir">Prefiero no decir</option>
+                </select>
+            </div>
+
+            <div class="step">
+                <p>¡Casi listo! Para continuar, síguenos en nuestras redes:</p>
+                <a class="link-btn" href="https://www.facebook.com/profile.php?id=61572997354215&locale=es_LA" target="_blank" onclick="guardarSeguimiento('facebook')">🔵 Síguenos en Facebook</a>
+                <a class="link-btn" href="https://whatsapp.com/channel/0029VbARP6eLSmbXXtKdvK2N" target="_blank" onclick="guardarSeguimiento('whatsapp')">🟢 Únete a nuestro Canal de WhatsApp</a>
+                <p class="small-text">Asegúrate de hacer clic en ambos enlaces. ¡Es un paso fundamental para acceder a la prueba gratuita!</p>
+            </div>
+
+            <div class="step">
+                <label for="img1">Sube Imagen 1 <small>(Obligatoria)</small></label>
+                <input type="file" id="img1" name="img1" accept="image/*" required>
+                
+                <label for="img2">Sube Imagen 2 <small>(Obligatoria y diferente a la anterior)</small></label>
+                <input type="file" id="img2" name="img2" accept="image/*" required>
+                
+                <label for="img3">Sube Imagen 3 <small>(Obligatoria y diferente a las anteriores)</small></label>
+                <input type="file" id="img3" name="img3" accept="image/*" required>
+                
+                <p style="margin-top: 25px;">¡Ahora, ayúdanos a crecer!</p>
+                <div class="share-box">
+                    <strong>¡Descubre Llutid+ y obtén 1 mes gratis!</strong> 🚀<br>
+                    Estoy disfrutando de 1 mes de prueba gratuita y me encanta. ¡Regístrate tú también!<br>
+                    <br>
+                    👉 Descarga la app aquí: <a href="https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3" target="_blank">https://apk.e-droid.net/app-llutidplus</a><br>
+                    <br>
+                    Para soporte o dudas, contáctanos:<br>
+                    📞 +57 318 108 7834 (Colombia)
+                </div>
+                <a class="link-btn" target="_blank" id="shareWhatsappBtn">📤 Compartir este mensaje en WhatsApp</a>
+            </div>
+            
+            <div class="step">
+                <p class="success-message">🎉 ¡Tu registro está casi completo! 🎉<br>Haz clic en "Enviar" para finalizar.</p>
+                <p>Una vez enviado, tu solicitud será procesada por nuestro equipo y **recibirás el correo de prueba y el PIN de acceso directamente a tu WhatsApp personal**.</p>
+            </div>
+
+            <div class="buttons">
+                <button type="button" onclick="nextPrev(-1)">Anterior</button>
+                <button type="button" onclick="nextPrev(1)" id="nextBtn">Siguiente</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = parseInt(localStorage.getItem('pasoActual')) || 0;
+        const steps = document.querySelectorAll('.step');
+        const progressBar = document.getElementById('progressBar');
+        const nextBtn = document.getElementById('nextBtn');
+        const shareWhatsappBtn = document.getElementById('shareWhatsappBtn');
+        
+        let seguimiento = JSON.parse(localStorage.getItem('seguido')) || { facebook: false, whatsapp: false };
+
+        // No necesitamos uploadedFileHashes para validación de duplicados, pero lo mantengo si se decide usar para otra cosa.
+        let uploadedFileHashes = {}; 
+
+        function guardarSeguimiento(red) {
+            seguimiento[red] = true;
+            localStorage.setItem('seguido', JSON.stringify(seguimiento));
+        }
+
+        // NUEVA FUNCIÓN: Guardar datos del paso actual en localStorage
+        function saveStepData(stepIndex) {
+            const step = steps[stepIndex];
+            const inputs = step.querySelectorAll('input, select');
+            let stepData = {};
+            inputs.forEach(input => {
+                if (input.type === 'file') {
+                    // Para archivos, solo guardamos el nombre del archivo si hay uno
+                    // No podemos guardar el archivo en sí en localStorage
+                    stepData[input.id] = input.files.length > 0 ? input.files[0].name : '';
+                } else {
+                    stepData[input.id] = input.value;
+                }
+            });
+            localStorage.setItem(`stepData_${stepIndex}`, JSON.stringify(stepData));
+        }
+
+        // NUEVA FUNCIÓN: Cargar datos de localStorage y rellenar el formulario
+        function loadSavedData() {
+            for (let i = 0; i < steps.length; i++) {
+                const savedData = localStorage.getItem(`stepData_${i}`);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    const step = steps[i];
+                    for (const id in data) {
+                        const input = step.querySelector(`#${id}`);
+                        if (input && input.type !== 'file') { // No rellenamos campos de tipo file directamente
+                            input.value = data[id];
+                        }
+                    }
+                }
+            }
+            // Asegurarse de que el seguimiento de redes se cargue
+            if (localStorage.getItem('seguido')) {
+                seguimiento = JSON.parse(localStorage.getItem('seguido'));
+            }
+        }
+
+        function showStep(n) {
+            steps.forEach((step, i) => {
+                step.classList.toggle('active', i === n);
+            });
+
+            // Al entrar al paso de las imágenes (índice 4), restablecer los campos de archivo (nombres)
+            // Esto solo vacía el INPUT, el archivo en sí no se pierde si ya está cargado en la sesión
+            // pero el input visualmente vuelve a "elegir archivo"
+            if (n === 4) {
+                const fileInputs = steps[n].querySelectorAll('input[type="file"]');
+                fileInputs.forEach(input => {
+                    input.value = ''; // Vaciar el campo de archivo
+                    input.style.borderColor = ''; // Restablecer el borde
+                });
+            } else {
+                const allFileInputs = document.querySelectorAll('input[type="file"]');
+                allFileInputs.forEach(input => {
+                    input.style.borderColor = '';
+                });
+            }
+
+            if (n === steps.length - 1) {
+                nextBtn.innerText = 'Enviar Registro Final';
+            } else {
+                nextBtn.innerText = 'Siguiente';
+            }
+
+            const prevButton = document.querySelector('button[onclick="nextPrev(-1)"]');
+            if (prevButton) {
+                prevButton.style.display = (n === 0) ? 'none' : 'block';
+            }
+
+            const percent = ((n + 1) / steps.length) * 100;
+            progressBar.style.width = percent + '%';
+            progressBar.innerText = `Paso ${n + 1} de ${steps.length}`;
+            localStorage.setItem('pasoActual', n);
+        }
+
+        async function validarPaso(n) {
+            const step = steps[n];
+            const requiredInputs = step.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+
+            for (const input of requiredInputs) {
+                input.style.borderColor = ''; // Restablecer borde
+
+                if (input.type === 'file') {
+                    if (input.files.length === 0) {
+                        input.style.borderColor = 'red';
+                        alert(`Por favor, sube la ${input.labels[0].innerText.toLowerCase().replace('(obligatoria)', '').trim()} antes de continuar.`);
+                        isValid = false;
+                        break;
+                    }
+                    // No hay validación de imágenes duplicadas aquí.
+                } else if (!input.value.trim()) {
+                    input.style.borderColor = 'red';
+                    alert(`Por favor, completa el campo "${input.previousElementSibling ? input.previousElementSibling.innerText : input.placeholder || input.name}" antes de continuar.`);
+                    isValid = false;
+                    break; 
+                } else if (input.type === 'email') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(input.value)) {
+                        input.style.borderColor = 'red';
+                        alert('Por favor, ingresa un formato de correo electrónico válido (ej: usuario@dominio.com).');
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!isValid) return false;
+
+            if (n === 3) { // Paso de seguimiento en redes (índice 3)
+                if (!seguimiento.facebook || !seguimiento.whatsapp) {
+                    alert('Debes seguirnos tanto en Facebook como en el Canal de WhatsApp para continuar.');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function nextPrev(n) {
+            if (n === -1 && currentStep === 0) {
+                return; 
+            }
+
+            if (n === 1) { // Solo validar y guardar al avanzar
+                const stepIsValid = await validarPaso(currentStep);
+                if (!stepIsValid) {
+                    return;
+                }
+                // Si el paso es válido, guardar los datos de este paso ANTES de avanzar
+                saveStepData(currentStep);
+            }
+            
+            currentStep += n;
+
+            if (currentStep < 0) {
+                currentStep = 0;
+            }
+
+            if (currentStep >= steps.length) {
+                enviar();
+                return;
+            }
+            showStep(currentStep);
+        }
+
+        async function enviar() {
+            // Recopilar todos los datos de localStorage para el mensaje final
+            const storedNombre = JSON.parse(localStorage.getItem('stepData_0'))?.nombre || 'N/A';
+            const storedCorreo = JSON.parse(localStorage.getItem('stepData_0'))?.correo || 'N/A';
+            const storedCelular = JSON.parse(localStorage.getItem('stepData_1'))?.celular || 'N/A';
+            const storedFecha = JSON.parse(localStorage.getItem('stepData_1'))?.fecha || 'N/A';
+            const storedPais = JSON.parse(localStorage.getItem('stepData_2'))?.pais || 'N/A';
+            const storedGenero = JSON.parse(localStorage.getItem('stepData_2'))?.genero || 'N/A';
+
+            // Obtener nombres de archivos de imagen (no se guardan los archivos en localStorage, solo los nombres)
+            // Se toman directamente del DOM al momento de enviar, porque los inputs type="file" se resetean visualmente
+            const img1 = document.getElementById('img1').files[0];
+            const img2 = document.getElementById('img2').files[0];
+            const img3 = document.getElementById('img3').files[0];
+
+            const img1Name = img1 ? img1.name : 'No seleccionada';
+            const img2Name = img2 ? img2.name : 'No seleccionada';
+            const img3Name = img3 ? img3.name : 'No seleccionada';
+            
+            // Generar código de seguridad
+            const codigoSeguridad = 'PRUEBA06-' + Math.floor(100000 + Math.random() * 900000);
+
+            // Obtener la fecha y hora actual en la ubicación de Bogotá
+            const now = new Date();
+            const options = {
+                timeZone: 'America/Bogota',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            };
+
+            const bogotaTime = new Intl.DateTimeFormat('es-CO', options).format(now);
+            const bogotaTimeEnd = new Date(now);
+            bogotaTimeEnd.setDate(bogotaTimeEnd.getDate() + 30);
+            const bogotaTimeEndFormatted = new Intl.DateTimeFormat('es-CO', options).format(bogotaTimeEnd);
+
+            // --- MENSAJE PARA TU ASISTENTE DE WHATSAPP ---
+            let mensajeAsistente = `🚨 *NUEVA SOLICITUD DE PRUEBA LLUTID+* 🚨\n\n`;
+            mensajeAsistente += `*Detalles del Solicitante:*\n`;
+            mensajeAsistente += `👤 *Nombre:* ${storedNombre}\n`;
+            mensajeAsistente += `📧 *Correo:* ${storedCorreo}\n`;
+            mensajeAsistente += `📱 *Celular:* ${storedCelular}\n`;
+            mensajeAsistente += `🎂 *Fecha Nacimiento:* ${storedFecha}\n`;
+            mensajeAsistente += `🌍 *País:* ${storedPais}\n`;
+            mensajeAsistente += `🚻 *Género:* ${storedGenero}\n\n`;
+
+            mensajeAsistente += `*Imágenes Subidas:*\n`;
+            mensajeAsistente += `🖼️ *Imagen 1:* ${img1Name}\n`;
+            mensajeAsistente += `🖼️ *Imagen 2:* ${img2Name}\n`;
+            mensajeAsistente += `🖼️ *Imagen 3:* ${img3Name}\n\n`;
+
+            mensajeAsistente += `*Código de Seguridad (PRUEBA06):*\n`;
+            mensajeAsistente += `🛡️ *Código:* ${codigoSeguridad}\n\n`;
+
+            mensajeAsistente += `*Fechas del Plan de Prueba:*\n`;
+            mensajeAsistente += `📅 *Inicio:* ${bogotaTime} (Hora de Bogotá)\n`;
+            mensajeAsistente += `🗓️ *Vencimiento (30 días):* ${bogotaTimeEndFormatted} (Hora de Bogotá)\n\n`;
+
+            mensajeAsistente += `*Acciones pendientes:*\n`;
+            mensajeAsistente += `1. Verificar que el usuario subió 3 imágenes (sus nombres son: ${img1Name}, ${img2Name}, ${img3Name}).\n`;
+            mensajeAsistente += `2. *Generar y enviar Correo de Prueba y PIN de Acceso* al WhatsApp del usuario (${storedCelular}).\n`;
+            mensajeAsistente += `3. Confirmar la activación de la cuenta de prueba.\n\n`;
+            mensajeAsistente += `------------------------------------\n`;
+            mensajeAsistente += `_Registro generado automáticamente. Procede con el envío de credenciales._`;
+
+
+            const urlAsistente = `https://wa.me/573181087834?text=${encodeURIComponent(mensajeAsistente)}`;
+            window.open(urlAsistente, '_blank');
+            
+            localStorage.clear(); // Limpiar localStorage después de enviar
+            alert('¡Tu solicitud de prueba gratuita ha sido recibida! En breve, nuestro equipo te contactará vía WhatsApp para enviarte el correo de acceso y el PIN de tu cuenta de prueba de 30 días.');
+        }
+
+        function setupShareButton() {
+            const shareText = `🎉 *¡Atención, Amigos! Descubran Llutid+ y Gana 1 Mes GRATIS!* 🎉\n\n` +
+                                `¡Estoy emocionado/a de contarles que estoy disfrutando de 1 mes de prueba gratuita con Llutid+ y está increíble!\n\n` +
+                                `Es súper fácil unirse, solo tienes que registrarte y seguir unos pocos pasos para acceder a todo el contenido premium.\n\n` +
+                                `👉 *¡No te quedes fuera! Descarga la app y regístrate aquí:* \n` +
+                                `https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n` +
+                                `Si tienen alguna duda o necesitan ayuda, pueden contactar al soporte oficial de Llutid+:\n` +
+                                `📞 *+57 318 108 7834* (Colombia)\n\n` +
+                                `¡Aprovechen esta oportunidad única! 😉 #LlutidPlus #PruebaGratuita #ContenidoPremium #AppRecomendada`;
+            
+            shareWhatsappBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSavedData(); // Cargar datos al iniciar la página
+            showStep(currentStep);
+            setupShareButton();
+        });
+    </script>
+</body>
+</html>
