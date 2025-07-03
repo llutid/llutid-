@@ -1,207 +1,736 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Llutid+ | Reproductor de Películas</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LLUTID+ | Encanto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Define Netflix Sans si está disponible, sino usa Roboto/Montserrat */
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2');
+            font-weight: 700;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2');
+            font-weight: 800;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2');
+            font-weight: 900;
+            font-display: swap;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+        body {
+            font-family: 'Netflix Sans', 'Roboto', sans-serif; /* Prefer Netflix Sans */
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-    body {
-      background-color: #0e0e0e;
-      font-family: 'Roboto', sans-serif;
-      color: #ffffff;
-      padding: 30px 20px;
-      overflow-x: hidden;
-    }
+        /* --- Intro Screen --- */
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
 
-    /* Intro */
-    .intro-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #000000, #0a0a0a);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+        .logo-container-intro {
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            opacity: 0;
+            letter-spacing: 4px;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
+            font-family: 'Montserrat', sans-serif; /* Keeping Montserrat for the intro for distinctiveness */
+        }
 
-    .logo-container {
-      font-size: 4rem;
-      font-weight: 800;
-      color: white;
-      opacity: 0;
-      letter-spacing: 4px;
-      animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
-      text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-      font-family: 'Montserrat', sans-serif;
-    }
+        @keyframes fadeInZoom {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
 
-    @keyframes fadeInZoom {
-      0% {
-        opacity: 0;
-        transform: scale(0.5);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(1.05); }
+        }
 
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: scale(1.05);
-      }
-    }
+        .main-content {
+            display: none; /* Oculto inicialmente por JS */
+            flex-grow: 1; /* Para que ocupe el espacio restante */
+        }
 
-    .main-content {
-      display: none;
-    }
+        /* --- Header (simulando barra superior de Netflix) --- */
+        header {
+            background-color: rgba(0, 0, 0, 0.7); /* Negro con 70% de opacidad */
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
 
-    /* Página principal */
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
 
-    .logo {
-      font-size: 3.2rem;
-      font-weight: bold;
-      color: #1e90ff;
-      text-shadow: 0 0 12px #1e90ff;
-    }
+        .header-back {
+            color: #fff;
+            font-size: 28px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
 
-    .logo span {
-      color: white;
-    }
+        /* ESTILO PARA EL LOGO LLUTID+ AHORA ES UN ENLACE */
+        .header-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e90ff;
+            text-shadow: 0 0 8px rgba(30, 144, 255, 0.4);
+            text-decoration: none; /* Eliminar subrayado por defecto del enlace */
+        }
+        .header-logo:hover {
+            opacity: 0.8; /* Efecto hover para el logo */
+        }
 
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+        .header-logo span {
+            color: white;
+        }
+        
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-left: 20px;
+        }
 
-    .player-wrapper {
-      background-color: #111;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 0 35px rgba(30, 144, 255, 0.3);
-      margin-bottom: 40px;
-      position: relative;
-    }
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
 
-    .player-wrapper::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.05), transparent 70%);
-      pointer-events: none;
-    }
+        .header-right i {
+            color: #fff;
+            font-size: 24px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
 
-    .responsive-iframe {
-      width: 100%;
-      height: 700px;
-      border: none;
-    }
+        /* Sección de la película ahora contiene un video de fondo */
+        .movie-hero {
+            position: relative;
+            width: 100%;
+            padding-top: 65%; /* Ajustado para un aspecto aún más corto */
+            background-color: #000; /* Fondo negro por si el video tarda en cargar */
+            margin-bottom: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
 
-    .metadata {
-      background-color: #181818;
-      border-radius: 14px;
-      padding: 30px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.6);
-    }
+        .movie-hero .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
 
-    .title {
-      font-size: 2.3rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #fff;
-    }
+        .movie-hero .video-background iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-    .summary {
-      font-size: 1.1rem;
-      color: #ccc;
-      margin-bottom: 25px;
-      line-height: 1.7;
-    }
+        .movie-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+            z-index: 2;
+        }
 
-    .info {
-      color: #aaa;
-      line-height: 1.6;
-    }
+        .movie-overlay-content {
+            position: absolute;
+            bottom: 0px;
+            left: 20px;
+            right: 20px;
+            z-index: 3;
+            color: #fff;
+        }
 
-    .poster {
-      width: 100%;
-      max-height: 280px;
-      object-fit: cover;
-      border-radius: 12px;
-      margin-bottom: 25px;
-    }
+        .movie-badge {
+            background-color: #1e90ff;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
 
-    @media (max-width: 768px) {
-      .title {
-        font-size: 1.8rem;
-      }
-      .summary {
-        font-size: 1rem;
-      }
-      .responsive-iframe {
-        height: 400px;
-      }
-    }
-  </style>
+        .movie-title-main {
+            font-size: 2rem; /* Reducido el tamaño de la fuente */
+            font-weight: 900;
+            margin-top: 20px;
+            margin-bottom: 5px; /* Reducido el margen inferior */
+            line-height: 1.1;
+        }
+
+        .movie-info-line {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #a3a3a3;
+            margin-bottom: 15px;
+        }
+
+        .movie-info-line span {
+            margin-right: 15px;
+        }
+
+        .movie-info-line .rating {
+            border: 1px solid #a3a3a3;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            /* background-color: #404040; ELIMINADO el fondo gris */
+        }
+
+        /* Controles de acción (Botones) */
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn i, .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+        .btn i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .btn-play {
+            background-color: #282828;
+            color: #fff;
+        }
+
+        .btn-play.loaded-state {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .btn-play:hover {
+            background-color: #404040;
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: #fff;
+            z-index: 0;
+        }
+
+        @keyframes fillProgressBar {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .btn-play.loading .progress-bar-fill {
+            animation: fillProgressBar 22s linear forwards;
+        }
+
+        .btn-play.loading .btn-text,
+        .btn-play.loading .fa-play,
+        .btn-play.loading .fa-spinner {
+            color: #000;
+            transition: color 0.1s linear;
+        }
+
+        .btn-play.loading .fa-spinner {
+            display: inline-block;
+        }
+        .btn-play .fa-spinner {
+            display: none;
+        }
+
+        .btn-share {
+            background-color: #282828;
+            color: #fff;
+        }
+
+        .btn-share:hover {
+            background-color: #404040;
+        }
+
+        .watched-progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #404040;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .watched-progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #1e90ff;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Descripción y Detalles */
+        .details-section {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .info-details {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #a3a3a3;
+        }
+
+        .info-details strong {
+            color: #fff;
+        }
+
+        .player-fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 9999;
+        }
+
+        .player-fullscreen-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* Media Queries para Responsive Design */
+        @media (max-width: 768px) {
+            .header-title {
+                display: none;
+            }
+            .movie-hero {
+                padding-top: 85%; /* Ajustado para móviles */
+            }
+            .movie-title-main {
+                font-size: 1.8rem; /* Reducido el tamaño de la fuente para móviles */
+                margin-top: 15px;
+            }
+            .movie-info-line {
+                font-size: 0.9rem;
+            }
+            .summary, .info-details {
+                font-size: 0.9rem;
+            }
+            .btn {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+        }
+
+        /* Iconos de Font Awesome */
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+    </style>
 </head>
 <body>
 
-  <!-- Pantalla de animación inicial -->
-  <div class="intro-screen">
-    <div class="logo-container">LLUTID</div>
-  </div>
-
-  <!-- Contenido principal del reproductor -->
-  <div class="main-content">
-    <header>
-      <div class="logo">Llutid<span>+</span></div>
-    </header>
-
-    <div class="container">
-      <div class="player-wrapper">
-        <iframe class="responsive-iframe" src="https://drive.google.com/file/d/1772jzLt0j7RQN3MkhOy7dZA21G_mhiDo/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>
-
-      <div class="metadata">
-        <div class="title">Encanto</div>
-        <div class="summary">
-          En *Encanto*, la familia Madrigal vive en un mágico lugar en Colombia, donde todos los miembros poseen poderes especiales, menos Mirabel. Sin embargo, ella descubre que es la única que puede salvar a la magia de su familia.
-        </div>
-        <div class="info">
-          <strong>Duración:</strong> 102 min<br>
-          <strong>Año:</strong> 2021<br>
-          <strong>Género:</strong> Animación / Comedia / Aventura<br>
-          <strong>Director:</strong> Jared Bush, Byron Howard<br>
-          <strong>Voz principal:</strong> Stephanie Beatriz
-        </div>
-      </div>
+    <div class="intro-screen">
+        <div class="logo-container-intro">LLUTID</div>
     </div>
-  </div>
 
-  <script>
-    // Después de 5.5 segundos, ocultar animación y mostrar contenido
-    setTimeout(() => {
-      document.querySelector('.intro-screen').style.display = 'none';
-      document.querySelector('.main-content').style.display = 'block';
-    }, 5500);
-  </script>
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <i class="fas fa-arrow-left header-back"></i> 
+                <a href="home.html" class="header-logo">Llutid<span>+</span></a>
+                <div class="header-title">Encanto</div>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-cast"></i> <i class="fas fa-user-circle"></i> </div>
+        </header>
+
+        <section class="movie-hero">
+            <div class="video-background">
+                <iframe
+                    id="vimeoTrailer"
+                    src="https://player.vimeo.com/video/1098575222?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&autoplay=1&loop=1&controls=0&api=1"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                    title="Encanto _ Tráiler Oficial en español _ HD">
+                </iframe>
+            </div>
+            <div class="movie-overlay-content">
+                <div class="movie-badge">PELÍCULA</div>
+                <h1 class="movie-title-main">Encanto</h1>
+                <div class="movie-info-line">
+                    <span>2021</span>
+                    <span class="rating">ATP</span>
+                    <span>99 min</span>
+                    <span>AD</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn btn-play" id="playButton">
+                <span class="progress-bar-fill"></span>
+                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-play"></i>
+                <span class="btn-text">Ver</span>
+            </button>
+            <button class="btn btn-share" id="shareButton">
+                <i class="fas fa-share-alt"></i> Compartir
+            </button>
+            
+            <div class="watched-progress-container" id="watchedProgressBarContainer">
+                <div class="watched-progress-bar" id="watchedProgressBar"></div>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <p class="summary">
+                "Encanto" cuenta la historia de los Madrigal, una familia extraordinaria que vive escondida en las montañas de Colombia, en una casa mágica, en un pueblo vibrante, en un lugar maravilloso y encantado llamado Encanto. La magia de Encanto ha bendecido a cada niño de la familia con un don único, desde la super fuerza hasta el poder de curar, a todos los niños excepto a uno, Mirabel. Pero cuando descubre que la magia que rodea el Encanto está en peligro, Mirabel decide que ella, la única Madrigal ordinaria, podría ser la última esperanza de su excepcional familia.
+            </p>
+            <div class="info-details">
+                <strong>Duración:</strong> 99 min<br>
+                <strong>Género:</strong> Animación / Musical / Fantasía / Comedia<br>
+                <strong>Idioma:</strong> Español<br>
+                <strong>Clasificación:</strong> ATP
+            </div>
+        </section>
+
+    </div>
+
+    <div id="playerFullscreenContainer" class="player-fullscreen-container">
+        <iframe id="movieIframe"
+                src="https://drive.google.com/file/d/1772jzLt0j7RQN3MkhOy7dZA21G_mhiDo/preview"
+                allow="autoplay; encrypted-media; fullscreen" allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        const playButton = document.getElementById('playButton');
+        const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
+        const movieIframe = document.getElementById('movieIframe');
+        const shareButton = document.getElementById('shareButton');
+        const playButtonText = playButton.querySelector('.btn-text');
+        const playButtonSpinner = playButton.querySelector('.fa-spinner');
+        const playIcon = playButton.querySelector('.fa-play');
+        const progressBarFill = playButton.querySelector('.progress-bar-fill');
+        const watchedProgressBarContainer = document.getElementById('watchedProgressBarContainer');
+        const watchedProgressBar = document.getElementById('watchedProgressBar');
+        const vimeoTrailer = document.getElementById('vimeoTrailer'); // Referencia al iframe de Vimeo
+
+        const BASE_DRIVE_URL = "https://drive.google.com/file/d/1772jzLt0j7RQN3MkhOy7dZA21G_mhiDo/preview"; 
+        const MOVIE_WATCHED_KEY = 'movieWatched_Encanto'; // Actualizado para la nueva película
+        const MOVIE_PROGRESS_KEY = 'movieProgress_Encanto'; // Actualizado para la nueva película
+        const MOVIE_DURATION_MINUTES = 99; // Duración total de la película en minutos
+        const PROGRESS_UPDATE_INTERVAL_MS = 5000; // Actualizar progreso cada 5 segundos
+
+        let hasOpened = false;
+        let progressBarTimeout;
+        let progressTrackingInterval;
+        let startTimeFullScreen = 0;
+
+        // JS para la pantalla de inicio
+        setTimeout(() => {
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            
+            // Inicializar el estado del botón "Ver"
+            if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
+                setButtonToWatchedState();
+            } else {
+                startPlayButtonAnimation();
+            }
+            
+            // Inicializar el estado de la barra de progreso de visualización
+            updateWatchedProgressBar();
+
+        }, 5500); // Duración de la pantalla de inicio
+
+        function setButtonToWatchedState() {
+            playButton.classList.remove('loading');
+            playButton.classList.add('loaded-state'); 
+            
+            progressBarFill.style.width = '100%';
+            progressBarFill.style.transition = 'none';
+
+            playButtonSpinner.style.display = 'none';
+            playIcon.style.display = 'inline-block';
+            playButtonText.textContent = 'Ver otra vez';
+            playButton.style.cursor = 'pointer';
+            
+            playButtonText.style.color = '#000'; 
+            playIcon.style.color = '#000';
+        }
+
+        function startPlayButtonAnimation() {
+            playButton.classList.add('loading');
+            playButtonSpinner.style.display = 'inline-block';
+            playIcon.style.display = 'none';
+            playButtonText.textContent = 'Ver';
+            
+            progressBarFill.style.width = '0';
+            progressBarFill.style.transition = 'width 22s linear forwards';
+
+            progressBarTimeout = setTimeout(() => {
+                if (!hasOpened) {
+                    openMovieFullscreen();
+                }
+                setButtonToWatchedState();
+                localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+            }, 22000); // 22 segundos
+
+        }
+
+        function openMovieFullscreen() {
+            if (hasOpened) return;
+            hasOpened = true;
+            
+            if (progressBarTimeout) {
+                clearTimeout(progressBarTimeout);
+                progressBarTimeout = null;
+            }
+            setButtonToWatchedState();
+            localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+
+            playerFullscreenContainer.style.display = 'block';
+
+            if (movieIframe.src !== BASE_DRIVE_URL) {
+                movieIframe.src = BASE_DRIVE_URL;
+            }
+
+            // Pausar el tráiler de Vimeo al abrir la película
+            if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                vimeoTrailer.contentWindow.postMessage(JSON.stringify({
+                    method: 'pause'
+                }), '*'); 
+            }
+
+            // Iniciar el seguimiento del progreso cuando se solicita pantalla completa
+            startProgressTracking();
+
+            if (playerFullscreenContainer.requestFullscreen) {
+                playerFullscreenContainer.requestFullscreen();
+            } else if (playerFullscreenContainer.mozRequestFullScreen) {
+                playerFullscreenContainer.mozRequestFullScreen();
+            } else if (playerFullscreenContainer.webkitRequestFullscreen) {
+                playerFullscreenContainer.webkitRequestFullscreen();
+            } else if (playerFullscreenContainer.msRequestFullscreen) {
+                playerFullscreenContainer.msRequestFullscreen();
+            }
+
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(e => {
+                        console.warn("No se pudo bloquear la orientación a paisaje:", e);
+                    });
+                }
+            } catch (e) {
+                console.warn("API de orientación de pantalla no disponible o bloqueada:", e);
+            }
+        }
+
+        // Función para iniciar el seguimiento del progreso de visualización
+        function startProgressTracking() {
+            startTimeFullScreen = Date.now();
+            if (progressTrackingInterval) {
+                clearInterval(progressTrackingInterval);
+            }
+
+            let lastProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+
+            progressTrackingInterval = setInterval(() => {
+                const elapsedTimeMs = Date.now() - startTimeFullScreen;
+                const elapsedTimeMinutes = elapsedTimeMs / (1000 * 60);
+                
+                let currentProgressMinutes = lastProgressMinutes + elapsedTimeMinutes;
+
+                if (currentProgressMinutes > MOVIE_DURATION_MINUTES) {
+                    currentProgressMinutes = MOVIE_DURATION_MINUTES;
+                }
+
+                localStorage.setItem(MOVIE_PROGRESS_KEY, currentProgressMinutes.toFixed(2));
+                updateWatchedProgressBar();
+                
+                if (currentProgressMinutes >= MOVIE_DURATION_MINUTES) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+
+            }, PROGRESS_UPDATE_INTERVAL_MS);
+        }
+
+        // Función para actualizar la barra de progreso de visualización
+        function updateWatchedProgressBar() {
+            const currentProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+            let percentage = (currentProgressMinutes / MOVIE_DURATION_MINUTES) * 100;
+            
+            percentage = Math.min(100, Math.max(0, percentage));
+
+            if (percentage > 0) {
+                watchedProgressBarContainer.style.display = 'block';
+                watchedProgressBar.style.width = percentage + '%';
+            } else {
+                watchedProgressBarContainer.style.display = 'none';
+            }
+        }
+
+        playButton.addEventListener('click', openMovieFullscreen);
+
+        shareButton.addEventListener('click', async () => {
+            // Mensaje personalizado para WhatsApp o compartir nativo
+            const shareText = "¡Wow! 😱 Acabo de ver *Encanto* en LLUTID+ y me encantó. ¡Te la super recomiendo! Si aún no tienes la app, este es el enlace de descarga oficial: \n\n🔗 *Descarga LLUTID+ aquí:* https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n¿Necesitas saber cómo activar tu suscripción? ¡Es muy fácil! Entra a nuestro chatbot para resolver todas tus dudas o llámanos:\n\n🤖 *Chatea con nuestro bot:* https://llutid.github.io/chat-bot-llutid-/\n📞 *Llámanos:* +57 3181087834\n\n¡No te quedes fuera de la experiencia LLUTID+! 🔥";
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'LLUTID+ - Encanto',
+                        text: shareText,
+                        url: 'https://llutid.github.io/pelicula-encanto/' // Puedes ajustar esta URL si la página se llama diferente
+                    });
+                    console.log('Contenido compartido con éxito usando la API nativa.');
+                } catch (error) {
+                    console.error('Error al compartir con la API nativa:', error);
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                    window.open(whatsappUrl, '_blank');
+                    setTimeout(() => {
+                        alert('Si no se abrió WhatsApp, puedes copiar el mensaje y los enlaces:\n\n' + shareText);
+                    }, 500); 
+                }
+            } else {
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(whatsappUrl, '_blank');
+                setTimeout(() => {
+                    alert('Si no se abrió WhatsApp, puedes copiar el mensaje y los enlaces:\n\n' + shareText);
+                }, 500);
+            }
+        });
+
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+        document.addEventListener('mozfullscreenchange', exitHandler);
+        document.addEventListener('MSFullscreenChange', exitHandler);
+
+        function exitHandler() {
+            if (!document.fullscreenElement && !document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+                // El usuario ha salido de pantalla completa
+                playerFullscreenContainer.style.display = 'none';
+                movieIframe.src = BASE_DRIVE_URL;
+                hasOpened = false;
+
+                // Reanudar la reproducción del tráiler de Vimeo al salir de la película
+                if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                    vimeoTrailer.contentWindow.postMessage(JSON.stringify({
+                        method: 'play'
+                    }), '*');
+                }
+
+                // Detener el seguimiento de progreso cuando se sale de pantalla completa
+                if (progressTrackingInterval) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+                // Actualizar la barra de progreso de visualización para reflejar el progreso final
+                updateWatchedProgressBar();
+            }
+        }
+
+        screen.orientation.addEventListener('change', () => {
+            const isInFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
+            const isPortrait = screen.orientation.type.startsWith('portrait');
+
+            if (isInFullscreen && isPortrait) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
