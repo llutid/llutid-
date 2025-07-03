@@ -428,7 +428,8 @@
         <section class="movie-hero">
             <div class="video-background">
                 <iframe
-                    src="https://player.vimeo.com/video/1098540358?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;controls=0"
+                    id="vimeoTrailer"
+                    src="https://player.vimeo.com/video/1098540358?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;controls=0&amp;api=1"
                     frameborder="0"
                     allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
                     style="position:absolute;top:0;left:0;width:100%;height:100%;"
@@ -495,6 +496,7 @@
         const progressBarFill = playButton.querySelector('.progress-bar-fill');
         const watchedProgressBarContainer = document.getElementById('watchedProgressBarContainer');
         const watchedProgressBar = document.getElementById('watchedProgressBar');
+        const vimeoTrailer = document.getElementById('vimeoTrailer'); // Referencia al iframe de Vimeo
 
         const BASE_DRIVE_URL = "https://drive.google.com/file/d/1EOG2OUE6ig444FQI1O7bXL5WVLT9mPrU/preview";
         const MOVIE_WATCHED_KEY = 'movieWatched_LaRazonDeEstarContigo2';
@@ -574,6 +576,14 @@
 
             if (movieIframe.src !== BASE_DRIVE_URL) {
                 movieIframe.src = BASE_DRIVE_URL;
+            }
+
+            // Silenciar el tráiler de Vimeo al abrir la película
+            if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                vimeoTrailer.contentWindow.postMessage(JSON.stringify({
+                    method: 'setVolume',
+                    value: 0
+                }), '*'); // Usar '*' para permitir comunicación con cualquier origen, o especificar 'https://player.vimeo.com'
             }
 
             // Iniciar el seguimiento del progreso cuando se solicita pantalla completa
@@ -691,6 +701,14 @@
                 playerFullscreenContainer.style.display = 'none';
                 movieIframe.src = BASE_DRIVE_URL;
                 hasOpened = false;
+
+                // Restablecer el volumen del tráiler de Vimeo al salir de la película
+                if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                    vimeoTrailer.contentWindow.postMessage(JSON.stringify({
+                        method: 'setVolume',
+                        value: 1 // Restaurar volumen a 1 (máximo)
+                    }), '*');
+                }
 
                 // Detener el seguimiento de progreso cuando se sale de pantalla completa
                 if (progressTrackingInterval) {
