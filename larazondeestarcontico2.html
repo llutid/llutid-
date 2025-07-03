@@ -578,11 +578,10 @@
                 movieIframe.src = BASE_DRIVE_URL;
             }
 
-            // Silenciar el tráiler de Vimeo al abrir la película
+            // Pausar el tráiler de Vimeo al abrir la película
             if (vimeoTrailer && vimeoTrailer.contentWindow) {
                 vimeoTrailer.contentWindow.postMessage(JSON.stringify({
-                    method: 'setVolume',
-                    value: 0
+                    method: 'pause'
                 }), '*'); // Usar '*' para permitir comunicación con cualquier origen, o especificar 'https://player.vimeo.com'
             }
 
@@ -702,11 +701,10 @@
                 movieIframe.src = BASE_DRIVE_URL;
                 hasOpened = false;
 
-                // Restablecer el volumen del tráiler de Vimeo al salir de la película
+                // Reanudar la reproducción del tráiler de Vimeo al salir de la película
                 if (vimeoTrailer && vimeoTrailer.contentWindow) {
                     vimeoTrailer.contentWindow.postMessage(JSON.stringify({
-                        method: 'setVolume',
-                        value: 1 // Restaurar volumen a 1 (máximo)
+                        method: 'play'
                     }), '*');
                 }
 
