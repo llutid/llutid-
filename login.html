@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login Llutid+</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@600&display=swap" rel="stylesheet">
+  
   <style>
-    /* Importar fuente para un mejor diseño (opcional, si no la tienes ya en tu proyecto) */
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@600&display=swap');
-
+    /* Estilos base */
     * {
       box-sizing: border-box;
     }
@@ -23,10 +26,10 @@
       justify-content: center;
       height: 100vh;
       overflow: hidden;
-      position: relative; /* Importante para el botón flotante */
+      position: relative;
     }
 
-    /* Animación de la pantalla de bienvenida */
+    /* Pantalla de introducción - Animación */
     .intro-screen {
       position: fixed;
       top: 0; left: 0;
@@ -37,6 +40,12 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+    }
+
+    .intro-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
     }
 
     .logo-container {
@@ -68,7 +77,7 @@
       }
     }
 
-    /* Estilo del formulario de login */
+    /* Formulario de Login */
     .container {
       background-color: rgba(0, 0, 0, 0.6);
       padding: 40px;
@@ -78,7 +87,16 @@
       width: 100%;
       max-width: 400px;
       backdrop-filter: blur(10px);
-      display: none; /* Ocultar el formulario inicialmente */
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    
+    .container.visible {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
     }
 
     h1 {
@@ -94,11 +112,14 @@
       color: #ffffff;
     }
 
-    /* Estilos para todos los inputs, incluyendo el de PIN */
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
     input {
       width: 100%;
       padding: 12px 20px;
-      margin: 12px 0;
       border: none;
       border-radius: 30px;
       font-size: 16px;
@@ -112,12 +133,30 @@
       outline: none;
       box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
     }
+    
+    label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #777;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
 
-    /* Estilos para botones, incluyendo los nuevos de PIN */
+    input:focus + label,
+    input:not(:placeholder-shown) + label {
+      top: -12px;
+      font-size: 12px;
+      color: #2196f3;
+      background: #1e1e1e;
+      padding: 0 5px;
+    }
+
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 15px; /* Ajustado para que esté siempre debajo del PIN */
+      margin-top: 15px;
       border: none;
       border-radius: 30px;
       background-color: #2196f3;
@@ -125,33 +164,64 @@
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
     }
 
     button:hover {
       background-color: #0bc36a;
     }
     
-    .mensaje {
-      display: none;
-      margin-top: 20px;
-      padding: 12px;
-      border-radius: 30px;
-      font-size: 16px;
+    button:active {
+        transform: scale(0.98);
+    }
+    
+    button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .hidden {
+      display: none !important;
     }
 
-    #error { background-color: #f44336; }
+    #pinDisplayContainer {
+      position: relative;
+      width: 100%;
+      margin: 12px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 20px;
+      background-color: #1e1e1e;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-    /* Mensajes de alerta para el PIN */
-    #pinAlert {
-        background-color: #f44336;
-        color: white;
-        padding: 8px 15px;
-        border-radius: 20px;
-        font-size: 14px;
-        margin-top: 10px;
-        margin-bottom: 5px; /* Reducir margen para que no ocupe tanto espacio */
-        display: none; /* Oculto por defecto */
+    #pinDisplayContainer:hover {
+      box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+    }
+
+    #pinDisplay {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 2px;
+      flex-grow: 1;
+      line-height: normal;
+    }
+
+    .edit-pin-icon {
+      position: absolute;
+      right: 15px;
+      color: #2196f3;
+      font-size: 18px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .edit-pin-icon:hover {
+      color: #0bc36a;
     }
 
     .suscribirse {
@@ -160,7 +230,7 @@
     }
 
     .suscribirse a {
-      color: #2196f3;
+      color: #ffffff; /* Color blanco como se solicitó */
       text-decoration: none;
       font-weight: bold;
       display: inline-block;
@@ -169,22 +239,10 @@
     }
 
     .suscribirse a:hover {
-      color: #0bc36a;
+      color: #2196f3; /* Un toque de azul al pasar el mouse */
     }
 
-    /* Animación fadeIn para el formulario */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Estilos para el botón de soporte flotante */
+    /* Botón de soporte flotante */
     .support-button {
       position: fixed;
       bottom: 20px;
@@ -215,154 +273,117 @@
       width: 80%;
       height: 80%;
       object-fit: contain;
-      /* Filtro de brillo y contraste para un efecto "blanqueado" */
-      filter: brightness(1.5) contrast(1.2); 
+      filter: brightness(1.5) contrast(1.2);
     }
 
-    /* Clases para controlar la visibilidad de las secciones del PIN */
-    .hidden {
-      display: none;
+    /* Estilos base para los popups */
+    .popup-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      color: white;
+      padding: 40px 60px;
+      border-radius: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.8em;
+      font-weight: 600;
+      text-align: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
 
-    /* Estilo para el display del PIN oculto con icono de lápiz */
-    #pinDisplayContainer {
-        position: relative; /* Para posicionar el icono de lápiz */
-        width: 100%;
-        margin: 12px 0; /* Igual que los inputs */
-        display: flex; /* Para centrar el texto y posicionar el icono */
-        justify-content: center; /* Centra el texto horizontalmente */
-        align-items: center; /* Centra verticalmente el texto y el icono */
-        padding: 8px 20px; /* Reducido para que sea menos "gordo" */
-        background-color: #1e1e1e; /* Fondo oscuro como los inputs */
-        border-radius: 30px; /* Bordes redondeados */
-        cursor: pointer; /* Indica que es clicable */
-        transition: all 0.3s ease;
+    .popup-container.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
     }
 
-    #pinDisplayContainer:hover {
-        box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
+    .popup-message {
+        font-size: 0.5em; /* Ajustado para que el mensaje se vea bien */
+        font-weight: normal;
+        margin-top: -10px;
+        opacity: 0.8;
     }
 
-    #pinDisplay {
-        font-size: 20px; /* Tamaño de fuente ligeramente reducido */
-        font-weight: bold;
-        color: #ffffff; /* Color blanco para que contraste con el fondo */
-        letter-spacing: 2px; /* Espacio entre los caracteres para simular asteriscos */
-        flex-grow: 1; /* Permite que el texto ocupe el espacio disponible */
-        line-height: normal; /* Asegura que el texto no tenga un espaciado excesivo */
+    .popup-icon-container {
+      width: 100px;
+      height: 100px;
+      position: relative;
     }
 
-    .edit-pin-icon {
-        position: absolute;
-        right: 15px; /* Ajusta la posición del icono */
-        color: #2196f3; /* Color del lápiz */
-        font-size: 18px; /* Tamaño del lápiz, ligeramente más pequeño */
-        cursor: pointer;
-        transition: color 0.3s ease;
+    .popup-icon-svg {
+      fill: none;
+      stroke: white;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
-    .edit-pin-icon:hover {
-        color: #0bc36a; /* Color al pasar el ratón */
-    }
-
-    /* --- ESTILOS PARA EL MENSAJE DE ÉXITO FLOTANTE (¡ESPECTACULAR!) --- */
+    /* Estilos específicos para el popup de éxito */
     .success-popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: linear-gradient(45deg, #00c6ff, #0072ff); 
-        color: white;
-        padding: 40px 60px;
-        border-radius: 25px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 198, 255, 0.7);
-        font-family: 'Poppins', sans-serif;
-        font-size: 2.8em;
-        font-weight: 600;
-        text-align: center;
-        z-index: 2000;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        letter-spacing: 1px;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-
-        display: flex; /* Para centrar el contenido interno */
-        flex-direction: column; /* Para apilar el icono y el texto */
-        align-items: center;
-        justify-content: center;
-        gap: 20px; /* Espacio entre el icono y el texto */
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 198, 255, 0.7);
     }
 
-    /* Contenedor del icono de éxito */
-    .success-icon-container {
-        width: 100px;
-        height: 100px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .success-popup .popup-icon-svg {
+      stroke-dasharray: 283; /* Circulo */
+      stroke-dashoffset: 283;
+    }
+    .success-popup.show .success-circle {
+      animation: drawCircle 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .success-popup .success-checkmark {
+      stroke-dasharray: 100; /* Checkmark */
+      stroke-dashoffset: 100;
+    }
+    .success-popup.show .success-checkmark {
+      animation: drawCheckmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
     }
 
-    /* Estilo del círculo */
-    .success-circle {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 8px solid #fff; /* Borde blanco para el círculo */
-        border-top-color: transparent; /* Para la animación de dibujo */
-        transform: rotate(-45deg); /* Ajuste inicial para la animación */
-        animation: drawCircle 0.8s ease-out forwards; /* Animación de dibujo */
+    /* Estilos específicos para el popup de error/rechazo */
+    .error-popup {
+      background: linear-gradient(45deg, #e53935, #b71c1c);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(229, 57, 53, 0.7);
     }
-
-    /* Estilo del chulo (checkmark) */
-    .success-checkmark {
-        position: absolute;
-        width: 50px;
-        height: 25px;
-        border: 8px solid #fff; /* Borde blanco para el chulo */
-        border-top: none;
-        border-right: none;
-        transform: rotate(-45deg) scale(0); /* Inicialmente oculto y rotado */
-        animation: drawCheckmark 0.5s ease-out 0.8s forwards; /* Animación de dibujo con delay */
-        opacity: 0; /* Inicialmente invisible */
+    .error-popup .popup-icon-svg {
+      stroke-dasharray: 100; /* Líneas de la X */
+      stroke-dashoffset: 100;
     }
-
-    /* Animación para el dibujo del círculo */
+    .error-popup.show .error-line1 {
+        animation: drawLine 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+    .error-popup.show .error-line2 {
+        animation: drawLine 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+    }
+    
     @keyframes drawCircle {
-        0% {
-            stroke-dasharray: 0 300; /* No visible */
-            transform: rotate(-45deg);
-        }
-        100% {
-            stroke-dasharray: 300 300; /* Completamente visible */
-            transform: rotate(315deg); /* Rotación completa */
-        }
+      to {
+        stroke-dashoffset: 0;
+        transform: rotate(360deg);
+      }
     }
-
-    /* Animación para el dibujo del chulo */
     @keyframes drawCheckmark {
-        0% {
-            stroke-dasharray: 0 50;
-            transform: rotate(-45deg) scale(0);
-            opacity: 0;
-        }
-        100% {
-            stroke-dasharray: 50 50;
-            transform: rotate(-45deg) scale(1);
-            opacity: 1;
-        }
+      to {
+        stroke-dashoffset: 0;
+      }
     }
-
-    /* Animaciones mejoradas para el popup completo (fade in/out y escala) */
-    @keyframes fadeInScaleUp {
-        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-        100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-
-    @keyframes fadeOutScaleDown {
-        0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -50%) scale(1.1); visibility: hidden;}
+    @keyframes drawLine {
+        to {
+            stroke-dashoffset: 0;
+        }
     }
 
   </style>
@@ -375,30 +396,31 @@
 
   <div class="container" id="mainContainer">
     <h1><span>Llutid</span><span>+</span></h1>
-
-    <input type="email" id="correo" placeholder="Correo electrónico" />
+    
+    <div class="input-group">
+      <input type="email" id="correo" placeholder=" " autocomplete="email" required />
+      <label for="correo">Correo electrónico</label>
+    </div>
 
     <div id="setPinSection">
-        <input type="password" id="pinInput" placeholder="PIN (4-6 dígitos)" maxlength="6" inputmode="numeric" />
-        <div id="pinAlert" class="alert-message"></div>
+      <div class="input-group">
+        <input type="password" id="pinInput" placeholder=" " maxlength="6" inputmode="numeric" autocomplete="off" required />
+        <label for="pinInput">PIN (4-6 dígitos)</label>
+      </div>
     </div>
 
     <div id="viewPinSection" class="hidden">
         <div id="pinDisplayContainer" onclick="editPin()">
             <div id="pinDisplay"></div>
-            <span class="edit-pin-icon">✎</span> 
+            <span class="edit-pin-icon" title="Cambiar PIN">✎</span> 
         </div>
     </div>
     
-    <button onclick="handlePinAction()">Ingresar</button>
-
-    <div id="loginMessages">
-        <div id="error" class="mensaje">Correo o PIN incorrecto.</div>
-    </div>
+    <button id="loginButton" onclick="handlePinAction()">Ingresar</button>
 
     <div class="suscribirse">
       ¿No tienes cuenta? <br />
-      <a href="https://api.whatsapp.com/send?phone=+573181087834&text=%C2%A1Hola!%20%F0%9F%91%8B%20Estoy%20emocionado/a%20por%20unirme%20a%20Llutid+%20%F0%9F%8E%AC%20y%20comenzar%20a%20disfrutar%20de%20todo%20su%20contenido%20exclusivo.%20%C2%BFPodr%C3%ADan%20ayudarme%20con%20los%20pasos%20para%20iniciar%20mi%20suscripci%C3%B3n%20%F0%9F%92%B3%20y%20completar%20el%20proceso%20de%20pago?%20%C2%AAEspero%20con%20ansias%20ser%20parte%20de%C2%A0la%C2%A0experiencia%20Llutid+!%20%E2%9C%A8" target="_blank">
+      <a href="https://api.whatsapp.com/send?phone=+573181087834&text=%C2%A1Hola!%20%F0%9F%91%8B%20Estoy%20emocionado/a%20por%20unirme%20a%20Llutid+%20%F0%9F%8E%AC%20y%20comenzar%20a%20disfrutar%20de%20todo%20su%20contenido%20exclusivo.%20%C2%BFPodr%C3%ADan%20ayudarme%20con%20los%20pasos%20para%20iniciar%20mi%20suscripci%C3%B3n%20%F0%9F%92%B3%20y%20completar%20el%20proceso%20de%20pago?%20%C2%AAEspero%20con%C2%A0ansias%20ser%20parte%20de%C2%A0la%C2%A0experiencia%20Llutid+!%20%E2%9C%A8" target="_blank">
         ¡Suscríbete a Llutid+ ahora!
       </a>
     </div>
@@ -410,191 +432,177 @@
     </a>
   </div>
 
-  <div id="successPopup" class="success-popup hidden">
-    <div class="success-icon-container">
-      <div class="success-circle"></div>
-      <div class="success-checkmark"></div>
+  <div id="successPopup" class="popup-container success-popup">
+    <div class="popup-icon-container">
+      <svg width="100" height="100" viewBox="0 0 100 100" class="popup-icon-svg">
+        <circle class="success-circle" cx="50" cy="50" r="45" />
+        <polyline class="success-checkmark" points="30,50 45,65 70,40" />
+      </svg>
     </div>
     <span>¡Acceso Exitoso!</span>
   </div>
 
+  <div id="errorPopup" class="popup-container error-popup">
+    <div class="popup-icon-container">
+      <svg width="100" height="100" viewBox="0 0 100 100" class="popup-icon-svg">
+        <line class="error-line1" x1="25" y1="25" x2="75" y2="75" />
+        <line class="error-line2" x1="75" y1="25" x2="25" y2="75" />
+      </svg>
+    </div>
+    <span>¡Acceso Denegado!</span>
+    <p id="errorPopupMessage" class="popup-message"></p>
+  </div>
+
   <script>
-    // Referencias a elementos HTML
     const mainContainer = document.getElementById('mainContainer');
     const introScreen = document.querySelector('.intro-screen');
     const supportButton = document.getElementById('supportButton');
     const correoInput = document.getElementById('correo');
     const pinInput = document.getElementById('pinInput');
     const pinDisplay = document.getElementById('pinDisplay');
-    const pinDisplayContainer = document.getElementById('pinDisplayContainer');
     const setPinSection = document.getElementById('setPinSection');
     const viewPinSection = document.getElementById('viewPinSection');
-    const pinAlert = document.getElementById('pinAlert');
-    const errorMsg = document.getElementById('error');
-    const loginMessages = document.getElementById('loginMessages');
-    const successPopup = document.getElementById('successPopup'); // Nuevo elemento para el popup de éxito
+    const successPopup = document.getElementById('successPopup');
+    const errorPopup = document.getElementById('errorPopup');
+    const errorPopupMessage = document.getElementById('errorPopupMessage');
+    const loginButton = document.getElementById('loginButton');
+    const introDuration = 5500; // Duración de la animación de introducción en ms
+    const popupDuration = 2500; // Duración en pantalla de los popups en ms
 
-    // Usuarios registrados (ejemplo, esto idealmente vendría de un servidor)
     const usuariosRegistrados = {
-        "llutidoficial@gmail.com": "1057",
-        "luzmarinamartinez1805@gmail.com": "0607",
-        "torresqnderson0987@gmail.com": "0607",
-        "martinidia30@gmail.com": "2683",
-        "pipedxhidalgo@gmail.com": "0607",
-        "ruizruizdannaelizabeth@gmail.com": "0607",
-        "ximenapm2603@gmail.com": "0607",
-        "Andresmedina2508@gmail.com": "4445",
-        "jeferssonstivenf@gmail.com": "1057",
-        "duvan263009@gmail.com": "1581",
-        "pipereyes090@gmail.com": "1601",
-        "rgshigm@gmail.com": "2930",
-        "juan.m.bustos.d@gmail.com": "6352",
-        "rojasstiven016@gmail.com": "2012",
-        "jadejimenes939@gmail.com": "8080",
-        "jhghgehiuh": "jgkrjgijg",
-        "hfkjewhfhgfj": "rjgoirjhg",
-        "rfhrigu": "jfi3jhf984",
-        "jf43qhf9843": "vfnkmnv",
+      "llutidoficial@gmail.com": "1057",
+      "luzmarinamartinez1805@gmail.com": "0607",
+      "torresqnderson0987@gmail.com": "0607",
+      "martinidia30@gmail.com": "2683",
+      "pipedxhidalgo@gmail.com": "0607",
+      "ruizruizdannaelizabeth@gmail.com": "0607",
+      "ximenapm2603@gmail.com": "0607",
+      "andresmedina2508@gmail.com": "4445",
+      "jeferssonstivenf@gmail.com": "1057",
+      "duvan263009@gmail.com": "1581",
+      "pipereyes090@gmail.com": "1601",
+      "rgshigm@gmail.com": "2930",
+      "juan.m.bustos.d@gmail.com": "6352",
+      "rojasstiven016@gmail.com": "2012",
+      "jadejimenes939@gmail.com": "8080",
     };
 
-    // --- Lógica de la pantalla de introducción y carga inicial ---
-    setTimeout(() => {
-        introScreen.style.display = 'none';
-        mainContainer.style.display = 'block';
-        mainContainer.style.animation = 'fadeIn 1s ease-in-out';
-        supportButton.style.display = 'block';
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            introScreen.classList.add('hidden');
+            mainContainer.classList.add('visible');
+            supportButton.style.display = 'block';
+            loadLoginState();
+        }, introDuration);
+    });
 
-        const storedCorreo = localStorage.getItem('correo');
-        const storedPin = localStorage.getItem('userPin');
+    function loadLoginState() {
+      const storedCorreo = localStorage.getItem('correo');
+      const storedPin = localStorage.getItem('userPin');
 
-        if (storedCorreo) {
-            correoInput.value = storedCorreo;
-        }
+      if (storedCorreo) {
+        correoInput.value = storedCorreo;
+      }
 
-        if (storedPin) {
-            displayPartiallyHiddenPin(storedPin);
-            setPinSection.classList.add('hidden'); // Oculta el campo de input del PIN
-            viewPinSection.classList.remove('hidden'); // Muestra el display del PIN con el lápiz
-            pinInput.value = storedPin; // **Importante:** Carga el PIN completo en el input oculto para su uso posterior
-        } else {
-            setPinSection.classList.remove('hidden'); // Muestra el campo de input del PIN
-            viewPinSection.classList.add('hidden'); // Oculta el display del PIN
-        }
-    }, 5500);
+      if (storedPin) {
+        pinInput.value = storedPin;
+        displayPartiallyHiddenPin(storedPin);
+        setPinSection.classList.add('hidden');
+        viewPinSection.classList.remove('hidden');
+        loginButton.textContent = 'Ingresar';
+      } else {
+        setPinSection.classList.remove('hidden');
+        viewPinSection.classList.add('hidden');
+        loginButton.textContent = 'Guardar e Ingresar';
+      }
+    }
 
-    // --- Funciones para la gestión del PIN ---
-
-    /**
-     * Muestra el PIN de forma parcial (ej. "••••5").
-     * @param {string} pin - El PIN completo a mostrar.
-     */
     function displayPartiallyHiddenPin(pin) {
-        if (pin && pin.length > 0) {
-            const hiddenPart = '•'.repeat(pin.length - 1); // Genera puntos para la parte oculta
-            const lastDigit = pin.slice(-1); // Obtiene el último dígito
-            pinDisplay.textContent = hiddenPart + lastDigit; // Actualiza el texto en el display
-        } else {
-            pinDisplay.textContent = 'No hay PIN guardado.';
-        }
+      if (pin && pin.length > 0) {
+        const hiddenPart = '•'.repeat(pin.length - 1);
+        const lastDigit = pin.slice(-1);
+        pinDisplay.textContent = hiddenPart + lastDigit;
+      } else {
+        pinDisplay.textContent = 'PIN no guardado.';
+      }
     }
 
-    /**
-     * Maneja la acción del botón "Ingresar".
-     * Si no hay PIN guardado, lo guarda. Luego intenta verificar el login.
-     */
     function handlePinAction() {
-        const correo = correoInput.value.trim().toLowerCase();
-        let pinParaVerificar = '';
+      hidePopups();
+      const correo = correoInput.value.trim().toLowerCase();
+      const pinToVerify = pinInput.value.trim();
 
-        // Si la sección de establecer PIN está visible (significa que el usuario está ingresando un PIN nuevo)
-        if (!setPinSection.classList.contains('hidden')) {
-            const enteredPin = pinInput.value.trim();
-            // Validación del PIN al guardarlo por primera vez
-            if (enteredPin.length < 4 || enteredPin.length > 6 || !/^\d+$/.test(enteredPin) || !correo) { // Agregada validación de correo
-                pinAlert.textContent = 'Por favor, introduce un correo y un PIN de 4 a 6 dígitos numéricos.';
-                pinAlert.classList.remove('hidden');
-                return; // Detener la función si el PIN o el correo es inválido
-            }
-            localStorage.setItem('userPin', enteredPin); // Guarda el nuevo PIN
-            localStorage.setItem('correo', correo); // Guarda el correo también
-            pinInput.value = enteredPin; // Asegura que pinInput tenga el valor para la verificación
-            pinParaVerificar = enteredPin;
-        } else {
-            // Si la sección de ver PIN está visible (significa que el PIN ya está guardado)
-            // Usamos el PIN que ya se precargó en pinInput al cargar la página
-            pinParaVerificar = pinInput.value; 
-            // Si el correo no está ingresado, muestra error
-            if (!correo) {
-                pinAlert.textContent = 'Por favor, introduce tu correo electrónico.';
-                pinAlert.classList.remove('hidden');
-                return;
-            }
-        }
-        
-        // Limpiar mensajes anteriores de alerta de PIN y login
-        hideMessages();
-        pinAlert.classList.add('hidden');
+      if (!/^\d{4,6}$/.test(pinToVerify)) {
+        showErrorPopup('El PIN debe ser de 4 a 6 dígitos numéricos.');
+        return;
+      }
+      
+      if (!correo || !correo.includes('@')) {
+        showErrorPopup('Por favor, introduce un correo electrónico válido.');
+        return;
+      }
+      
+      if (viewPinSection.classList.contains('hidden')) {
+        localStorage.setItem('userPin', pinToVerify);
+        localStorage.setItem('correo', correo);
+        displayPartiallyHiddenPin(pinToVerify);
+        setPinSection.classList.add('hidden');
+        viewPinSection.classList.remove('hidden');
+        loginButton.textContent = 'Ingresar';
+      }
 
-        // Ahora, verificar el login con el PIN adecuado
-        verificarLogin(correo, pinParaVerificar);
+      verificarLogin(correo, pinToVerify);
     }
 
-    /**
-     * Prepara la interfaz para que el usuario pueda editar (establecer uno nuevo) el PIN.
-     * Se llama al hacer clic en el contenedor del PIN oculto o el icono de lápiz.
-     */
     function editPin() {
-        localStorage.removeItem('userPin'); // Elimina el PIN actual de localStorage
-        pinInput.value = ''; // Limpia el campo de entrada
-        
-        setPinSection.classList.remove('hidden'); // Muestra la sección de establecer/ingresar PIN
-        viewPinSection.classList.add('hidden'); // Oculta la sección de ver/editar PIN
-        pinInput.focus(); // Enfoca el input para que el usuario pueda escribir un nuevo PIN
-        hideMessages(); // Oculta mensajes de éxito/error de login
-        pinAlert.classList.add('hidden'); // Oculta cualquier mensaje de alerta de PIN
+      localStorage.removeItem('userPin');
+      pinInput.value = '';
+      setPinSection.classList.remove('hidden');
+      viewPinSection.classList.add('hidden');
+      pinInput.focus();
+      hidePopups();
+      loginButton.textContent = 'Guardar e Ingresar';
     }
-
-    // --- Lógica original de verificación de login ---
 
     function verificarLogin(correo, pinAComparar) {
-        hideMessages(); // Oculta mensajes anteriores
+      loginButton.textContent = 'Verificando...';
+      loginButton.disabled = true;
 
-        // Verificar si el correo existe y si el PIN proporcionado coincide
-        if (usuariosRegistrados[correo] && usuariosRegistrados[correo] === pinAComparar) {
-            showSuccessPopup(); // Muestra el nuevo popup de éxito
-            setTimeout(() => {
-                window.location.href = 'home.html'; // Redirige a home.html después de la animación del popup
-            }, 2500); // Dar tiempo para que el popup se vea un poco
+      setTimeout(() => {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Ingresar';
+
+        if (!usuariosRegistrados[correo]) {
+            showErrorPopup('El correo electrónico no está registrado.');
+        } else if (usuariosRegistrados[correo] === pinAComparar) {
+          showSuccessPopup();
+          setTimeout(() => {
+            window.location.href = 'home.html';
+          }, popupDuration);
         } else {
-            errorMsg.style.display = 'block'; // Mantiene el mensaje de error normal
+          showErrorPopup('PIN incorrecto. Inténtalo de nuevo.');
         }
+      }, 1000);
     }
 
-    // Función para mostrar el popup de éxito con la nueva animación
     function showSuccessPopup() {
-        successPopup.classList.remove('hidden');
-        successPopup.style.opacity = 0; // Reinicia la opacidad para la animación
-        successPopup.style.visibility = 'visible'; // Hace visible el elemento
-        successPopup.style.animation = 'fadeInScaleUp 0.6s ease-out forwards, fadeOutScaleDown 0.6s ease-in forwards 3s'; // Aplica las animaciones generales del popup
-
-        // Reinicia las animaciones de círculo y chulo para que se reproduzcan cada vez
-        const circle = successPopup.querySelector('.success-circle');
-        const checkmark = successPopup.querySelector('.success-checkmark');
-
-        // Forzar reinicio de animación
-        circle.style.animation = 'none';
-        checkmark.style.animation = 'none';
-        void circle.offsetWidth; // Trigger reflow
-        void checkmark.offsetWidth; // Trigger reflow
-        circle.style.animation = 'drawCircle 0.8s ease-out forwards';
-        checkmark.style.animation = 'drawCheckmark 0.5s ease-out 0.8s forwards';
+      successPopup.classList.add('show');
+      setTimeout(() => {
+          successPopup.classList.remove('show');
+      }, popupDuration);
+    }
+    
+    function showErrorPopup(message) {
+      errorPopupMessage.textContent = message;
+      errorPopup.classList.add('show');
+      setTimeout(() => {
+          errorPopup.classList.remove('show');
+      }, popupDuration);
     }
 
-    // Función auxiliar para ocultar mensajes de éxito/error
-    function hideMessages() {
-        errorMsg.style.display = 'none';
-        successPopup.classList.add('hidden'); // Asegura que el popup esté oculto
-        successPopup.style.animation = 'none'; // Detiene cualquier animación en curso del popup
+    function hidePopups() {
+      successPopup.classList.remove('show');
+      errorPopup.classList.remove('show');
     }
 
   </script>
