@@ -478,7 +478,7 @@
 
     <div id="playerFullscreenContainer" class="player-fullscreen-container">
         <iframe id="movieIframe"
-                src="https://embed.screenapp.io/app/#/shared/6JdyLn_q5g?embed=true"
+                src="https://drive.google.com/file/d/1FyxwP40IPgpunGC_QqMnQseLDuCMToma/preview"
                 allow="autoplay; encrypted-media; fullscreen" allowfullscreen>
         </iframe>
     </div>
@@ -496,7 +496,8 @@
         const watchedProgressBar = document.getElementById('watchedProgressBar');
         const vimeoTrailer = document.getElementById('vimeoTrailer');
 
-        const BASE_DRIVE_URL = "https://embed.screenapp.io/app/#/shared/6JdyLn_q5g?embed=true";
+        // *** Enlace actualizado para Google Drive ***
+        const BASE_DRIVE_URL = "https://drive.google.com/file/d/1FyxwP40IPgpunGC_QqMnQseLDuCMToma/preview";
         const MOVIE_WATCHED_KEY = 'movieWatched_WonderWoman1984';
         const MOVIE_PROGRESS_KEY = 'movieProgress_WonderWoman1984';
         const MOVIE_DURATION_MINUTES = 151;
@@ -581,15 +582,16 @@
 
             startProgressTracking();
 
-            if (playerFullscreenContainer.requestFullscreen) {
-                playerFullscreenContainer.requestFullscreen();
-            } else if (playerFullscreenContainer.mozRequestFullScreen) {
-                playerFullscreenContainer.mozRequestFullScreen();
-            } else if (playerFullscreenContainer.webkitRequestFullscreen) {
-                playerFullscreenContainer.webkitRequestFullscreen();
-            } else if (playerFullscreenContainer.msRequestFullscreen) {
-                playerFullscreenContainer.msRequestFullscreen();
+            if (movieIframe.requestFullscreen) {
+                movieIframe.requestFullscreen();
+            } else if (movieIframe.mozRequestFullScreen) {
+                movieIframe.mozRequestFullScreen();
+            } else if (movieIframe.webkitRequestFullscreen) {
+                movieIframe.webkitRequestFullscreen();
+            } else if (movieIframe.msRequestFullscreen) {
+                movieIframe.msRequestFullscreen();
             }
+
 
             try {
                 if (screen.orientation && screen.orientation.lock) {
