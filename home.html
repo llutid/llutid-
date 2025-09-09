@@ -53,6 +53,22 @@
         }
         a { text-decoration: none; color: inherit; }
 
+        /* --- Animación de entrada PREMIUM (solo el contenido) --- */
+        .content {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            will-change: opacity, transform;
+        }
+        body.page-loaded .content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Accesibilidad: respeta "reducir movimiento" */
+        @media (prefers-reduced-motion: reduce) {
+            .content { opacity: 1 !important; transform: none !important; transition: none !important; }
+        }
+
         /* --- Header Principal --- */
         .main-header {
             display: flex;
@@ -170,8 +186,7 @@
         }
         .carousel-image.active { opacity: 1; z-index: 1; }
 
-        /* Capa de información tipo overlay en la parte inferior (texto + botones)
-           --> importante: position:absolute para que siempre quede pegada abajo */
+        /* Capa de información tipo overlay en la parte inferior (texto + botones) */
         .hero-info {
             position: absolute;
             bottom: 18px;
@@ -324,7 +339,7 @@
                  data-desc="Espionaje · Acción · Intensa"
                  data-link="misionimposible.html">
 
-            <!-- Capa de información (ahora absolute para que no se mueva) -->
+            <!-- Capa de información -->
             <div class="hero-info" id="heroInfo">
                 <h1 id="heroTitle">Karate Kid</h1>
                 <p id="heroDesc">Acción · Inspiradora · Clásico</p>
@@ -335,7 +350,7 @@
             </div>
         </section>
 
-        <!-- Recién Agregado (igual que tu diseño original, no lo toqué) -->
+        <!-- Recién Agregado -->
         <section class="category-section" id="recentlyAddedSection">
             <h2>Recién Agregado</h2>
             <div class="movie-grid">
@@ -362,7 +377,7 @@
             </div>
         </section>
 
-        <!-- Resto del contenido (idéntico al original) -->
+        <!-- Top 10 -->
         <section class="category-section" id="top10MoviesSection">
             <h2>Top 10 películas LLUTID+</h2>
             <div class="movie-grid">
@@ -706,6 +721,11 @@
     </div>
 
     <script>
+        /* --- Animación de entrada premium (activa al cargar) --- */
+        window.addEventListener('load', () => {
+            document.body.classList.add('page-loaded');
+        });
+
         // --- Carrusel de la Sección Hero (2 imágenes, 6s, actualiza info) ---
         (function() {
             const carouselImages = document.querySelectorAll('#heroSection .carousel-image');
@@ -961,7 +981,3 @@
     </script>
 </body>
 </html>
-
-
-
-
