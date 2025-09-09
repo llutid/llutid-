@@ -1,475 +1,237 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login Llutid+</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@600&display=swap" rel="stylesheet">
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLUTID+</title>
   <style>
-    /* Estilos base */
-    * {
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
 
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
+      height: 100vh; overflow: hidden; display: flex;
+      flex-direction: column; justify-content: flex-end;
+      color: white; background: black;
     }
 
-    /* Pantalla de introducción - Animación */
+    /* LOGO */
+    .logo {
+      position: absolute; top: 15px; left: 20px;
+      font-size: 28px; font-weight: bold; letter-spacing: 2px;
+      display: flex; align-items: center; z-index: 20;
+    }
+    .logo .blue { color: #007bff; }
+    .logo .plus { color: white; margin-left: 3px; }
+
+    /* HELP ICON */
+    .help-btn {
+      position: absolute; top: 20px; right: 20px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(6px);
+      color: white; font-weight: bold; font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 20; transition: 0.3s;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+    .help-btn:hover {
+      background: rgba(255,255,255,0.35);
+      transform: scale(1.1);
+    }
+
+    /* CARRUSEL */
+    .carousel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+    .carousel img {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity 1s ease-in-out;
+    }
+    .carousel img.active { opacity: 1; }
+
+    /* INFO DE LA PELÍCULA */
+    .movie-info {
+      position: absolute; bottom: 35%; left: 50%;
+      transform: translateX(-50%); max-width: 90%; text-align: center;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    }
+    .movie-rank { background: red; padding: 3px 6px; font-size: 13px;
+      font-weight: bold; border-radius: 3px; margin-bottom: 5px; display: inline-block; }
+    .movie-title { font-size: 26px; font-weight: bold; margin-bottom: 5px; }
+    .movie-sub { font-size: 16px; }
+    @media (max-width: 600px) {
+      .movie-info { bottom: 45%; max-width: 95%; }
+      .movie-title { font-size: 20px; } .movie-sub { font-size: 14px; }
+    }
+
+    /* OVERLAY LOGIN CURVO */
+    .overlay {
+      width: 100%; padding: 15px 20px 25px; text-align: center;
+      background: rgba(0,0,0,0.45); backdrop-filter: blur(8px);
+      clip-path: ellipse(130% 100% at 50% 100%);
+    }
+    .login-container { max-width: 300px; margin: 0 auto; }
+    .login-container h3 { font-size: 16px; margin-bottom: 12px; font-weight: normal; }
+
+    .input-group { margin-bottom: 12px; position: relative; }
+    .input-group input {
+      width: 100%; padding: 10px 14px; border: none; border-radius: 20px;
+      font-size: 14px; background-color: rgba(255,255,255,0.15);
+      color: white; text-align: center; transition: 0.3s;
+    }
+    .input-group input::placeholder {
+      color: #f0f0f0; text-shadow: 0 0 4px rgba(0,0,0,0.8);
+    }
+    .input-group input:focus {
+      outline: none; background-color: rgba(255,255,255,0.25);
+      box-shadow: 0 0 6px rgba(0,123,255,0.6);
+    }
+
+    .login-container button {
+      width: 100%; padding: 10px; border: none; border-radius: 20px;
+      background: linear-gradient(135deg,#007bff,#00c6ff);
+      color: white; font-size: 14px; font-weight: bold; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .login-container button:hover {
+      transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+    .login-container .suscribirse { margin-top: 10px; font-size: 12px; }
+    .login-container .suscribirse a {
+      color: #ffffff; text-decoration: none; font-weight: bold; transition: color 0.3s;
+    }
+    .login-container .suscribirse a:hover { color: #00c6ff; }
+
+    /* INTRO SCREEN */
     .intro-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #000000, #0a0a0a);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: black; display: flex; justify-content: center; align-items: center;
+      z-index: 1000; transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
     }
-
-    .intro-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
+    .intro-screen.hidden { opacity: 0; visibility: hidden; }
     .logo-container {
-      font-size: 4rem;
-      font-weight: 800;
-      color: white;
-      opacity: 0;
-      letter-spacing: 4px;
+      font-size: 3.5rem; font-weight: 800; color: white; opacity: 0; letter-spacing: 4px;
       animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
       text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-      font-family: 'Montserrat', sans-serif;
     }
+    @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1); } }
+    @keyframes fadeOut { to { opacity: 0; transform: scale(1.05); } }
 
-    @keyframes fadeInZoom {
-      0% {
-        opacity: 0;
-        transform: scale(0.5);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: scale(1.05);
-      }
-    }
-
-    /* Formulario de Login */
-    .container {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      backdrop-filter: blur(10px);
-      display: none;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    }
-    
-    .container.visible {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-    }
-
-    h1 span:first-child {
-      color: #2196f3;
-    }
-
-    h1 span:last-child {
-      color: #ffffff;
-    }
-
-    .input-group {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      background-color: #1e1e1e;
-      color: white;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    input:focus {
-      outline: none;
-      box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
-    }
-    
-    label {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #777;
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
-
-    input:focus + label,
-    input:not(:placeholder-shown) + label {
-      top: -12px;
-      font-size: 12px;
-      color: #2196f3;
-      background: #1e1e1e;
-      padding: 0 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      border: none;
-      border-radius: 30px;
-      background-color: #2196f3;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
-    }
-
-    button:hover {
-      background-color: #0bc36a;
-    }
-    
-    button:active {
-        transform: scale(0.98);
-    }
-    
-    button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-    
-    .hidden {
-      display: none !important;
-    }
-
-    #pinDisplayContainer {
-      position: relative;
-      width: 100%;
-      margin: 12px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 8px 20px;
-      background-color: #1e1e1e;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    #pinDisplayContainer:hover {
-      box-shadow: 0 0 8px rgba(33, 150, 243, 0.6);
-    }
-
-    #pinDisplay {
-      font-size: 20px;
-      font-weight: bold;
-      color: #ffffff;
-      letter-spacing: 2px;
-      flex-grow: 1;
-      line-height: normal;
-    }
-
-    .edit-pin-icon {
-      position: absolute;
-      right: 15px;
-      color: #2196f3;
-      font-size: 18px;
-      cursor: pointer;
-      transition: color 0.3s ease;
-    }
-
-    .edit-pin-icon:hover {
-      color: #0bc36a;
-    }
-
-    .suscribirse {
-      margin-top: 30px;
-      font-size: 14px;
-    }
-
-    .suscribirse a {
-      color: #ffffff; /* Color blanco como se solicitó */
-      text-decoration: none;
-      font-weight: bold;
-      display: inline-block;
-      margin-top: 8px;
-      transition: color 0.3s;
-    }
-
-    .suscribirse a:hover {
-      color: #2196f3; /* Un toque de azul al pasar el mouse */
-    }
-
-    /* Botón de soporte flotante */
-    .support-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 999;
-      display: none;
-    }
-
-    .support-button a {
-      display: block;
-      width: 60px;
-      height: 60px;
-      background-color: #2196f3;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .support-button a:hover {
-      background-color: #0bc36a;
-      transform: scale(1.05);
-    }
-
-    .support-button img {
-      width: 80%;
-      height: 80%;
-      object-fit: contain;
-      filter: brightness(1.5) contrast(1.2);
-    }
-
-    /* Estilos base para los popups */
+    /* POPUPS */
     .popup-container {
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0.8);
-      color: white;
-      padding: 40px 60px;
-      border-radius: 25px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      font-family: 'Poppins', sans-serif;
-      font-size: 2.8em;
-      font-weight: 600;
-      text-align: center;
-      z-index: 2000;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      letter-spacing: 1px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      color: white; padding: 25px 35px; border-radius: 20px;
+      font-size: 1.2em; font-weight: bold; text-align: center;
+      z-index: 2000; opacity: 0; visibility: hidden; pointer-events: none;
+      transition: all 0.4s ease;
     }
-
     .popup-container.show {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
+      opacity: 1; visibility: visible; pointer-events: auto;
       transform: translate(-50%, -50%) scale(1);
     }
-
-    .popup-message {
-        font-size: 0.5em; /* Ajustado para que el mensaje se vea bien */
-        font-weight: normal;
-        margin-top: -10px;
-        opacity: 0.8;
+    .success-popup { background: rgba(0, 150, 0, 0.9); }
+    .error-popup { background: rgba(200, 0, 0, 0.9); }
+    .popup-icon {
+      width: 50px; height: 50px; margin: 0 auto 10px;
     }
-
-    .popup-icon-container {
-      width: 100px;
-      height: 100px;
-      position: relative;
+    .popup-message { font-size: 0.7em; margin-top: 5px; opacity: 0.9; }
+    svg circle, svg path {
+      stroke-dasharray: 150; stroke-dashoffset: 150;
+      animation: draw 1s forwards;
     }
-
-    .popup-icon-svg {
-      fill: none;
-      stroke: white;
-      stroke-width: 8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* Estilos específicos para el popup de éxito */
-    .success-popup {
-      background: linear-gradient(45deg, #00c6ff, #0072ff);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 198, 255, 0.7);
-    }
-
-    .success-popup .popup-icon-svg {
-      stroke-dasharray: 283; /* Circulo */
-      stroke-dashoffset: 283;
-    }
-    .success-popup.show .success-circle {
-      animation: drawCircle 0.8s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-    .success-popup .success-checkmark {
-      stroke-dasharray: 100; /* Checkmark */
-      stroke-dashoffset: 100;
-    }
-    .success-popup.show .success-checkmark {
-      animation: drawCheckmark 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
-    }
-
-    /* Estilos específicos para el popup de error/rechazo */
-    .error-popup {
-      background: linear-gradient(45deg, #e53935, #b71c1c);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(229, 57, 53, 0.7);
-    }
-    .error-popup .popup-icon-svg {
-      stroke-dasharray: 100; /* Líneas de la X */
-      stroke-dashoffset: 100;
-    }
-    .error-popup.show .error-line1 {
-        animation: drawLine 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
-    }
-    .error-popup.show .error-line2 {
-        animation: drawLine 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
-    }
-    
-    @keyframes drawCircle {
-      to {
-        stroke-dashoffset: 0;
-        transform: rotate(360deg);
-      }
-    }
-    @keyframes drawCheckmark {
-      to {
-        stroke-dashoffset: 0;
-      }
-    }
-    @keyframes drawLine {
-        to {
-            stroke-dashoffset: 0;
-        }
-    }
-
+    @keyframes draw { to { stroke-dashoffset: 0; } }
   </style>
 </head>
 <body>
+  <!-- INTRO -->
+  <div class="intro-screen"><div class="logo-container">LLUTID+</div></div>
 
-  <div class="intro-screen">
-    <div class="logo-container">LLUTID+</div>
+  <!-- LOGO -->
+  <div class="logo"><span class="blue">LLUTID</span><span class="plus">+</span></div>
+
+  <!-- HELP BUTTON -->
+  <div class="help-btn" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/', '_blank')">?</div>
+
+  <!-- CARRUSEL -->
+  <div class="carousel">
+    <img src="https://supercines.com.ve/storage/image/image-pelicula1749743988.jpg" 
+         class="active" data-title="FÓRMULA 1" data-sub="Top 4 en películas hoy" data-rank="TOP 10">
+    <img src="https://picsum.photos/id/1011/900/1600" data-title="NÚMERO DESCONOCIDO" data-sub="N.º 2 en películas hoy" data-rank="TOP 10">
+    <img src="https://picsum.photos/id/1005/900/1600" data-title="PELÍCULA SORPRESA" data-sub="Disponible ahora">
   </div>
 
-  <div class="container" id="mainContainer">
-    <h1><span>Llutid</span><span>+</span></h1>
-    
-    <div class="input-group">
-      <input type="email" id="correo" placeholder=" " autocomplete="email" required />
-      <label for="correo">Correo electrónico</label>
-    </div>
+  <!-- INFO DE LA PELÍCULA -->
+  <div class="movie-info">
+    <div class="movie-rank" id="rank"></div>
+    <div class="movie-title" id="title"></div>
+    <div class="movie-sub" id="sub"></div>
+  </div>
 
-    <div id="setPinSection">
+  <!-- OVERLAY LOGIN -->
+  <div class="overlay">
+    <div class="login-container">
+      <h3>Inicia sesión</h3>
       <div class="input-group">
-        <input type="password" id="pinInput" placeholder=" " maxlength="6" inputmode="numeric" autocomplete="off" required />
-        <label for="pinInput">PIN (4-6 dígitos)</label>
+        <input type="email" id="correo" placeholder="Correo electrónico" required>
+      </div>
+      <div class="input-group">
+        <input type="password" id="pin" placeholder="PIN de acceso (4-6 dígitos)" maxlength="6" inputmode="numeric" required>
+      </div>
+      <button id="loginButton">Ingresar</button>
+      <div class="suscribirse">
+        ¿No tienes cuenta? <br>
+        <a href="https://api.whatsapp.com/send?phone=+573181087834&text=Hola!%20Quiero%20suscribirme%20a%20Llutid+" target="_blank">
+          ¡Suscríbete a Llutid+ ahora!
+        </a>
       </div>
     </div>
-
-    <div id="viewPinSection" class="hidden">
-        <div id="pinDisplayContainer" onclick="editPin()">
-            <div id="pinDisplay"></div>
-            <span class="edit-pin-icon" title="Cambiar PIN">✎</span> 
-        </div>
-    </div>
-    
-    <button id="loginButton" onclick="handlePinAction()">Ingresar</button>
-
-    <div class="suscribirse">
-      ¿No tienes cuenta? <br />
-      <a href="https://api.whatsapp.com/send?phone=+573181087834&text=%C2%A1Hola!%20%F0%9F%91%8B%20Estoy%20emocionado/a%20por%20unirme%20a%20Llutid+%20%F0%9F%8E%AC%20y%20comenzar%20a%20disfrutar%20de%20todo%20su%20contenido%20exclusivo.%20%C2%BFPodr%C3%ADan%20ayudarme%20con%20los%20pasos%20para%20iniciar%20mi%20suscripci%C3%B3n%20%F0%9F%92%B3%20y%20completar%20el%20proceso%20de%20pago?%20%C2%AAEspero%20con%C2%A0ansias%20ser%20parte%20de%C2%A0la%C2%A0experiencia%20Llutid+!%20%E2%9C%A8" target="_blank">
-        ¡Suscríbete a Llutid+ ahora!
-      </a>
-    </div>
   </div>
 
-  <div class="support-button" id="supportButton">
-    <a href="https://llutid.github.io/chat-bot-llutid-/" target="_blank" title="Soporte al Cliente">
-      <img src="https://i.postimg.cc/R0KPQjLX/logotipo-soporte-al-cliente-llutid-1.png" alt="Soporte al Cliente" class="support-icon">
-    </a>
-  </div>
-
+  <!-- POPUPS -->
   <div id="successPopup" class="popup-container success-popup">
-    <div class="popup-icon-container">
-      <svg width="100" height="100" viewBox="0 0 100 100" class="popup-icon-svg">
-        <circle class="success-circle" cx="50" cy="50" r="45" />
-        <polyline class="success-checkmark" points="30,50 45,65 70,40" />
-      </svg>
-    </div>
-    <span>¡Acceso Exitoso!</span>
+    <svg class="popup-icon" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="25" fill="none" stroke="white" stroke-width="3"/>
+      <path fill="none" stroke="white" stroke-width="3" d="M14 27l7 7 17-17"/>
+    </svg>
+    Acceso Exitoso
   </div>
 
   <div id="errorPopup" class="popup-container error-popup">
-    <div class="popup-icon-container">
-      <svg width="100" height="100" viewBox="0 0 100 100" class="popup-icon-svg">
-        <line class="error-line1" x1="25" y1="25" x2="75" y2="75" />
-        <line class="error-line2" x1="75" y1="25" x2="25" y2="75" />
-      </svg>
-    </div>
-    <span>¡Acceso Denegado!</span>
+    <svg class="popup-icon" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="25" fill="none" stroke="white" stroke-width="3"/>
+      <path fill="none" stroke="white" stroke-width="3" d="M16 16 36 36 M36 16 16 36"/>
+    </svg>
+    Acceso Denegado
     <p id="errorPopupMessage" class="popup-message"></p>
   </div>
 
   <script>
-    const mainContainer = document.getElementById('mainContainer');
-    const introScreen = document.querySelector('.intro-screen');
-    const supportButton = document.getElementById('supportButton');
-    const correoInput = document.getElementById('correo');
-    const pinInput = document.getElementById('pinInput');
-    const pinDisplay = document.getElementById('pinDisplay');
-    const setPinSection = document.getElementById('setPinSection');
-    const viewPinSection = document.getElementById('viewPinSection');
-    const successPopup = document.getElementById('successPopup');
-    const errorPopup = document.getElementById('errorPopup');
-    const errorPopupMessage = document.getElementById('errorPopupMessage');
-    const loginButton = document.getElementById('loginButton');
-    const introDuration = 5500; // Duración de la animación de introducción en ms
-    const popupDuration = 2500; // Duración en pantalla de los popups en ms
+    // Carrusel
+    const images = document.querySelectorAll('.carousel img');
+    const title = document.getElementById('title');
+    const sub = document.getElementById('sub');
+    const rank = document.getElementById('rank');
+    let current = 0;
+    function showImage(index) {
+      images.forEach((img, i) => img.classList.toggle('active', i === index));
+      const img = images[index];
+      title.textContent = img.dataset.title || "";
+      sub.textContent = img.dataset.sub || "";
+      rank.textContent = img.dataset.rank || "";
+      rank.style.display = img.dataset.rank ? "inline-block" : "none";
+    }
+    setInterval(() => { current = (current + 1) % images.length; showImage(current); }, 5000);
+    showImage(current);
 
+    // Intro
+    const introScreen = document.querySelector('.intro-screen');
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => { introScreen.classList.add('hidden'); }, 5000);
+    });
+
+    // Correos y PINs válidos (ejemplo)
     const usuariosRegistrados = {
+      "llutidoficial@gmail.com": "1057",
       "llutidoficial@gmail.com": "1057",
       "luzmarinamartinez1805@gmail.com": "0607",
       "torresqnderson0987@gmail.com": "0607",
@@ -491,126 +253,73 @@
       "jdavidsaiz10@gmail.com": "2011",
       "oscarag2024@gmail.com": "2007",
       "cd_rodriguez89@hotmail.com": "1322",
+      "gnbgnmyk": "0607",
+      "ythyj6yj787k": "0607",
+      "jyj6jkjyuko": "2683"
     };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            introScreen.classList.add('hidden');
-            mainContainer.classList.add('visible');
-            supportButton.style.display = 'block';
-            loadLoginState();
-        }, introDuration);
-    });
-
-    function loadLoginState() {
-      const storedCorreo = localStorage.getItem('correo');
-      const storedPin = localStorage.getItem('userPin');
-
-      if (storedCorreo) {
-        correoInput.value = storedCorreo;
-      }
-
-      if (storedPin) {
-        pinInput.value = storedPin;
-        displayPartiallyHiddenPin(storedPin);
-        setPinSection.classList.add('hidden');
-        viewPinSection.classList.remove('hidden');
-        loginButton.textContent = 'Ingresar';
-      } else {
-        setPinSection.classList.remove('hidden');
-        viewPinSection.classList.add('hidden');
-        loginButton.textContent = 'Guardar e Ingresar';
-      }
-    }
-
-    function displayPartiallyHiddenPin(pin) {
-      if (pin && pin.length > 0) {
-        const hiddenPart = '•'.repeat(pin.length - 1);
-        const lastDigit = pin.slice(-1);
-        pinDisplay.textContent = hiddenPart + lastDigit;
-      } else {
-        pinDisplay.textContent = 'PIN no guardado.';
-      }
-    }
-
-    function handlePinAction() {
-      hidePopups();
-      const correo = correoInput.value.trim().toLowerCase();
-      const pinToVerify = pinInput.value.trim();
-
-      if (!/^\d{4,6}$/.test(pinToVerify)) {
-        showErrorPopup('El PIN debe ser de 4 a 6 dígitos numéricos.');
-        return;
-      }
-      
-      if (!correo || !correo.includes('@')) {
-        showErrorPopup('Por favor, introduce un correo electrónico válido.');
-        return;
-      }
-      
-      if (viewPinSection.classList.contains('hidden')) {
-        localStorage.setItem('userPin', pinToVerify);
-        localStorage.setItem('correo', correo);
-        displayPartiallyHiddenPin(pinToVerify);
-        setPinSection.classList.add('hidden');
-        viewPinSection.classList.remove('hidden');
-        loginButton.textContent = 'Ingresar';
-      }
-
-      verificarLogin(correo, pinToVerify);
-    }
-
-    function editPin() {
-      localStorage.removeItem('userPin');
-      pinInput.value = '';
-      setPinSection.classList.remove('hidden');
-      viewPinSection.classList.add('hidden');
-      pinInput.focus();
-      hidePopups();
-      loginButton.textContent = 'Guardar e Ingresar';
-    }
-
-    function verificarLogin(correo, pinAComparar) {
-      loginButton.textContent = 'Verificando...';
-      loginButton.disabled = true;
-
-      setTimeout(() => {
-        loginButton.disabled = false;
-        loginButton.textContent = 'Ingresar';
-
-        if (!usuariosRegistrados[correo]) {
-            showErrorPopup('El correo electrónico no está registrado.');
-        } else if (usuariosRegistrados[correo] === pinAComparar) {
-          showSuccessPopup();
-          setTimeout(() => {
-            window.location.href = 'home.html';
-          }, popupDuration);
-        } else {
-          showErrorPopup('PIN incorrecto. Inténtalo de nuevo.');
-        }
-      }, 1000);
-    }
+    // Popups
+    const successPopup = document.getElementById('successPopup');
+    const errorPopup = document.getElementById('errorPopup');
+    const errorPopupMessage = document.getElementById('errorPopupMessage');
 
     function showSuccessPopup() {
       successPopup.classList.add('show');
-      setTimeout(() => {
-          successPopup.classList.remove('show');
-      }, popupDuration);
+      setTimeout(() => successPopup.classList.remove('show'), 2000);
     }
-    
     function showErrorPopup(message) {
       errorPopupMessage.textContent = message;
       errorPopup.classList.add('show');
-      setTimeout(() => {
-          errorPopup.classList.remove('show');
-      }, popupDuration);
+      setTimeout(() => errorPopup.classList.remove('show'), 2500);
     }
 
-    function hidePopups() {
-      successPopup.classList.remove('show');
-      errorPopup.classList.remove('show');
-    }
+    // Inputs
+    const correoInput = document.getElementById("correo");
+    const pinInput = document.getElementById("pin");
 
+    // Recuperar datos guardados
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedCorreo = localStorage.getItem("correo");
+      const savedPin = localStorage.getItem("pin");
+      if (savedCorreo && savedPin) {
+        correoInput.value = savedCorreo;
+        pinInput.type = "text";
+        pinInput.value = "●".repeat(savedPin.length - 1) + savedPin.slice(-1);
+        pinInput.dataset.realPin = savedPin;
+      }
+    });
+
+    // Al enfocar PIN → permitir edición
+    pinInput.addEventListener("focus", () => {
+      if (pinInput.dataset.realPin) {
+        pinInput.value = "";
+        pinInput.type = "password";
+        delete pinInput.dataset.realPin;
+      }
+    });
+
+    // Login
+    document.getElementById("loginButton").addEventListener("click", () => {
+      const correo = correoInput.value.trim().toLowerCase();
+      let pin = pinInput.value.trim();
+
+      if (pinInput.dataset.realPin) pin = pinInput.dataset.realPin;
+
+      if (!correo || !pin) {
+        showErrorPopup("Debes ingresar correo y PIN");
+        return;
+      }
+      if (!usuariosRegistrados[correo]) {
+        showErrorPopup("El correo no está registrado");
+      } else if (usuariosRegistrados[correo] === pin) {
+        localStorage.setItem("correo", correo);
+        localStorage.setItem("pin", pin);
+        showSuccessPopup();
+        setTimeout(() => { window.location.href = "home.html"; }, 2200);
+      } else {
+        showErrorPopup("PIN incorrecto");
+      }
+    });
   </script>
 </body>
 </html>
