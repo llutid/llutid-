@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LLUTID+ | La hora de la desaparición</title>
+
+    <!-- Fonts / Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+        /* --- Fuentes (intento de Netflix Sans, con fallbacks) --- */
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2');
+            font-weight: 700;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2');
+            font-weight: 800;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2');
+            font-weight: 900;
+            font-display: swap;
+        }
+
+        /* --- Reset y base --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Netflix Sans', 'Montserrat', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- Intro screen --- */
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .logo-container-intro {
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            opacity: 0;
+            letter-spacing: 4px;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
+            font-family: 'Montserrat', sans-serif;
+        }
+        @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(1.05); } }
+
+        /* --- Main content hidden until intro ends --- */
+        .main-content { display: none; flex-grow: 1; }
+
+        /* --- Header --- */
+        header {
+            background-color: rgba(0,0,0,0.7);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .header-left { display:flex; align-items:center; gap:14px; }
+        .header-logo { font-size:1.8rem; font-weight:800; color:#1e90ff; text-shadow:0 0 8px rgba(30,144,255,0.4); text-decoration:none; }
+        .header-logo span { color: #fff; }
+        .header-title { font-size:1.1rem; font-weight:700; margin-left:20px; }
+
+        .header-right { display:flex; align-items:center; gap:14px; }
+        .header-right i { color:#fff; font-size:22px; cursor:pointer }
+
+        /* --- Movie hero --- */
+        .movie-hero {
+            position: relative;
+            width: 100%;
+            padding-top: 65%; /* aspect ratio */
+            background-color: #000;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        .movie-hero .video-background { position:absolute; inset:0; z-index:1; }
+        .movie-hero .video-background iframe { width:100%; height:100%; border:0; display:block; position:absolute; top:0; left:0; }
+        .movie-hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
+            z-index: 2;
+        }
+
+        .movie-overlay-content {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 8px;
+            z-index: 3;
+            color: #fff;
+        }
+
+        .movie-badge {
+            background-color: #1e90ff;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* ---- TÍTULO BAJADO MÁS DEL DOBLE: margin-top aumentado a 140px --- */
+        .movie-title-main {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-top: 140px; /* <- ajustado según tu pedido */
+            margin-bottom: 5px;
+            line-height: 1.05;
+        }
+
+        .movie-info-line {
+            display:flex;
+            gap:12px;
+            align-items:center;
+            font-size:1rem;
+            color:#a3a3a3;
+            margin-bottom: 15px;
+        }
+        .movie-info-line .rating { border:1px solid #a3a3a3; padding:2px 6px; border-radius:3px; font-size:0.9rem; }
+
+        /* --- Botones y estados --- */
+        .actions { display:flex; flex-direction:column; gap:15px; padding:0 20px; margin-bottom:30px; }
+        .btn {
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:15px 20px;
+            border-radius:8px;
+            font-size:1.1rem;
+            font-weight:700;
+            cursor:pointer;
+            text-decoration:none;
+            position:relative;
+            overflow:hidden;
+            border: none;
+        }
+        .btn i, .btn-text { position:relative; z-index:1; }
+        .btn i { margin-right:10px; font-size:20px; }
+
+        .btn-play { background-color: #282828; color: #fff; }
+        .btn-play.loaded-state { background-color: #fff; color: #000; }
+
+        .progress-bar-fill {
+            position:absolute;
+            top:0; left:0;
+            height:100%;
+            width:0;
+            background-color: #fff;
+            z-index:0;
+        }
+        @keyframes fillProgressBar { from { width:0; } to { width:100%; } }
+        .btn-play.loading .progress-bar-fill { animation: fillProgressBar 22s linear forwards; }
+
+        /* Forzar texto negro cuando carga o cuando está en estado "visto" */
+        .btn-play.loading .btn-text,
+        .btn-play.loading .fa-play,
+        .btn-play.loading .fa-spinner {
+            color: #000;
+            transition: color 0.1s linear;
+        }
+        .btn-play .fa-spinner { display:none; }
+        .btn-play.loading .fa-spinner { display:inline-block; }
+
+        .btn-share { background-color: #282828; color: #fff; }
+
+        .watched-progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: #404040;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 5px;
+            display: none;
+        }
+        .watched-progress-bar {
+            height:100%;
+            width:0%;
+            background-color:#1e90ff;
+            border-radius:3px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* --- Detalles --- */
+        .details-section { padding: 0 20px; margin-bottom: 30px; }
+        .summary { font-size:1rem; line-height:1.5; color:#ccc; margin-bottom:20px; }
+        .info-details { font-size:0.95rem; line-height:1.6; color:#a3a3a3; }
+        .info-details strong { color: #fff; }
+
+        /* --- Fullscreen player container (invisible por defecto) --- */
+        .player-fullscreen-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 9999;
+        }
+        .player-fullscreen-container iframe { width:100%; height:100%; border: none; display:block; }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .header-title { display: none; }
+            .movie-hero { padding-top: 85%; }
+            .movie-title-main { font-size: 1.8rem; margin-top: 60px; } /* menos margen en móvil */
+            .movie-info-line { font-size: 0.9rem; }
+            .summary, .info-details { font-size: 0.9rem; }
+            .btn { font-size: 1rem; padding: 12px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Intro -->
+    <div class="intro-screen">
+        <div class="logo-container-intro">LLUTID</div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <!-- Flecha eliminada: solo queda el logo -->
+                <a href="home.html" class="header-logo">Llutid<span>+</span></a>
+                <div class="header-title">La hora de la desaparición</div>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-cast" title="Enviar a dispositivo"></i>
+                <i class="fas fa-user-circle" title="Perfil"></i>
+            </div>
+        </header>
+
+        <section class="movie-hero">
+            <div class="video-background">
+                <!-- Trailer Vimeo (nuevo) -->
+                <iframe
+                    id="vimeoTrailer"
+                    src="https://player.vimeo.com/video/1118277840?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&controls=0&api=1"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    title="La hora de la desaparición _ Tráiler Oficial _ Doblado">
+                </iframe>
+            </div>
+
+            <div class="movie-overlay-content">
+                <div class="movie-badge">PELÍCULA</div>
+                <h1 class="movie-title-main">La hora de la desaparición</h1>
+                <div class="movie-info-line">
+                    <span>2025</span>
+                    <span class="rating">12+</span>
+                    <span>110 min</span>
+                    <span>AD</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn btn-play" id="playButton" aria-label="Ver película">
+                <span class="progress-bar-fill"></span>
+                <i class="fas fa-spinner fa-spin"></i>
+                <i class="fas fa-play"></i>
+                <span class="btn-text">Ver</span>
+            </button>
+
+            <button class="btn btn-share" id="shareButton">
+                <i class="fas fa-share-alt"></i> Compartir
+            </button>
+
+            <div class="watched-progress-container" id="watchedProgressBarContainer">
+                <div class="watched-progress-bar" id="watchedProgressBar"></div>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <p class="summary">
+                Una historia llena de misterio donde la desaparición repentina de varias personas desencadena una serie de eventos que pondrán a prueba la valentía y el ingenio de quienes intentan descubrir la verdad.
+            </p>
+            <div class="info-details">
+                <strong>Duración:</strong> 110 min<br>
+                <strong>Género:</strong> Suspenso / Drama<br>
+                <strong>Idioma:</strong> Español<br>
+                <strong>Clasificación:</strong> <strong>12+</strong>
+            </div>
+        </section>
+    </div>
+
+    <!-- Contenedor de reproducción fullscreen (Google Drive preview) -->
+    <div id="playerFullscreenContainer" class="player-fullscreen-container" aria-hidden="true">
+        <iframe id="movieIframe"
+                src="https://drive.google.com/file/d/1-It8WWsx4QLpGfjM5XBxfJtkDN5f2kmg/preview"
+                allow="autoplay; encrypted-media; fullscreen"
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    <!-- Vimeo player API (para pausas/reproducción por postMessage) -->
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
+    <script>
+        // Elementos
+        const playButton = document.getElementById('playButton');
+        const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
+        const movieIframe = document.getElementById('movieIframe');
+        const shareButton = document.getElementById('shareButton');
+        const playButtonText = playButton.querySelector('.btn-text');
+        const playButtonSpinner = playButton.querySelector('.fa-spinner');
+        const playIcon = playButton.querySelector('.fa-play');
+        const progressBarFill = playButton.querySelector('.progress-bar-fill');
+        const watchedProgressBarContainer = document.getElementById('watchedProgressBarContainer');
+        const watchedProgressBar = document.getElementById('watchedProgressBar');
+        const vimeoTrailer = document.getElementById('vimeoTrailer');
+
+        // Configuración específica de la película (actualizada)
+        const BASE_DRIVE_URL = "https://drive.google.com/file/d/1-It8WWsx4QLpGfjM5XBxfJtkDN5f2kmg/preview";
+        const MOVIE_WATCHED_KEY = 'movieWatched_LaHoraDeLaDesaparicion';
+        const MOVIE_PROGRESS_KEY = 'movieProgress_LaHoraDeLaDesaparicion';
+        const MOVIE_DURATION_MINUTES = 110;
+        const PROGRESS_UPDATE_INTERVAL_MS = 5000;
+
+        let hasOpened = false;
+        let progressBarTimeout = null;
+        let progressTrackingInterval = null;
+        let startTimeFullScreen = 0;
+
+        // Mostrar contenido principal después de la intro
+        setTimeout(() => {
+            const intro = document.querySelector('.intro-screen');
+            if (intro) intro.style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+
+            if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
+                setButtonToWatchedState();
+            } else {
+                startPlayButtonAnimation();
+            }
+            updateWatchedProgressBar();
+        }, 5500);
+
+        // Establecer estado "visto"
+        function setButtonToWatchedState() {
+            playButton.classList.remove('loading');
+            playButton.classList.add('loaded-state');
+
+            // completar barra interna del botón
+            progressBarFill.style.width = '100%';
+            progressBarFill.style.transition = 'none';
+
+            // mostrar icono de play y ocultar spinner
+            playButtonSpinner.style.display = 'none';
+            playIcon.style.display = 'inline-block';
+            playButtonText.textContent = 'Ver otra vez';
+            playButton.style.cursor = 'pointer';
+
+            // texto e icono en negro para contraste con fondo blanco
+            playButtonText.style.color = '#000';
+            playIcon.style.color = '#000';
+        }
+
+        // Animación inicial del botón "Ver" (barra cargando)
+        function startPlayButtonAnimation() {
+            playButton.classList.add('loading');
+            playButtonSpinner.style.display = 'inline-block';
+            playIcon.style.display = 'none';
+            playButtonText.textContent = 'Cargando...';
+
+            // Aseguramos que el texto se vea en negro (por la barra blanca)
+            playButtonText.style.color = '#000';
+            playIcon.style.color = '';
+
+            // Reiniciar barra (animación CSS)
+            progressBarFill.style.width = '0';
+            progressBarFill.style.transition = 'width 22s linear forwards';
+
+            // Si el usuario no abre la película manualmente, la abrimos al finalizar la animación (22s)
+            if (progressBarTimeout) {
+                clearTimeout(progressBarTimeout);
+            }
+            progressBarTimeout = setTimeout(() => {
+                if (!hasOpened) {
+                    openMovieFullscreen();
+                }
+                setButtonToWatchedState();
+                localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+                progressBarTimeout = null;
+            }, 22000);
+        }
+
+        // Abrir película en modo "fullscreen" (contenedor con iframe de drive)
+        function openMovieFullscreen() {
+            if (hasOpened) return;
+            hasOpened = true;
+
+            // cancelar timeout de la barra si existe
+            if (progressBarTimeout) {
+                clearTimeout(progressBarTimeout);
+                progressBarTimeout = null;
+            }
+
+            // mostrar estado visto en el botón
+            setButtonToWatchedState();
+            localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+
+            // mostrar contenedor fullscreen y establecer src si es necesario
+            playerFullscreenContainer.style.display = 'block';
+            playerFullscreenContainer.setAttribute('aria-hidden', 'false');
+
+            if (!movieIframe.src || movieIframe.src.indexOf('/preview') === -1) {
+                movieIframe.src = BASE_DRIVE_URL;
+            }
+
+            // Pausar trailer Vimeo (si está disponible)
+            try {
+                if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                    vimeoTrailer.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
+                }
+            } catch (e) {
+                console.warn('No se pudo enviar mensaje a Vimeo:', e);
+            }
+
+            // Iniciar el seguimiento del progreso de reproducción
+            startProgressTracking();
+
+            // Solicitar Fullscreen al contenedor
+            if (playerFullscreenContainer.requestFullscreen) {
+                playerFullscreenContainer.requestFullscreen().catch(()=>{});
+            } else if (playerFullscreenContainer.mozRequestFullScreen) {
+                playerFullscreenContainer.mozRequestFullScreen();
+            } else if (playerFullscreenContainer.webkitRequestFullscreen) {
+                playerFullscreenContainer.webkitRequestFullscreen();
+            } else if (playerFullscreenContainer.msRequestFullscreen) {
+                playerFullscreenContainer.msRequestFullscreen();
+            }
+
+            // Intentar bloquear orientación a landscape (si la API lo permite)
+            try {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(e => {
+                        // no crítico si falla
+                    });
+                }
+            } catch (e) {
+                // noop
+            }
+        }
+
+        // Seguimiento del progreso (guarda minutos reproducidos)
+        function startProgressTracking() {
+            startTimeFullScreen = Date.now();
+
+            if (progressTrackingInterval) {
+                clearInterval(progressTrackingInterval);
+                progressTrackingInterval = null;
+            }
+
+            // Partimos del progreso guardado previamente (en minutos)
+            let lastProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+
+            progressTrackingInterval = setInterval(() => {
+                const elapsedTimeMs = Date.now() - startTimeFullScreen;
+                const elapsedTimeMinutes = elapsedTimeMs / (1000 * 60);
+
+                let currentProgressMinutes = lastProgressMinutes + elapsedTimeMinutes;
+                if (currentProgressMinutes > MOVIE_DURATION_MINUTES) {
+                    currentProgressMinutes = MOVIE_DURATION_MINUTES;
+                }
+
+                // Guardar con 2 decimales
+                localStorage.setItem(MOVIE_PROGRESS_KEY, currentProgressMinutes.toFixed(2));
+                updateWatchedProgressBar();
+
+                // Si ya llegó al final, detener el interval
+                if (currentProgressMinutes >= MOVIE_DURATION_MINUTES) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+            }, PROGRESS_UPDATE_INTERVAL_MS);
+        }
+
+        // Actualiza la barra inferior de progreso basado en localStorage
+        function updateWatchedProgressBar() {
+            const currentProgressMinutes = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+            let percentage = (currentProgressMinutes / MOVIE_DURATION_MINUTES) * 100;
+            percentage = Math.min(100, Math.max(0, percentage));
+
+            if (percentage > 0) {
+                watchedProgressBarContainer.style.display = 'block';
+                watchedProgressBar.style.width = percentage + '%';
+            } else {
+                watchedProgressBarContainer.style.display = 'none';
+            }
+        }
+
+        // Click en botón "Ver"
+        playButton.addEventListener('click', openMovieFullscreen);
+
+        // Compartir
+        shareButton.addEventListener('click', async () => {
+            const shareText = `😱 ¡Ya vi La hora de la desaparición en LLUTID+! \n\nDescarga la app y no te pierdas este estreno:\n\n🔗 https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n¿Necesitas ayuda para activar tu cuenta? Escríbenos:\n\n📞 +57 3181087834`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'LLUTID+ - La hora de la desaparición',
+                        text: shareText,
+                        url: window.location.href
+                    });
+                } catch (error) {
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                    window.open(whatsappUrl, '_blank');
+                }
+            } else {
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        });
+
+        // Detectar salida de fullscreen para detener tracking y reanudar trailer
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+        document.addEventListener('mozfullscreenchange', exitHandler);
+        document.addEventListener('MSFullscreenChange', exitHandler);
+
+        function exitHandler() {
+            const isFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
+            if (!isFullscreen) {
+                playerFullscreenContainer.style.display = 'none';
+                playerFullscreenContainer.setAttribute('aria-hidden', 'true');
+
+                movieIframe.src = BASE_DRIVE_URL;
+                hasOpened = false;
+
+                try {
+                    if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                        vimeoTrailer.contentWindow.postMessage(JSON.stringify({ method: 'play' }), '*');
+                    }
+                } catch (e) {
+                    console.warn('No se pudo enviar mensaje a Vimeo:', e);
+                }
+
+                if (progressTrackingInterval) {
+                    clearInterval(progressTrackingInterval);
+                    progressTrackingInterval = null;
+                }
+                updateWatchedProgressBar();
+            }
+        }
+
+        // Si la orientación cambia a portrait mientras estamos en fullscreen, forzamos salida
+        try {
+            if (screen.orientation && screen.orientation.addEventListener) {
+                screen.orientation.addEventListener('change', () => {
+                    const isInFullscreen = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement;
+                    const isPortrait = screen.orientation.type && screen.orientation.type.startsWith('portrait');
+                    if (isInFullscreen && isPortrait) {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen().catch(()=>{});
+                        } else if (document.mozCancelFullScreen) {
+                            document.mozCancelFullScreen();
+                        } else if (document.webkitExitFullscreen) {
+                            document.webkitExitFullscreen();
+                        } else if (document.msExitFullscreen) {
+                            document.msExitFullscreen();
+                        }
+                    }
+                });
+            }
+        } catch (e) {
+            // no crítico
+        }
+    </script>
+</body>
+</html>
+
+
