@@ -34,14 +34,13 @@
         body {
             font-family: 'Inter', Arial, sans-serif;
             margin: 0;
-            background: linear-gradient(to bottom, var(--dark-bg-deep), var(--dark-bg-mid));
+            background-color: var(--dark-bg-deep); 
             color: var(--text-light);
             overflow-x: hidden;
-            /* FIX 3: Permitir el scroll natural, el JS manejará la barra de navegación */
             overflow-y: auto; 
             line-height: 1.6;
             -webkit-text-size-adjust: 100%;
-            min-height: 100vh; /* Asegura que la página sea lo suficientemente larga para scrollear */
+            min-height: 100vh; 
             scroll-behavior: smooth;
         }
         body.no-scroll {
@@ -54,18 +53,18 @@
         }
         a { text-decoration: none; color: inherit; }
 
-        /* --- Animación de entrada PREMIUM --- */
-        /* FIX 1: Se elimina la lógica de opacidad y transformación para evitar la animación. */
+        /* EFECTO DE ENTRADA SUAVE */
         .content {
-            opacity: 1; /* Valor por defecto */
-            transform: translateY(0); /* Valor por defecto */
-            transition: none; /* Eliminar transiciones */
-            will-change: auto; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out; 
+            will-change: opacity, transform; 
         }
         body.page-loaded .content {
-            opacity: 1;
-            transform: translateY(0);
+            opacity: 1; 
+            transform: translateY(0); 
         }
+        
         @media (prefers-reduced-motion: reduce) {
             .content { opacity: 1 !important; transform: none !important; transition: none !important; }
         }
@@ -91,66 +90,90 @@
         .logo-llutid { color: var(--accent-blue); }
         .logo-plus { color: var(--text-light); }
 
-        /* --- Buscador en el Header --- */
-        .search-bar {
+        .search-bar { display: none; } 
+        
+        .header-actions {
             display: flex;
-            background-color: var(--dark-bg-light);
-            border-radius: 25px;
-            padding: 8px 15px;
-            flex-grow: 1;
             align-items: center;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 2px 5px var(--shadow-soft);
-            border: 1px solid var(--border-soft);
-            min-width: 100px;
+            gap: 10px; 
         }
-        .search-bar:focus-within {
-            box-shadow: 0 0 0 3px var(--accent-blue), inset 0 2px 5px var(--shadow-strong);
-            background-color: var(--dark-bg-mid);
+        
+        .search-button, .menu-button { 
+            background: none; border: none; color: var(--text-light); font-size: 30px; cursor: pointer; padding: 0 5px; 
+            height: 30px; width: 30px; display: flex; align-items: center; justify-content: center;
         }
-        .search-bar input {
-            flex-grow: 1; border: none; background: transparent; color: var(--text-light);
-            padding: 0 8px; outline: none; font-size: 15px; -webkit-appearance: none;
+        
+        .search-button svg {
+            width: 28px; 
+            height: 28px; 
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+            transition: stroke 0.2s ease;
         }
-        .search-bar input::placeholder { color: var(--text-muted); opacity: 0.8; }
-        .search-icon { background: none; border: none; color: var(--text-muted); font-size: 19px; cursor: pointer; padding: 0 5px; }
+        .search-button:hover svg {
+            stroke: var(--accent-blue);
+        }
 
-        .menu-button { background: none; border: none; color: var(--text-light); font-size: 30px; cursor: pointer; padding: 0 5px; }
-
-        /* --- Barra de Navegación Principal --- */
+        /* --- Barra de Navegación Principal (Islas) --- */
         .main-nav {
-            display: flex; padding: 6px 20px; background-color: rgba(10, 10, 12, 0.6);
-            border-bottom: none; overflow-x: auto; position: fixed; top: 60px; width: 100%; z-index: 999;
-            box-shadow: 0 3px 15px var(--shadow-strong);
-            backdrop-filter: blur(10px) brightness(0.7);
-            -webkit-backdrop-filter: blur(10px) brightness(0.7);
+            display: flex; padding: 6px 20px; 
+            background-color: transparent; 
+            
+            border-bottom: none; overflow-x: auto; position: fixed; 
+            top: 75px; 
+            
+            width: 100%; z-index: 999;
+            box-shadow: none; 
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            
             transition: transform 0.32s cubic-bezier(.2,.9,.2,1);
         }
         .main-nav.hidden {
             transform: translateY(-100%);
         }
         .main-nav::-webkit-scrollbar { display: none; }
-        .nav-list { list-style: none; padding: 0; margin: 0; display: flex; gap: 25px; flex-shrink: 0; align-items: center; }
+        .nav-list { list-style: none; padding: 0; margin: 0; display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+        
+        /* Estilo base de la "Isla" */
         .nav-item {
-            color: var(--text-muted);
+            color: var(--text-light); 
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 500; 
             position: relative;
-            padding: 8px 0;
+            
+            padding: 4px 10px; 
             white-space: nowrap;
-            font-size: 15px;
-            transition: color 0.25s ease;
+            font-size: 13px; 
+            transition: color 0.25s ease, border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            
+            background-color: rgba(26, 26, 29, 0.95); 
+            
+            border-radius: 20px; 
+            border: none; 
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6); 
         }
-        .nav-item.active { color: var(--accent-blue); text-shadow: 0 0 5px rgba(0,123,255,0.25); transform: translateY(-1px); }
-        .nav-item.active::after {
-            content: "";
-            position: absolute; bottom: -6px; left: 0; width: 100%; height: 4px; border-radius: 3px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
-            box-shadow: 0 3px 8px rgba(0,123,255,0.35);
+
+        /* INDICADOR ACTIVO SUTIL */
+        .nav-item.active { 
+            color: var(--text-light); 
+            font-weight: 700;
+            
+            /* Indicador Sutil: Borde delgado semi-transparente y sombra suave */
+            border: 1px solid rgba(0, 123, 255, 0.4); 
+            background-color: var(--dark-bg-mid); 
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); 
+            transform: none;
         }
 
         /* --- Contenido Principal --- */
-        .content { padding-top: 120px; padding-left: 15px; padding-right: 15px; padding-bottom: 20px; }
+        .content { 
+            padding-top: 130px; 
+            padding-left: 15px; 
+            padding-right: 15px; 
+            padding-bottom: 20px; 
+        }
 
         /* --- HERO (Carrusel de 2 películas) --- */
         .hero-section {
@@ -159,7 +182,7 @@
             overflow: hidden;
             border-radius: 12px;
             box-shadow: 0 10px 30px var(--shadow-strong);
-            height: 550px; /* Altura ajustada */
+            height: 550px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -212,21 +235,20 @@
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6); letter-spacing: 0.5px; font-weight: 600;
         }
 
-        /* Enlace "Ver Más" - CAMBIOS SOLICITADOS */
+        /* Enlace "Ver Más" */
         .view-more-link {
             font-size: 13px;
-            font-weight: 600; /* Ligeramente más grueso */
+            font-weight: 600; 
             color: var(--accent-blue);
             transition: color 0.2s ease;
-            /* Se eliminan bordes, padding y background para dejar solo la letra */
             padding: 0; 
             margin-right: 5px;
             border: none;
             background: none;
         }
         .view-more-link:hover {
-            color: var(--text-light); /* Cambio de color al pasar el mouse */
-            text-decoration: underline; /* Subrayado sutil */
+            color: var(--text-light); 
+            text-decoration: underline; 
         }
 
         /* Grid horizontal de tarjetas */
@@ -239,36 +261,48 @@
 
         /* Estilo base de tarjeta */
         .movie-card {
-            flex-shrink: 0; width: 105px; text-align: center; color: var(--text-light); cursor: pointer;
-            background-color: var(--dark-bg-light); border-radius: 10px; border: 1px solid var(--border-soft);
+            flex-shrink: 0; 
+            width: 110px; 
+            text-align: center; color: var(--text-light); cursor: pointer;
+            background-color: var(--dark-bg-light); 
+            border-radius: 5px; 
+            border: 1px solid var(--border-soft);
             box-shadow: 0 5px 15px var(--shadow-strong); transition: transform 0.2s ease, box-shadow 0.3s ease;
             overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start;
-            height: 165px; padding: 0;
+            height: 165px; 
+            padding: 0;
         }
-        .movie-card:hover { /* Mejoras de usabilidad (Fix 1) */
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px var(--accent-blue);
-            z-index: 10;
+        .movie-card:hover { 
+            transform: scale(1);
+            box-shadow: 0 5px 15px var(--shadow-strong); 
+            z-index: 1; 
         }
         .movie-card img { 
-            width: 100%; height: 100%; object-fit: cover; border-radius: 9px; 
+            width: 100%; height: 100%; object-fit: cover; 
+            border-radius: 4px; 
             box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: transform 0.3s ease; 
             margin: 0; 
         }
-        .movie-grid .movie-card h3 { display: none; } /* Ocultar títulos en la vista de carrusel */
+        .movie-grid .movie-card h3 { display: none; } 
 
         /* --- Estilo de Tarjeta para TOP 10 --- */
         #top10MoviesSection .movie-card {
+            width: 105px; 
+            height: auto; 
             background: transparent; border: none; box-shadow: none; overflow: visible;
-            /* FIX 2: Ajuste en la altura para prevenir que el número 10 se salga mucho */
-            height: 165px; 
-            position: relative; /* Asegura que .movie-number se posicione con respecto a la tarjeta */
+            position: relative; 
+            margin-left: 10px; 
+            margin-right: 5px; 
         }
         #top10MoviesSection .movie-number {
-            position: absolute; left: -10px; bottom: -5px; font-size: 3em; font-weight: 900; 
+            position: absolute; 
+            left: -15px; 
+            bottom: -15px; 
+            font-size: 3.2em; 
+            font-weight: 900; 
             color: #000; z-index: 10;
             pointer-events: none; user-select: none; line-height: 0.85; 
-            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+            text-shadow: -1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff, 0 0 10px rgba(0,0,0,0.5);
         }
 
         /* --- Banner Publicitario (Estándar/Pequeño) --- */
@@ -281,7 +315,7 @@
         @keyframes pulseAd { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
         .ad-banner img { width: 100%; height: 100%; display: block; border-radius: 10px; object-fit: cover; }
         
-        /* --- Overlays Comunes (Buscador y Menú) --- (Fix 6) */
+        /* --- Overlays Comunes (Buscador y Menú) --- */
         .search-overlay, .menu-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0, 0, 0, 0.95); z-index: 2000; 
@@ -362,7 +396,7 @@
         /* GRILLA de 2 columnas para el "Ver Más" */
         .category-full-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+            grid-template-columns: repeat(2, 1fr); 
             gap: 15px;
             padding: 0 15px;
             overflow-y: auto;
@@ -373,15 +407,15 @@
             box-shadow: none; overflow: visible; display: block;
         }
         .category-full-grid .movie-card img {
-            width: 100%; height: auto; aspect-ratio: 2 / 3; /* Proporción de póster */
+            width: 100%; height: auto; aspect-ratio: 2 / 3; 
             border-radius: 9px; object-fit: cover;
         }
         .category-full-grid .movie-card h3 {
-            display: block; /* Mostrar título aquí */
+            display: block; 
             font-size: 13px; margin: 8px 0 0; white-space: nowrap; overflow: hidden;
             text-overflow: ellipsis; font-weight: 500; text-align: left; padding-left: 5px;
         }
-        .category-full-grid .movie-card:hover { /* Asegura que el hover se mantenga */
+        .category-full-grid .movie-card:hover { 
             transform: scale(1.02); 
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
         }
@@ -389,11 +423,19 @@
         /* --- Media Queries (Desktop) --- */
         @media (min-width: 600px) {
             .main-header { padding: 20px 30px; }
-            .search-bar { max-width: 300px; }
             .main-nav { padding: 8px 30px; }
-            .content { padding: 30px 25px; padding-top: 120px; }
+            .content { 
+                padding: 30px 25px; 
+                padding-top: 130px; 
+            }
             .hero-section { height: 700px; } 
-            .movie-card { width: 120px; height: 180px; }
+            
+            /* Ajuste de tarjeta en desktop - Mantenemos la proporción del ajuste pequeño */
+            .movie-card { width: 132px; height: 198px; } 
+            
+            /* Ajuste de Top 10 en desktop, manteniendo el cambio de altura */
+            #top10MoviesSection .movie-card { width: 120px; height: auto; } 
+
             .category-section h2 { font-size: 22px; }
             .ad-banner { height: 100px; } 
 
@@ -415,7 +457,7 @@
             .hero-info { padding: 12px 14px; bottom: 0; }
             .hero-info h1 { font-size: 20px; }
             .search-results-grid {
-                 grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil pequeño */
+                 grid-template-columns: repeat(2, 1fr); 
             }
         }
     </style>
@@ -425,17 +467,22 @@
         <div class="logo-container">
             <span class="logo-llutid">LLUTID</span><span class="logo-plus">+</span>
         </div>
-        <div class="search-bar" id="mainSearchBar">
-            <input type="text" id="mainSearchInput" placeholder="Buscar">
-            <button class="search-icon" id="mainSearchTriggerButton">🔍</button>
+        <div class="header-actions">
+            <button class="search-button" id="openSearchButton">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+            
+            <button class="menu-button" id="openMenuButton">☰</button>
         </div>
-        <button class="menu-button" id="openMenuButton">☰</button>
     </header>
 
     <nav class="main-nav" id="mainNav">
         <ul class="nav-list">
             <li class="nav-item active" data-category-id="recentlyAddedSection">Recién Agregado</li>
-            <li class="nav-item" data-category-id="top10MoviesSection">Top 10 Películas LLUTID+</li>
+            <li class="nav-item" data-category-id="top10MoviesSection">Top 10</li>
             <li class="nav-item" data-category-id="tvSeriesSection">Drama</li>
             <li class="nav-item" data-category-id="2025MovieSection">Terror/Suspenso</li>
             <li class="nav-item" data-category-id="telenovelasSection">Acción/Crimen</li>
@@ -503,10 +550,6 @@
                 </a>
             </div>
         </section>
-
-        <div class="ad-banner">
-            <img src="https://i.postimg.cc/Yqk6wjSK/podcast.jpg" alt="Banner Publicitario - Simulación">
-        </div>
 
         <section class="category-section" id="top10MoviesSection">
             <h2>Top 10 películas LLUTID+</h2>
@@ -764,7 +807,7 @@
                     <h3>ted</h3>
                 </a>
                 <a href="hotdog.html" class="movie-card" data-title="hot dog" data-category="comedia">
-                    <img src="https://i.postimg.cc/T1mNNpM9/result-hot-dog.jpg" alt="hot dog">
+                    <img src="https://i.postimg.cc/T1mNNpP9/result-hot-dog.jpg" alt="hot dog">
                     <h3>hot dog</h3>
                 </a>
                 <a href="dondeestanlasrubias.html" class="movie-card" data-title="las rubias" data-category="comedia">
@@ -857,14 +900,13 @@
     </div>
 
     <script>
-        /* FIX 1: Se elimina la lógica de añadir la clase 'page-loaded' para evitar la animación. */
-        /*
-        window.addEventListener('load', () => {
-            document.body.classList.add('page-loaded');
-        });
-        */
-
-        // --- Carrusel de la Sección Hero (6s, actualiza info) ---
+        // --- Variables de elementos globales ---
+        const allSections = document.querySelectorAll('.category-section');
+        const hero = document.getElementById('heroSection');
+        const allBanners = document.querySelectorAll('.ad-banner');
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        // --- Funcionalidad del carrusel y búsquedas (sin cambios sustanciales) ---
         (function() {
             const carouselImages = document.querySelectorAll('#heroSection .carousel-image');
             const heroTitle = document.getElementById('heroTitle');
@@ -872,7 +914,7 @@
             const heroPlay = document.getElementById('heroPlay');
 
             let currentImageIndex = 0;
-            const INTERVAL = 6000; // 6 segundos
+            const INTERVAL = 6000; 
 
             function showImage(index) {
                 carouselImages.forEach((img, i) => {
@@ -897,15 +939,12 @@
             }
         })();
 
-        // --- Extracción de datos de todas las películas para la búsqueda ---
         const allMovieCardsElements = document.querySelectorAll('.movie-card');
         let allMoviesData = [];
-        // Usar un Map para evitar duplicados si una película aparece en varias categorías
         const uniqueMoviesMap = new Map(); 
 
         allMovieCardsElements.forEach(card => {
             const originalTitle = card.dataset.title || '';
-            // FIX 2: Excluir las tarjetas que tienen la clase 'movie-number' (Top 10) que no están visibles por defecto.
             const isTop10NumberCard = card.querySelector('.movie-number');
             if (originalTitle && !uniqueMoviesMap.has(originalTitle) && !isTop10NumberCard) {
                 uniqueMoviesMap.set(originalTitle, {
@@ -916,7 +955,6 @@
                     category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
                 });
             }
-            // Incluir Top 10, pero solo si no está duplicado.
             if (originalTitle && !uniqueMoviesMap.has(originalTitle)) {
                  uniqueMoviesMap.set(originalTitle, {
                     title: originalTitle.toLowerCase(),
@@ -929,14 +967,21 @@
         });
         allMoviesData = Array.from(uniqueMoviesMap.values());
 
-
-        // --- Funcionalidad del Buscador ---
-        const mainSearchInput = document.getElementById('mainSearchInput');
+        // --- Funcionalidad de Búsqueda y Menú (simplificado) ---
         const searchOverlay = document.getElementById('searchOverlay');
         const closeSearchButton = document.getElementById('closeSearchButton');
         const overlaySearchInput = document.getElementById('overlaySearchInput');
         const overlaySearchResultsGrid = document.getElementById('overlaySearchResultsGrid');
-
+        const openSearchButton = document.getElementById('openSearchButton'); 
+        const openMenuButton = document.getElementById('openMenuButton'); // Asegurarse de que esté definida
+        const menuOverlay = document.getElementById('menuOverlay');
+        const closeMenuButton = document.getElementById('closeMenuButton');
+        const categoryViewOverlay = document.getElementById('categoryViewOverlay');
+        const closeCategoryButton = document.getElementById('closeCategoryButton');
+        const overlayCategoryTitle = document.getElementById('overlayCategoryTitle');
+        const categoryFullGrid = document.getElementById('categoryFullGrid');
+        const viewMoreLinks = document.querySelectorAll('.view-more-link');
+        
         function debounce(func, delay) {
             let timeout;
             return function(...args) {
@@ -945,25 +990,18 @@
                 timeout = setTimeout(() => func.apply(context, args), delay);
             };
         }
-
         function renderSearchResults(searchTerm) {
             overlaySearchResultsGrid.innerHTML = '';
             const trimmedSearchTerm = searchTerm.toLowerCase().trim();
-
             if (trimmedSearchTerm === '') {
                 overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
                 return;
             }
-            
-            const filteredMovies = allMoviesData.filter(movie =>
-                movie.title.includes(trimmedSearchTerm)
-            );
-
+            const filteredMovies = allMoviesData.filter(movie => movie.title.includes(trimmedSearchTerm));
             if (filteredMovies.length === 0) {
                 overlaySearchResultsGrid.innerHTML = `<p class="no-results-message">No se encontraron resultados para "${searchTerm}".</p>`;
                 return;
             }
-            
             filteredMovies.forEach(movie => {
                 const movieCard = document.createElement('a');
                 movieCard.href = movie.link;
@@ -975,236 +1013,176 @@
                 overlaySearchResultsGrid.appendChild(movieCard);
             });
         }
-
         const debouncedRenderSearchResults = debounce(renderSearchResults, 300);
-
-        function openSearchOverlay() {
-            // Asegura que otros overlays estén cerrados
-            if (menuOverlay.classList.contains('active')) closeMenuOverlay();
-            if (categoryViewOverlay.classList.contains('active')) closeCategoryView();
-            
-            searchOverlay.classList.add('active');
-            document.body.classList.add('no-scroll');
-            overlaySearchInput.value = mainSearchInput.value;
-            renderSearchResults(overlaySearchInput.value); // Usa la versión sin debounce la primera vez
-            overlaySearchInput.focus();
+        function closeAllOverlays() {
+             searchOverlay.classList.remove('active');
+             menuOverlay.classList.remove('active');
+             categoryViewOverlay.classList.remove('active');
+             document.body.classList.remove('no-scroll');
         }
-
-        function closeSearchOverlay() {
-            searchOverlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-            mainSearchInput.value = '';
-            overlaySearchInput.value = '';
-            overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
-        }
-
-        if (mainSearchInput) {
-            mainSearchInput.addEventListener('focus', openSearchOverlay);
-        }
-        document.getElementById('mainSearchTriggerButton').addEventListener('click', openSearchOverlay);
-        closeSearchButton.addEventListener('click', closeSearchOverlay);
-        if (overlaySearchInput) {
-            overlaySearchInput.addEventListener('input', () => {
-                debouncedRenderSearchResults(overlaySearchInput.value);
-                mainSearchInput.value = overlaySearchInput.value; // Sincroniza el input principal
-            });
-        }
-
-        // --- Menú overlay ---
-        const openMenuButton = document.getElementById('openMenuButton');
-        const menuOverlay = document.getElementById('menuOverlay');
-        const closeMenuButton = document.getElementById('closeMenuButton');
-        const menuListItems = document.querySelectorAll('.menu-list-item');
-
-        function openMenuOverlay() {
-            // Asegura que otros overlays estén cerrados
-            if (searchOverlay.classList.contains('active')) closeSearchOverlay();
-            if (categoryViewOverlay.classList.contains('active')) closeCategoryView();
-            
-            menuOverlay.classList.add('active');
-            document.body.classList.add('no-scroll');
-        }
-        function closeMenuOverlay() {
-            menuOverlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-        }
-        openMenuButton.addEventListener('click', openMenuOverlay);
-        closeMenuButton.addEventListener('click', closeMenuOverlay);
-
-        menuListItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const action = this.dataset.menuAction;
-                closeMenuOverlay();
-                
-                // Lógica de navegación del menú (si es necesario)
-                if (action === 'home' || action === 'recently-added') {
-                    // Resetear la vista a la principal (Recién Agregado)
-                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                    const defaultNav = document.querySelector('.nav-item[data-category-id="recentlyAddedSection"]');
-                    if (defaultNav) defaultNav.classList.add('active');
-
-                    document.querySelectorAll('.category-section').forEach(section => {
-                        section.style.display = 'block';
-                    });
-                    const hero = document.getElementById('heroSection');
-                    if (hero) hero.style.display = 'block';
-                    document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
-                    
-                    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    window.scrollBy(0, -100); 
-                } else if (action.endsWith('.html')) {
-                    window.location.href = action;
-                }
-            });
-        });
-
-        // --- Lógica del nuevo overlay "Ver Más" ---
-        const categoryViewOverlay = document.getElementById('categoryViewOverlay');
-        const closeCategoryButton = document.getElementById('closeCategoryButton');
-        const overlayCategoryTitle = document.getElementById('overlayCategoryTitle');
-        const categoryFullGrid = document.getElementById('categoryFullGrid');
-        const viewMoreLinks = document.querySelectorAll('.view-more-link');
-
-        function openCategoryView(categoryId) {
+        function openSearchOverlay() { closeAllOverlays(); searchOverlay.classList.add('active'); document.body.classList.add('no-scroll'); renderSearchResults(overlaySearchInput.value); overlaySearchInput.focus(); }
+        function openMenuOverlay() { closeAllOverlays(); menuOverlay.classList.add('active'); document.body.classList.add('no-scroll'); }
+        function openCategoryView(categoryId) { 
+            // ... (Lógica de Ver Más sin cambios)
             const sourceSection = document.getElementById(categoryId);
             if (!sourceSection) return;
 
-            // 1. Ocultar otros overlays
-            if (searchOverlay.classList.contains('active')) closeSearchOverlay();
-            if (menuOverlay.classList.contains('active')) closeMenuOverlay();
+            closeAllOverlays();
 
-            // 2. Establecer el Título del Overlay
             overlayCategoryTitle.textContent = sourceSection.dataset.categoryName || 'Categoría';
-
-            // 3. Limpiar contenido anterior
             categoryFullGrid.innerHTML = '';
 
-            // 4. Clonar y popular el grid
             const movieCards = sourceSection.querySelectorAll('.movie-grid .movie-card');
             if (movieCards.length === 0) {
                  categoryFullGrid.innerHTML = '<p class="no-results-message">No hay contenido disponible en esta categoría.</p>';
             }
             movieCards.forEach(card => {
-                // Clonar la tarjeta para moverla al overlay
                 const clonedCard = card.cloneNode(true);
-                // Asegurar que el título <h3> esté visible en el grid completo
                 const titleElement = clonedCard.querySelector('h3');
                 if (titleElement) titleElement.style.display = 'block'; 
-                
-                // Asegurar que el número de Top 10 se oculte en esta vista
                 const numberElement = clonedCard.querySelector('.movie-number');
                 if (numberElement) numberElement.style.display = 'none';
-
                 categoryFullGrid.appendChild(clonedCard);
             });
 
-            // 5. Mostrar el overlay
             categoryViewOverlay.classList.add('active');
             document.body.classList.add('no-scroll');
-            categoryFullGrid.scrollTop = 0; // Asegurar que el scroll empiece arriba
+            categoryFullGrid.scrollTop = 0;
         }
 
-        function closeCategoryView() {
-            categoryViewOverlay.classList.remove('active');
-            document.body.classList.remove('no-scroll');
-            categoryFullGrid.innerHTML = ''; // Limpiar el contenido después de cerrar
-        }
+        // --- Listeners de Overlays ---
+        openSearchButton.addEventListener('click', openSearchOverlay);
+        closeSearchButton.addEventListener('click', closeAllOverlays);
+        if (overlaySearchInput) { overlaySearchInput.addEventListener('input', () => { debouncedRenderSearchResults(overlaySearchInput.value); }); }
+        openMenuButton.addEventListener('click', openMenuOverlay);
+        closeMenuButton.addEventListener('click', closeAllOverlays);
+        closeCategoryButton.addEventListener('click', closeAllOverlays);
 
-        // 6. Asignar listeners a los enlaces "Ver Más"
         viewMoreLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault(); 
-                const categoryId = this.dataset.categoryId;
-                openCategoryView(categoryId);
+                openCategoryView(this.dataset.categoryId);
             });
         });
 
-        closeCategoryButton.addEventListener('click', closeCategoryView);
+        // --- LÓGICA DE ACTIVACIÓN DE CATEGORÍAS (¡EXTRACCIÓN CLAVE!) ---
+        function activateCategoryView(targetSectionId) {
+            
+            // Ocultar todo por defecto
+            allSections.forEach(section => section.style.display = 'none');
+            if (hero) hero.style.display = 'none';
+            allBanners.forEach(b => b.style.display = 'none');
 
-        // --- Navegación principal debajo del header (Categorías) ---
-        const navItems = document.querySelectorAll('.nav-item');
-        const allSections = document.querySelectorAll('.category-section');
+            if (targetSectionId === 'recentlyAddedSection') {
+                // Mostrar todo para la vista principal "Recién Agregado"
+                allSections.forEach(section => section.style.display = 'block');
+                if (hero) hero.style.display = 'block';
+                allBanners.forEach(b => b.style.display = 'flex');
 
+            } else if (targetSectionId) {
+                // Mostrar solo la sección seleccionada
+                const targetSection = document.getElementById(targetSectionId);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                    
+                    // Si es Populares, mostrar el banner (sólo aplica a Populares)
+                    if (targetSectionId === 'popularMoviesSection') { 
+                         allBanners.forEach(b => b.style.display = 'flex');
+                    }
+                }
+            }
+        }
+
+        // --- Navegación principal (Islas) ---
         navItems.forEach(item => {
             item.addEventListener('click', function() {
                 navItems.forEach(nav => nav.classList.remove('active'));
                 this.classList.add('active');
 
-                const categoryText = this.textContent.trim().toLowerCase();
+                // Cerrar cualquier overlay abierto antes de navegar
+                closeAllOverlays(); 
+
                 const targetSectionId = this.dataset.categoryId;
-
-                // Cerrar cualquier overlay abierto
-                if (menuOverlay.classList.contains('active')) closeMenuOverlay();
-                if (searchOverlay.classList.contains('active')) closeSearchOverlay();
-                if (categoryViewOverlay.classList.contains('active')) closeCategoryView(); 
-                if (mainSearchInput) mainSearchInput.value = '';
-
-                // Ocultar todo por defecto
-                allSections.forEach(section => section.style.display = 'none');
-                const hero = document.getElementById('heroSection');
-                if (hero) hero.style.display = 'none';
-                document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'none');
-
-                if (categoryText === 'recién agregado' || categoryText === 'recien agregado') {
-                    // Mostrar todo para la vista principal
-                    allSections.forEach(section => section.style.display = 'block');
-                    if (hero) hero.style.display = 'block';
-                    document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
-                    
-                    // Scroll al inicio del hero
-                    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                } else if (targetSectionId) {
-                    // Mostrar solo la sección seleccionada
-                    const targetSection = document.getElementById(targetSectionId);
-                    if (targetSection) {
-                        targetSection.style.display = 'block';
-                        
-                        // Si es Top 10 o Populares, mostrar el primer banner si es necesario
-                        if (targetSectionId === 'top10MoviesSection' || targetSectionId === 'popularMoviesSection') {
-                             const firstAd = document.querySelector('.ad-banner:first-of-type');
-                             if (firstAd) firstAd.style.display = 'flex';
-                        }
-                        
-                        // Scroll a la sección seleccionada
-                        setTimeout(() => targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-                    }
+                activateCategoryView(targetSectionId);
+                
+                // Lógica de Scroll
+                const targetElement = (targetSectionId === 'recentlyAddedSection' ? hero : document.getElementById(targetSectionId));
+                
+                if (targetElement) {
+                    setTimeout(() => targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                 }
-
                 // Ajuste para el header fijo
                 window.scrollBy(0, -100); 
             });
         });
+        
+        // --- CORRECCIÓN: Funcionalidad del Menú Lateral ---
+        const menuListItems = document.querySelectorAll('.menu-list-item');
 
+        menuListItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const action = this.dataset.menuAction;
+                
+                // Cerrar el overlay del menú
+                closeAllOverlays(); 
+
+                if (action === 'home') {
+                    // Ir al inicio y scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                } else if (action === 'recently-added') {
+                    // Simular clic en la isla "Recién Agregado"
+                    activateCategoryView('recentlyAddedSection');
+                    
+                    // Actualizar la isla activa en la barra de navegación
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active');
+                        if (nav.dataset.categoryId === 'recentlyAddedSection') {
+                            nav.classList.add('active');
+                        }
+                    });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                } else if (action.endsWith('.html')) {
+                    // Redirigir a otras páginas: Próximos Lanzamientos, En Vivo
+                    window.location.href = action;
+                }
+            });
+        });
+        // --- FIN CORRECCIÓN ---
+
+
+        // --- EJECUCIÓN INICIAL AL CARGAR LA PÁGINA (¡LA CORRECCIÓN!) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Activa la transición de entrada (opacidad 0 -> 1)
+            document.body.classList.add('page-loaded');
+
+            // 2. Establece la vista inicial por defecto: Recién Agregado
+            const defaultActiveItem = document.querySelector('.nav-item.active');
+            if (defaultActiveItem) {
+                activateCategoryView(defaultActiveItem.dataset.categoryId);
+            }
+        });
         // --- Ocultar/mostrar la barra de navegación al hacer scroll (con threshold) ---
         (function() {
             let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const navBar = document.querySelector('.main-nav');
             const THRESHOLD = 25; 
 
-            // FIX 3: Usar requestAnimationFrame para un scroll más suave y con mejor rendimiento.
             let ticking = false;
 
             function updateScroll() {
                 const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const delta = currentScroll - lastScrollTop;
 
-                if (Math.abs(delta) < THRESHOLD) {
-                    ticking = false;
-                    return;
-                }
+                if (Math.abs(delta) < THRESHOLD) { ticking = false; return; }
                 
-                // No ocultar si algún overlay está abierto
-                if (searchOverlay.classList.contains('active') || menuOverlay.classList.contains('active') || categoryViewOverlay.classList.contains('active')) {
-                    ticking = false;
-                    return;
-                }
+                if (searchOverlay.classList.contains('active') || menuOverlay.classList.contains('active') || categoryViewOverlay.classList.contains('active')) { ticking = false; return; }
 
-                if (currentScroll > lastScrollTop && currentScroll > 80) {
-                    // Scrolling down
+                if (currentScroll > lastScrollTop && currentScroll > 90) { 
                     navBar.classList.add('hidden');
                 } else {
-                    // Scrolling up
                     navBar.classList.remove('hidden');
                 }
 
@@ -1222,6 +1200,7 @@
     </script>
 </body>
 </html>
+
 
 
 
