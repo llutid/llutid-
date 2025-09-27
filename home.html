@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>LLUTID+</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* Variables para colores */
         :root {
@@ -37,10 +37,11 @@
             background: linear-gradient(to bottom, var(--dark-bg-deep), var(--dark-bg-mid));
             color: var(--text-light);
             overflow-x: hidden;
-            overflow-y: auto;
+            /* FIX 3: Permitir el scroll natural, el JS manejará la barra de navegación */
+            overflow-y: auto; 
             line-height: 1.6;
             -webkit-text-size-adjust: 100%;
-            min-height: 10vh;
+            min-height: 100vh; /* Asegura que la página sea lo suficientemente larga para scrollear */
             scroll-behavior: smooth;
         }
         body.no-scroll {
@@ -53,18 +54,18 @@
         }
         a { text-decoration: none; color: inherit; }
 
-        /* --- Animación de entrada PREMIUM (solo el contenido) --- */
+        /* --- Animación de entrada PREMIUM --- */
+        /* FIX 1: Se elimina la lógica de opacidad y transformación para evitar la animación. */
         .content {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-            will-change: opacity, transform;
+            opacity: 1; /* Valor por defecto */
+            transform: translateY(0); /* Valor por defecto */
+            transition: none; /* Eliminar transiciones */
+            will-change: auto; 
         }
         body.page-loaded .content {
             opacity: 1;
             transform: translateY(0);
         }
-        /* Accesibilidad: respeta "reducir movimiento" */
         @media (prefers-reduced-motion: reduce) {
             .content { opacity: 1 !important; transform: none !important; transition: none !important; }
         }
@@ -141,16 +142,9 @@
             transition: color 0.25s ease;
         }
         .nav-item.active { color: var(--accent-blue); text-shadow: 0 0 5px rgba(0,123,255,0.25); transform: translateY(-1px); }
-
-        /* Línea/indicador debajo del item activo */
         .nav-item.active::after {
             content: "";
-            position: absolute;
-            bottom: -6px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            border-radius: 3px;
+            position: absolute; bottom: -6px; left: 0; width: 100%; height: 4px; border-radius: 3px;
             background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
             box-shadow: 0 3px 8px rgba(0,123,255,0.35);
         }
@@ -158,223 +152,270 @@
         /* --- Contenido Principal --- */
         .content { padding-top: 120px; padding-left: 15px; padding-right: 15px; padding-bottom: 20px; }
 
-        /* --- HERO actualizado estilo NETFLIX (reemplazado) --- */
+        /* --- HERO (Carrusel de 2 películas) --- */
         .hero-section {
             position: relative;
             margin-bottom: 30px;
             overflow: hidden;
             border-radius: 12px;
             box-shadow: 0 10px 30px var(--shadow-strong);
-            height: 420px; /* altura tipo móvil grande */
+            height: 550px; /* Altura ajustada */
             display: flex;
-            align-items: center; /* centramos el contenido, overlay será absolute */
+            align-items: center;
             justify-content: center;
             background-color: black;
         }
 
-        /* Imágenes del carrusel: cubrir todo, sin recortes raros */
+        /* Imágenes del carrusel */
         .carousel-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* imagen completa tipo Netflix */
-            display: block;
-            position: absolute;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            background: black; /* relleno negro si hay espacio */
-            object-position: center;
+            width: 100%; height: 100%; object-fit: cover; display: block; position: absolute;
+            opacity: 0; transition: opacity 1s ease-in-out; background: black; object-position: center;
         }
         .carousel-image.active { opacity: 1; z-index: 1; }
 
-        /* Capa de información tipo overlay en la parte inferior (texto + botones) */
+        /* Capa de información (texto + botones) */
         .hero-info {
-            position: absolute;
-            bottom: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 3;
-            text-align: center;
-            padding: 14px 18px;
-            max-width: 92%;
-            background: linear-gradient(to top, rgba(0,0,0,0.85), transparent 45%);
-            border-radius: 8px;
-            box-sizing: border-box;
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 3; text-align: center; 
+            padding: 20px; max-width: 100%; box-sizing: border-box;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 20%, transparent 60%);
         }
-        .hero-info h1 { font-size: 26px; margin: 0 0 6px; font-weight: 800; color: #fff; letter-spacing: 0.2px; }
-        .hero-info p { font-size: 13px; margin: 0 0 10px; color: #d0d0d0; }
-        .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero-logo-container {
+            display: flex; justify-content: center; align-items: center; margin-bottom: 5px; 
+            font-size: 14px; font-weight: 700; gap: 2px; opacity: 0.8; width: 100%; 
+        }
+        .hero-logo-container .logo-llutid { color: var(--accent-blue); }
+        .hero-logo-container .logo-plus { color: var(--text-light); }
+        .hero-info h1 { font-size: 26px; margin: 0; font-weight: 800; color: #fff; letter-spacing: 0.2px; }
+        .hero-info p { font-size: 14px; margin: 8px 0 15px; color: #d0d0d0; }
+        .hero-buttons { display: flex; gap: 12px; justify-content: center; }
         .hero-buttons a, .hero-buttons button {
-            padding: 10px 18px;
-            font-size: 15px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
+            padding: 10px 18px; font-size: 15px; border: none; border-radius: 6px; 
+            font-weight: 700; cursor: pointer; white-space: nowrap; 
         }
         .btn-play { background: #fff; color: #000; }
         .btn-list { background: rgba(109,109,110,0.8); color: #fff; }
 
         /* --- Secciones de Categorías --- */
         .category-section { margin-bottom: 20px; }
+        
+        /* Contenedor del título y "Ver Más" */
+        .category-title-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px; 
+        }
+        
         .category-section h2 {
-            font-size: 20px; margin-bottom: 10px; color: var(--text-light);
+            font-size: 20px; margin: 0; color: var(--text-light);
             border-left: 5px solid var(--accent-blue); padding-left: 12px;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6); letter-spacing: 0.5px; font-weight: 600;
         }
-        .movie-grid { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap; }
+
+        /* Enlace "Ver Más" - CAMBIOS SOLICITADOS */
+        .view-more-link {
+            font-size: 13px;
+            font-weight: 600; /* Ligeramente más grueso */
+            color: var(--accent-blue);
+            transition: color 0.2s ease;
+            /* Se eliminan bordes, padding y background para dejar solo la letra */
+            padding: 0; 
+            margin-right: 5px;
+            border: none;
+            background: none;
+        }
+        .view-more-link:hover {
+            color: var(--text-light); /* Cambio de color al pasar el mouse */
+            text-decoration: underline; /* Subrayado sutil */
+        }
+
+        /* Grid horizontal de tarjetas */
+        .movie-grid { 
+            display: flex; overflow-x: auto; gap: 12px; padding-bottom: 8px; 
+            -webkit-overflow-scrolling: touch; scrollbar-width: none; 
+            flex-wrap: nowrap;
+        }
         .movie-grid::-webkit-scrollbar { display: none; }
 
-        /* tamaño por defecto (móvil pequeño / tablet) */
+        /* Estilo base de tarjeta */
         .movie-card {
-            flex-shrink: 0;
-            width: 105px;
-            text-align: center;
-            color: var(--text-light);
-            cursor: pointer;
-            background-color: var(--dark-bg-light);
-            border-radius: 10px;
-            padding-bottom: 10px;
-            border: 1px solid var(--border-soft);
-            box-shadow: 0 5px 15px var(--shadow-strong);
-            transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 165px;
-            padding: 0;
+            flex-shrink: 0; width: 105px; text-align: center; color: var(--text-light); cursor: pointer;
+            background-color: var(--dark-bg-light); border-radius: 10px; border: 1px solid var(--border-soft);
+            box-shadow: 0 5px 15px var(--shadow-strong); transition: transform 0.2s ease, box-shadow 0.3s ease;
+            overflow: hidden; display: flex; flex-direction: column; justify-content: flex-start;
+            height: 165px; padding: 0;
         }
-        .movie-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: transform 0.3s ease; margin: 0; }
-        .movie-card:hover img { transform: scale(1.02); }
-        .movie-grid .movie-card h3 { display: none; }
-        .movie-card p { font-size: 11px; color: var(--text-muted); white-space: normal; overflow: hidden; text-overflow: ellipsis; height: 2.5em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; padding: 0 6px; flex-grow: 1; }
-
-        /* --- TOP 10: ESTILO SOLICITADO (NÚMERO EN LA ESQUINA INFERIOR IZQUIERDA CON RELLENO NEGRO Y BORDE BLANCO) --- */
-        
-        #top10MoviesSection .movie-grid {
-            gap: 12px; 
+        .movie-card:hover { /* Mejoras de usabilidad (Fix 1) */
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px var(--accent-blue);
+            z-index: 10;
         }
-        
-        #top10MoviesSection .movie-card {
-            position: relative; /* Contenedor para el posicionamiento absoluto del número */
-            overflow: visible; /* Permite que el número sobresalga */
-            flex-shrink: 0;
-            width: 105px;
-            text-align: center;
-            color: var(--text-light);
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-        }
-
-        #top10MoviesSection .movie-number {
-            position: absolute;
-            left: -10px; /* Mueve el número 10px fuera del contenedor, a la izquierda */
-            bottom: -5px; /* Lo coloca en la parte inferior, ligeramente abajo */
-            font-size: 3em; 
-            font-weight: 900;
-            color: #000; /* Color de relleno del número */
-            z-index: 10; /* Lo pone encima de la imagen */
-            pointer-events: none;
-            user-select: none;
-            line-height: 0.85;
-            text-shadow:
-                -1px -1px 0 #fff,
-                1px -1px 0 #fff,
-                -1px 1px 0 #fff,
-                1px 1px 0 #fff; /* Contorno blanco */
-        }
-
-        #top10MoviesSection .movie-card img {
-            width: 100%;
-            height: 165px; /* Se asegura de que la imagen mantenga su tamaño */
-            object-fit: cover;
-            border-radius: 9px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
+        .movie-card img { 
+            width: 100%; height: 100%; object-fit: cover; border-radius: 9px; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.5); transition: transform 0.3s ease; 
             margin: 0; 
         }
+        .movie-grid .movie-card h3 { display: none; } /* Ocultar títulos en la vista de carrusel */
 
+        /* --- Estilo de Tarjeta para TOP 10 --- */
+        #top10MoviesSection .movie-card {
+            background: transparent; border: none; box-shadow: none; overflow: visible;
+            /* FIX 2: Ajuste en la altura para prevenir que el número 10 se salga mucho */
+            height: 165px; 
+            position: relative; /* Asegura que .movie-number se posicione con respecto a la tarjeta */
+        }
+        #top10MoviesSection .movie-number {
+            position: absolute; left: -10px; bottom: -5px; font-size: 3em; font-weight: 900; 
+            color: #000; z-index: 10;
+            pointer-events: none; user-select: none; line-height: 0.85; 
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+        }
 
-        /* --- Banner Publicitario --- */
-        .ad-banner { margin: 30px 0; text-align: center; background: linear-gradient(45deg, #1f1f1f, #333333); border-radius: 10px; overflow: hidden; box-shadow: 0 6px 20px var(--shadow-strong); height: 80px; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border-soft); animation: pulseAd 2s infinite ease-in-out; }
-        @keyframes pulseAd { 0% { transform: scale(1); box-shadow: 0 6px 20px var(--shadow-strong); } 50% { transform: scale(1.01); box-shadow: 0 8px 25px rgba(0,123,255,0.2); } 100% { transform: scale(1); box-shadow: 0 6px 20px var(--shadow-strong); } }
+        /* --- Banner Publicitario (Estándar/Pequeño) --- */
+        .ad-banner { 
+            margin: 30px 0; height: 80px; display: flex; justify-content: center; align-items: center; 
+            background: linear-gradient(45deg, #1f1f1f, #333333); border-radius: 10px; overflow: hidden; 
+            box-shadow: 0 6px 20px var(--shadow-strong); border: 1px solid var(--border-soft); 
+            animation: pulseAd 2s infinite ease-in-out; 
+        }
+        @keyframes pulseAd { 0% { transform: scale(1); } 50% { transform: scale(1.01); } 100% { transform: scale(1); } }
         .ad-banner img { width: 100%; height: 100%; display: block; border-radius: 10px; object-fit: cover; }
+        
+        /* --- Overlays Comunes (Buscador y Menú) --- (Fix 6) */
+        .search-overlay, .menu-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0, 0, 0, 0.95); z-index: 2000; 
+            display: flex; flex-direction: column; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .search-overlay.active, .menu-overlay.active {
+            opacity: 1; pointer-events: auto;
+        }
 
-        /* --- Overlays y demás --- */
-        .search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; flex-direction: column; align-items: center; padding: 20px 15px; box-sizing: border-box; opacity: 0; transform: translateY(-100%); transition: opacity 0.3s ease-out, transform 0.3s ease-out; overflow-y: auto; }
-        .search-overlay.active { opacity: 1; transform: translateY(0); display: flex; }
-        .search-overlay.hiding { opacity: 0; transform: translateY(-100%); }
-        .search-overlay-header { width: 100%; display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; }
-        .close-search-button { background: none; border: none; color: var(--text-muted); font-size: 32px; cursor: pointer; }
-        .overlay-search-input-container { width: 95%; max-width: 600px; background-color: var(--dark-bg-light); border-radius: 30px; padding: 12px 20px; display: flex; align-items: center; margin-bottom: 30px; box-shadow: inset 0 2px 6px var(--shadow-strong); border: 1px solid var(--border-soft); transition: all 0.3s ease; }
-        .overlay-search-input-container input { flex-grow: 1; border: none; background: transparent; color: var(--text-light); outline: none; font-size: 18px; padding-right: 12px; -webkit-appearance: none; }
-        .search-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; width: 100%; max-width: 650px; overflow-y: auto; padding-right: 8px; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 20px; max-height: calc(100vh - 180px); }
-        .search-results-grid .movie-card { width: auto; height: auto; margin: 0; background-color: var(--dark-bg-mid); box-shadow: 0 4px 15px rgba(0,0,0,0.6); border: 1px solid #38383c; }
-        .search-results-grid .movie-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 9px 9px 0 0; }
-        .no-results-message { color: var(--text-muted); text-align: center; width: 100%; font-size: 1.1em; padding-top: 30px; }
+        /* Estilos específicos de Overlay de Búsqueda */
+        .search-overlay-header { 
+            display: flex; justify-content: flex-end; padding: 15px 20px 0;
+            flex-shrink: 0;
+        }
+        .close-search-button { 
+            background: none; border: none; color: var(--text-muted); font-size: 30px; cursor: pointer;
+        }
+        .overlay-search-input-container {
+            padding: 15px 20px;
+        }
+        .overlay-search-input-container input {
+            width: 100%; padding: 12px 20px; font-size: 18px; border-radius: 8px;
+            border: 2px solid var(--accent-blue); background: var(--dark-bg-light); 
+            color: var(--text-light); outline: none;
+        }
+        .search-results-grid {
+            flex-grow: 1; padding: 0 15px 20px; overflow-y: auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+        }
+        .search-results-grid .movie-card {
+            width: 100%; height: auto; margin: 0; box-shadow: none; border: none;
+            background: none; text-align: left;
+        }
+        .search-results-grid .movie-card img {
+            aspect-ratio: 2 / 3; width: 100%; height: auto;
+        }
+        .search-results-grid .movie-card h3 {
+            display: block; font-size: 13px; margin: 5px 0 0; text-align: left;
+        }
+        .no-results-message { 
+            color: var(--text-muted); text-align: center; margin-top: 30px; grid-column: 1 / -1; 
+        }
 
-        /* --- Menu overlay --- */
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, var(--dark-bg-deep), #101012); z-index: 2000; display: none; flex-direction: column; align-items: center; padding: 20px 15px; box-sizing: border-box; opacity: 0; transform: translateX(100%); transition: opacity 0.4s ease-out, transform 0.4s ease-out; overflow-y: auto; }
-        .menu-overlay.active { opacity: 1; transform: translateX(0); display: flex; }
-        .menu-overlay.hiding { opacity: 0; transform: translateX(100%); }
-        .menu-overlay-header { width: 100%; display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid var(--border-soft); }
-        .menu-list { list-style: none; padding: 0; margin: 0; width: 90%; max-width: 400px; }
-        .menu-list-item { display:flex; align-items:center; padding:15px 20px; margin-bottom:12px; background-color: var(--dark-bg-light); border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.4); cursor:pointer; font-size:18px; font-weight:500; color:var(--text-light); }
+        /* Estilos específicos de Overlay de Menú */
+        .menu-overlay-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 15px 20px 10px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .menu-overlay-header h2 { font-size: 24px; font-weight: 700; margin: 0; }
+        .close-menu-button { background: none; border: none; color: var(--text-muted); font-size: 30px; cursor: pointer; }
+        .menu-list { list-style: none; padding: 20px; margin: 0; }
+        .menu-list-item { 
+            padding: 15px 10px; font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--border-soft);
+            display: flex; align-items: center; cursor: pointer; transition: background-color 0.2s;
+        }
+        .menu-list-item:hover { background-color: var(--dark-bg-light); }
+        .menu-list-item .icon { font-size: 20px; margin-right: 15px; color: var(--accent-blue); }
+        .live-indicator { 
+            font-size: 12px; font-weight: 800; color: #fff; background-color: #e74c3c; 
+            padding: 2px 6px; border-radius: 4px; margin-left: auto;
+        }
 
+        /* --- Overlay de Categoría Completa (Ver Más) --- */
+        .category-view-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--dark-bg-deep);
+            z-index: 1500; display: none; flex-direction: column; padding-top: 20px; padding-bottom: 20px;
+            box-sizing: border-box; opacity: 0; transition: opacity 0.3s ease-in-out; overflow-y: auto;
+        }
+        .category-view-overlay.active { opacity: 1; display: flex; }
+        .category-view-overlay-header {
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px 15px;
+            border-bottom: 1px solid var(--border-soft); margin-bottom: 20px; flex-shrink: 0;
+        }
+        .category-view-overlay h2 { font-size: 24px; font-weight: 700; margin: 0; color: var(--text-light); }
+        .close-category-button { background: none; border: none; color: var(--text-muted); font-size: 30px; cursor: pointer; }
+
+        /* GRILLA de 2 columnas para el "Ver Más" */
+        .category-full-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+            gap: 15px;
+            padding: 0 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .category-full-grid .movie-card {
+            width: 100%; height: auto; margin: 0; padding: 0; background: none; border: none;
+            box-shadow: none; overflow: visible; display: block;
+        }
+        .category-full-grid .movie-card img {
+            width: 100%; height: auto; aspect-ratio: 2 / 3; /* Proporción de póster */
+            border-radius: 9px; object-fit: cover;
+        }
+        .category-full-grid .movie-card h3 {
+            display: block; /* Mostrar título aquí */
+            font-size: 13px; margin: 8px 0 0; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; font-weight: 500; text-align: left; padding-left: 5px;
+        }
+        .category-full-grid .movie-card:hover { /* Asegura que el hover se mantenga */
+            transform: scale(1.02); 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); 
+        }
+
+        /* --- Media Queries (Desktop) --- */
         @media (min-width: 600px) {
             .main-header { padding: 20px 30px; }
             .search-bar { max-width: 300px; }
             .main-nav { padding: 8px 30px; }
-            .nav-list { gap: 30px; }
             .content { padding: 30px 25px; padding-top: 120px; }
-            .hero-section { height: 520px; } 
+            .hero-section { height: 700px; } 
             .movie-card { width: 120px; height: 180px; }
-            .movie-card img { height: 100%; }
             .category-section h2 { font-size: 22px; }
-            .ad-banner { height: 100px; }
-            .overlay-search-input-container { max-width: 700px; }
-            .search-results-grid { grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); max-width: 900px; gap:25px; max-height: calc(100vh - 220px); }
-            .search-results-grid .movie-card img { height: 190px; }
+            .ad-banner { height: 100px; } 
 
-            /* Ajustes del TOP 10 para pantallas grandes */
-            #top10MoviesSection .movie-grid {
-                gap: 20px; 
+            /* Grid de Ver Más en Desktop: 4 columnas */
+            .category-view-overlay-header { padding: 0 30px 20px; }
+            .category-full-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 30px;
+                padding: 0 30px;
             }
-            #top10MoviesSection .movie-number {
-                font-size: 3em; 
+            .category-full-grid .movie-card h3 {
+                font-size: 15px;
             }
-            #top10MoviesSection .movie-card img {
-                width: 120px; 
-                height: 180px; 
-                border-radius: 9px;
-            }
-            .hero-info h1 { font-size: 34px; }
-            .hero-info p { font-size: 15px; }
-            .hero-buttons a, .hero-buttons button { font-size: 15px; padding: 12px 22px; }
         }
 
-        /* Ajustes específicos para móviles pequeños */
+        /* --- Media Queries (Móviles pequeños) --- */
         @media (max-width: 480px) {
-            .hero-section { height: 320px; }
+            .hero-section { height: 450px; }
+            .hero-info { padding: 12px 14px; bottom: 0; }
             .hero-info h1 { font-size: 20px; }
-            .hero-info p { font-size: 12px; }
-            .hero-buttons a, .hero-buttons button { font-size: 13px; padding: 8px 14px; }
-            .nav-list { gap: 18px; }
-            .nav-item { font-size: 14px; }
-            .hero-info { padding: 12px 14px; bottom: 12px; }
-            .main-header { padding: 12px 14px; }
-
-            /* Top10 móviles */
-            #top10MoviesSection .movie-grid {
-                gap: 12px;
-            }
-            #top10MoviesSection .movie-number {
-                font-size: 2.5em; 
-            }
-            #top10MoviesSection .movie-card img { 
-                margin-left: 0; 
+            .search-results-grid {
+                 grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil pequeño */
             }
         }
     </style>
@@ -386,7 +427,7 @@
         </div>
         <div class="search-bar" id="mainSearchBar">
             <input type="text" id="mainSearchInput" placeholder="Buscar">
-            <button class="search-icon" id="mainSearchTriggerButton"></button>
+            <button class="search-icon" id="mainSearchTriggerButton">🔍</button>
         </div>
         <button class="menu-button" id="openMenuButton">☰</button>
     </header>
@@ -401,7 +442,7 @@
             <li class="nav-item" data-category-id="netflixMovieSection">Animada/Familiar</li>
             <li class="nav-item" data-category-id="netflixSeriesSection">Comedia</li>
             <li class="nav-item" data-category-id="popularMoviesSection">Películas Populares</li>
-            <li class="nav-item" data-category-id="realityTvSection">Reality-TV</li>
+            <li class="nav-item" data-category-id="realityTvSection">Contenido De Netflix</li>
         </ul>
     </nav>
 
@@ -421,17 +462,24 @@
                  data-link="misionimposible.html">
 
             <div class="hero-info" id="heroInfo">
-                <h1 id="heroTitle">Karate Kid</h1>
-                <p id="heroDesc">Acción · Inspiradora · Clásico</p>
+                <div class="hero-logo-container">
+                    <span class="logo-llutid">LLUTID</span><span class="logo-plus">+</span>
+                </div>
+                
+                <h1 id="heroTitle">FORMULA1</h1>
+                <p id="heroDesc">ACCION · DEPORTE · AVENTURA</p>
                 <div class="hero-buttons">
-                    <a id="heroPlay" class="btn-play" href="karatekids.html">▶ Reproducir</a>
+                    <a id="heroPlay" class="btn-play" href="lahora.html">▶ Reproducir</a>
                     <button id="heroList" class="btn-list">+ Mi lista</button>
                 </div>
             </div>
         </section>
 
-        <section class="category-section" id="recentlyAddedSection">
-            <h2>Recién Agregado</h2>
+        <section class="category-section" id="recentlyAddedSection" data-category-name="Recién Agregado">
+            <div class="category-title-container">
+                <h2>Recién Agregado</h2>
+                <a href="#" class="view-more-link" data-category-id="recentlyAddedSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="lahora.html" class="movie-card" data-title="la hora de la desaparicion" data-category="recien agregado">
                     <img src="https://i.postimg.cc/mkrnGLyb/result-La-hora-de-la-desapariciaon-145055727-large.jpg" alt="la hora de a desaparicion">
@@ -455,6 +503,10 @@
                 </a>
             </div>
         </section>
+
+        <div class="ad-banner">
+            <img src="https://i.postimg.cc/Yqk6wjSK/podcast.jpg" alt="Banner Publicitario - Simulación">
+        </div>
 
         <section class="category-section" id="top10MoviesSection">
             <h2>Top 10 películas LLUTID+</h2>
@@ -512,12 +564,11 @@
             </div>
         </section>
 
-        <div class="ad-banner">
-            <img src="https://i.postimg.cc/Yqk6wjSK/podcast.jpg" alt="Banner Publicitario - Simulación">
-        </div>
-
-        <section class="category-section" id="popularMoviesSection">
-            <h2>Películas Populares</h2>
+        <section class="category-section" id="popularMoviesSection" data-category-name="Películas Populares">
+            <div class="category-title-container">
+                <h2>Películas Populares</h2>
+                <a href="#" class="view-more-link" data-category-id="popularMoviesSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="undonexepcional.html" class="movie-card" data-title="Un Don Excepcional" data-category="peliculas populares">
                     <img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="Un Don Excepcional">
@@ -546,8 +597,11 @@
             <img src="https://i.postimg.cc/zfMwmjy0/risas-fest-verde.jpg" alt="Banner Publicitario - Simulación">
         </div>
 
-        <section class="category-section" id="2025MovieSection">
-            <h2>Terror/Suspenso</h2>
+        <section class="category-section" id="2025MovieSection" data-category-name="Terror/Suspenso">
+            <div class="category-title-container">
+                <h2>Terror/Suspenso</h2>
+                <a href="#" class="view-more-link" data-category-id="2025MovieSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="lamonja.html" class="movie-card" data-title="la monja" data-category="terror/suspenso">
                     <img src="https://i.postimg.cc/zB2rhgyZ/result-la-monja.png" alt="la monja">
@@ -576,8 +630,11 @@
             </div>
         </section>
 
-        <section class="category-section" id="tvSeriesSection">
-            <h2>Drama</h2>
+        <section class="category-section" id="tvSeriesSection" data-category-name="Drama">
+            <div class="category-title-container">
+                <h2>Drama</h2>
+                <a href="#" class="view-more-link" data-category-id="tvSeriesSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="undonexepcional.html" class="movie-card" data-title="Un Don Excepcional" data-category="drama">
                     <img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="Un Don Excepcional">
@@ -630,8 +687,11 @@
             </div>
         </section>
 
-        <section class="category-section" id="telenovelasSection">
-            <h2>Acción/Crimen</h2>
+        <section class="category-section" id="telenovelasSection" data-category-name="Acción/Crimen">
+            <div class="category-title-container">
+                <h2>Acción/Crimen</h2>
+                <a href="#" class="view-more-link" data-category-id="telenovelasSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="mujermaravilla.html" class="movie-card" data-title="mujer maravilla" data-category="accion/crimen">
                     <img src="https://i.postimg.cc/XNBWNbBW/result-mujer-maravilla.jpg" alt="mujer maravilla">
@@ -660,8 +720,11 @@
             </div>
         </section>
 
-        <section class="category-section" id="netflixMovieSection">
-            <h2>Animada/Familiar</h2>
+        <section class="category-section" id="netflixMovieSection" data-category-name="Animada/Familiar">
+            <div class="category-title-container">
+                <h2>Animada/Familiar</h2>
+                <a href="#" class="view-more-link" data-category-id="netflixMovieSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="intensamente2.html" class="movie-card" data-title="Intensamente 2" data-category="animada/familiar">
                     <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Intensamente 2">
@@ -690,8 +753,11 @@
             </div>
         </section>
 
-        <section class="category-section" id="netflixSeriesSection">
-            <h2>Comedia</h2>
+        <section class="category-section" id="netflixSeriesSection" data-category-name="Comedia">
+            <div class="category-title-container">
+                <h2>Comedia</h2>
+                <a href="#" class="view-more-link" data-category-id="netflixSeriesSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="ted.html" class="movie-card" data-title="ted" data-category="comedia">
                     <img src="https://i.postimg.cc/tT7QF56X/result-TED-PORTADA.jpg" alt="ted">
@@ -720,8 +786,11 @@
             </div>
         </section>
 
-        <section class="category-section" id="realityTvSection">
-            <h2>Contenido De Netflix</h2>
+        <section class="category-section" id="realityTvSection" data-category-name="Contenido De Netflix">
+            <div class="category-title-container">
+                <h2>Contenido De Netflix</h2>
+                <a href="#" class="view-more-link" data-category-id="realityTvSection">Ver Más</a>
+            </div>
             <div class="movie-grid">
                 <a href="hapygilmore.html" class="movie-card" data-title="hapy gilmore" data-category="reality-tv">
                     <img src="https://i.postimg.cc/0y2dMgpJ/result-hapu-gilmore.jpg" alt="hapy gilmore">
@@ -743,7 +812,7 @@
         </section>
 
     </main>
-
+    
     <div class="search-overlay" id="searchOverlay">
         <div class="search-overlay-header">
             <button class="close-search-button" id="closeSearchButton">✖</button>
@@ -778,13 +847,24 @@
         </ul>
     </div>
 
+    <div class="category-view-overlay" id="categoryViewOverlay">
+        <div class="category-view-overlay-header">
+            <h2 id="overlayCategoryTitle">Categoría</h2>
+            <button class="close-category-button" id="closeCategoryButton">✖</button>
+        </div>
+        <div class="category-full-grid" id="categoryFullGrid">
+            </div>
+    </div>
+
     <script>
-        /* --- Animación de entrada premium (activa al cargar) --- */
+        /* FIX 1: Se elimina la lógica de añadir la clase 'page-loaded' para evitar la animación. */
+        /*
         window.addEventListener('load', () => {
             document.body.classList.add('page-loaded');
         });
+        */
 
-        // --- Carrusel de la Sección Hero (2 imágenes, 6s, actualiza info) ---
+        // --- Carrusel de la Sección Hero (6s, actualiza info) ---
         (function() {
             const carouselImages = document.querySelectorAll('#heroSection .carousel-image');
             const heroTitle = document.getElementById('heroTitle');
@@ -817,27 +897,41 @@
             }
         })();
 
-        // --- Datos de todas las películas para la búsqueda ---
+        // --- Extracción de datos de todas las películas para la búsqueda ---
         const allMovieCardsElements = document.querySelectorAll('.movie-card');
         let allMoviesData = [];
+        // Usar un Map para evitar duplicados si una película aparece en varias categorías
+        const uniqueMoviesMap = new Map(); 
+
         allMovieCardsElements.forEach(card => {
-            allMoviesData.push({
-                title: (card.dataset.title || '').toLowerCase(),
-                originalTitle: card.dataset.title || '',
-                image: card.querySelector('img') ? card.querySelector('img').src : '',
-                link: card.href || '#',
-                category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
-            });
-        });
-        const uniqueMoviesMap = new Map();
-        allMoviesData.forEach(movie => {
-            if (!uniqueMoviesMap.has(movie.originalTitle)) uniqueMoviesMap.set(movie.originalTitle, movie);
+            const originalTitle = card.dataset.title || '';
+            // FIX 2: Excluir las tarjetas que tienen la clase 'movie-number' (Top 10) que no están visibles por defecto.
+            const isTop10NumberCard = card.querySelector('.movie-number');
+            if (originalTitle && !uniqueMoviesMap.has(originalTitle) && !isTop10NumberCard) {
+                uniqueMoviesMap.set(originalTitle, {
+                    title: originalTitle.toLowerCase(),
+                    originalTitle: originalTitle,
+                    image: card.querySelector('img') ? card.querySelector('img').src : '',
+                    link: card.href || '#',
+                    category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
+                });
+            }
+            // Incluir Top 10, pero solo si no está duplicado.
+            if (originalTitle && !uniqueMoviesMap.has(originalTitle)) {
+                 uniqueMoviesMap.set(originalTitle, {
+                    title: originalTitle.toLowerCase(),
+                    originalTitle: originalTitle,
+                    image: card.querySelector('img') ? card.querySelector('img').src : '',
+                    link: card.href || '#',
+                    category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
+                });
+            }
         });
         allMoviesData = Array.from(uniqueMoviesMap.values());
 
+
         // --- Funcionalidad del Buscador ---
         const mainSearchInput = document.getElementById('mainSearchInput');
-        const mainSearchTriggerButton = document.getElementById('mainSearchTriggerButton');
         const searchOverlay = document.getElementById('searchOverlay');
         const closeSearchButton = document.getElementById('closeSearchButton');
         const overlaySearchInput = document.getElementById('overlaySearchInput');
@@ -854,18 +948,22 @@
 
         function renderSearchResults(searchTerm) {
             overlaySearchResultsGrid.innerHTML = '';
-            const filteredMovies = allMoviesData.filter(movie =>
-                movie.title.includes(searchTerm.toLowerCase())
-            );
+            const trimmedSearchTerm = searchTerm.toLowerCase().trim();
 
-            if (searchTerm === '') {
+            if (trimmedSearchTerm === '') {
                 overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
                 return;
             }
+            
+            const filteredMovies = allMoviesData.filter(movie =>
+                movie.title.includes(trimmedSearchTerm)
+            );
+
             if (filteredMovies.length === 0) {
-                overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">No se encontraron resultados para su búsqueda.</p>';
+                overlaySearchResultsGrid.innerHTML = `<p class="no-results-message">No se encontraron resultados para "${searchTerm}".</p>`;
                 return;
             }
+            
             filteredMovies.forEach(movie => {
                 const movieCard = document.createElement('a');
                 movieCard.href = movie.link;
@@ -881,43 +979,34 @@
         const debouncedRenderSearchResults = debounce(renderSearchResults, 300);
 
         function openSearchOverlay() {
-            searchOverlay.classList.remove('hiding');
+            // Asegura que otros overlays estén cerrados
+            if (menuOverlay.classList.contains('active')) closeMenuOverlay();
+            if (categoryViewOverlay.classList.contains('active')) closeCategoryView();
+            
             searchOverlay.classList.add('active');
             document.body.classList.add('no-scroll');
             overlaySearchInput.value = mainSearchInput.value;
-            debouncedRenderSearchResults(overlaySearchInput.value);
+            renderSearchResults(overlaySearchInput.value); // Usa la versión sin debounce la primera vez
             overlaySearchInput.focus();
         }
 
         function closeSearchOverlay() {
-            searchOverlay.classList.add('hiding');
-            searchOverlay.addEventListener('transitionend', function handler() {
-                searchOverlay.classList.remove('active', 'hiding');
-                searchOverlay.removeEventListener('transitionend', handler);
-                document.body.classList.remove('no-scroll');
-                mainSearchInput.value = '';
-                overlaySearchInput.value = '';
-                overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
-            }, { once: true });
+            searchOverlay.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+            mainSearchInput.value = '';
+            overlaySearchInput.value = '';
+            overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
         }
 
         if (mainSearchInput) {
             mainSearchInput.addEventListener('focus', openSearchOverlay);
-            mainSearchInput.addEventListener('input', () => {
-                if (searchOverlay.classList.contains('active')) {
-                    debouncedRenderSearchResults(mainSearchInput.value);
-                }
-            });
         }
-        if (mainSearchTriggerButton) mainSearchTriggerButton.addEventListener('click', openSearchOverlay);
-        if (closeSearchButton) closeSearchButton.addEventListener('click', closeSearchOverlay);
+        document.getElementById('mainSearchTriggerButton').addEventListener('click', openSearchOverlay);
+        closeSearchButton.addEventListener('click', closeSearchOverlay);
         if (overlaySearchInput) {
             overlaySearchInput.addEventListener('input', () => {
                 debouncedRenderSearchResults(overlaySearchInput.value);
-                mainSearchInput.value = overlaySearchInput.value;
-            });
-            overlaySearchInput.addEventListener('keyup', (event) => {
-                if (event.key === 'Escape') closeSearchOverlay();
+                mainSearchInput.value = overlaySearchInput.value; // Sincroniza el input principal
             });
         }
 
@@ -928,50 +1017,111 @@
         const menuListItems = document.querySelectorAll('.menu-list-item');
 
         function openMenuOverlay() {
-            menuOverlay.classList.remove('hiding');
+            // Asegura que otros overlays estén cerrados
+            if (searchOverlay.classList.contains('active')) closeSearchOverlay();
+            if (categoryViewOverlay.classList.contains('active')) closeCategoryView();
+            
             menuOverlay.classList.add('active');
             document.body.classList.add('no-scroll');
         }
         function closeMenuOverlay() {
-            menuOverlay.classList.add('hiding');
-            menuOverlay.addEventListener('transitionend', function handler() {
-                menuOverlay.classList.remove('active', 'hiding');
-                menuOverlay.removeEventListener('transitionend', handler);
-                document.body.classList.remove('no-scroll');
-            }, { once: true });
+            menuOverlay.classList.remove('active');
+            document.body.classList.remove('no-scroll');
         }
-        if (openMenuButton) openMenuButton.addEventListener('click', openMenuOverlay);
-        if (closeMenuButton) closeMenuButton.addEventListener('click', closeMenuOverlay);
+        openMenuButton.addEventListener('click', openMenuOverlay);
+        closeMenuButton.addEventListener('click', closeMenuOverlay);
 
         menuListItems.forEach(item => {
             item.addEventListener('click', function() {
                 const action = this.dataset.menuAction;
                 closeMenuOverlay();
+                
+                // Lógica de navegación del menú (si es necesario)
+                if (action === 'home' || action === 'recently-added') {
+                    // Resetear la vista a la principal (Recién Agregado)
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    const defaultNav = document.querySelector('.nav-item[data-category-id="recentlyAddedSection"]');
+                    if (defaultNav) defaultNav.classList.add('active');
 
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                const defaultNav = document.querySelector('.nav-item[data-category-id="recentlyAddedSection"]');
-                if (defaultNav) defaultNav.classList.add('active');
-
-                document.querySelectorAll('.category-section').forEach(section => {
-                    section.style.display = 'block';
-                });
-                const hero = document.getElementById('heroSection');
-                if (hero) hero.style.display = 'block';
-
-                // mostrar todos los banners
-                document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
-
-                if (action === 'home') {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else if (action === 'proximasenlanzamiento.html') {
-                    window.location.href = 'proximasenlanzamiento.html';
-                } else if (action === 'envivo.html') {
-                    window.location.href = 'envivo.html';
+                    document.querySelectorAll('.category-section').forEach(section => {
+                        section.style.display = 'block';
+                    });
+                    const hero = document.getElementById('heroSection');
+                    if (hero) hero.style.display = 'block';
+                    document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
+                    
+                    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    window.scrollBy(0, -100); 
+                } else if (action.endsWith('.html')) {
+                    window.location.href = action;
                 }
             });
         });
 
-        // --- Navegación principal debajo del header ---
+        // --- Lógica del nuevo overlay "Ver Más" ---
+        const categoryViewOverlay = document.getElementById('categoryViewOverlay');
+        const closeCategoryButton = document.getElementById('closeCategoryButton');
+        const overlayCategoryTitle = document.getElementById('overlayCategoryTitle');
+        const categoryFullGrid = document.getElementById('categoryFullGrid');
+        const viewMoreLinks = document.querySelectorAll('.view-more-link');
+
+        function openCategoryView(categoryId) {
+            const sourceSection = document.getElementById(categoryId);
+            if (!sourceSection) return;
+
+            // 1. Ocultar otros overlays
+            if (searchOverlay.classList.contains('active')) closeSearchOverlay();
+            if (menuOverlay.classList.contains('active')) closeMenuOverlay();
+
+            // 2. Establecer el Título del Overlay
+            overlayCategoryTitle.textContent = sourceSection.dataset.categoryName || 'Categoría';
+
+            // 3. Limpiar contenido anterior
+            categoryFullGrid.innerHTML = '';
+
+            // 4. Clonar y popular el grid
+            const movieCards = sourceSection.querySelectorAll('.movie-grid .movie-card');
+            if (movieCards.length === 0) {
+                 categoryFullGrid.innerHTML = '<p class="no-results-message">No hay contenido disponible en esta categoría.</p>';
+            }
+            movieCards.forEach(card => {
+                // Clonar la tarjeta para moverla al overlay
+                const clonedCard = card.cloneNode(true);
+                // Asegurar que el título <h3> esté visible en el grid completo
+                const titleElement = clonedCard.querySelector('h3');
+                if (titleElement) titleElement.style.display = 'block'; 
+                
+                // Asegurar que el número de Top 10 se oculte en esta vista
+                const numberElement = clonedCard.querySelector('.movie-number');
+                if (numberElement) numberElement.style.display = 'none';
+
+                categoryFullGrid.appendChild(clonedCard);
+            });
+
+            // 5. Mostrar el overlay
+            categoryViewOverlay.classList.add('active');
+            document.body.classList.add('no-scroll');
+            categoryFullGrid.scrollTop = 0; // Asegurar que el scroll empiece arriba
+        }
+
+        function closeCategoryView() {
+            categoryViewOverlay.classList.remove('active');
+            document.body.classList.remove('no-scroll');
+            categoryFullGrid.innerHTML = ''; // Limpiar el contenido después de cerrar
+        }
+
+        // 6. Asignar listeners a los enlaces "Ver Más"
+        viewMoreLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault(); 
+                const categoryId = this.dataset.categoryId;
+                openCategoryView(categoryId);
+            });
+        });
+
+        closeCategoryButton.addEventListener('click', closeCategoryView);
+
+        // --- Navegación principal debajo del header (Categorías) ---
         const navItems = document.querySelectorAll('.nav-item');
         const allSections = document.querySelectorAll('.category-section');
 
@@ -983,33 +1133,46 @@
                 const categoryText = this.textContent.trim().toLowerCase();
                 const targetSectionId = this.dataset.categoryId;
 
+                // Cerrar cualquier overlay abierto
                 if (menuOverlay.classList.contains('active')) closeMenuOverlay();
                 if (searchOverlay.classList.contains('active')) closeSearchOverlay();
-
+                if (categoryViewOverlay.classList.contains('active')) closeCategoryView(); 
                 if (mainSearchInput) mainSearchInput.value = '';
 
-                // ocultar todas las secciones, luego mostrar la que corresponda
+                // Ocultar todo por defecto
                 allSections.forEach(section => section.style.display = 'none');
                 const hero = document.getElementById('heroSection');
-                if (hero) hero.style.display = 'block';
+                if (hero) hero.style.display = 'none';
+                document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'none');
 
-                // volver a mostrar banners
-                document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
+                if (categoryText === 'recién agregado' || categoryText === 'recien agregado') {
+                    // Mostrar todo para la vista principal
+                    allSections.forEach(section => section.style.display = 'block');
+                    if (hero) hero.style.display = 'block';
+                    document.querySelectorAll('.ad-banner').forEach(b => b.style.display = 'flex');
+                    
+                    // Scroll al inicio del hero
+                    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-                if (targetSectionId) {
+                } else if (targetSectionId) {
+                    // Mostrar solo la sección seleccionada
                     const targetSection = document.getElementById(targetSectionId);
                     if (targetSection) {
                         targetSection.style.display = 'block';
-                        // scrollear a la sección objetivo
+                        
+                        // Si es Top 10 o Populares, mostrar el primer banner si es necesario
+                        if (targetSectionId === 'top10MoviesSection' || targetSectionId === 'popularMoviesSection') {
+                             const firstAd = document.querySelector('.ad-banner:first-of-type');
+                             if (firstAd) firstAd.style.display = 'flex';
+                        }
+                        
+                        // Scroll a la sección seleccionada
                         setTimeout(() => targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                     }
                 }
 
-                if (categoryText === 'recién agregado' || categoryText === 'recien agregado') {
-                    // mostrar todo
-                    allSections.forEach(section => section.style.display = 'block');
-                    if (hero) hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
+                // Ajuste para el header fijo
+                window.scrollBy(0, -100); 
             });
         });
 
@@ -1017,31 +1180,48 @@
         (function() {
             let lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const navBar = document.querySelector('.main-nav');
-            const THRESHOLD = 25; // px mínimos para considerar scroll real
+            const THRESHOLD = 25; 
 
-            window.addEventListener('scroll', function() {
+            // FIX 3: Usar requestAnimationFrame para un scroll más suave y con mejor rendimiento.
+            let ticking = false;
+
+            function updateScroll() {
                 const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
                 const delta = currentScroll - lastScrollTop;
 
-                // ignorar micro-movimientos
-                if (Math.abs(delta) < THRESHOLD) return;
+                if (Math.abs(delta) < THRESHOLD) {
+                    ticking = false;
+                    return;
+                }
+                
+                // No ocultar si algún overlay está abierto
+                if (searchOverlay.classList.contains('active') || menuOverlay.classList.contains('active') || categoryViewOverlay.classList.contains('active')) {
+                    ticking = false;
+                    return;
+                }
 
                 if (currentScroll > lastScrollTop && currentScroll > 80) {
-                    // Scrolleando hacia abajo → ocultar
+                    // Scrolling down
                     navBar.classList.add('hidden');
                 } else {
-                    // Scrolleando hacia arriba → mostrar
+                    // Scrolling up
                     navBar.classList.remove('hidden');
                 }
 
                 lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateScroll);
+                    ticking = true;
+                }
             }, { passive: true });
         })();
     </script>
 </body>
 </html>
-
-
 
 
 
