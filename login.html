@@ -84,19 +84,46 @@
     /* INFO (centrado, encima de overlay) */
     .movie-info{
       position:absolute; left:50%; transform:translateX(-50%);
-      bottom:42%; text-align:center; z-index:40; pointer-events:none;
+      bottom:38%;
+      text-align:center; z-index:40; pointer-events:none;
       max-width:92%;
     }
     .movie-rank{
-      display:inline-block; background:#e53935; color:#fff; padding:6px 10px;
+      display:inline-block; 
+      background:#0056b3; 
+      color:#fff; padding:6px 10px;
       border-radius:6px; font-weight:800; margin-bottom:8px;
     }
-    .movie-title{ font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6); }
-    .movie-sub{ font-size:1rem; opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); }
+    /* Estilos para el título de texto */
+    .movie-title{
+      font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);
+      height: 2.2rem;
+    }
+    
+    /* ESTILOS ADICIONALES PARA EL LOGO COMO IMAGEN */
+    .movie-title.logo-mode{
+      font-size:0;
+      height: 120px;
+      margin-bottom:12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .movie-title.logo-mode img{
+      display:block; max-width:95%; height:auto; max-height:100%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      transition: transform 1.2s ease-in-out; 
+    }
+
+    .movie-sub{ 
+      display: none;
+      opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); 
+    }
 
     @media(max-width:700px){
       .movie-title{ font-size:1.25rem; }
-      .movie-sub{ font-size:0.9rem; }
+      .movie-title.logo-mode{ height: 80px; margin-bottom:10px; }
       .movie-rank{ padding:5px 8px; font-size:0.85rem; }
     }
 
@@ -104,7 +131,7 @@
     .overlay{
       width:100%; padding:14px 18px 26px;
       position:absolute; left:0; bottom:0; z-index:45;
-      background:rgba(0,0,0,0.35); /* menos oscuro como pediste */
+      background:rgba(0,0,0,0.35);
       backdrop-filter: blur(6px);
       clip-path: ellipse(130% 100% at 50% 100%);
     }
@@ -151,34 +178,28 @@
   </style>
 </head>
 <body>
-  <!-- INTRO -->
   <div class="intro-screen" id="introScreen"><div class="logo-container">LLUTID+</div></div>
 
-  <!-- LOGO + HELP -->
   <div class="logo" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
   <button class="help-btn" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/', '_blank')" aria-label="Ayuda">?</button>
 
-  <!-- CARRUSEL -->
   <div class="carousel" role="img" aria-label="Carrusel de imágenes">
     <img src="https://i.postimg.cc/QNn0F5tc/Whats-App-Image-2025-09-18-at-5-08-20-PM.jpg"
-         alt="M3GAN" data-title="M3GAN" data-sub="¡YA DISPONIBLE!" data-rank="TOP 10">
-    <img src="https://m.media-amazon.com/images/S/pv-target-images/21e4d976fb926eb5d67bb0bb0f328c43df6c0a9e0594dc79d2b69c5fc534753e.jpg"
-         alt="¡YA DISPONIBLE!" data-title="¡YA DISPONIBLE!" data-sub="N.º 3 en películas de cine" data-rank="TOP 10">
-    <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
-         alt="LA MONJA" data-title="LA MONJA" data-sub="¡YA DISPONIBLE!">
+         alt="M3GAN" data-logo-url="https://image.tmdb.org/t/p/original/n2HRQV4G90PxtHUYhOMkPSK71bL.png" data-sub="¡YA DISPONIBLE!" data-rank="TOP 10">
+    
+    <img src="https://images.hive.blog/0x0/https://www.lavanguardia.com/peliculas-series/images/movie/poster/2025/10/w300/ur3H6g9xmrLQX2Ioh9z3P904ZSC.jpg"
+         alt="¡MUY PRONTO!" data-title="¡MUY PRONTO!" data-sub="" data-rank=""> <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
+         alt="LA MONJA" data-logo-url="https://los40mx00.epimg.net/especiales/depelicula/la-monja/img/02.png" data-sub="¡YA DISPONIBLE!">
   </div>
 
-  <!-- GRADIENT para lectura -->
   <div class="bg-gradient" aria-hidden="true"></div>
 
-  <!-- INFO (encima del overlay) -->
   <div class="movie-info" aria-live="polite">
     <div class="movie-rank" id="rank" aria-hidden="true"></div>
     <div class="movie-title" id="title"></div>
     <div class="movie-sub" id="sub"></div>
   </div>
 
-  <!-- OVERLAY CURVO (login dentro, más abajo y más transparente) -->
   <div class="overlay" role="region" aria-label="Área de inicio de sesión">
     <div class="login-container">
       <h3>Inicia sesión</h3>
@@ -196,7 +217,6 @@
     </div>
   </div>
 
-  <!-- POPUPS -->
   <div id="successPopup" class="popup-container success-popup" role="status" aria-hidden="true">
     <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"/><path fill="none" stroke="#fff" stroke-width="3" d="M14 27l7 7 17-17"/></svg>
     Acceso exitoso
@@ -210,9 +230,9 @@
 
   <script>
     /* ---------- CONFIG ---------- */
-    const ANIM_MS = 9000;            // duración del zoom (ms)
-    const FADE_MS = 1200;            // duración del fade (ms) - debe coincidir con CSS
-    const ROTATION_MS = ANIM_MS + 500; // tiempo entre cambios (ligeramente mayor)
+    const ANIM_MS = 9000;
+    // const FADE_MS = 1200; // No se modificó, coincide con CSS
+    const ROTATION_MS = 8000; // AJUSTE: Más rápido, de 9500ms a 8000ms
 
     /* ---------- ELEMENTOS ---------- */
     const images = Array.from(document.querySelectorAll('.carousel img'));
@@ -238,32 +258,38 @@
       const prev = current >= 0 ? images[current] : null;
       const next = images[index];
 
-      // prev: quitar active y dejar 'leaving' para que mantenga scale final mientras hace fade
       if(prev){
         prev.classList.remove('active');
         prev.classList.add('leaving');
       }
 
-      // next: reiniciar anim para que parte desde el inicio
       next.classList.remove('leaving');
-      // reiniciar inline animation para forzar nueva ejecución
       next.style.animation = 'none';
-      void next.offsetWidth; // reflow
+      void next.offsetWidth;
       next.style.animation = '';
       next.classList.add('active');
 
-      // actualizar textos
-      titleEl.textContent = next.dataset.title || '';
-      subEl.textContent = next.dataset.sub || '';
+      const logoUrl = next.dataset.logoUrl;
+      const titleText = next.dataset.title;
+
+      if(logoUrl){
+        titleEl.innerHTML = `<img src="${logoUrl}" alt="${next.alt || 'Título de la película'}" class="logo-img">`;
+        titleEl.classList.add('logo-mode');
+      } else {
+        titleEl.textContent = titleText || next.alt || '';
+        titleEl.classList.remove('logo-mode');
+      }
+      
+      subEl.textContent = ''; // Asegura que el subtítulo esté vacío
+      
       rankEl.textContent = next.dataset.rank || '';
       rankEl.style.display = next.dataset.rank ? 'inline-block' : 'none';
 
-      // limpiar prev luego del fade
       if(prev){
         setTimeout(() => {
           prev.classList.remove('leaving');
           prev.style.animation = 'none';
-        }, FADE_MS + 50);
+        }, 1200 + 50); // Usamos FADE_MS + 50 directamente
       }
 
       current = index;
@@ -310,10 +336,8 @@
 
     /* ---------- INICIALIZACIÓN ---------- */
     document.addEventListener('DOMContentLoaded', () => {
-      // ocultar intro tras anim (coincide con CSS)
       setTimeout(()=>{ if(introScreen) introScreen.classList.add('hidden'); }, 3600);
 
-      // recuperar credenciales guardadas
       const savedCorreo = localStorage.getItem('correo');
       const savedPin = localStorage.getItem('pin');
       if(savedCorreo && savedPin){
@@ -323,10 +347,8 @@
         pinInput.dataset.realPin = savedPin;
       }
 
-      // iniciar carrusel en la primera imagen
       showImage(0);
 
-      // ciclo automático
       setInterval(()=> {
         const nextIndex = (current + 1) % images.length;
         showImage(nextIndex);
@@ -357,7 +379,6 @@
         return;
       }
       if(usuariosRegistrados[correo] === pin){
-        // éxito -> guardar y redirigir
         localStorage.setItem('correo', correo);
         localStorage.setItem('pin', pin);
         showSuccessPopup();
@@ -367,7 +388,6 @@
       }
     });
 
-    // permitir Enter para enviar
     [correoInput, pinInput].forEach(inp => {
       inp.addEventListener('keydown', (e) => { if(e.key === 'Enter') loginButton.click(); });
     });
@@ -375,17 +395,6 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
 
 
