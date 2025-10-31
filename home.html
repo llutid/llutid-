@@ -209,6 +209,27 @@
         .hero-logo-container .logo-llutid { color: var(--accent-blue); }
         .hero-logo-container .logo-plus { color: var(--text-light); }
         .hero-info h1 { font-size: 26px; margin: 0; font-weight: 800; color: #fff; letter-spacing: 0.2px; }
+        
+        /* ESTILOS ADICIONALES PARA EL LOGO COMO IMAGEN */
+        .hero-info h1.logo-mode {
+            font-size: 0; /* Oculta el texto del h1 */
+            height: 80px; /* Altura para el contenedor del logo */
+            margin: 0; /* Remover margin del h1 normal */
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-info h1.logo-mode img {
+            display: block; 
+            max-width: 95%; 
+            height: auto; 
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+            transition: transform 0.2s ease;
+        }
+
         .hero-info p { font-size: 14px; margin: 8px 0 15px; color: #d0d0d0; }
         .hero-buttons { display: flex; gap: 12px; justify-content: center; }
         .hero-buttons a, .hero-buttons button {
@@ -456,6 +477,7 @@
             .hero-section { height: 450px; }
             .hero-info { padding: 12px 14px; bottom: 0; }
             .hero-info h1 { font-size: 20px; }
+            .hero-info h1.logo-mode { height: 60px; } /* AJUSTE DE ALTURA PARA MÓVIL */
             .search-results-grid {
                  grid-template-columns: repeat(2, 1fr); 
             }
@@ -500,13 +522,16 @@
                  alt="FORMULA 1"
                  data-title="FORMULA1"
                  data-desc="ACCION · DEPORTE · AVENTURA"
-                 data-link="lahora.html">
+                 data-link="lahora.html"
+                 data-logo-url="https://upload.wikimedia.org/wikipedia/commons/0/05/F1_2025_Logo.png">
+                 
             <img class="carousel-image"
                  src="https://i.postimg.cc/L40V3hDN/result-mision.jpg"
                  alt="Misión Imposible"
                  data-title="Misión Imposible"
                  data-desc="Espionaje · Acción · Intensa"
-                 data-link="misionimposible.html">
+                 data-link="misionimposible.html"
+                 data-logo-url="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Mi-logo.svg/1024px-Mi-logo.svg.png">
 
             <div class="hero-info" id="heroInfo">
                 <div class="hero-logo-container">
@@ -807,7 +832,7 @@
                     <h3>ted</h3>
                 </a>
                 <a href="hotdog.html" class="movie-card" data-title="hot dog" data-category="comedia">
-                    <img src="https://i.postimg.cc/T1mNNpP9/result-hot-dog.jpg" alt="hot dog">
+                    <img src="https://pics.filmaffinity.com/Hot_Dog-870584008-mmed.jpg" alt="hot dog">
                     <h3>hot dog</h3>
                 </a>
                 <a href="dondeestanlasrubias.html" class="movie-card" data-title="las rubias" data-category="comedia">
@@ -916,13 +941,25 @@
             let currentImageIndex = 0;
             const INTERVAL = 6000; 
 
+            // Función showImage MODIFICADA para manejar logos
             function showImage(index) {
                 carouselImages.forEach((img, i) => {
                     img.classList.toggle('active', i === index);
                 });
                 const activeImg = carouselImages[index];
                 if (activeImg) {
-                    heroTitle.textContent = activeImg.dataset.title || '';
+                    const logoUrl = activeImg.dataset.logoUrl;
+                    const titleText = activeImg.dataset.title || activeImg.alt;
+
+                    if (logoUrl) {
+                        heroTitle.innerHTML = `<img src="${logoUrl}" alt="${activeImg.alt || 'Logo de Película'}" class="logo-img">`;
+                        heroTitle.classList.add('logo-mode');
+                    } else {
+                        heroTitle.textContent = titleText;
+                        heroTitle.classList.remove('logo-mode');
+                    }
+                    
+                    // Mantenemos heroDesc visible
                     heroDesc.textContent = activeImg.dataset.desc || '';
                     heroPlay.href = activeImg.dataset.link || '#';
                 }
@@ -946,15 +983,6 @@
         allMovieCardsElements.forEach(card => {
             const originalTitle = card.dataset.title || '';
             const isTop10NumberCard = card.querySelector('.movie-number');
-            if (originalTitle && !uniqueMoviesMap.has(originalTitle) && !isTop10NumberCard) {
-                uniqueMoviesMap.set(originalTitle, {
-                    title: originalTitle.toLowerCase(),
-                    originalTitle: originalTitle,
-                    image: card.querySelector('img') ? card.querySelector('img').src : '',
-                    link: card.href || '#',
-                    category: card.dataset.category ? card.dataset.category.toLowerCase() : 'general'
-                });
-            }
             if (originalTitle && !uniqueMoviesMap.has(originalTitle)) {
                  uniqueMoviesMap.set(originalTitle, {
                     title: originalTitle.toLowerCase(),
@@ -1200,6 +1228,10 @@
     </script>
 </body>
 </html>
+
+
+
+
 
 
 
