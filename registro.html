@@ -1,640 +1,412 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Registro · LLUTID+</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LLUTID+</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
 
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    body{
+      height:100vh;
+      overflow:hidden;
+      background:#000;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
 
-<style>
-  :root{
-    --bg:#000;
-    --accent:#007bff;
-    --accent-2:#00c6ff;
-    --card-bg: rgba(255,255,255,0.03);
-    --muted: #cfcfcf;
-    --white:#fff;
-    --radius:18px;
-    --maxw:420px;
-  }
-  /* --- Reset & Base --- */
-  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased}
-  html,body{height:100%}
-  body{
-    background: linear-gradient(180deg,#040406 0%, #000 100%);
-    color:var(--white);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-  }
+    /* LOGO + HELP */
+    .logo{
+      position:absolute; top:15px; left:20px; z-index:60;
+      font-weight:800; font-size:28px; display:flex; align-items:center;
+    }
+    .logo .blue{ color:#007bff; }
+    .logo .plus{ margin-left:6px; color:#fff; }
 
-  /* --- Mobile-only responsiveness: center and limit width --- */
-  .wrap{
-    width:100%;
-    max-width:var(--maxw);
-    min-height:640px;
-    height:calc(100vh - 36px);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
+    .help-btn{
+      position:absolute; top:18px; right:18px; z-index:60;
+      width:38px; height:38px; border-radius:50%;
+      background:rgba(255,255,255,0.14); backdrop-filter:blur(6px);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer; font-weight:800;
+      box-shadow:0 2px 8px rgba(0,0,0,0.35);
+    }
+    .help-btn:hover{ transform:scale(1.06); background:rgba(255,255,255,0.24); }
 
-  /* --- Card / viewport --- */
-  .viewport{
-    width:100%;
-    height:100%;
-    border-radius:20px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: 0 20px 40px rgba(0,0,0,0.65);
-    overflow:hidden;
-    position:relative;
-    display:flex;
-    flex-direction:column;
-  }
+    /* CARRUSEL */
+    .carousel{
+      position:absolute; inset:0;
+      overflow:hidden; z-index:1;
+      background:#000;
+    }
+    .carousel img{
+      position:absolute; top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover; object-position:center center;
+      opacity:0;
+      transform:scale(1);
+      transition: opacity 1.2s ease-in-out;
+      will-change: opacity, transform;
+      z-index:0;
+    }
 
-  /* header with text logo */
-  .header{
-    padding:18px 18px 10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.12));
-  }
-  .logo{
-    font-weight:900;
-    font-size:26px;
-    letter-spacing:2px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .logo .blue{ color:var(--accent); }
-  .logo .plus{ color:var(--white); margin-left:2px; font-size:28px; }
+    /* imagen visible: Ken Burns anim (forwards para quedarse escalada) */
+    .carousel img.active{
+      opacity:1;
+      z-index:30;
+      animation: zoomEffect 9000ms ease-in-out forwards;
+    }
 
-  /* main content area where slides appear */
-  .stage{
-    flex:1;
-    position:relative;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-  }
+    /* imagen saliente: mantenemos el scale final mientras hace fade-out */
+    .carousel img.leaving{
+      opacity:0;
+      z-index:20;
+      transform: scale(1.12); /* coincide con el final de la animación */
+      transition: opacity 1.2s ease-in-out;
+      pointer-events:none;
+    }
 
-  /* slides container (horizontal slider) */
-  .slides{
-    position:relative;
-    width:100%;
-    height:100%;
-    display:flex;
-    transition:transform .5s cubic-bezier(.2,.9,.25,1);
-    will-change: transform;
-    touch-action: pan-y;
-  }
+    @keyframes zoomEffect{
+      0%   { transform: scale(1); }
+      100% { transform: scale(1.12); }
+    }
 
-  /* single slide (card) */
-  .slide{
-    min-width:100%;
-    height:100%;
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-  }
+    /* GRADIENT para legibilidad */
+    .bg-gradient{
+      position:absolute; left:0; right:0; bottom:0;
+      height:56%;
+      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.86) 100%);
+      z-index:8; pointer-events:none;
+    }
 
-  .card{
-    width:100%;
-    max-width:100%;
-    background:var(--card-bg);
-    border-radius:16px;
-    padding:18px;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.5);
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
+    /* INFO (centrado, encima de overlay) */
+    .movie-info{
+      position:absolute; left:50%; transform:translateX(-50%);
+      bottom:38%;
+      text-align:center; z-index:40; pointer-events:none;
+      max-width:92%;
+    }
+    .movie-rank{
+      display:inline-block; 
+      background:#0056b3; 
+      color:#fff; padding:6px 10px;
+      border-radius:6px; font-weight:800; margin-bottom:8px;
+    }
+    /* Estilos para el título de texto */
+    .movie-title{
+      font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);
+      height: 2.2rem;
+    }
+    
+    /* ESTILOS ADICIONALES PARA EL LOGO COMO IMAGEN */
+    .movie-title.logo-mode{
+      font-size:0;
+      height: 120px;
+      margin-bottom:12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .movie-title.logo-mode img{
+      display:block; max-width:95%; height:auto; max-height:100%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      transition: transform 1.2s ease-in-out; 
+    }
 
-  .title{ font-size:20px; font-weight:900; text-align:center; margin-top:6px; }
-  .subtitle{ font-size:13px; color:var(--muted); text-align:center; margin-bottom:8px; }
+    .movie-sub{ 
+      display: none;
+      opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); 
+    }
 
-  label{ font-size:13px; color:var(--muted); font-weight:700; }
-  input[type="text"], input[type="tel"], input[type="email"], input[type="password"]{
-    width:100%;
-    padding:14px 12px;
-    border-radius:12px;
-    border:none;
-    background:rgba(255,255,255,0.02);
-    color:var(--white);
-    font-size:16px;
-    outline:none;
-  }
+    @media(max-width:700px){
+      .movie-title{ font-size:1.25rem; }
+      .movie-title.logo-mode{ height: 80px; margin-bottom:10px; }
+      .movie-rank{ padding:5px 8px; font-size:0.85rem; }
+    }
 
-  .row{ display:flex; gap:8px; width:100%; }
-  .small{ flex:1; }
+    /* OVERLAY CURVO (login pequeño dentro) - más transparente */
+    .overlay{
+      width:100%; padding:14px 18px 26px;
+      position:absolute; left:0; bottom:0; z-index:45;
+      background:rgba(0,0,0,0.35);
+      backdrop-filter: blur(6px);
+      clip-path: ellipse(130% 100% at 50% 100%);
+    }
+    .login-container{ max-width:300px; margin:0 auto; }
+    .login-container h3{ color:#fff; font-weight:700; margin-bottom:10px; text-align:center; }
 
-  .actions{
-    display:flex;
-    gap:8px;
-    margin-top:auto;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .btn{
-    padding:12px 16px;
-    border-radius:12px;
-    border:none;
-    font-weight:900;
-    font-size:15px;
-    cursor:pointer;
-  }
-  .btn.primary{
-    background: linear-gradient(135deg,var(--accent),var(--accent-2));
-    color:#fff;
-    box-shadow: 0 10px 24px rgba(0,123,255,0.14);
-    flex:1;
-  }
-  .btn.ghost{
-    background:transparent;
-    color:var(--muted);
-    border:1px solid rgba(255,255,255,0.04);
-    padding:10px 12px;
-    border-radius:12px;
-  }
+    .input-group{ margin-bottom:10px; }
+    .input-group input{
+      width:100%; padding:10px 12px; border-radius:20px; border:none;
+      background:rgba(255,255,255,0.09); color:#fff; text-align:center; font-size:14px;
+    }
+    .input-group input:focus{ outline:none; background:rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(0,0,0,0.45); }
 
-  .small-actions{ display:flex; gap:8px; width:40%; }
+    .login-container button{
+      width:100%; padding:10px; border-radius:20px; border:none;
+      background:linear-gradient(135deg,#007bff,#00c6ff); color:#fff; font-weight:800;
+      cursor:pointer;
+    }
+    .login-container button:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.45); }
 
-  .progress-dots{ display:flex; gap:8px; justify-content:center; margin-top:12px; }
-  .dot{ width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.06); }
-  .dot.active{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); width:28px; border-radius:10px; }
+    .suscribirse { margin-top:10px; font-size:13px; color:#ddd; text-align:center; }
+    .suscribirse a { color:#fff; font-weight:800; text-decoration:none; }
+    .suscribirse a:hover { color:#00c6ff; }
 
-  .error{ color:#ff9b9b; font-weight:800; font-size:13px; min-height:18px; text-align:center; }
+    /* POPUPS */
+    .popup-container{
+      position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.95);
+      padding:16px 22px; border-radius:12px; z-index:70; color:#fff; font-weight:800;
+      text-align:center; opacity:0; visibility:hidden; pointer-events:none; transition:all .25s ease;
+    }
+    .popup-container.show{ opacity:1; visibility:visible; pointer-events:auto; transform:translate(-50%,-50%) scale(1); }
+    .success-popup{ background:rgba(0,160,80,0.95); }
+    .error-popup{ background:rgba(200,20,20,0.95); }
 
-  .note{ font-size:13px; color:var(--muted); text-align:center; padding:8px 6px; }
+    /* INTRO */
+    .intro-screen{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:75; background:#000; }
+    .intro-screen.hidden{ opacity:0; visibility:hidden; pointer-events:none; transition:.6s; }
+    .logo-container{ font-size:3.6rem; font-weight:900; color:#fff; letter-spacing:4px;
+      animation: fadeInZoom 1.8s ease-out forwards, fadeOut .9s ease-in forwards 3.6s; text-shadow:0 0 12px #00bfff55; }
+    @keyframes fadeInZoom{ 0%{opacity:0; transform:scale(.55);} 100%{opacity:1; transform:scale(1);} }
+    @keyframes fadeOut{ to{opacity:0; transform:scale(1.05);} }
 
-  /* social & upload area */
-  .social-row{ display:flex; gap:10px; margin-top:8px; }
-  .fb{ background:#1877f2; color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
-  .tt{ background: linear-gradient(90deg,#000,#00f2fe); color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
-
-  /* ELIMINADO: .upload-preview */
-
-  /* tiny footer */
-  .footer{ padding:10px 14px; font-size:12px; color:var(--muted); text-align:center; }
-
-  /* --- small screens adjustments --- */
-  @media(min-width:481px){
-    body{ background: #000; }
-    .wrap{ max-width:420px; height:720px; }
-  }
-
-  /* accessibility focus */
-  input:focus, button:focus { outline: 3px solid rgba(0,123,255,0.12); outline-offset:2px; }
-
-  /* slide swipe hint */
-  .swipe-hint{ font-size:12px; color:var(--muted); text-align:center; margin-top:8px; }
-
-</style>
+    .sr-only{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+  </style>
 </head>
 <body>
-  <div class="wrap" role="main">
-    <div class="viewport" aria-labelledby="appTitle">
-      <div id="custom-alert" style="position:absolute; top:0px; left:50%; transform:translateX(-50%); padding:12px 20px; border-radius:10px; background:rgba(0,0,0,0.85); color:var(--white); font-weight:700; font-size:15px; z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s, top 0.3s; min-width:200px; text-align:center;">
-        Mensaje de prueba
+  <div class="intro-screen" id="introScreen"><div class="logo-container">LLUTID+</div></div>
+
+  <div class="logo" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
+  <button class="help-btn" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/', '_blank')" aria-label="Ayuda">?</button>
+
+  <div class="carousel" role="img" aria-label="Carrusel de imágenes">
+    <img src="https://i.postimg.cc/QNn0F5tc/Whats-App-Image-2025-09-18-at-5-08-20-PM.jpg"
+         alt="M3GAN" data-logo-url="https://image.tmdb.org/t/p/original/n2HRQV4G90PxtHUYhOMkPSK71bL.png" data-sub="¡YA DISPONIBLE!" data-rank="TOP 10">
+    
+    <img src="https://images.hive.blog/0x0/https://www.lavanguardia.com/peliculas-series/images/movie/poster/2025/10/w300/ur3H6g9xmrLQX2Ioh9z3P904ZSC.jpg"
+         alt="¡MUY PRONTO!" data-title="¡MUY PRONTO!" data-sub="" data-rank=""> <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
+         alt="LA MONJA" data-logo-url="https://los40mx00.epimg.net/especiales/depelicula/la-monja/img/02.png" data-sub="¡YA DISPONIBLE!">
+  </div>
+
+  <div class="bg-gradient" aria-hidden="true"></div>
+
+  <div class="movie-info" aria-live="polite">
+    <div class="movie-rank" id="rank" aria-hidden="true"></div>
+    <div class="movie-title" id="title"></div>
+    <div class="movie-sub" id="sub"></div>
+  </div>
+
+  <div class="overlay" role="region" aria-label="Área de inicio de sesión">
+    <div class="login-container">
+      <h3>Inicia sesión</h3>
+      <div class="input-group">
+        <input id="correo" type="email" placeholder="Correo electrónico" autocomplete="username">
       </div>
-      <div class="header">
-        <div class="logo" id="appTitle" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
+      <div class="input-group">
+        <input id="pin" type="password" placeholder="PIN de acceso (4-6 dígitos)" maxlength="6" inputmode="numeric" autocomplete="current-password">
       </div>
-
-      <div class="stage" id="stage" aria-live="polite">
-        <div class="slides" id="slides" role="region">
-          <section class="slide" aria-label="Paso 1: Nombre">
-            <div class="card">
-              <div class="title">Paso 1 — Tu nombre</div>
-              <div class="subtitle">Escribe tu nombre completo</div>
-              <label for="name">Nombre completo</label>
-              <input id="name" type="text" placeholder="Ej. Juan Pérez" autocomplete="name" inputmode="text" />
-              <div class="error" id="err-name"></div>
-
-              <div class="actions">
-                <button class="btn ghost" id="skipName" type="button">Omitir</button>
-                <button class="btn primary" id="toPhone" type="button">Siguiente</button>
-              </div>
-              <div class="progress-dots" aria-hidden="true">
-                <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="slide" aria-label="Paso 2: Celular">
-            <div class="card">
-              <div class="title">Paso 2 — Número celular</div>
-              <div class="subtitle">Escribe tu número (sin +)</div>
-              <label for="phone">Celular</label>
-              <input id="phone" type="tel" placeholder="3151234567" inputmode="numeric" autocomplete="tel" />
-              <div class="error" id="err-phone"></div>
-
-              <div class="actions">
-                <div class="small-actions">
-                  <button class="btn ghost" id="backToName" type="button">Atrás</button>
-                </div>
-                <button class="btn primary" id="toEmail" type="button">Siguiente</button>
-              </div>
-              <div class="progress-dots" aria-hidden="true">
-                <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="slide" aria-label="Paso 3: Correo">
-            <div class="card">
-              <div class="title">Paso 3 — Correo electrónico</div>
-              <div class="subtitle">Usa un correo válido para recuperar tu cuenta</div>
-              <label for="email">Correo</label>
-              <input id="email" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
-              <div class="error" id="err-email"></div>
-
-              <div class="actions">
-                <div class="small-actions">
-                  <button class="btn ghost" id="backToPhone" type="button">Atrás</button>
-                </div>
-                <button class="btn primary" id="toPin" type="button">Siguiente</button>
-              </div>
-              <div class="progress-dots" aria-hidden="true">
-                <div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="slide" aria-label="Paso 4: PIN">
-            <div class="card">
-              <div class="title">Paso 4 — Elige tu PIN</div>
-              <div class="subtitle">PIN de 6 dígitos para acceso rápido</div>
-              <label for="pin">PIN (6 dígitos)</label>
-              <div class="row">
-                <input id="pin" class="small" type="password" maxlength="6" inputmode="numeric" placeholder="••••••" autocomplete="new-password" />
-                <input id="pinConfirm" class="small" type="password" maxlength="6" inputmode="numeric" placeholder="Confirmar" />
-              </div>
-              <div class="error" id="err-pin"></div>
-
-              <div class="actions">
-                <div class="small-actions">
-                  <button class="btn ghost" id="backToEmail" type="button">Atrás</button>
-                </div>
-                <button class="btn primary" id="toGift" type="button">Siguiente</button>
-              </div>
-              <div class="progress-dots" aria-hidden="true">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="slide" aria-label="Paso 5: Código regalo">
-            <div class="card">
-              <div class="title">Paso 5 — Código regalo</div>
-              <div class="subtitle">Ingresa el código que disparamos en vivo</div>
-              <label for="gift">Código</label>
-              <input id="gift" type="text" placeholder="LLUTID-XXXX" inputmode="text" />
-              <div class="error" id="err-gift"></div>
-
-              <div class="note">Si no tienes código, síguenos y envíanos una captura para obtener uno.</div>
-
-              <div class="social-row">
-                <button id="openFb" class="fb" type="button" aria-label="Abrir Facebook">Seguir en Facebook</button>
-                <button id="openTt" class="tt" type="button" aria-label="Abrir TikTok">Seguir en TikTok</button>
-              </div>
-
-              <div style="margin-top:10px; display:flex; justify-content:center;">
-                <button class="btn primary" id="acquireCode" type="button" style="background: linear-gradient(135deg, #28a745, #218838); flex:none; padding:12px 20px;">
-                  ✅ Adquiere tu PIN aquí
-                </button>
-              </div>
-              <div style="margin-top:8px; display:flex; gap:8px;">
-                <button class="btn ghost" id="backToPin" type="button">Atrás</button>
-                <button class="btn primary" id="finish" type="button">Finalizar registro</button>
-              </div>
-
-              <div class="progress-dots" aria-hidden="true" style="margin-top:12px;">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div>
-              </div>
-
-            </div>
-          </section>
-        </div>
-      </div>
-
-      <div class="footer">
-        <div class="note">¿Dudas? WhatsApp: <strong>+57 3181087834</strong></div>
+      <button id="loginButton" type="button">Ingresar</button>
+      <div class="suscribirse">
+        ¿No tienes cuenta?<br>
+        <a href="https://api.whatsapp.com/send?phone=+573181087834&text=Hola!%20Quiero%20suscribirme%20a%20LLUTID+" target="_blank" rel="noopener">¡Suscríbete ahora!</a>
       </div>
     </div>
   </div>
 
-<script>
-/* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN (Ahora inicializa inmediatamente) */
-// --- CÓDIGO ÚNICO DE TU PROYECTO ---
-const firebaseConfig = {
-    apiKey: "AIzaSyDvEqfoyWEEAewyiXEIYcKqyMYbyweSI-E",
-    authDomain: "llutid-plus.firebaseapp.com",
-    projectId: "llutid-plus",
-    storageBucket: "llutid-plus.firebasestorage.app",
-    messagingSenderId: "204170283716",
-    appId: "1:204170283716:web:a244b7b383cefb4a461791"
-};
-// ------------------------------------
+  <div id="successPopup" class="popup-container success-popup" role="status" aria-hidden="true">
+    <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"></circle><path fill="none" stroke="#fff" stroke-width="3" d="M14 27l7 7 17-17"></path></svg>
+    Acceso exitoso
+  </div>
 
-let auth, db;
-// Inicialización de Firebase: Se ejecuta tan pronto como este script se carga.
-if(typeof firebase !== 'undefined') {
-    const app = firebase.initializeApp(firebaseConfig);
-    auth = app.auth();
-    db = app.firestore();
-} else {
-    console.error("Firebase SDK no se cargó correctamente.");
-    showCustomAlert("Error de conexión. Por favor, recarga la página.", true); // MODIFICADO: Notificación personalizada
-}
+  <div id="errorPopup" class="popup-container error-popup" role="alert" aria-hidden="true">
+    <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"></circle><path fill="none" stroke="#fff" stroke-width="3" d="M16 16 36 36 M36 16 16 36"></path></svg>
+    Acceso denegado
+    <div id="errorPopupMessage" style="margin-top:8px;font-weight:800;"></div>
+  </div>
 
+  <script>
+    /* ---------- CONFIG ---------- */
+    const ANIM_MS = 9000;
+    // const FADE_MS = 1200; // No se modificó, coincide con CSS
+    const ROTATION_MS = 8000; // AJUSTE: Más rápido, de 9500ms a 8000ms
 
-/* --- Elementos (MODIFICADO: Eliminados elementos de subida de foto y añadido customAlert/acquireCodeBtn) --- */
-const slides = document.getElementById('slides');
-const totalSteps = 5;
-let currentIndex = 0;
-const nameInput = document.getElementById('name');
-const phoneInput = document.getElementById('phone');
-const emailInput = document.getElementById('email');
-const pinInput = document.getElementById('pin');
-const pinConfirm = document.getElementById('pinConfirm');
-const giftInput = document.getElementById('gift');
-const errName = document.getElementById('err-name');
-const errPhone = document.getElementById('err-phone');
-const errEmail = document.getElementById('err-email');
-const errPin = document.getElementById('err-pin');
-const errGift = document.getElementById('err-gift');
-const toPhoneBtn = document.getElementById('toPhone');
-const backToNameBtn = document.getElementById('backToName');
-const toEmailBtn = document.getElementById('toEmail');
-const backToPhoneBtn = document.getElementById('backToPhone');
-const toPinBtn = document.getElementById('toPin');
-const backToEmailBtn = document.getElementById('backToEmail');
-const toGiftBtn = document.getElementById('toGift');
-const backToPinBtn = document.getElementById('backToPin');
-const finishBtn = document.getElementById('finish');
-const skipName = document.getElementById('skipName');
-const openFb = document.getElementById('openFb');
-const openTt = document.getElementById('openTt');
-const whatsappNumber = '+573181087834';
-const customAlert = document.getElementById('custom-alert'); // NUEVO
-const acquireCodeBtn = document.getElementById('acquireCode'); // NUEVO
+    /* ---------- ELEMENTOS ---------- */
+    const images = Array.from(document.querySelectorAll('.carousel img'));
+    const titleEl = document.getElementById('title');
+    const subEl = document.getElementById('sub');
+    const rankEl = document.getElementById('rank');
 
+    const introScreen = document.getElementById('introScreen');
+    const correoInput = document.getElementById('correo');
+    const pinInput = document.getElementById('pin');
+    const loginButton = document.getElementById('loginButton');
 
-/* --- NUEVO: Notificación personalizada --- */
-function showCustomAlert(message, isError = false) {
-  customAlert.textContent = message;
-  customAlert.style.top = '10px';
-  customAlert.style.opacity = '1';
-  customAlert.style.background = isError ? 'rgba(255, 99, 71, 0.85)' : 'rgba(40, 167, 69, 0.85)';
-  customAlert.style.pointerEvents = 'auto';
+    const successPopup = document.getElementById('successPopup');
+    const errorPopup = document.getElementById('errorPopup');
+    const errorPopupMessage = document.getElementById('errorPopupMessage');
 
-  setTimeout(() => {
-    customAlert.style.top = '0px';
-    customAlert.style.opacity = '0';
-    customAlert.style.pointerEvents = 'none';
-  }, 3500); // 3.5 segundos visible
-}
+    /* ---------- Estado ---------- */
+    let current = -1;
 
+    /* ---------- FUNCIONES CARRUSEL ---------- */
+    function showImage(index){
+      if(index === current) return;
+      const prev = current >= 0 ? images[current] : null;
+      const next = images[index];
 
-/* --- Helpers: move slides (SIN CAMBIOS) --- */
-function goTo(index){
-  index = Math.max(0, Math.min(totalSteps - 1, index));
-  currentIndex = index;
-  slides.style.transform = `translateX(-${index * 100}%)`;
-  updateDots(index);
-}
-function updateDots(index){
-  const dots = document.querySelectorAll('.dot');
-  dots.forEach((d,i)=> d.classList.toggle('active', i===index));
-}
+      if(prev){
+        prev.classList.remove('active');
+        prev.classList.add('leaving');
+      }
 
-/* --- Validaciones (SIN CAMBIOS) --- */
-function validateName(){
-  const v = (nameInput.value || '').trim();
-  if(!v){ errName.textContent = 'Ingresa tu nombre.'; return false; }
-  errName.textContent = ''; return true;
-}
-function validatePhone(){
-  const v = (phoneInput.value || '').replace(/\D/g,'');
-  if(!/^[0-9]{7,10}$/.test(v)){ errPhone.textContent = 'Número inválido (7-10 dígitos).'; return false; }
-  errPhone.textContent=''; return true;
-}
-function validateEmail(){
-  const v = (emailInput.value || '').trim();
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!re.test(v)){ errEmail.textContent='Correo inválido.'; return false; }
-  errEmail.textContent=''; return true;
-}
-function validatePin(){
-  const p = (pinInput.value || '').trim();
-  const pc = (pinConfirm.value || '').trim();
-  if(!/^\d{6}$/.test(p)){ errPin.textContent='El PIN debe tener 6 dígitos.'; return false; }
-  if(p !== pc){ errPin.textContent='Los PIN no coinciden.'; return false; }
-  errPin.textContent=''; return true;
-}
-function validateGift(){
-  const g = (giftInput.value || '').trim().toUpperCase();
-  if(!g){ errGift.textContent='Ingresa el código o solicita uno.'; return false; }
-  errGift.textContent=''; return true;
-}
+      next.classList.remove('leaving');
+      next.style.animation = 'none';
+      void next.offsetWidth;
+      next.style.animation = '';
+      next.classList.add('active');
 
+      const logoUrl = next.dataset.logoUrl;
+      const titleText = next.dataset.title;
 
-/* --- NUEVO: Persistencia de datos con localStorage y Listener de Mayúsculas --- */
-const inputIds = ['name', 'phone', 'email', 'pin', 'pinConfirm', 'gift'];
+      if(logoUrl){
+        titleEl.innerHTML = `<img src="${logoUrl}" alt="${next.alt || 'Título de la película'}" class="logo-img">`;
+        titleEl.classList.add('logo-mode');
+      } else {
+        titleEl.textContent = titleText || next.alt || '';
+        titleEl.classList.remove('logo-mode');
+      }
+      
+      subEl.textContent = ''; // Asegura que el subtítulo esté vacío
+      
+      rankEl.textContent = next.dataset.rank || '';
+      rankEl.style.display = next.dataset.rank ? 'inline-block' : 'none';
 
-function saveData() {
-  inputIds.forEach(id => {
-    const input = document.getElementById(id);
-    if (input) {
-      localStorage.setItem(`llutid_${id}`, input.value || '');
+      if(prev){
+        setTimeout(() => {
+          prev.classList.remove('leaving');
+          prev.style.animation = 'none';
+        }, 1200 + 50); // Usamos FADE_MS + 50 directamente
+      }
+
+      current = index;
     }
-  });
-}
 
-function loadData() {
-  inputIds.forEach(id => {
-    const input = document.getElementById(id);
-    const savedValue = localStorage.getItem(`llutid_${id}`);
-    if (input && savedValue !== null) {
-      input.value = savedValue;
+    /* ---------- POPUPS ---------- */
+    function showSuccessPopup(){
+      successPopup.classList.add('show'); successPopup.setAttribute('aria-hidden','false');
+      setTimeout(()=>{ successPopup.classList.remove('show'); successPopup.setAttribute('aria-hidden','true'); }, 2000);
     }
-  });
-}
-loadData(); // Cargar datos inmediatamente al cargar el script
-
-// Listener para forzar mayúsculas en el input de regalo y guardar datos
-giftInput.addEventListener('input', function() {
-  this.value = this.value.toUpperCase();
-  saveData();
-});
-/* --- FIN NUEVO: Persistencia y Mayúsculas --- */
-
-
-/* --- Navegación botones (SIN CAMBIOS) --- */
-toPhoneBtn.addEventListener('click', ()=>{ if(validateName()) goTo(1); });
-backToNameBtn.addEventListener('click', ()=> goTo(0));
-toEmailBtn.addEventListener('click', ()=>{ if(validatePhone()) goTo(2); });
-backToPhoneBtn.addEventListener('click', ()=> goTo(1));
-toPinBtn.addEventListener('click', ()=>{ if(validateEmail()) goTo(3); });
-backToEmailBtn.addEventListener('click', ()=> goTo(2));
-toGiftBtn.addEventListener('click', ()=>{ if(validatePin()) goTo(4); });
-backToPinBtn.addEventListener('click', ()=> goTo(3));
-skipName.addEventListener('click', ()=> goTo(1));
-
-/* --- Social links y WhatsApp (MODIFICADO: Eliminada lógica de subida de imagen, añadido botón adquirir PIN) --- */
-openFb.addEventListener('click', ()=> window.open('https://www.facebook.com/LLUTIDoficial', '_blank'));
-openTt.addEventListener('click', ()=> window.open('https://www.tiktok.com/@llutidoficial', '_blank'));
-
-function makeWhatsAppUrl(text){
-  const base = 'https://wa.me/' + whatsappNumber.replace(/\D/g,'');
-  return base + '?text=' + encodeURIComponent(text);
-}
-
-// NUEVO: Listener para el botón Adquiere tu PIN aquí
-acquireCodeBtn.addEventListener('click', () => {
-  const name = (nameInput.value || '').trim();
-  const phone = (phoneInput.value || '').trim();
-  const email = (emailInput.value || '').trim();
-
-  let text = `Hola LLUTID+, solicito mi código de regalo/PIN de acceso. Mi información de registro preliminar es: Nombre: ${name || '[Nombre]'}, Tel: ${phone || '[Teléfono]'}, Correo: ${email || '[Correo]'}.`;
-  
-  const url = makeWhatsAppUrl(text);
-  window.open(url, '_blank');
-});
-// FIN MODIFICADO de Social links
-
-
-/* --- LÓGICA DE FINALIZACIÓN (FIREBASE IMPLEMENTATION) --- */
-finishBtn.addEventListener('click', async (e) => {
-  e.preventDefault();
-  if(!auth || !db) {
-    showCustomAlert("Error de conexión a Firebase. Por favor, recarga la página y asegúrate de tener conexión a Internet.", true); // MODIFICADO
-    return;
-  }
-
-  const email = (emailInput.value || '').trim().toLowerCase();
-  const pin = (pinInput.value || '').trim();
-  const giftCode = (giftInput.value || '').trim().toUpperCase();
-  const name = (nameInput.value || '').trim();
-  const phone = (phoneInput.value || '').trim();
-
-  // 1. Validar campos del formulario
-  if (!validateName() || !validatePhone() || !validateEmail() || !validatePin() || !validateGift()) return;
-
-  try {
-    // 2. VERIFICAR EL CÓDIGO DE REGALO Y SU ESTADO
-    const codeRef = db.collection('giftCodes').doc(giftCode);
-    const doc = await codeRef.get();
-
-    if (!doc.exists) {
-      errGift.textContent = 'Código no encontrado o incorrecto.';
-      return;
+    function showErrorPopup(msg){
+      errorPopupMessage.textContent = msg || '';
+      errorPopup.classList.add('show'); errorPopup.setAttribute('aria-hidden','false');
+      setTimeout(()=>{ errorPopup.classList.remove('show'); errorPopup.setAttribute('aria-hidden','true'); }, 2500);
     }
-    const codeData = doc.data();
-    if (codeData.used === true) {
-      errGift.textContent = 'Este código ya fue utilizado.';
-      return;
-    }
-    
-    // 3. CREAR USUARIO EN FIREBASE AUTH
-    const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
-    const user = userCredential.user;
 
-    // 4. GUARDAR DATOS ADICIONALES EN FIRESTORE (Colección 'users')
-    await db.collection('users').doc(user.uid).set({
-      name: name,
-      phone: phone,
-      email: email,
-      giftCodeUsed: giftCode,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    /* ---------- USUARIOS (ejemplo) ---------- */
+    const usuariosRegistrados = {
+      "llutidoficial@gmail.com":"8350",
+      "luzmarinamartinez1805@gmail.com":"0607",
+      "torresqnderson0987@gmail.com":"0607",
+      "martinidia30@gmail.com":"2683",
+      "cancelado":"cancelado",
+      "ruizruizdannaelizabeth@gmail.com":"0607",
+      "ximenapm2603@gmail.com":"0607",
+      "andresmedina2508@gmail.com":"4445",
+      "jeferssonstivenf@gmail.com":"1057",
+      "duvan263009@gmail.com":"1581",
+      "pipereyes090@gmail.com":"1601",
+      "rgshigm@gmail.com":"2930",
+      "juan.m.bustos.d@gmail.com":"6352",
+      "rojasstiven016@gmail.com":"2012",
+      "jadejimenes939@gmail.com":"8080",
+      "Juanestebanhidalgomorales@gmail.com":"1477",
+      "laurasofiacruzalonso@gmail.com":"2108",
+      "alexanderdrojas12@gmail.com":"2012",
+      "jdavidsaiz10@gmail.com":"2011",
+      "oscarag2024@gmail.com":"2007",
+      "cd_rodriguez89@hotmail.com":"1322",
+      "brocheroruizs@gmail.com":"1141",
+      "sarahamortegui30@gmail.com":"2345",
+      "sbislikr@hotmail.com":"8819"
+    };
+
+    /* ---------- INICIALIZACIÓN ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(()=>{ if(introScreen) introScreen.classList.add('hidden'); }, 3600);
+
+      const savedCorreo = localStorage.getItem('correo');
+      const savedPin = localStorage.getItem('pin');
+      if(savedCorreo && savedPin){
+        correoInput.value = savedCorreo;
+        pinInput.type = 'text';
+        pinInput.value = '●'.repeat(Math.max(0, savedPin.length - 1)) + savedPin.slice(-1);
+        pinInput.dataset.realPin = savedPin;
+      }
+
+      showImage(0);
+
+      setInterval(()=> {
+        const nextIndex = (current + 1) % images.length;
+        showImage(nextIndex);
+      }, ROTATION_MS);
     });
 
-    // 5. MARCAR CÓDIGO COMO USADO
-    await codeRef.update({
-      used: true,
-      usedByUid: user.uid,
-      usedAt: firebase.firestore.FieldValue.serverTimestamp()
+    /* ---------- PIN: focus para editar si estaba enmascarado ---------- */
+    pinInput.addEventListener('focus', () => {
+      if(pinInput.dataset.realPin){
+        pinInput.value = '';
+        pinInput.type = 'password';
+        delete pinInput.dataset.realPin;
+      }
     });
-    
-    // 6. Finalización
-    localStorage.clear(); // NUEVO: Limpiar localStorage al finalizar con éxito
-    showCustomAlert('Registro exitoso — ¡Bienvenido a LLUTID+!'); // MODIFICADO
-    setTimeout(() => { window.location.href = 'home.html'; }, 800);
 
-  } catch (error) {
-    console.error("Error durante el registro:", error);
-    // Manejo de errores de Firebase
-    if (error.code === 'auth/email-already-in-use') {
-      errEmail.textContent = 'Este correo ya está en uso. Intenta iniciar sesión.';
-      goTo(2); // Vuelve al paso de correo
-    } else if (error.code === 'auth/weak-password') {
-      errPin.textContent = 'El PIN es muy débil. Debe tener al menos 6 caracteres.'; 
-      goTo(3); // Vuelve al paso de PIN
-    } else {
-      showCustomAlert(`Ocurrió un error: ${error.message}. Asegúrate de que el código de regalo sea correcto.`, true); // MODIFICADO
-    }
-  }
-});
+    /* ---------- LOGIN ---------- */
+    loginButton.addEventListener('click', () => {
+      const correo = (correoInput.value || '').trim().toLowerCase();
+      let pin = (pinInput.value || '').trim();
+      if(pinInput.dataset.realPin) pin = pinInput.dataset.realPin;
 
-
-/* --- OTRAS FUNCIONES ORIGINALES (MODIFICADO: Añadido saveData al input listener) --- */
-document.addEventListener('DOMContentLoaded', () => {
-    goTo(0);
-    // NUEVO: Añadir listeners a todos los inputs para guardar al cambiar
-    inputIds.forEach(id => {
-        const input = document.getElementById(id);
-        // El input 'gift' ya tiene un listener que llama a saveData, por eso lo excluimos o lo sobrescribimos con el mismo.
-        if (input && id !== 'gift') { 
-            input.addEventListener('input', saveData);
-        }
+      if(!correo || !pin){
+        showErrorPopup('Debes ingresar correo y PIN');
+        return;
+      }
+      if(!usuariosRegistrados.hasOwnProperty(correo)){
+        showErrorPopup('El correo no está registrado');
+        return;
+      }
+      if(usuariosRegistrados[correo] === pin){
+        localStorage.setItem('correo', correo);
+        localStorage.setItem('pin', pin);
+        showSuccessPopup();
+        setTimeout(()=>{ window.location.href = 'home.html'; }, 2000);
+      } else {
+        showErrorPopup('PIN incorrecto');
+      }
     });
-});
 
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    const focusEl = document.activeElement;
-    if(focusEl.tagName === 'INPUT' || focusEl.tagName === 'BUTTON'){
-      if(currentIndex === 0) toPhoneBtn.click();
-      else if(currentIndex === 1) toEmailBtn.click();
-      else if(currentIndex === 2) toPinBtn.click();
-      else if(currentIndex === 3) toGiftBtn.click();
-      else if(currentIndex === 4) finishBtn.click();
-    }
-  }
-});
+    [correoInput, pinInput].forEach(inp => {
+      inp.addEventListener('keydown', (e) => { if(e.key === 'Enter') loginButton.click(); });
+    });
 
-let startX = 0, moveX = 0, isTouching = false;
-slides.addEventListener('touchstart', (e)=> { if(e.touches && e.touches[0]) { startX = e.touches[0].clientX; isTouching = true; }});
-slides.addEventListener('touchmove', (e)=> {
-  if(!isTouching) return;
-  moveX = (e.touches[0].clientX - startX);
-});
-slides.addEventListener('touchend', ()=> {
-  if(!isTouching) return;
-  if(Math.abs(moveX) > 50){
-    if(moveX < 0 && currentIndex < totalSteps - 1){ // swipe left
-      const validators = [validateName, validatePhone, validateEmail, validatePin, validateGift];
-      if(validators[currentIndex] && !validators[currentIndex]()) { /* invalid: do nothing */ }
-      else goTo(currentIndex + 1);
-    } else if(moveX > 0 && currentIndex > 0){ // swipe right
-      goTo(currentIndex - 1);
-    }
-  }
-  startX = 0; moveX = 0; isTouching = false;
-});
-
-document.querySelector('.logo').addEventListener('click', ()=> goTo(0));
-</script>
+  </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
