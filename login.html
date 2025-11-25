@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>LLUTID+</title>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
   <style>
     *{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
 
@@ -207,12 +212,12 @@
         <input id="correo" type="email" placeholder="Correo electrónico" autocomplete="username">
       </div>
       <div class="input-group">
-        <input id="pin" type="password" placeholder="PIN de acceso (4-6 dígitos)" maxlength="6" inputmode="numeric" autocomplete="current-password">
+        <input id="pin" type="password" placeholder="PIN de acceso (6 dígitos)" maxlength="6" inputmode="numeric" autocomplete="current-password">
       </div>
       <button id="loginButton" type="button">Ingresar</button>
       <div class="suscribirse">
         ¿No tienes cuenta?<br>
-        <a href="https://api.whatsapp.com/send?phone=+573181087834&text=Hola!%20Quiero%20suscribirme%20a%20LLUTID+" target="_blank" rel="noopener">¡Suscríbete ahora!</a>
+        <a href="./registro.html" target="_self">Regístrate ahora</a>
       </div>
     </div>
   </div>
@@ -228,50 +233,57 @@
     <div id="errorPopupMessage" style="margin-top:8px;font-weight:800;"></div>
   </div>
 
-  <script>
-    /* ---------- CONFIG ---------- */
-    const ANIM_MS = 9000;
-    // const FADE_MS = 1200; // No se modificó, coincide con CSS
-    const ROTATION_MS = 8000; // AJUSTE: Más rápido, de 9500ms a 8000ms
+<script>
+    /* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN (Ahora inicializa inmediatamente) */
+    // --- CÓDIGO ÚNICO DE TU PROYECTO ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyDvEqfoyWEEAewyiXEIYcKqyMYbyweSI-E",
+        authDomain: "llutid-plus.firebaseapp.com",
+        projectId: "llutid-plus",
+        storageBucket: "llutid-plus.firebasestorage.app",
+        messagingSenderId: "204170283716",
+        appId: "1:204170283716:web:a244b7b383cefb4a461791"
+    };
+    // ------------------------------------
 
-    /* ---------- ELEMENTOS ---------- */
+    let auth;
+    // Inicialización de Firebase: Se ejecuta tan pronto como este script se carga.
+    if(typeof firebase !== 'undefined') {
+        const app = firebase.initializeApp(firebaseConfig);
+        auth = app.auth();
+    } else {
+        console.error("Firebase SDK no se cargó correctamente.");
+        alert("Error de conexión. Por favor, recarga la página.");
+    }
+
+    /* ---------- CONFIG ORIGINAL (SIN CAMBIOS) ---------- */
+    const ROTATION_MS = 8000; 
     const images = Array.from(document.querySelectorAll('.carousel img'));
     const titleEl = document.getElementById('title');
     const subEl = document.getElementById('sub');
     const rankEl = document.getElementById('rank');
-
     const introScreen = document.getElementById('introScreen');
     const correoInput = document.getElementById('correo');
     const pinInput = document.getElementById('pin');
     const loginButton = document.getElementById('loginButton');
-
     const successPopup = document.getElementById('successPopup');
     const errorPopup = document.getElementById('errorPopup');
     const errorPopupMessage = document.getElementById('errorPopupMessage');
-
-    /* ---------- Estado ---------- */
     let current = -1;
 
-    /* ---------- FUNCIONES CARRUSEL ---------- */
+    /* ---------- FUNCIONES CARRUSEL y POPUPS (SIN CAMBIOS) ---------- */
     function showImage(index){
       if(index === current) return;
       const prev = current >= 0 ? images[current] : null;
       const next = images[index];
-
-      if(prev){
-        prev.classList.remove('active');
-        prev.classList.add('leaving');
-      }
-
+      if(prev){ prev.classList.remove('active'); prev.classList.add('leaving'); }
       next.classList.remove('leaving');
       next.style.animation = 'none';
       void next.offsetWidth;
       next.style.animation = '';
       next.classList.add('active');
-
       const logoUrl = next.dataset.logoUrl;
       const titleText = next.dataset.title;
-
       if(logoUrl){
         titleEl.innerHTML = `<img src="${logoUrl}" alt="${next.alt || 'Título de la película'}" class="logo-img">`;
         titleEl.classList.add('logo-mode');
@@ -279,23 +291,12 @@
         titleEl.textContent = titleText || next.alt || '';
         titleEl.classList.remove('logo-mode');
       }
-      
-      subEl.textContent = ''; // Asegura que el subtítulo esté vacío
-      
+      subEl.textContent = ''; 
       rankEl.textContent = next.dataset.rank || '';
       rankEl.style.display = next.dataset.rank ? 'inline-block' : 'none';
-
-      if(prev){
-        setTimeout(() => {
-          prev.classList.remove('leaving');
-          prev.style.animation = 'none';
-        }, 1200 + 50); // Usamos FADE_MS + 50 directamente
-      }
-
+      if(prev){ setTimeout(() => { prev.classList.remove('leaving'); prev.style.animation = 'none'; }, 1250); }
       current = index;
     }
-
-    /* ---------- POPUPS ---------- */
     function showSuccessPopup(){
       successPopup.classList.add('show'); successPopup.setAttribute('aria-hidden','false');
       setTimeout(()=>{ successPopup.classList.remove('show'); successPopup.setAttribute('aria-hidden','true'); }, 2000);
@@ -306,95 +307,62 @@
       setTimeout(()=>{ errorPopup.classList.remove('show'); errorPopup.setAttribute('aria-hidden','true'); }, 2500);
     }
 
-    /* ---------- USUARIOS (ejemplo) ---------- */
-    const usuariosRegistrados = {
-      "llutidoficial@gmail.com":"8350",
-      "luzmarinamartinez1805@gmail.com":"0607",
-      "torresqnderson0987@gmail.com":"0607",
-      "martinidia30@gmail.com":"2683",
-      "cancelado":"cancelado",
-      "ruizruizdannaelizabeth@gmail.com":"0607",
-      "ximenapm2603@gmail.com":"0607",
-      "andresmedina2508@gmail.com":"4445",
-      "jeferssonstivenf@gmail.com":"1057",
-      "duvan263009@gmail.com":"1581",
-      "pipereyes090@gmail.com":"1601",
-      "rgshigm@gmail.com":"2930",
-      "juan.m.bustos.d@gmail.com":"6352",
-      "rojasstiven016@gmail.com":"2012",
-      "jadejimenes939@gmail.com":"8080",
-      "Juanestebanhidalgomorales@gmail.com":"1477",
-      "laurasofiacruzalonso@gmail.com":"2108",
-      "alexanderdrojas12@gmail.com":"2012",
-      "jdavidsaiz10@gmail.com":"2011",
-      "oscarag2024@gmail.com":"2007",
-      "cd_rodriguez89@hotmail.com":"1322",
-      "brocheroruizs@gmail.com":"1141",
-      "sarahamortegui30@gmail.com":"2345",
-      "sbislikr@hotmail.com":"8819"
-    };
-
-    /* ---------- INICIALIZACIÓN ---------- */
+    /* ---------- INICIALIZACIÓN (SIN CAMBIOS) ---------- */
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(()=>{ if(introScreen) introScreen.classList.add('hidden'); }, 3600);
-
       const savedCorreo = localStorage.getItem('correo');
-      const savedPin = localStorage.getItem('pin');
-      if(savedCorreo && savedPin){
-        correoInput.value = savedCorreo;
-        pinInput.type = 'text';
-        pinInput.value = '●'.repeat(Math.max(0, savedPin.length - 1)) + savedPin.slice(-1);
-        pinInput.dataset.realPin = savedPin;
-      }
-
+      if(savedCorreo){ correoInput.value = savedCorreo; }
       showImage(0);
-
       setInterval(()=> {
         const nextIndex = (current + 1) % images.length;
         showImage(nextIndex);
       }, ROTATION_MS);
     });
 
-    /* ---------- PIN: focus para editar si estaba enmascarado ---------- */
-    pinInput.addEventListener('focus', () => {
-      if(pinInput.dataset.realPin){
-        pinInput.value = '';
-        pinInput.type = 'password';
-        delete pinInput.dataset.realPin;
-      }
-    });
+    /* ---------- LOGIN (FIREBASE IMPLEMENTATION) ---------- */
+    loginButton.addEventListener('click', async () => {
+        if(!auth) {
+            showErrorPopup("Error de conexión. Recarga la página.");
+            return;
+        }
 
-    /* ---------- LOGIN ---------- */
-    loginButton.addEventListener('click', () => {
-      const correo = (correoInput.value || '').trim().toLowerCase();
-      let pin = (pinInput.value || '').trim();
-      if(pinInput.dataset.realPin) pin = pinInput.dataset.realPin;
+        const correo = (correoInput.value || '').trim().toLowerCase();
+        let pin = (pinInput.value || '').trim();
+        
+        if(!correo || !pin){
+            showErrorPopup('Debes ingresar correo y PIN');
+            return;
+        }
 
-      if(!correo || !pin){
-        showErrorPopup('Debes ingresar correo y PIN');
-        return;
-      }
-      if(!usuariosRegistrados.hasOwnProperty(correo)){
-        showErrorPopup('El correo no está registrado');
-        return;
-      }
-      if(usuariosRegistrados[correo] === pin){
-        localStorage.setItem('correo', correo);
-        localStorage.setItem('pin', pin);
-        showSuccessPopup();
-        setTimeout(()=>{ window.location.href = 'home.html'; }, 2000);
-      } else {
-        showErrorPopup('PIN incorrecto');
-      }
+        try {
+            // Intenta iniciar sesión con Firebase Authentication
+            await auth.signInWithEmailAndPassword(correo, pin);
+
+            localStorage.setItem('correo', correo); // Guarda el correo para recordar
+            
+            showSuccessPopup();
+            setTimeout(()=>{ window.location.href = 'home.html'; }, 2000);
+
+        } catch (error) {
+            console.error("Error de login:", error);
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                showErrorPopup('Correo o PIN incorrecto');
+            } else if (error.code === 'auth/invalid-email') {
+                showErrorPopup('Formato de correo inválido');
+            } else {
+                showErrorPopup('Error de acceso. Por favor, verifica tu conexión.');
+            }
+        }
     });
 
     [correoInput, pinInput].forEach(inp => {
       inp.addEventListener('keydown', (e) => { if(e.key === 'Enter') loginButton.click(); });
     });
-
-  </script>
+    
+</script>
 </body>
 </html>
+
 
 
 
