@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Registro · LLUTID+</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+<style>
+  :root{
+    --bg:#000;
+    --accent:#007bff;
+    --accent-2:#00c6ff;
+    --card-bg: rgba(255,255,255,0.03);
+    --muted: #cfcfcf;
+    --white:#fff;
+    --radius:18px;
+    --maxw:420px;
+  }
+  /* --- Reset & Base --- */
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; -webkit-font-smoothing:antialiased}
+  html,body{height:100%}
+  body{
+    background: linear-gradient(180deg,#040406 0%, #000 100%);
+    color:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+  }
+
+  /* --- Mobile-only responsiveness: center and limit width --- */
+  .wrap{
+    width:100%;
+    max-width:var(--maxw);
+    min-height:640px;
+    height:calc(100vh - 36px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* --- Card / viewport --- */
+  .viewport{
+    width:100%;
+    height:100%;
+    border-radius:20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    box-shadow: 0 20px 40px rgba(0,0,0,0.65);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* header with text logo */
+  .header{
+    padding:18px 18px 10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.12));
+  }
+  .logo{
+    font-weight:900;
+    font-size:26px;
+    letter-spacing:2px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo .blue{ color:var(--accent); }
+  .logo .plus{ color:var(--white); margin-left:2px; font-size:28px; }
+
+  /* main content area where slides appear */
+  .stage{
+    flex:1;
+    position:relative;
+    display:flex;
+    align-items:center; 
+    justify-content:center;
+    padding:18px;
+  }
+
+  /* slides container (horizontal slider) */
+  .slides{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    transition:transform .5s cubic-bezier(.2,.9,.25,1);
+    will-change: transform;
+    touch-action: pan-y;
+  }
+
+  /* single slide (card) */
+  .slide{
+    min-width:100%;
+    height:100%;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    /* Centra la tarjeta verticalmente por defecto */
+    justify-content:center; 
+  }
+
+  /* Regla para EXCEPTUAR la tarjeta 5 del centrado vertical */
+  section[aria-label="Paso 5: Código regalo"] {
+    justify-content: flex-start; /* La mantiene alineada arriba */
+  }
+
+  .card{
+    width:100%;
+    max-width:380px; 
+    background:var(--card-bg);
+    border-radius:16px;
+    padding:18px;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.5);
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  
+  /* Mantener la tarjeta 5 con un ancho ligeramente mayor para distribución de botones */
+  section[aria-label="Paso 5: Código regalo"] .card {
+    max-width: 400px; 
+  }
+
+
+  .title{ font-size:20px; font-weight:900; text-align:center; margin-top:6px; }
+  .subtitle{ font-size:13px; color:var(--muted); text-align:center; margin-bottom:8px; }
+
+  label{ font-size:13px; color:var(--muted); font-weight:700; }
+  input[type="text"], input[type="tel"], input[type="email"], input[type="password"]{
+    width:100%;
+    padding:14px 12px;
+    border-radius:12px;
+    border:none;
+    background:rgba(255,255,255,0.02);
+    color:var(--white);
+    font-size:16px;
+    outline:none;
+  }
+
+  .row{ display:flex; gap:8px; width:100%; }
+  .small{ flex:1; }
+
+  .actions{
+    display:flex;
+    gap:8px;
+    margin-top:auto;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .btn{
+    padding:12px 16px;
+    border-radius:12px;
+    border:none;
+    font-weight:900;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .btn.primary{
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;
+    box-shadow: 0 10px 24px rgba(0,123,255,0.14);
+    flex:1;
+  }
+  .btn.ghost{
+    background:transparent;
+    color:var(--muted);
+    border:1px solid rgba(255,255,255,0.04);
+    padding:10px 12px;
+    border-radius:12px;
+  }
+
+  .small-actions{ display:flex; gap:8px; width:40%; }
+
+  .progress-dots{ display:flex; gap:8px; justify-content:center; margin-top:12px; }
+  .dot{ width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.06); transition: all 0.3s ease; }
+  .dot.active{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); width:28px; border-radius:10px; }
+
+  .error{ color:#ff9b9b; font-weight:800; font-size:13px; min-height:18px; text-align:center; }
+
+  .note{ font-size:13px; color:var(--muted); text-align:center; padding:8px 6px; }
+
+  /* social & upload area */
+  .social-row{ display:flex; gap:10px; margin-top:8px; }
+  .fb{ background:#1877f2; color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
+  .tt{ background: linear-gradient(90deg,#000,#00f2fe); color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
+
+  /* tiny footer */
+  .footer{ padding:10px 14px; font-size:12px; color:var(--muted); text-align:center; }
+
+  /* --- small screens adjustments --- */
+  @media(min-width:481px){
+    body{ background: #000; }
+    .wrap{ max-width:420px; height:720px; }
+  }
+
+  /* accessibility focus */
+  input:focus, button:focus { outline: 3px solid rgba(0,123,255,0.12); outline-offset:2px; }
+
+  /* slide swipe hint */
+  .swipe-hint{ font-size:12px; color:var(--muted); text-align:center; margin-top:8px; }
+  
+  /* Estilo para el ícono de WhatsApp */
+  .whatsapp-icon::before {
+    content: '📞'; 
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 1.1em;
+  }
+
+</style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <div class="viewport" aria-labelledby="appTitle">
+      <div id="custom-alert" style="position:absolute; top:0px; left:50%; transform:translateX(-50%); padding:12px 20px; border-radius:10px; background:rgba(0,0,0,0.85); color:var(--white); font-weight:700; font-size:15px; z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s, top 0.3s; min-width:200px; text-align:center;">
+        Mensaje de prueba
+      </div>
+      <div class="header">
+        <div class="logo" id="appTitle" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
+      </div>
+
+      <div class="stage" id="stage" aria-live="polite">
+        <div class="slides" id="slides" role="region">
+          <section class="slide" aria-label="Paso 1: Nombre">
+            <div class="card">
+              <div class="title">Paso 1 — Tu nombre</div>
+              <div class="subtitle">Escribe tu nombre completo</div>
+              <label for="name">Nombre completo</label>
+              <input id="name" type="text" placeholder="Ej. Juan Pérez" autocomplete="name" inputmode="text" />
+              <div class="error" id="err-name"></div>
+
+              <div class="actions">
+                <button class="btn ghost" id="skipName" type="button">Omitir</button>
+                <button class="btn primary" id="toPhone" type="button">Siguiente</button>
+              </div>
+              <div class="progress-dots" aria-hidden="true">
+                <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="slide" aria-label="Paso 2: Celular">
+            <div class="card">
+              <div class="title">Paso 2 — Número celular</div>
+              <div class="subtitle">Escribe tu número (sin +)</div>
+              <label for="phone">Celular</label>
+              <input id="phone" type="tel" placeholder="3151234567" inputmode="numeric" autocomplete="tel" />
+              <div class="error" id="err-phone"></div>
+
+              <div class="actions">
+                <div class="small-actions">
+                  <button class="btn ghost" id="backToName" type="button">Atrás</button>
+                </div>
+                <button class="btn primary" id="toEmail" type="button">Siguiente</button>
+              </div>
+              <div class="progress-dots" aria-hidden="true">
+                <div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="slide" aria-label="Paso 3: Correo">
+            <div class="card">
+              <div class="title">Paso 3 — Correo electrónico</div>
+              <div class="subtitle">Usa un correo válido para recuperar tu cuenta</div>
+              <label for="email">Correo</label>
+              <input id="email" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" />
+              <div class="error" id="err-email"></div>
+
+              <div class="actions">
+                <div class="small-actions">
+                  <button class="btn ghost" id="backToPhone" type="button">Atrás</button>
+                </div>
+                <button class="btn primary" id="toPin" type="button">Siguiente</button>
+              </div>
+              <div class="progress-dots" aria-hidden="true">
+                <div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="slide" aria-label="Paso 4: PIN">
+            <div class="card">
+              <div class="title">Paso 4 — Elige tu PIN</div>
+              <div class="subtitle">PIN de 6 dígitos para acceso rápido</div>
+              <label for="pin">PIN (6 dígitos)</label>
+              <div class="row">
+                <input id="pin" class="small" type="password" maxlength="6" inputmode="numeric" placeholder="••••••" autocomplete="new-password" />
+                <input id="pinConfirm" class="small" type="password" maxlength="6" inputmode="numeric" placeholder="Confirmar" />
+              </div>
+              <div class="error" id="err-pin"></div>
+
+              <div class="actions">
+                <div class="small-actions">
+                  <button class="btn ghost" id="backToEmail" type="button">Atrás</button>
+                </div>
+                <button class="btn primary" id="toGift" type="button">Siguiente</button>
+              </div>
+              <div class="progress-dots" aria-hidden="true">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div><div class="dot"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="slide" aria-label="Paso 5: Código regalo">
+            <div class="card">
+              <div class="title">Paso 5 — Código regalo</div>
+              <div class="subtitle">Ingresa el código que disparamos en vivo</div>
+              <label for="gift">Código</label>
+              <input id="gift" type="text" placeholder="LLUTID-XXXX" inputmode="text" />
+              <div class="error" id="err-gift"></div>
+
+              <div class="note">Si no tienes código, síguenos y envíanos una captura para obtener uno.</div>
+
+              <div class="social-row">
+                <button id="openFb" class="fb" type="button" aria-label="Abrir Facebook">Seguir en Facebook</button>
+                <button id="openTt" class="tt" type="button" aria-label="Abrir TikTok">Seguir en TikTok</button>
+              </div>
+
+              <div style="margin-top:10px; display:flex; justify-content:center;">
+                <button class="btn primary whatsapp-icon" id="acquireCode" type="button" style="background: linear-gradient(135deg, #28a745, #218838); flex:none; padding:12px 20px;">
+                  Adquiere tu PIN aquí
+                </button>
+              </div>
+
+              <div style="margin-top:8px; display:flex; gap:8px;">
+                <button class="btn ghost" id="backToPin" type="button">Atrás</button>
+                <button class="btn primary" id="finish" type="button">Finalizar registro</button>
+              </div>
+
+              <div class="progress-dots" aria-hidden="true" style="margin-top:12px;">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot active"></div>
+              </div>
+
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="note">¿Dudas? WhatsApp: <strong>+57 3181087834</strong></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN */
+// --- CÓDIGO ÚNICO DE TU PROYECTO ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDvEqfoyWEEAewyiXEIYcKqyMYbyweSI-E",
+    authDomain: "llutid-plus.firebaseapp.com",
+    projectId: "llutid-plus",
+    storageBucket: "llutid-plus.firebasestorage.app",
+    messagingSenderId: "204170283716",
+    appId: "1:204170283716:web:a244b7b383cefb4a461791"
+};
+// ------------------------------------
+
+let auth, db;
+if(typeof firebase !== 'undefined') {
+    const app = firebase.initializeApp(firebaseConfig);
+    auth = app.auth();
+    db = app.firestore();
+} else {
+    console.error("Firebase SDK no se cargó correctamente.");
+    showCustomAlert("Error de conexión. Por favor, recarga la página.", true); 
+}
+
+
+/* --- Elementos --- */
+const slides = document.getElementById('slides');
+const totalSteps = 5;
+let currentIndex = 0;
+const nameInput = document.getElementById('name');
+const phoneInput = document.getElementById('phone');
+const emailInput = document.getElementById('email');
+const pinInput = document.getElementById('pin');
+const pinConfirm = document.getElementById('pinConfirm');
+const giftInput = document.getElementById('gift');
+const errName = document.getElementById('err-name');
+const errPhone = document.getElementById('err-phone');
+const errEmail = document.getElementById('err-email');
+const errPin = document.getElementById('err-pin');
+const errGift = document.getElementById('err-gift');
+const toPhoneBtn = document.getElementById('toPhone');
+const backToNameBtn = document.getElementById('backToName');
+const toEmailBtn = document.getElementById('toEmail');
+const backToPhoneBtn = document.getElementById('backToPhone');
+const toPinBtn = document.getElementById('toPin');
+const backToEmailBtn = document.getElementById('backToEmail');
+const toGiftBtn = document.getElementById('toGift');
+const backToPinBtn = document.getElementById('backToPin');
+const finishBtn = document.getElementById('finish');
+const skipName = document.getElementById('skipName');
+const openFb = document.getElementById('openFb');
+const openTt = document.getElementById('openTt');
+const whatsappNumber = '+573181087834';
+const customAlert = document.getElementById('custom-alert'); 
+const acquireCodeBtn = document.getElementById('acquireCode');
+
+
+/* --- Notificación personalizada --- */
+function showCustomAlert(message, isError = false) {
+  customAlert.textContent = message;
+  customAlert.style.top = '10px';
+  customAlert.style.opacity = '1';
+  customAlert.style.background = isError ? 'rgba(255, 99, 71, 0.85)' : 'rgba(40, 167, 69, 0.85)';
+  customAlert.style.pointerEvents = 'auto';
+
+  setTimeout(() => {
+    customAlert.style.top = '0px';
+    customAlert.style.opacity = '0';
+    customAlert.style.pointerEvents = 'none';
+  }, 3500); 
+}
+
+
+/* --- Helpers: move slides --- */
+function goTo(index){
+  index = Math.max(0, Math.min(totalSteps - 1, index));
+  currentIndex = index;
+  slides.style.transform = `translateX(-${index * 100}%)`;
+  updateDots(index);
+}
+function updateDots(index){
+  const dots = document.querySelectorAll('.progress-dots .dot');
+  dots.forEach((d,i)=> d.classList.toggle('active', i===index));
+}
+
+/* --- Validaciones (SIN CAMBIOS) --- */
+function validateName(){
+  const v = (nameInput.value || '').trim();
+  if(!v){ errName.textContent = 'Ingresa tu nombre.'; return false; }
+  errName.textContent = ''; return true;
+}
+function validatePhone(){
+  const v = (phoneInput.value || '').replace(/\D/g,'');
+  if(!/^[0-9]{7,10}$/.test(v)){ errPhone.textContent = 'Número inválido (7-10 dígitos).'; return false; }
+  errPhone.textContent=''; return true;
+}
+function validateEmail(){
+  const v = (emailInput.value || '').trim();
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!re.test(v)){ errEmail.textContent='Correo inválido.'; return false; }
+  errEmail.textContent=''; return true;
+}
+function validatePin(){
+  const p = (pinInput.value || '').trim();
+  const pc = (pinConfirm.value || '').trim();
+  if(!/^\d{6}$/.test(p)){ errPin.textContent='El PIN debe tener 6 dígitos.'; return false; }
+  if(p !== pc){ errPin.textContent='Los PIN no coinciden.'; return false; }
+  errPin.textContent=''; return true;
+}
+function validateGift(){
+  const g = (giftInput.value || '').trim().toUpperCase();
+  if(!g){ errGift.textContent='Ingresa el código o solicita uno.'; return false; }
+  errGift.textContent=''; return true;
+}
+
+
+/* --- Persistencia de datos con localStorage y Listener de Mayúsculas --- */
+const inputIds = ['name', 'phone', 'email', 'pin', 'pinConfirm', 'gift'];
+
+function saveData() {
+  inputIds.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      localStorage.setItem(`llutid_${id}`, input.value || '');
+    }
+  });
+}
+
+function loadData() {
+  inputIds.forEach(id => {
+    const input = document.getElementById(id);
+    const savedValue = localStorage.getItem(`llutid_${id}`);
+    if (input && savedValue !== null) {
+      input.value = savedValue;
+    }
+  });
+}
+loadData();
+
+giftInput.addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+  saveData();
+});
+
+
+/* --- Navegación botones --- */
+toPhoneBtn.addEventListener('click', ()=>{ if(validateName()) goTo(1); });
+backToNameBtn.addEventListener('click', ()=> goTo(0));
+toEmailBtn.addEventListener('click', ()=>{ if(validatePhone()) goTo(2); });
+backToPhoneBtn.addEventListener('click', ()=> goTo(1));
+toPinBtn.addEventListener('click', ()=>{ if(validateEmail()) goTo(3); });
+backToEmailBtn.addEventListener('click', ()=> goTo(2));
+toGiftBtn.addEventListener('click', ()=>{ if(validatePin()) goTo(4); });
+backToPinBtn.addEventListener('click', ()=> goTo(3));
+skipName.addEventListener('click', ()=> goTo(1));
+
+/* --- Social links y WhatsApp --- */
+openFb.addEventListener('click', ()=> window.open('https://www.facebook.com/LLUTIDoficial', '_blank'));
+openTt.addEventListener('click', ()=> window.open('https://www.tiktok.com/@llutidoficial', '_blank'));
+
+function makeWhatsAppUrl(text){
+  const base = 'https://wa.me/' + whatsappNumber.replace(/\D/g,'');
+  return base + '?text=' + encodeURIComponent(text);
+}
+
+acquireCodeBtn.addEventListener('click', () => {
+  const name = (nameInput.value || '').trim();
+  const phone = (phoneInput.value || '').trim();
+  const email = (emailInput.value || '').trim();
+
+  let text = `Hola LLUTID+, solicito mi código de regalo/PIN de acceso. Mi información de registro preliminar es: Nombre: ${name || '[Nombre]'}, Tel: ${phone || '[Teléfono]'}, Correo: ${email || '[Correo]'}.`;
+  
+  const url = makeWhatsAppUrl(text);
+  window.open(url, '_blank');
+});
+
+
+/* --- LÓGICA DE FINALIZACIÓN (FIREBASE IMPLEMENTATION) --- */
+finishBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  if(!auth || !db) {
+    showCustomAlert("Error de conexión a Firebase. Por favor, recarga la página y asegúrate de tener conexión a Internet.", true);
+    return;
+  }
+
+  const email = (emailInput.value || '').trim().toLowerCase();
+  const pin = (pinInput.value || '').trim();
+  const giftCode = (giftInput.value || '').trim().toUpperCase();
+  const name = (nameInput.value || '').trim();
+  const phone = (phoneInput.value || '').trim();
+
+  if (!validateName() || !validatePhone() || !validateEmail() || !validatePin() || !validateGift()) return;
+
+  try {
+    const codeRef = db.collection('giftCodes').doc(giftCode);
+    const doc = await codeRef.get();
+
+    if (!doc.exists) {
+      errGift.textContent = 'Código no encontrado o incorrecto.';
+      return;
+    }
+    const codeData = doc.data();
+    if (codeData.used === true) {
+      errGift.textContent = 'Este código ya fue utilizado.';
+      return;
+    }
+    
+    const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
+    const user = userCredential.user;
+
+    await db.collection('users').doc(user.uid).set({
+      name: name,
+      phone: phone,
+      email: email,
+      giftCodeUsed: giftCode,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    await codeRef.update({
+      used: true,
+      usedByUid: user.uid,
+      usedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // REDIRECCIÓN CORREGIDA
+    localStorage.clear();
+    showCustomAlert('Registro exitoso — ¡Bienvenido a LLUTID+!');
+    setTimeout(() => { window.location.href = 'login.html'; }, 800); // <-- Cambiado a login.html
+
+  } catch (error) {
+    console.error("Error durante el registro:", error);
+    if (error.code === 'auth/email-already-in-use') {
+      errEmail.textContent = 'Este correo ya está en uso. Intenta iniciar sesión.';
+      goTo(2);
+    } else if (error.code === 'auth/weak-password') {
+      errPin.textContent = 'El PIN es muy débil. Debe tener al menos 6 caracteres.'; 
+      goTo(3);
+    } else {
+      // MENSAJE DE ERROR MEJORADO: No culpa al código de regalo
+      showCustomAlert(`Ocurrió un error durante la creación de la cuenta: ${error.message}. Por favor, revisa tus datos o inténtalo más tarde.`, true);
+    }
+  }
+});
+
+
+/* --- OTRAS FUNCIONES ORIGINALES --- */
+document.addEventListener('DOMContentLoaded', () => {
+    goTo(0);
+    // Añadir listeners a todos los inputs para guardar al cambiar
+    inputIds.forEach(id => {
+        const input = document.getElementById(id);
+        if (input && id !== 'gift') { 
+            input.addEventListener('input', saveData);
+        }
+    });
+});
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    const focusEl = document.activeElement;
+    if(focusEl.tagName === 'INPUT' || focusEl.tagName === 'BUTTON'){
+      if(currentIndex === 0) toPhoneBtn.click();
+      else if(currentIndex === 1) toEmailBtn.click();
+      else if(currentIndex === 2) toPinBtn.click();
+      else if(currentIndex === 3) toGiftBtn.click();
+      else if(currentIndex === 4) finishBtn.click();
+    }
+  }
+});
+
+let startX = 0, moveX = 0, isTouching = false;
+slides.addEventListener('touchstart', (e)=> { if(e.touches && e.touches[0]) { startX = e.touches[0].clientX; isTouching = true; }});
+slides.addEventListener('touchmove', (e)=> {
+  if(!isTouching) return;
+  moveX = (e.touches[0].clientX - startX);
+});
+slides.addEventListener('touchend', ()=> {
+  if(!isTouching) return;
+  if(Math.abs(moveX) > 50){
+    if(moveX < 0 && currentIndex < totalSteps - 1){ // swipe left
+      const validators = [validateName, validatePhone, validateEmail, validatePin, validateGift];
+      if(validators[currentIndex] && !validators[currentIndex]()) { /* invalid: do nothing */ }
+      else goTo(currentIndex + 1);
+    } else if(moveX > 0 && currentIndex > 0){ // swipe right
+      goTo(currentIndex - 1);
+    }
+  }
+  startX = 0; moveX = 0; isTouching = false;
+});
+
+document.querySelector('.logo').addEventListener('click', ()=> goTo(0));
+</script>
+</body>
+</html>
