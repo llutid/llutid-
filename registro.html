@@ -81,7 +81,7 @@
     flex:1;
     position:relative;
     display:flex;
-    align-items:center; 
+    align-items:center;
     justify-content:center;
     padding:18px;
   }
@@ -105,18 +105,12 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    /* Centra la tarjeta verticalmente por defecto */
-    justify-content:center; 
-  }
-
-  /* Regla para EXCEPTUAR la tarjeta 5 del centrado vertical */
-  section[aria-label="Paso 5: Código regalo"] {
-    justify-content: flex-start; /* La mantiene alineada arriba */
+    justify-content:flex-start;
   }
 
   .card{
     width:100%;
-    max-width:380px; 
+    max-width:100%;
     background:var(--card-bg);
     border-radius:16px;
     padding:18px;
@@ -125,12 +119,6 @@
     flex-direction:column;
     gap:12px;
   }
-  
-  /* Mantener la tarjeta 5 con un ancho ligeramente mayor para distribución de botones */
-  section[aria-label="Paso 5: Código regalo"] .card {
-    max-width: 400px; 
-  }
-
 
   .title{ font-size:20px; font-weight:900; text-align:center; margin-top:6px; }
   .subtitle{ font-size:13px; color:var(--muted); text-align:center; margin-bottom:8px; }
@@ -182,7 +170,7 @@
   .small-actions{ display:flex; gap:8px; width:40%; }
 
   .progress-dots{ display:flex; gap:8px; justify-content:center; margin-top:12px; }
-  .dot{ width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.06); transition: all 0.3s ease; }
+  .dot{ width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.06); }
   .dot.active{ background: linear-gradient(90deg,var(--accent),var(--accent-2)); width:28px; border-radius:10px; }
 
   .error{ color:#ff9b9b; font-weight:800; font-size:13px; min-height:18px; text-align:center; }
@@ -193,6 +181,8 @@
   .social-row{ display:flex; gap:10px; margin-top:8px; }
   .fb{ background:#1877f2; color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
   .tt{ background: linear-gradient(90deg,#000,#00f2fe); color:#fff; padding:10px; border-radius:10px; flex:1; font-weight:900; border:none; }
+
+  /* ELIMINADO: .upload-preview */
 
   /* tiny footer */
   .footer{ padding:10px 14px; font-size:12px; color:var(--muted); text-align:center; }
@@ -208,14 +198,6 @@
 
   /* slide swipe hint */
   .swipe-hint{ font-size:12px; color:var(--muted); text-align:center; margin-top:8px; }
-  
-  /* Estilo para el ícono de WhatsApp */
-  .whatsapp-icon::before {
-    content: '📞'; 
-    display: inline-block;
-    margin-right: 8px;
-    font-size: 1.1em;
-  }
 
 </style>
 </head>
@@ -328,11 +310,10 @@
               </div>
 
               <div style="margin-top:10px; display:flex; justify-content:center;">
-                <button class="btn primary whatsapp-icon" id="acquireCode" type="button" style="background: linear-gradient(135deg, #28a745, #218838); flex:none; padding:12px 20px;">
-                  Adquiere tu PIN aquí
+                <button class="btn primary" id="acquireCode" type="button" style="background: linear-gradient(135deg, #28a745, #218838); flex:none; padding:12px 20px;">
+                  ✅ Adquiere tu PIN aquí
                 </button>
               </div>
-
               <div style="margin-top:8px; display:flex; gap:8px;">
                 <button class="btn ghost" id="backToPin" type="button">Atrás</button>
                 <button class="btn primary" id="finish" type="button">Finalizar registro</button>
@@ -354,7 +335,7 @@
   </div>
 
 <script>
-/* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN */
+/* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN (Ahora inicializa inmediatamente) */
 // --- CÓDIGO ÚNICO DE TU PROYECTO ---
 const firebaseConfig = {
     apiKey: "AIzaSyDvEqfoyWEEAewyiXEIYcKqyMYbyweSI-E",
@@ -367,17 +348,18 @@ const firebaseConfig = {
 // ------------------------------------
 
 let auth, db;
+// Inicialización de Firebase: Se ejecuta tan pronto como este script se carga.
 if(typeof firebase !== 'undefined') {
     const app = firebase.initializeApp(firebaseConfig);
     auth = app.auth();
     db = app.firestore();
 } else {
     console.error("Firebase SDK no se cargó correctamente.");
-    showCustomAlert("Error de conexión. Por favor, recarga la página.", true); 
+    showCustomAlert("Error de conexión. Por favor, recarga la página.", true); // MODIFICADO: Notificación personalizada
 }
 
 
-/* --- Elementos --- */
+/* --- Elementos (MODIFICADO: Eliminados elementos de subida de foto y añadido customAlert/acquireCodeBtn) --- */
 const slides = document.getElementById('slides');
 const totalSteps = 5;
 let currentIndex = 0;
@@ -405,11 +387,11 @@ const skipName = document.getElementById('skipName');
 const openFb = document.getElementById('openFb');
 const openTt = document.getElementById('openTt');
 const whatsappNumber = '+573181087834';
-const customAlert = document.getElementById('custom-alert'); 
-const acquireCodeBtn = document.getElementById('acquireCode');
+const customAlert = document.getElementById('custom-alert'); // NUEVO
+const acquireCodeBtn = document.getElementById('acquireCode'); // NUEVO
 
 
-/* --- Notificación personalizada --- */
+/* --- NUEVO: Notificación personalizada --- */
 function showCustomAlert(message, isError = false) {
   customAlert.textContent = message;
   customAlert.style.top = '10px';
@@ -421,11 +403,11 @@ function showCustomAlert(message, isError = false) {
     customAlert.style.top = '0px';
     customAlert.style.opacity = '0';
     customAlert.style.pointerEvents = 'none';
-  }, 3500); 
+  }, 3500); // 3.5 segundos visible
 }
 
 
-/* --- Helpers: move slides --- */
+/* --- Helpers: move slides (SIN CAMBIOS) --- */
 function goTo(index){
   index = Math.max(0, Math.min(totalSteps - 1, index));
   currentIndex = index;
@@ -433,7 +415,7 @@ function goTo(index){
   updateDots(index);
 }
 function updateDots(index){
-  const dots = document.querySelectorAll('.progress-dots .dot');
+  const dots = document.querySelectorAll('.dot');
   dots.forEach((d,i)=> d.classList.toggle('active', i===index));
 }
 
@@ -468,7 +450,7 @@ function validateGift(){
 }
 
 
-/* --- Persistencia de datos con localStorage y Listener de Mayúsculas --- */
+/* --- NUEVO: Persistencia de datos con localStorage y Listener de Mayúsculas --- */
 const inputIds = ['name', 'phone', 'email', 'pin', 'pinConfirm', 'gift'];
 
 function saveData() {
@@ -489,15 +471,17 @@ function loadData() {
     }
   });
 }
-loadData();
+loadData(); // Cargar datos inmediatamente al cargar el script
 
+// Listener para forzar mayúsculas en el input de regalo y guardar datos
 giftInput.addEventListener('input', function() {
   this.value = this.value.toUpperCase();
   saveData();
 });
+/* --- FIN NUEVO: Persistencia y Mayúsculas --- */
 
 
-/* --- Navegación botones --- */
+/* --- Navegación botones (SIN CAMBIOS) --- */
 toPhoneBtn.addEventListener('click', ()=>{ if(validateName()) goTo(1); });
 backToNameBtn.addEventListener('click', ()=> goTo(0));
 toEmailBtn.addEventListener('click', ()=>{ if(validatePhone()) goTo(2); });
@@ -508,7 +492,7 @@ toGiftBtn.addEventListener('click', ()=>{ if(validatePin()) goTo(4); });
 backToPinBtn.addEventListener('click', ()=> goTo(3));
 skipName.addEventListener('click', ()=> goTo(1));
 
-/* --- Social links y WhatsApp --- */
+/* --- Social links y WhatsApp (MODIFICADO: Eliminada lógica de subida de imagen, añadido botón adquirir PIN) --- */
 openFb.addEventListener('click', ()=> window.open('https://www.facebook.com/LLUTIDoficial', '_blank'));
 openTt.addEventListener('click', ()=> window.open('https://www.tiktok.com/@llutidoficial', '_blank'));
 
@@ -517,6 +501,7 @@ function makeWhatsAppUrl(text){
   return base + '?text=' + encodeURIComponent(text);
 }
 
+// NUEVO: Listener para el botón Adquiere tu PIN aquí
 acquireCodeBtn.addEventListener('click', () => {
   const name = (nameInput.value || '').trim();
   const phone = (phoneInput.value || '').trim();
@@ -527,13 +512,14 @@ acquireCodeBtn.addEventListener('click', () => {
   const url = makeWhatsAppUrl(text);
   window.open(url, '_blank');
 });
+// FIN MODIFICADO de Social links
 
 
 /* --- LÓGICA DE FINALIZACIÓN (FIREBASE IMPLEMENTATION) --- */
 finishBtn.addEventListener('click', async (e) => {
   e.preventDefault();
   if(!auth || !db) {
-    showCustomAlert("Error de conexión a Firebase. Por favor, recarga la página y asegúrate de tener conexión a Internet.", true);
+    showCustomAlert("Error de conexión a Firebase. Por favor, recarga la página y asegúrate de tener conexión a Internet.", true); // MODIFICADO
     return;
   }
 
@@ -543,9 +529,11 @@ finishBtn.addEventListener('click', async (e) => {
   const name = (nameInput.value || '').trim();
   const phone = (phoneInput.value || '').trim();
 
+  // 1. Validar campos del formulario
   if (!validateName() || !validatePhone() || !validateEmail() || !validatePin() || !validateGift()) return;
 
   try {
+    // 2. VERIFICAR EL CÓDIGO DE REGALO Y SU ESTADO
     const codeRef = db.collection('giftCodes').doc(giftCode);
     const doc = await codeRef.get();
 
@@ -559,9 +547,11 @@ finishBtn.addEventListener('click', async (e) => {
       return;
     }
     
+    // 3. CREAR USUARIO EN FIREBASE AUTH
     const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
     const user = userCredential.user;
 
+    // 4. GUARDAR DATOS ADICIONALES EN FIRESTORE (Colección 'users')
     await db.collection('users').doc(user.uid).set({
       name: name,
       phone: phone,
@@ -570,39 +560,41 @@ finishBtn.addEventListener('click', async (e) => {
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
+    // 5. MARCAR CÓDIGO COMO USADO
     await codeRef.update({
       used: true,
       usedByUid: user.uid,
       usedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     
-    // REDIRECCIÓN CORREGIDA
-    localStorage.clear();
-    showCustomAlert('Registro exitoso — ¡Bienvenido a LLUTID+!');
-    setTimeout(() => { window.location.href = 'login.html'; }, 800); // <-- Cambiado a login.html
+    // 6. Finalización
+    localStorage.clear(); // NUEVO: Limpiar localStorage al finalizar con éxito
+    showCustomAlert('Registro exitoso — ¡Bienvenido a LLUTID+!'); // MODIFICADO
+    setTimeout(() => { window.location.href = 'home.html'; }, 800);
 
   } catch (error) {
     console.error("Error durante el registro:", error);
+    // Manejo de errores de Firebase
     if (error.code === 'auth/email-already-in-use') {
       errEmail.textContent = 'Este correo ya está en uso. Intenta iniciar sesión.';
-      goTo(2);
+      goTo(2); // Vuelve al paso de correo
     } else if (error.code === 'auth/weak-password') {
       errPin.textContent = 'El PIN es muy débil. Debe tener al menos 6 caracteres.'; 
-      goTo(3);
+      goTo(3); // Vuelve al paso de PIN
     } else {
-      // MENSAJE DE ERROR MEJORADO: No culpa al código de regalo
-      showCustomAlert(`Ocurrió un error durante la creación de la cuenta: ${error.message}. Por favor, revisa tus datos o inténtalo más tarde.`, true);
+      showCustomAlert(`Ocurrió un error: ${error.message}. Asegúrate de que el código de regalo sea correcto.`, true); // MODIFICADO
     }
   }
 });
 
 
-/* --- OTRAS FUNCIONES ORIGINALES --- */
+/* --- OTRAS FUNCIONES ORIGINALES (MODIFICADO: Añadido saveData al input listener) --- */
 document.addEventListener('DOMContentLoaded', () => {
     goTo(0);
-    // Añadir listeners a todos los inputs para guardar al cambiar
+    // NUEVO: Añadir listeners a todos los inputs para guardar al cambiar
     inputIds.forEach(id => {
         const input = document.getElementById(id);
+        // El input 'gift' ya tiene un listener que llama a saveData, por eso lo excluimos o lo sobrescribimos con el mismo.
         if (input && id !== 'gift') { 
             input.addEventListener('input', saveData);
         }
