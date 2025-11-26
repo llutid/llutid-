@@ -109,7 +109,7 @@
 
           <div class="stepPanel" data-step="5">
             <label for="gift">Código de acceso premium</label>
-            <input id="gift" type="text" placeholder="Ej: LLUT-R44B8" maxlength="40" />
+            <input id="gift" type="text" placeholder="Ej: LLUTD-H7J2L" maxlength="40" />
             <div class="hint" style="margin-top:10px; line-height:1.5; color:#b7d9ff">
               Llutid+ es un servicio premium. Para activar tu cuenta debes ingresar un
               <strong>código oficial y no utilizado</strong> (configurados en Firestore).
@@ -199,7 +199,7 @@
 
 
     // ----------------------------------------------------
-    // ---------- LÓGICA DE REGISTRO SEGURO CON FIREBASE ----------
+    // ---------- LÓGICA DE REGISTRO SEGURO CON FIREBASE (MODIFICADA) ----------
     // ----------------------------------------------------
     document.getElementById('submitBtn').addEventListener('click', async () => {
         const gift = document.getElementById('gift').value.trim().toUpperCase();
@@ -217,38 +217,45 @@
         document.getElementById('submitBtn').textContent = 'Creando cuenta...';
 
         try {
-            // USAMOS UNA TRANSACCIÓN: Asegura que el código se use UNA SOLA VEZ si el registro es exitoso.
+            const codeRef = db.collection('codigos').doc(gift);
+            
+            // 1. VERIFICACIÓN PRELIMINAR DEL CÓDIGO
+            const codeDoc = await codeRef.get();
+            if (!codeDoc.exists || codeDoc.data().activo !== true) {
+                throw new Error("CodigoInvalido"); 
+            }
+
+            // 2. CREAR USUARIO EN FIREBASE AUTH (¡Fuera de la transacción para evitar fallos!)
+            const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
+            const uid = userCredential.user.uid;
+
+            // 3. CONSUMIR EL CÓDIGO Y GUARDAR PERFIL (TRANSACCIÓN ATÓMICA)
             await db.runTransaction(async (transaction) => {
-                const codeRef = db.collection('codigos').doc(gift);
-                const codeDoc = await transaction.get(codeRef);
-
-                // 1. VERIFICAR CÓDIGO ÚNICO (Debe existir y estar activo: true)
-                if (!codeDoc.exists || codeDoc.data().activo !== true) {
-                    throw new Error("CodigoInvalido"); // Lanza un error personalizado
+                // Re-verificamos el código dentro de la transacción (opcional pero más seguro)
+                const codeDocInside = await transaction.get(codeRef); 
+                if (!codeDocInside.exists || codeDocInside.data().activo !== true) {
+                     // Esto solo se activará si otro usuario lo consume entre el paso 1 y 3
+                     throw new Error("CodigoYaConsumido"); 
                 }
-
-                // 2. CREAR USUARIO EN FIREBASE AUTH
-                // El PIN se usa como la contraseña de Firebase.
-                const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
-                const uid = userCredential.user.uid;
-
-                // 3. DESACTIVAR EL CÓDIGO EN FIRESTORE (CONSUMIR)
+                
+                // Consumir el código
                 transaction.update(codeRef, {
-                    activo: false, // ¡El código ya no se puede usar!
+                    activo: false, 
                     consumidoPor: uid,
                     emailUsuario: email,
                     fechaConsumo: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // 4. GUARDAR DATOS ADICIONALES DEL USUARIO (Opcional: para tu perfil de usuario)
-                await transaction.set(db.collection('usuarios').doc(uid), {
+                // Guardar datos adicionales del usuario
+                transaction.set(db.collection('usuarios').doc(uid), {
                     nombre: name,
                     telefono: document.getElementById('phone').value.trim(),
                     codigoUsado: gift,
                     fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
                 });
             }); 
-
+            // FIN DE LA TRANSACCIÓN
+            
             // Éxito: Mostrar pantalla de éxito
             localStorage.removeItem(draftKey);
             document.getElementById('regForm').style.display = 'none';
@@ -262,12 +269,13 @@
             // Manejo de errores detallado
             if (error.code === 'auth/email-already-in-use') {
                 err.textContent = 'Este correo ya está registrado.';
-            } else if (error.message === 'CodigoInvalido') {
+            } else if (error.message === 'CodigoInvalido' || error.message === 'CodigoYaConsumido') {
                 err.textContent = 'Código de acceso inválido o ya utilizado.';
             } else if (error.code === 'auth/weak-password') {
                 err.textContent = 'El PIN debe tener al menos 6 caracteres.';
             } else {
-                err.textContent = 'Error al crear la cuenta. Por favor, verifica tu conexión.';
+                // Aquí cae cualquier otro error (incluyendo el fallo de las Reglas de Seguridad de Firestore)
+                err.textContent = 'Error al crear la cuenta. Por favor, verifica tu conexión y los datos.';
             }
             err.style.display = 'block';
             document.getElementById('submitBtn').disabled = false;
@@ -275,7 +283,7 @@
         }
     });
 
-    // Redirección al login (Correcto según tu solicitud)
+    // Redirección al login
     document.getElementById('goHome').addEventListener('click', ()=>{ window.location.href = 'login.html'; });
 
     // init
@@ -283,8 +291,6 @@
   </script>
 </body>
 </html>
-
-
 
 
 
