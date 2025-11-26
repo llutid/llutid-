@@ -7,178 +7,49 @@
 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 
   <style>
+    /* Estilos CSS originales para diseño y responsividad */
     *{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
-
-    body{
-      height:100vh;
-      overflow:hidden;
-      background:#000;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-    }
-
-    /* LOGO + HELP */
-    .logo{
-      position:absolute; top:15px; left:20px; z-index:60;
-      font-weight:800; font-size:28px; display:flex; align-items:center;
-    }
+    body{height:100vh;overflow:hidden;background:#000;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;}
+    .logo{position:absolute; top:15px; left:20px; z-index:60;font-weight:800; font-size:28px; display:flex; align-items:center;}
     .logo .blue{ color:#007bff; }
     .logo .plus{ margin-left:6px; color:#fff; }
-
-    .help-btn{
-      position:absolute; top:18px; right:18px; z-index:60;
-      width:38px; height:38px; border-radius:50%;
-      background:rgba(255,255,255,0.14); backdrop-filter:blur(6px);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer; font-weight:800;
-      box-shadow:0 2px 8px rgba(0,0,0,0.35);
-    }
+    .help-btn{position:absolute; top:18px; right:18px; z-index:60;width:38px; height:38px; border-radius:50%;background:rgba(255,255,255,0.14); backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;cursor:pointer; font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.35);}
     .help-btn:hover{ transform:scale(1.06); background:rgba(255,255,255,0.24); }
-
-    /* CARRUSEL */
-    .carousel{
-      position:absolute; inset:0;
-      overflow:hidden; z-index:1;
-      background:#000;
-    }
-    .carousel img{
-      position:absolute; top:0; left:0;
-      width:100%; height:100%;
-      object-fit:cover; object-position:center center;
-      opacity:0;
-      transform:scale(1);
-      transition: opacity 1.2s ease-in-out;
-      will-change: opacity, transform;
-      z-index:0;
-    }
-
-    /* imagen visible: Ken Burns anim (forwards para quedarse escalada) */
-    .carousel img.active{
-      opacity:1;
-      z-index:30;
-      animation: zoomEffect 9000ms ease-in-out forwards;
-    }
-
-    /* imagen saliente: mantenemos el scale final mientras hace fade-out */
-    .carousel img.leaving{
-      opacity:0;
-      z-index:20;
-      transform: scale(1.12); /* coincide con el final de la animación */
-      transition: opacity 1.2s ease-in-out;
-      pointer-events:none;
-    }
-
-    @keyframes zoomEffect{
-      0%   { transform: scale(1); }
-      100% { transform: scale(1.12); }
-    }
-
-    /* GRADIENT para legibilidad */
-    .bg-gradient{
-      position:absolute; left:0; right:0; bottom:0;
-      height:56%;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.86) 100%);
-      z-index:8; pointer-events:none;
-    }
-
-    /* INFO (centrado, encima de overlay) */
-    .movie-info{
-      position:absolute; left:50%; transform:translateX(-50%);
-      bottom:38%;
-      text-align:center; z-index:40; pointer-events:none;
-      max-width:92%;
-    }
-    .movie-rank{
-      display:inline-block; 
-      background:#0056b3; 
-      color:#fff; padding:6px 10px;
-      border-radius:6px; font-weight:800; margin-bottom:8px;
-    }
-    /* Estilos para el título de texto */
-    .movie-title{
-      font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);
-      height: 2.2rem;
-    }
-    
-    /* ESTILOS ADICIONALES PARA EL LOGO COMO IMAGEN */
-    .movie-title.logo-mode{
-      font-size:0;
-      height: 120px;
-      margin-bottom:12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .movie-title.logo-mode img{
-      display:block; max-width:95%; height:auto; max-height:100%;
-      object-fit: contain;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
-      transition: transform 1.2s ease-in-out; 
-    }
-
-    .movie-sub{ 
-      display: none;
-      opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); 
-    }
-
-    @media(max-width:700px){
-      .movie-title{ font-size:1.25rem; }
-      .movie-title.logo-mode{ height: 80px; margin-bottom:10px; }
-      .movie-rank{ padding:5px 8px; font-size:0.85rem; }
-    }
-
-    /* OVERLAY CURVO (login pequeño dentro) - más transparente */
-    .overlay{
-      width:100%; padding:14px 18px 26px;
-      position:absolute; left:0; bottom:0; z-index:45;
-      background:rgba(0,0,0,0.35);
-      backdrop-filter: blur(6px);
-      clip-path: ellipse(130% 100% at 50% 100%);
-    }
+    .carousel{position:absolute; inset:0;overflow:hidden; z-index:1;background:#000;}
+    .carousel img{position:absolute; top:0; left:0;width:100%; height:100%;object-fit:cover; object-position:center center;opacity:0;transform:scale(1);transition: opacity 1.2s ease-in-out;will-change: opacity, transform;z-index:0;}
+    .carousel img.active{opacity:1;z-index:30;animation: zoomEffect 9000ms ease-in-out forwards;}
+    .carousel img.leaving{opacity:0;z-index:20;transform: scale(1.12);transition: opacity 1.2s ease-in-out;pointer-events:none;}
+    @keyframes zoomEffect{0%   { transform: scale(1); }100% { transform: scale(1.12); }}
+    .bg-gradient{position:absolute; left:0; right:0; bottom:0;height:56%;background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.86) 100%);z-index:8; pointer-events:none;}
+    .movie-info{position:absolute; left:50%; transform:translateX(-50%);bottom:38%;text-align:center; z-index:40; pointer-events:none;max-width:92%;}
+    .movie-rank{display:inline-block; background:#0056b3; color:#fff; padding:6px 10px;border-radius:6px; font-weight:800; margin-bottom:8px;}
+    .movie-title{font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);height: 2.2rem;}
+    .movie-title.logo-mode{font-size:0;height: 120px;margin-bottom:12px;display: flex;align-items: center;justify-content: center;}
+    .movie-title.logo-mode img{display:block; max-width:95%; height:auto; max-height:100%;object-fit: contain;filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));transition: transform 1.2s ease-in-out; }
+    .movie-sub{ display: none;opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); }
+    @media(max-width:700px){.movie-title{ font-size:1.25rem; }.movie-title.logo-mode{ height: 80px; margin-bottom:10px; }.movie-rank{ padding:5px 8px; font-size:0.85rem; }}
+    .overlay{width:100%; padding:14px 18px 26px;position:absolute; left:0; bottom:0; z-index:45;background:rgba(0,0,0,0.35);backdrop-filter: blur(6px);clip-path: ellipse(130% 100% at 50% 100%);}
     .login-container{ max-width:300px; margin:0 auto; }
     .login-container h3{ color:#fff; font-weight:700; margin-bottom:10px; text-align:center; }
-
     .input-group{ margin-bottom:10px; }
-    .input-group input{
-      width:100%; padding:10px 12px; border-radius:20px; border:none;
-      background:rgba(255,255,255,0.09); color:#fff; text-align:center; font-size:14px;
-    }
+    .input-group input{width:100%; padding:10px 12px; border-radius:20px; border:none;background:rgba(255,255,255,0.09); color:#fff; text-align:center; font-size:14px;}
     .input-group input:focus{ outline:none; background:rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(0,0,0,0.45); }
-
-    .login-container button{
-      width:100%; padding:10px; border-radius:20px; border:none;
-      background:linear-gradient(135deg,#007bff,#00c6ff); color:#fff; font-weight:800;
-      cursor:pointer;
-    }
+    .login-container button{width:100%; padding:10px; border-radius:20px; border:none;background:linear-gradient(135deg,#007bff,#00c6ff); color:#fff; font-weight:800;cursor:pointer;}
     .login-container button:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.45); }
-
     .suscribirse { margin-top:10px; font-size:13px; color:#ddd; text-align:center; }
     .suscribirse a { color:#fff; font-weight:800; text-decoration:none; }
     .suscribirse a:hover { color:#00c6ff; }
-
-    /* POPUPS */
-    .popup-container{
-      position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.95);
-      padding:16px 22px; border-radius:12px; z-index:70; color:#fff; font-weight:800;
-      text-align:center; opacity:0; visibility:hidden; pointer-events:none; transition:all .25s ease;
-    }
+    .popup-container{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.95);padding:16px 22px; border-radius:12px; z-index:70; color:#fff; font-weight:800;text-align:center; opacity:0; visibility:hidden; pointer-events:none; transition:all .25s ease;}
     .popup-container.show{ opacity:1; visibility:visible; pointer-events:auto; transform:translate(-50%,-50%) scale(1); }
     .success-popup{ background:rgba(0,160,80,0.95); }
     .error-popup{ background:rgba(200,20,20,0.95); }
-
-    /* INTRO */
     .intro-screen{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:75; background:#000; }
     .intro-screen.hidden{ opacity:0; visibility:hidden; pointer-events:none; transition:.6s; }
-    .logo-container{ font-size:3.6rem; font-weight:900; color:#fff; letter-spacing:4px;
-      animation: fadeInZoom 1.8s ease-out forwards, fadeOut .9s ease-in forwards 3.6s; text-shadow:0 0 12px #00bfff55; }
+    .logo-container{ font-size:3.6rem; font-weight:900; color:#fff; letter-spacing:4px;animation: fadeInZoom 1.8s ease-out forwards, fadeOut .9s ease-in forwards 3.6s; text-shadow:0 0 12px #00bfff55; }
     @keyframes fadeInZoom{ 0%{opacity:0; transform:scale(.55);} 100%{opacity:1; transform:scale(1);} }
     @keyframes fadeOut{ to{opacity:0; transform:scale(1.05);} }
-
     .sr-only{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
   </style>
 </head>
@@ -186,14 +57,14 @@
   <div class="intro-screen" id="introScreen"><div class="logo-container">LLUTID+</div></div>
 
   <div class="logo" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
-  <button class="help-btn" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/', '_blank')" aria-label="Ayuda">?</button>
+  <button class="help-btn" onclick="window.open('./registro.html', '_self')" aria-label="Ayuda">?</button>
 
   <div class="carousel" role="img" aria-label="Carrusel de imágenes">
     <img src="https://i.postimg.cc/QNn0F5tc/Whats-App-Image-2025-09-18-at-5-08-20-PM.jpg"
          alt="M3GAN" data-logo-url="https://image.tmdb.org/t/p/original/n2HRQV4G90PxtHUYhOMkPSK71bL.png" data-sub="¡YA DISPONIBLE!" data-rank="TOP 10">
-    
     <img src="https://images.hive.blog/0x0/https://www.lavanguardia.com/peliculas-series/images/movie/poster/2025/10/w300/ur3H6g9xmrLQX2Ioh9z3P904ZSC.jpg"
-         alt="¡MUY PRONTO!" data-title="¡MUY PRONTO!" data-sub="" data-rank=""> <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
+         alt="¡MUY PRONTO!" data-title="¡MUY PRONTO!" data-sub="" data-rank="">
+    <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
          alt="LA MONJA" data-logo-url="https://los40mx00.epimg.net/especiales/depelicula/la-monja/img/02.png" data-sub="¡YA DISPONIBLE!">
   </div>
 
@@ -226,7 +97,6 @@
     <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"/><path fill="none" stroke="#fff" stroke-width="3" d="M14 27l7 7 17-17"/></svg>
     Acceso exitoso
   </div>
-
   <div id="errorPopup" class="popup-container error-popup" role="alert" aria-hidden="true">
     <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"/><path fill="none" stroke="#fff" stroke-width="3" d="M16 16 36 36 M36 16 16 36"/></svg>
     Acceso denegado
@@ -234,20 +104,19 @@
   </div>
 
 <script>
-    /* 2. CONFIGURACIÓN DE FIREBASE E INICIALIZACIÓN (Ahora inicializa inmediatamente) */
-    // --- CÓDIGO ÚNICO DE TU PROYECTO ---
+    /* ---------------------------------------------------------------------------------- */
+    /* CONFIGURACIÓN DE FIREBASE (¡Ya integrada con tu llave!) */
     const firebaseConfig = {
-        apiKey: "AIzaSyDvEqfoyWEEAewyiXEIYcKqyMYbyweSI-E",
-        authDomain: "llutid-plus.firebaseapp.com",
-        projectId: "llutid-plus",
-        storageBucket: "llutid-plus.firebasestorage.app",
-        messagingSenderId: "204170283716",
-        appId: "1:204170283716:web:a244b7b383cefb4a461791"
+        apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
+        authDomain: "llutid-18d26.firebaseapp.com",
+        projectId: "llutid-18d26",
+        storageBucket: "llutid-18d26.firebasestorage.app",
+        messagingSenderId: "900505351564",
+        appId: "1:900505351564:web:e71805939e3488170652a9"
     };
-    // ------------------------------------
+    /* ---------------------------------------------------------------------------------- */
 
     let auth;
-    // Inicialización de Firebase: Se ejecuta tan pronto como este script se carga.
     if(typeof firebase !== 'undefined') {
         const app = firebase.initializeApp(firebaseConfig);
         auth = app.auth();
@@ -256,12 +125,10 @@
         alert("Error de conexión. Por favor, recarga la página.");
     }
 
-    /* ---------- CONFIG ORIGINAL (SIN CAMBIOS) ---------- */
+    /* ---------- CÓDIGO DE CARRUSEL Y POPUPS (UI Logic) ---------- */
     const ROTATION_MS = 8000; 
     const images = Array.from(document.querySelectorAll('.carousel img'));
     const titleEl = document.getElementById('title');
-    const subEl = document.getElementById('sub');
-    const rankEl = document.getElementById('rank');
     const introScreen = document.getElementById('introScreen');
     const correoInput = document.getElementById('correo');
     const pinInput = document.getElementById('pin');
@@ -271,7 +138,6 @@
     const errorPopupMessage = document.getElementById('errorPopupMessage');
     let current = -1;
 
-    /* ---------- FUNCIONES CARRUSEL y POPUPS (SIN CAMBIOS) ---------- */
     function showImage(index){
       if(index === current) return;
       const prev = current >= 0 ? images[current] : null;
@@ -291,9 +157,9 @@
         titleEl.textContent = titleText || next.alt || '';
         titleEl.classList.remove('logo-mode');
       }
-      subEl.textContent = ''; 
-      rankEl.textContent = next.dataset.rank || '';
-      rankEl.style.display = next.dataset.rank ? 'inline-block' : 'none';
+      document.getElementById('sub').textContent = ''; 
+      document.getElementById('rank').textContent = next.dataset.rank || '';
+      document.getElementById('rank').style.display = next.dataset.rank ? 'inline-block' : 'none';
       if(prev){ setTimeout(() => { prev.classList.remove('leaving'); prev.style.animation = 'none'; }, 1250); }
       current = index;
     }
@@ -307,11 +173,15 @@
       setTimeout(()=>{ errorPopup.classList.remove('show'); errorPopup.setAttribute('aria-hidden','true'); }, 2500);
     }
 
-    /* ---------- INICIALIZACIÓN (SIN CAMBIOS) ---------- */
     document.addEventListener('DOMContentLoaded', () => {
       setTimeout(()=>{ if(introScreen) introScreen.classList.add('hidden'); }, 3600);
+      
       const savedCorreo = localStorage.getItem('correo');
+      const savedPin = localStorage.getItem('pin'); 
+      
       if(savedCorreo){ correoInput.value = savedCorreo; }
+      if(savedPin){ pinInput.value = savedPin; } 
+      
       showImage(0);
       setInterval(()=> {
         const nextIndex = (current + 1) % images.length;
@@ -319,7 +189,7 @@
       }, ROTATION_MS);
     });
 
-    /* ---------- LOGIN (FIREBASE IMPLEMENTATION) ---------- */
+    /* ---------- LÓGICA DE LOGIN (FIREBASE AUTH) ---------- */
     loginButton.addEventListener('click', async () => {
         if(!auth) {
             showErrorPopup("Error de conexión. Recarga la página.");
@@ -328,7 +198,7 @@
 
         const correo = (correoInput.value || '').trim().toLowerCase();
         let pin = (pinInput.value || '').trim();
-        
+
         if(!correo || !pin){
             showErrorPopup('Debes ingresar correo y PIN');
             return;
@@ -338,13 +208,21 @@
             // Intenta iniciar sesión con Firebase Authentication
             await auth.signInWithEmailAndPassword(correo, pin);
 
-            localStorage.setItem('correo', correo); // Guarda el correo para recordar
+            localStorage.setItem('correo', correo); // Guarda el correo
+            localStorage.setItem('pin', pin);       // <-- Guarda el PIN si es exitoso
             
             showSuccessPopup();
-            setTimeout(()=>{ window.location.href = 'home.html'; }, 2000);
+            
+            // <-- MODIFICADO: Redirección a HOME.HTML tras éxito
+            setTimeout(()=>{ window.location.href = 'home.html'; }, 2000); 
 
         } catch (error) {
             console.error("Error de login:", error);
+            
+            // Lógica de error: Borra el PIN y lo vacía del campo
+            localStorage.removeItem('pin'); 
+            pinInput.value = '';           
+            
             if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                 showErrorPopup('Correo o PIN incorrecto');
             } else if (error.code === 'auth/invalid-email') {
@@ -362,14 +240,6 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
 
 
