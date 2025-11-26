@@ -1,407 +1,288 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LLUTID+</title>
+  <title>Registro • Llutid+</title>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif}
-
-    body{
-      height:100vh;
-      overflow:hidden;
-      background:#000;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-    }
-
-    /* LOGO + HELP */
-    .logo{
-      position:absolute; top:15px; left:20px; z-index:60;
-      font-weight:800; font-size:28px; display:flex; align-items:center;
-    }
-    .logo .blue{ color:#007bff; }
-    .logo .plus{ margin-left:6px; color:#fff; }
-
-    .help-btn{
-      position:absolute; top:18px; right:18px; z-index:60;
-      width:38px; height:38px; border-radius:50%;
-      background:rgba(255,255,255,0.14); backdrop-filter:blur(6px);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer; font-weight:800;
-      box-shadow:0 2px 8px rgba(0,0,0,0.35);
-    }
-    .help-btn:hover{ transform:scale(1.06); background:rgba(255,255,255,0.24); }
-
-    /* CARRUSEL */
-    .carousel{
-      position:absolute; inset:0;
-      overflow:hidden; z-index:1;
-      background:#000;
-    }
-    .carousel img{
-      position:absolute; top:0; left:0;
-      width:100%; height:100%;
-      object-fit:cover; object-position:center center;
-      opacity:0;
-      transform:scale(1);
-      transition: opacity 1.2s ease-in-out;
-      will-change: opacity, transform;
-      z-index:0;
-    }
-
-    /* imagen visible: Ken Burns anim (forwards para quedarse escalada) */
-    .carousel img.active{
-      opacity:1;
-      z-index:30;
-      animation: zoomEffect 9000ms ease-in-out forwards;
-    }
-
-    /* imagen saliente: mantenemos el scale final mientras hace fade-out */
-    .carousel img.leaving{
-      opacity:0;
-      z-index:20;
-      transform: scale(1.12); /* coincide con el final de la animación */
-      transition: opacity 1.2s ease-in-out;
-      pointer-events:none;
-    }
-
-    @keyframes zoomEffect{
-      0%   { transform: scale(1); }
-      100% { transform: scale(1.12); }
-    }
-
-    /* GRADIENT para legibilidad */
-    .bg-gradient{
-      position:absolute; left:0; right:0; bottom:0;
-      height:56%;
-      background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.86) 100%);
-      z-index:8; pointer-events:none;
-    }
-
-    /* INFO (centrado, encima de overlay) */
-    .movie-info{
-      position:absolute; left:50%; transform:translateX(-50%);
-      bottom:38%;
-      text-align:center; z-index:40; pointer-events:none;
-      max-width:92%;
-    }
-    .movie-rank{
-      display:inline-block; 
-      background:#0056b3; 
-      color:#fff; padding:6px 10px;
-      border-radius:6px; font-weight:800; margin-bottom:8px;
-    }
-    /* Estilos para el título de texto */
-    .movie-title{
-      font-size:2.0rem; font-weight:900; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);
-      height: 2.2rem;
-    }
-    
-    /* ESTILOS ADICIONALES PARA EL LOGO COMO IMAGEN */
-    .movie-title.logo-mode{
-      font-size:0;
-      height: 120px;
-      margin-bottom:12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .movie-title.logo-mode img{
-      display:block; max-width:95%; height:auto; max-height:100%;
-      object-fit: contain;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
-      transition: transform 1.2s ease-in-out; 
-    }
-
-    .movie-sub{ 
-      display: none;
-      opacity:.95; text-shadow:0 4px 12px rgba(0,0,0,0.55); 
-    }
-
-    @media(max-width:700px){
-      .movie-title{ font-size:1.25rem; }
-      .movie-title.logo-mode{ height: 80px; margin-bottom:10px; }
-      .movie-rank{ padding:5px 8px; font-size:0.85rem; }
-    }
-
-    /* OVERLAY CURVO (login pequeño dentro) - más transparente */
-    .overlay{
-      width:100%; padding:14px 18px 26px;
-      position:absolute; left:0; bottom:0; z-index:45;
-      background:rgba(0,0,0,0.35);
-      backdrop-filter: blur(6px);
-      clip-path: ellipse(130% 100% at 50% 100%);
-    }
-    .login-container{ max-width:300px; margin:0 auto; }
-    .login-container h3{ color:#fff; font-weight:700; margin-bottom:10px; text-align:center; }
-
-    .input-group{ margin-bottom:10px; }
-    .input-group input{
-      width:100%; padding:10px 12px; border-radius:20px; border:none;
-      background:rgba(255,255,255,0.09); color:#fff; text-align:center; font-size:14px;
-    }
-    .input-group input:focus{ outline:none; background:rgba(255,255,255,0.12); box-shadow:0 6px 18px rgba(0,0,0,0.45); }
-
-    .login-container button{
-      width:100%; padding:10px; border-radius:20px; border:none;
-      background:linear-gradient(135deg,#007bff,#00c6ff); color:#fff; font-weight:800;
-      cursor:pointer;
-    }
-    .login-container button:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.45); }
-
-    .suscribirse { margin-top:10px; font-size:13px; color:#ddd; text-align:center; }
-    .suscribirse a { color:#fff; font-weight:800; text-decoration:none; }
-    .suscribirse a:hover { color:#00c6ff; }
-
-    /* POPUPS */
-    .popup-container{
-      position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.95);
-      padding:16px 22px; border-radius:12px; z-index:70; color:#fff; font-weight:800;
-      text-align:center; opacity:0; visibility:hidden; pointer-events:none; transition:all .25s ease;
-    }
-    .popup-container.show{ opacity:1; visibility:visible; pointer-events:auto; transform:translate(-50%,-50%) scale(1); }
-    .success-popup{ background:rgba(0,160,80,0.95); }
-    .error-popup{ background:rgba(200,20,20,0.95); }
-
-    /* INTRO */
-    .intro-screen{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:75; background:#000; }
-    .intro-screen.hidden{ opacity:0; visibility:hidden; pointer-events:none; transition:.6s; }
-    .logo-container{ font-size:3.6rem; font-weight:900; color:#fff; letter-spacing:4px;
-      animation: fadeInZoom 1.8s ease-out forwards, fadeOut .9s ease-in forwards 3.6s; text-shadow:0 0 12px #00bfff55; }
-    @keyframes fadeInZoom{ 0%{opacity:0; transform:scale(.55);} 100%{opacity:1; transform:scale(1);} }
-    @keyframes fadeOut{ to{opacity:0; transform:scale(1.05);} }
-
-    .sr-only{ position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden; }
+    /* Estilos CSS originales para diseño y responsividad */
+    :root{--bg-dark:#05060a;--card:#071025;--glass:rgba(255,255,255,0.03);--accent1:#0d6efd;--accent2:#3bb0ff;--white:#ffffff;--muted:#9fbfe8;--radius:16px;}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+    html,body{height:100%;margin:0;background:radial-gradient(1200px 600px at 10% 10%, rgba(13,110,253,0.06), transparent 8%), radial-gradient(1000px 500px at 90% 90%, rgba(59,176,255,0.04), transparent 10%), linear-gradient(180deg,var(--bg-dark),#071428 60%);color:var(--white);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+    .card{width:100%;max-width:420px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:20px;padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 18px 50px rgba(2,6,23,0.7)}
+    .hdr{display:flex;align-items:center;gap:14px}
+    .svgLogo{width:86px;height:54px;display:block}
+    .brandTitle{display:flex;flex-direction:column}
+    .brandTitle h1{font-size:20px;margin:0;color:var(--accent1);letter-spacing:1px}
+    .brandTitle p{font-size:12px;margin-top:4px;color:var(--muted)}
+    .progressWrap{margin-top:14px}
+    .progressTrack{height:10px;background:rgba(255,255,255,0.04);border-radius:20px;overflow:hidden}
+    .progressFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent1),var(--accent2));transition:width .45s cubic-bezier(.2,.9,.2,1);box-shadow:0 6px 20px rgba(13,110,253,0.18) inset}
+    .stepsLabel{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--muted)}
+    form{margin-top:12px}
+    .panel{margin-top:8px}
+    label{display:block;font-size:13px;color:#cfe6ff;margin-bottom:8px}
+    input{width:100%;padding:12px;border-radius:12px;border:0;background:var(--glass);color:var(--white);font-size:15px}
+    input::placeholder{color:#9bbfe8}
+    .row{display:flex;gap:10px;margin-top:12px}
+    .btn{flex:1;padding:12px;border-radius:12px;border:0;background:linear-gradient(180deg,var(--accent1),var(--accent2));color:#fff;font-weight:700}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .hint{font-size:13px;color:var(--muted);margin-top:8px}
+    .error{color:#ff90a6;font-size:13px;margin-top:8px;display:none}
+    @media(max-width:420px){.card{padding:16px}.brandTitle h1{font-size:18px}}
+    .stepPanel{display:none;animation:fadeUp .36s ease both}
+    .stepPanel.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .success{display:none;text-align:center;padding:18px}
+    .success.active{display:block}
+    .foot{font-size:12px;color:rgba(159,191,232,0.6);text-align:center;margin-top:12px}
   </style>
 </head>
 <body>
-  <div class="intro-screen" id="introScreen"><div class="logo-container">LLUTID+</div></div>
+  <div class="wrap">
+    <div class="card" role="form" aria-labelledby="title">
+      <div class="hdr">
+        <svg class="svgLogo" viewBox="0 0 430 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stop-color="#0d6efd"/>
+              <stop offset="100%" stop-color="#3bb0ff"/>
+            </linearGradient>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g transform="translate(8,18)">
+            <text x="0" y="80" font-family="Inter, Arial, Helvetica, sans-serif" font-weight="800" font-size="96" fill="url(#g1)" filter="url(#glow)">LLUTID</text>
+            <rect x="366" y="28" width="18" height="48" rx="3" fill="#fff" />
+            <rect x="352" y="42" width="48" height="18" rx="3" fill="#fff" />
+          </g>
+        </svg>
 
-  <div class="logo" aria-hidden="false"><span class="blue">LLUTID</span><span class="plus">+</span></div>
-  <button class="help-btn" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/', '_blank')" aria-label="Ayuda">?</button>
-
-  <div class="carousel" role="img" aria-label="Carrusel de imágenes">
-    <img src="https://i.postimg.cc/QNn0F5tc/Whats-App-Image-2025-09-18-at-5-08-20-PM.jpg"
-         alt="M3GAN" data-logo-url="https://image.tmdb.org/t/p/original/n2HRQV4G90PxtHUYhOMkPSK71bL.png" data-sub="¡YA DISPONIBLE!" data-rank="TOP 10">
-    
-    <img src="https://images.hive.blog/0x0/https://www.lavanguardia.com/peliculas-series/images/movie/poster/2025/10/w300/ur3H6g9xmrLQX2Ioh9z3P904ZSC.jpg"
-         alt="¡MUY PRONTO!" data-title="¡MUY PRONTO!" data-sub="" data-rank=""> <img src="https://pics.filmaffinity.com/La_monja-562330123-large.jpg"
-         alt="LA MONJA" data-logo-url="https://los40mx00.epimg.net/especiales/depelicula/la-monja/img/02.png" data-sub="¡YA DISPONIBLE!">
-  </div>
-
-  <div class="bg-gradient" aria-hidden="true"></div>
-
-  <div class="movie-info" aria-live="polite">
-    <div class="movie-rank" id="rank" aria-hidden="true"></div>
-    <div class="movie-title" id="title"></div>
-    <div class="movie-sub" id="sub"></div>
-  </div>
-
-  <div class="overlay" role="region" aria-label="Área de inicio de sesión">
-    <div class="login-container">
-      <h3>Inicia sesión</h3>
-      <div class="input-group">
-        <input id="correo" type="email" placeholder="Correo electrónico" autocomplete="username">
+        <div class="brandTitle">
+          <h1 id="title">Llutid+</h1>
+          <p>Registro • App móvil</p>
+        </div>
       </div>
-      <div class="input-group">
-        <input id="pin" type="password" placeholder="PIN de acceso (4-6 dígitos)" maxlength="6" inputmode="numeric" autocomplete="current-password">
+
+      <div class="progressWrap">
+        <div class="progressTrack" aria-hidden><div class="progressFill" id="progressFill"></div></div>
+        <div class="stepsLabel" id="stepsLabel"><span>Paso 1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
       </div>
-      <button id="loginButton" type="button">Ingresar</button>
-      <div class="suscribirse">
-        ¿No tienes cuenta?<br>
-        <a href="https://api.whatsapp.com/send?phone=+573181087834&text=Hola!%20Quiero%20suscribirme%20a%20LLUTID+" target="_blank" rel="noopener">¡Suscríbete ahora!</a>
+
+      <form id="regForm" onsubmit="return false">
+        <div class="panel">
+
+          <div class="stepPanel active" data-step="1">
+            <label for="name">Nombre completo</label>
+            <input id="name" type="text" placeholder="Ej. Andrés Gómez" maxlength="80" />
+            <div class="hint">Usa tu nombre real para personalizar las recomendaciones.</div>
+            <div class="row"><button type="button" class="btn" id="to2">Siguiente</button></div>
+          </div>
+
+          <div class="stepPanel" data-step="2">
+            <label for="phone">Celular</label>
+            <input id="phone" type="tel" inputmode="numeric" placeholder="3001234567" maxlength="15" />
+            <div class="hint">Se abrirá el teclado numérico. No compartimos tu número.</div>
+            <div class="row"><button type="button" class="btn ghost" id="back2">Atrás</button><button type="button" class="btn" id="to3">Siguiente</button></div>
+          </div>
+
+          <div class="stepPanel" data-step="3">
+            <label for="email">Correo electrónico</label>
+            <input id="email" type="email" placeholder="tu@correo.com" />
+            <div class="row"><button type="button" class="btn ghost" id="back3">Atrás</button><button type="button" class="btn" id="to4">Siguiente</button></div>
+          </div>
+
+          <div class="stepPanel" data-step="4">
+            <label for="pin">PIN de 6 dígitos</label>
+            <input id="pin" type="tel" inputmode="numeric" maxlength="6" placeholder="••••••" style="letter-spacing:8px;font-weight:700;text-align:center" />
+            <div class="hint">El PIN protege tu cuenta en dispositivos móviles.</div>
+            <div class="row"><button type="button" class="btn ghost" id="back4">Atrás</button><button type="button" class="btn" id="to5">Siguiente</button></div>
+          </div>
+
+          <div class="stepPanel" data-step="5">
+            <label for="gift">Código de acceso premium</label>
+            <input id="gift" type="text" placeholder="Ej: LLUT-R44B8" maxlength="40" />
+            <div class="hint" style="margin-top:10px; line-height:1.5; color:#b7d9ff">
+              Llutid+ es un servicio premium. Para activar tu cuenta debes ingresar un
+              <strong>código oficial y no utilizado</strong> (configurados en Firestore).
+            </div>
+            
+            <div id="formError" class="error"></div>
+
+            <div class="row">
+              <button type="button" class="btn ghost" id="back5">Atrás</button>
+              <button type="button" class="btn" id="submitBtn">Crear cuenta</button>
+            </div>
+
+            <div class="hint">Aceptas los términos al crear la cuenta.</div>
+          </div>
+
+        </div>
+      </form>
+
+      <div id="success" class="success" aria-live="polite">
+        <svg width="84" height="84" viewBox="0 0 24 24" fill="none" style="margin:auto"><circle cx="12" cy="12" r="10" fill="#e6f7ff"/><path d="M7 12.5l2.5 2.5L17 8" stroke="#0d6efd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3 style="margin-top:10px;color:#cfeaff">¡Cuenta creada!</h3>
+        <p style="color:var(--muted);margin-top:6px" id="successMsg"></p>
+        <div style="margin-top:12px"><button class="btn" id="goHome">Ir a Iniciar Sesión</button></div>
       </div>
+
+      <div class="foot">Diseñado para móviles • Llutid+</div>
+
     </div>
   </div>
 
-  <div id="successPopup" class="popup-container success-popup" role="status" aria-hidden="true">
-    <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"></circle><path fill="none" stroke="#fff" stroke-width="3" d="M14 27l7 7 17-17"></path></svg>
-    Acceso exitoso
-  </div>
-
-  <div id="errorPopup" class="popup-container error-popup" role="alert" aria-hidden="true">
-    <svg width="56" height="56" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="25" fill="none" stroke="#fff" stroke-width="3"></circle><path fill="none" stroke="#fff" stroke-width="3" d="M16 16 36 36 M36 16 16 36"></path></svg>
-    Acceso denegado
-    <div id="errorPopupMessage" style="margin-top:8px;font-weight:800;"></div>
-  </div>
-
   <script>
-    /* ---------- CONFIG ---------- */
-    const ANIM_MS = 9000;
-    // const FADE_MS = 1200; // No se modificó, coincide con CSS
-    const ROTATION_MS = 8000; // AJUSTE: Más rápido, de 9500ms a 8000ms
-
-    /* ---------- ELEMENTOS ---------- */
-    const images = Array.from(document.querySelectorAll('.carousel img'));
-    const titleEl = document.getElementById('title');
-    const subEl = document.getElementById('sub');
-    const rankEl = document.getElementById('rank');
-
-    const introScreen = document.getElementById('introScreen');
-    const correoInput = document.getElementById('correo');
-    const pinInput = document.getElementById('pin');
-    const loginButton = document.getElementById('loginButton');
-
-    const successPopup = document.getElementById('successPopup');
-    const errorPopup = document.getElementById('errorPopup');
-    const errorPopupMessage = document.getElementById('errorPopupMessage');
-
-    /* ---------- Estado ---------- */
-    let current = -1;
-
-    /* ---------- FUNCIONES CARRUSEL ---------- */
-    function showImage(index){
-      if(index === current) return;
-      const prev = current >= 0 ? images[current] : null;
-      const next = images[index];
-
-      if(prev){
-        prev.classList.remove('active');
-        prev.classList.add('leaving');
-      }
-
-      next.classList.remove('leaving');
-      next.style.animation = 'none';
-      void next.offsetWidth;
-      next.style.animation = '';
-      next.classList.add('active');
-
-      const logoUrl = next.dataset.logoUrl;
-      const titleText = next.dataset.title;
-
-      if(logoUrl){
-        titleEl.innerHTML = `<img src="${logoUrl}" alt="${next.alt || 'Título de la película'}" class="logo-img">`;
-        titleEl.classList.add('logo-mode');
-      } else {
-        titleEl.textContent = titleText || next.alt || '';
-        titleEl.classList.remove('logo-mode');
-      }
-      
-      subEl.textContent = ''; // Asegura que el subtítulo esté vacío
-      
-      rankEl.textContent = next.dataset.rank || '';
-      rankEl.style.display = next.dataset.rank ? 'inline-block' : 'none';
-
-      if(prev){
-        setTimeout(() => {
-          prev.classList.remove('leaving');
-          prev.style.animation = 'none';
-        }, 1200 + 50); // Usamos FADE_MS + 50 directamente
-      }
-
-      current = index;
-    }
-
-    /* ---------- POPUPS ---------- */
-    function showSuccessPopup(){
-      successPopup.classList.add('show'); successPopup.setAttribute('aria-hidden','false');
-      setTimeout(()=>{ successPopup.classList.remove('show'); successPopup.setAttribute('aria-hidden','true'); }, 2000);
-    }
-    function showErrorPopup(msg){
-      errorPopupMessage.textContent = msg || '';
-      errorPopup.classList.add('show'); errorPopup.setAttribute('aria-hidden','false');
-      setTimeout(()=>{ errorPopup.classList.remove('show'); errorPopup.setAttribute('aria-hidden','true'); }, 2500);
-    }
-
-    /* ---------- USUARIOS (ejemplo) ---------- */
-    const usuariosRegistrados = {
-      "llutidoficial@gmail.com":"8350",
-      "luzmarinamartinez1805@gmail.com":"0607",
-      "torresqnderson0987@gmail.com":"0607",
-      "martinidia30@gmail.com":"2683",
-      "cancelado":"cancelado",
-      "ruizruizdannaelizabeth@gmail.com":"0607",
-      "ximenapm2603@gmail.com":"0607",
-      "andresmedina2508@gmail.com":"4445",
-      "jeferssonstivenf@gmail.com":"1057",
-      "duvan263009@gmail.com":"1581",
-      "pipereyes090@gmail.com":"1601",
-      "rgshigm@gmail.com":"2930",
-      "juan.m.bustos.d@gmail.com":"6352",
-      "rojasstiven016@gmail.com":"2012",
-      "jadejimenes939@gmail.com":"8080",
-      "Juanestebanhidalgomorales@gmail.com":"1477",
-      "laurasofiacruzalonso@gmail.com":"2108",
-      "alexanderdrojas12@gmail.com":"2012",
-      "jdavidsaiz10@gmail.com":"2011",
-      "oscarag2024@gmail.com":"2007",
-      "cd_rodriguez89@hotmail.com":"1322",
-      "brocheroruizs@gmail.com":"1141",
-      "sarahamortegui30@gmail.com":"2345",
-      "sbislikr@hotmail.com":"8819"
+    /* ---------------------------------------------------------------------------------- */
+    /* CONFIGURACIÓN DE FIREBASE (¡Ya integrada con tu llave!) */
+    const firebaseConfig = {
+        apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
+        authDomain: "llutid-18d26.firebaseapp.com",
+        projectId: "llutid-18d26",
+        storageBucket: "llutid-18d26.firebasestorage.app",
+        messagingSenderId: "900505351564",
+        appId: "1:900505351564:web:e71805939e3488170652a9"
     };
+    /* ---------------------------------------------------------------------------------- */
+    
+    // Inicialización de Firebase
+    let auth, db;
+    if(typeof firebase !== 'undefined') {
+        const app = firebase.initializeApp(firebaseConfig);
+        auth = app.auth();
+        db = app.firestore(); 
+    } else {
+        alert("Error: Firebase SDK no cargado.");
+    }
+    
+    const totalSteps = 5; let step = 1;
+    const panels = Array.from(document.querySelectorAll('.stepPanel'));
+    const progressFill = document.getElementById('progressFill');
+    const draftKey = 'llutid_reg_v3'; 
 
-    /* ---------- INICIALIZACIÓN ---------- */
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(()=>{ if(introScreen) introScreen.classList.add('hidden'); }, 3600);
+    // Funciones de UI y navegación (Código original)
+    (function(){ 
+      try{
+        const raw = localStorage.getItem(draftKey); if(!raw) return; const d = JSON.parse(raw);
+        ['name','phone','email','pin','gift'].forEach(k=>{ if(d[k]) document.getElementById(k).value = d[k]; });
+      }catch(e){console.warn(e)}
+    })();
+    function saveDraft(){
+      const d = {name:document.getElementById('name').value.trim(),phone:document.getElementById('phone').value.trim(),email:document.getElementById('email').value.trim(),pin:document.getElementById('pin').value.trim(),gift:document.getElementById('gift').value.trim()};
+      localStorage.setItem(draftKey, JSON.stringify(d));
+    }
+    function showStep(n){
+      step = n;
+      panels.forEach(p=>p.classList.toggle('active', Number(p.dataset.step)===n));
+      const pct = Math.round((n-1)/(totalSteps-1)*100);
+      progressFill.style.width = pct + '%';
+      document.getElementById('stepsLabel').querySelectorAll('span').forEach((s,i)=>s.style.color = i < n ? '#fff' : 'var(--muted)');
+      saveDraft();
+    }
+    document.getElementById('to2').addEventListener('click', ()=>{ const name = document.getElementById('name').value.trim(); if(!name){alert('Ingresa tu nombre');return} showStep(2)});
+    document.getElementById('back2').addEventListener('click', ()=>showStep(1));
+    document.getElementById('to3').addEventListener('click', ()=>{ const phone = document.getElementById('phone').value.trim(); if(!phone || phone.length<7){alert('Ingresa un número válido');return} showStep(3)});
+    document.getElementById('back3').addEventListener('click', ()=>showStep(2));
+    document.getElementById('to4').addEventListener('click', ()=>{ const email = document.getElementById('email').value.trim(); if(!email || !email.includes('@')){alert('Ingresa un correo válido');return} showStep(4)});
+    document.getElementById('back4').addEventListener('click', ()=>showStep(3));
+    document.getElementById('to5').addEventListener('click', ()=>{ const pin = document.getElementById('pin').value.trim(); if(!/^\d{6}$/.test(pin)){alert('El PIN debe tener 6 dígitos');return} showStep(5)});
+    document.getElementById('back5').addEventListener('click', ()=>showStep(4));
+    const pinInput = document.getElementById('pin'); pinInput.addEventListener('focus', ()=>{ setTimeout(()=>{ pinInput.setAttribute('inputmode','numeric'); pinInput.setAttribute('pattern','[0-9]*') },50) });
 
-      const savedCorreo = localStorage.getItem('correo');
-      const savedPin = localStorage.getItem('pin');
-      if(savedCorreo && savedPin){
-        correoInput.value = savedCorreo;
-        pinInput.type = 'text';
-        pinInput.value = '●'.repeat(Math.max(0, savedPin.length - 1)) + savedPin.slice(-1);
-        pinInput.dataset.realPin = savedPin;
-      }
 
-      showImage(0);
+    // ----------------------------------------------------
+    // ---------- LÓGICA DE REGISTRO SEGURO CON FIREBASE ----------
+    // ----------------------------------------------------
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+        const gift = document.getElementById('gift').value.trim().toUpperCase();
+        const err = document.getElementById('formError');
+        err.style.display = 'none';
+        
+        const email = document.getElementById('email').value.trim();
+        const pin = document.getElementById('pin').value.trim();
+        const name = document.getElementById('name').value.trim();
 
-      setInterval(()=> {
-        const nextIndex = (current + 1) % images.length;
-        showImage(nextIndex);
-      }, ROTATION_MS);
+        if (!gift) { err.textContent = 'Introduce un código de acceso premium.'; err.style.display = 'block'; return; }
+        if (!auth || !db) { err.textContent = 'Error de conexión con Firebase. Recarga la página.'; err.style.display = 'block'; return; }
+        
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').textContent = 'Creando cuenta...';
+
+        try {
+            // USAMOS UNA TRANSACCIÓN: Asegura que el código se use UNA SOLA VEZ si el registro es exitoso.
+            await db.runTransaction(async (transaction) => {
+                const codeRef = db.collection('codigos').doc(gift);
+                const codeDoc = await transaction.get(codeRef);
+
+                // 1. VERIFICAR CÓDIGO ÚNICO (Debe existir y estar activo: true)
+                if (!codeDoc.exists || codeDoc.data().activo !== true) {
+                    throw new Error("CodigoInvalido"); // Lanza un error personalizado
+                }
+
+                // 2. CREAR USUARIO EN FIREBASE AUTH
+                // El PIN se usa como la contraseña de Firebase.
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pin);
+                const uid = userCredential.user.uid;
+
+                // 3. DESACTIVAR EL CÓDIGO EN FIRESTORE (CONSUMIR)
+                transaction.update(codeRef, {
+                    activo: false, // ¡El código ya no se puede usar!
+                    consumidoPor: uid,
+                    emailUsuario: email,
+                    fechaConsumo: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 4. GUARDAR DATOS ADICIONALES DEL USUARIO (Opcional: para tu perfil de usuario)
+                await transaction.set(db.collection('usuarios').doc(uid), {
+                    nombre: name,
+                    telefono: document.getElementById('phone').value.trim(),
+                    codigoUsado: gift,
+                    fechaRegistro: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }); 
+
+            // Éxito: Mostrar pantalla de éxito
+            localStorage.removeItem(draftKey);
+            document.getElementById('regForm').style.display = 'none';
+            const s = document.getElementById('success');
+            s.classList.add('active');
+            document.getElementById('successMsg').textContent = `¡${name.split(' ')[0] || 'Usuario'}! Tu cuenta Llutid+ está lista. Haz clic para iniciar sesión.`;
+
+        } catch (error) {
+            console.error("Error de registro:", error.code || error.message);
+            
+            // Manejo de errores detallado
+            if (error.code === 'auth/email-already-in-use') {
+                err.textContent = 'Este correo ya está registrado.';
+            } else if (error.message === 'CodigoInvalido') {
+                err.textContent = 'Código de acceso inválido o ya utilizado.';
+            } else if (error.code === 'auth/weak-password') {
+                err.textContent = 'El PIN debe tener al menos 6 caracteres.';
+            } else {
+                err.textContent = 'Error al crear la cuenta. Por favor, verifica tu conexión.';
+            }
+            err.style.display = 'block';
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('submitBtn').textContent = 'Crear cuenta';
+        }
     });
 
-    /* ---------- PIN: focus para editar si estaba enmascarado ---------- */
-    pinInput.addEventListener('focus', () => {
-      if(pinInput.dataset.realPin){
-        pinInput.value = '';
-        pinInput.type = 'password';
-        delete pinInput.dataset.realPin;
-      }
-    });
+    // Redirección al login (Correcto según tu solicitud)
+    document.getElementById('goHome').addEventListener('click', ()=>{ window.location.href = 'login.html'; });
 
-    /* ---------- LOGIN ---------- */
-    loginButton.addEventListener('click', () => {
-      const correo = (correoInput.value || '').trim().toLowerCase();
-      let pin = (pinInput.value || '').trim();
-      if(pinInput.dataset.realPin) pin = pinInput.dataset.realPin;
-
-      if(!correo || !pin){
-        showErrorPopup('Debes ingresar correo y PIN');
-        return;
-      }
-      if(!usuariosRegistrados.hasOwnProperty(correo)){
-        showErrorPopup('El correo no está registrado');
-        return;
-      }
-      if(usuariosRegistrados[correo] === pin){
-        localStorage.setItem('correo', correo);
-        localStorage.setItem('pin', pin);
-        showSuccessPopup();
-        setTimeout(()=>{ window.location.href = 'home.html'; }, 2000);
-      } else {
-        showErrorPopup('PIN incorrecto');
-      }
-    });
-
-    [correoInput, pinInput].forEach(inp => {
-      inp.addEventListener('keydown', (e) => { if(e.key === 'Enter') loginButton.click(); });
-    });
-
+    // init
+    showStep(1);
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
