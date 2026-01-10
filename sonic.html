@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LLUTID+ | Sonic: La Película</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Netflix Sans', 'Roboto', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- Intro Screen --- */
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo-container-intro {
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            opacity: 0;
+            letter-spacing: 4px;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        @keyframes fadeInZoom {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: scale(1.05); }
+        }
+
+        .main-content {
+            display: none;
+            flex-grow: 1;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1e90ff;
+            text-decoration: none;
+        }
+        .header-logo span { color: white; }
+
+        /* --- Movie Hero --- */
+        .movie-hero {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; 
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .movie-hero .video-background {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        .movie-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 20%, rgba(0,0,0,0) 60%);
+            z-index: 2;
+        }
+
+        /* Título y contenido bajados al máximo */
+        .movie-overlay-content {
+            position: absolute;
+            bottom: 5px; /* Bajado 3 veces más */
+            left: 20px;
+            right: 20px;
+            z-index: 3;
+            color: #fff;
+        }
+
+        .movie-badge {
+            background-color: #1e90ff;
+            color: #fff;
+            padding: 3px 7px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-block;
+            margin-bottom: 0px;
+        }
+
+        .movie-title-main {
+            font-size: 2.1rem;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+        }
+
+        .movie-info-line {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #ccc;
+            margin-top: 4px;
+        }
+        .movie-info-line span { margin-right: 12px; }
+
+        /* --- Actions --- */
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 10px 20px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        /* Botón Play / Ver */
+        .btn-play { background-color: #282828; color: #fff; }
+        
+        /* ESTADO "VER OTRA VEZ" (Barra blanca con letras negras) */
+        .btn-play.loaded-state { 
+            background-color: #fff !important; 
+            color: #000 !important; 
+        }
+        .btn-play.loaded-state .btn-text, 
+        .btn-play.loaded-state i { 
+            color: #000 !important; 
+            z-index: 2;
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            top: 0; left: 0; height: 100%; width: 0;
+            background-color: #fff; z-index: 0;
+        }
+
+        @keyframes fillProgressBar { from { width: 0; } to { width: 100%; } }
+        .btn-play.loading .progress-bar-fill { animation: fillProgressBar 22s linear forwards; }
+        
+        /* Texto negro cuando la barra blanca está cargando */
+        .btn-play.loading .btn-text, 
+        .btn-play.loading i { 
+            color: #000 !important; 
+            position: relative; 
+            z-index: 2; 
+        }
+
+        .btn-share { background-color: #282828; color: #fff; }
+
+        .watched-progress-container {
+            width: 100%; height: 5px; background-color: #404040;
+            border-radius: 10px; overflow: hidden; display: none;
+        }
+        .watched-progress-bar { height: 100%; background-color: #1e90ff; transition: width 0.5s; }
+
+        /* --- Detalles --- */
+        .details-section { padding: 0 20px; margin-bottom: 40px; }
+        .summary { font-size: 0.95rem; line-height: 1.4; color: #ccc; }
+        .info-details { font-size: 0.85rem; color: #a3a3a3; margin-top: 10px; }
+
+        .player-fullscreen-container {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000; z-index: 9999;
+        }
+        .player-fullscreen-container iframe { width: 100%; height: 100%; border: none; }
+
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+    </style>
+</head>
+<body>
+
+    <div class="intro-screen">
+        <div class="logo-container-intro">LLUTID</div>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <i class="fas fa-arrow-left header-back"></i> 
+                <a href="home.html" class="header-logo">Llutid<span>+</span></a>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-cast"></i> <i class="fas fa-user-circle"></i> 
+            </div>
+        </header>
+
+        <section class="movie-hero">
+            <div class="video-background">
+                <iframe
+                    id="vimeoTrailer"
+                    src="https://player.vimeo.com/video/1153053340?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;background=1"
+                    frameborder="0"
+                    allow="autoplay; fullscreen"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                </iframe>
+            </div>
+            <div class="movie-overlay-content">
+                <div class="movie-badge">PELÍCULA</div>
+                <h1 class="movie-title-main">Sonic: La Película</h1>
+                <div class="movie-info-line">
+                    <span>2020</span>
+                    <span style="border:1px solid #ccc; padding: 0 4px; border-radius:3px; font-size: 0.7rem;">PG</span>
+                    <span>99 min</span>
+                    <span>4K Ultra HD</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn btn-play" id="playButton">
+                <span class="progress-bar-fill"></span>
+                <i class="fas fa-play" style="margin-right:8px;"></i>
+                <span class="btn-text">Ver</span>
+            </button>
+            <button class="btn btn-share" id="shareButton">
+                <i class="fas fa-share-alt" style="margin-right:8px;"></i> Compartir
+            </button>
+            
+            <div class="watched-progress-container" id="watchedProgressBarContainer">
+                <div class="watched-progress-bar" id="watchedProgressBar"></div>
+            </div>
+        </section>
+
+        <section class="details-section">
+            <p class="summary">
+                Sonic intenta navegar por las complejidades de la vida en la Tierra con su nuevo mejor amigo, un humano llamado Tom Wachowski. Pronto deben unir fuerzas para evitar que el malvado Dr. Robotnik capture a Sonic para dominar el mundo.
+            </p>
+            <div class="info-details">
+                <strong>Género:</strong> Aventura / Comedia / Acción<br>
+                <strong>Idioma:</strong> Español Latino<br>
+                <strong>Estreno:</strong> 2020
+            </div>
+        </section>
+    </div>
+
+    <div id="playerFullscreenContainer" class="player-fullscreen-container">
+        <iframe id="movieIframe" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const playButton = document.getElementById('playButton');
+        const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
+        const movieIframe = document.getElementById('movieIframe');
+        const shareButton = document.getElementById('shareButton');
+        const progressBarFill = playButton.querySelector('.progress-bar-fill');
+        const watchedProgressBarContainer = document.getElementById('watchedProgressBarContainer');
+        const watchedProgressBar = document.getElementById('watchedProgressBar');
+        const vimeoTrailer = document.getElementById('vimeoTrailer');
+
+        const BASE_DRIVE_URL = "https://drive.google.com/file/d/1eZRrUzGKq4MzbwGIVFO_zfHvkDPfv1wl/preview"; 
+        const MOVIE_WATCHED_KEY = 'movieWatched_Sonic_v1'; 
+        const MOVIE_PROGRESS_KEY = 'movieProgress_Sonic_v1'; 
+        const MOVIE_DURATION_MINUTES = 99;
+
+        let hasOpened = false;
+
+        setTimeout(() => {
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            
+            if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
+                setButtonToWatchedState();
+            } else {
+                startPlayButtonAnimation();
+            }
+            updateWatchedProgressBar();
+        }, 5500);
+
+        function setButtonToWatchedState() {
+            playButton.classList.remove('loading');
+            playButton.classList.add('loaded-state');
+            progressBarFill.style.width = '100%';
+            playButton.querySelector('.btn-text').textContent = 'Ver otra vez';
+        }
+
+        function startPlayButtonAnimation() {
+            playButton.classList.add('loading');
+            progressBarFill.style.transition = 'width 22s linear';
+            setTimeout(() => { progressBarFill.style.width = '100%'; }, 50);
+            setTimeout(() => { if (!hasOpened) openMovieFullscreen(); }, 22000);
+        }
+
+        function openMovieFullscreen() {
+            if (hasOpened) return;
+            hasOpened = true;
+            setButtonToWatchedState();
+            localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+            playerFullscreenContainer.style.display = 'block';
+            movieIframe.src = BASE_DRIVE_URL;
+            vimeoTrailer.contentWindow.postMessage('{"method":"pause"}', '*');
+            if (playerFullscreenContainer.requestFullscreen) playerFullscreenContainer.requestFullscreen();
+        }
+
+        function updateWatchedProgressBar() {
+            const current = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+            const pct = (current / MOVIE_DURATION_MINUTES) * 100;
+            if (pct > 0) {
+                watchedProgressBarContainer.style.display = 'block';
+                watchedProgressBar.style.width = pct + '%';
+            }
+        }
+
+        playButton.addEventListener('click', openMovieFullscreen);
+
+        shareButton.addEventListener('click', () => {
+            const shareText = "¡Mira Sonic en LLUTID+! ⚡️";
+            window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+        });
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                playerFullscreenContainer.style.display = 'none';
+                movieIframe.src = "";
+                hasOpened = false;
+                vimeoTrailer.contentWindow.postMessage('{"method":"play"}', '*');
+            }
+        });
+    </script>
+</body>
+</html>
