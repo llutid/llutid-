@@ -6,7 +6,6 @@
     <title>LLUTID+ | Sonic: La Película</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
         @font-face {
@@ -111,10 +110,9 @@
             z-index: 2;
         }
 
-        /* Título y contenido bajados al máximo */
         .movie-overlay-content {
             position: absolute;
-            bottom: 5px; /* Bajado 3 veces más */
+            bottom: 5px;
             left: 20px;
             right: 20px;
             z-index: 3;
@@ -173,10 +171,8 @@
             transition: 0.3s;
         }
 
-        /* Botón Play / Ver */
         .btn-play { background-color: #282828; color: #fff; }
         
-        /* ESTADO "VER OTRA VEZ" (Barra blanca con letras negras) */
         .btn-play.loaded-state { 
             background-color: #fff !important; 
             color: #000 !important; 
@@ -196,7 +192,6 @@
         @keyframes fillProgressBar { from { width: 0; } to { width: 100%; } }
         .btn-play.loading .progress-bar-fill { animation: fillProgressBar 22s linear forwards; }
         
-        /* Texto negro cuando la barra blanca está cargando */
         .btn-play.loading .btn-text, 
         .btn-play.loading i { 
             color: #000 !important; 
@@ -247,10 +242,11 @@
             <div class="video-background">
                 <iframe
                     id="vimeoTrailer"
-                    src="https://player.vimeo.com/video/1153053340?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;background=1"
+                    src="https://player.vimeo.com/video/1153053340?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=0"
                     frameborder="0"
-                    allow="autoplay; fullscreen"
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;"
+                    title="Sonic Trailer">
                 </iframe>
             </div>
             <div class="movie-overlay-content">
@@ -296,6 +292,7 @@
         <iframe id="movieIframe" src="" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
     </div>
 
+    <script src="https://player.vimeo.com/api/player.js"></script>
     <script>
         const playButton = document.getElementById('playButton');
         const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
@@ -313,10 +310,16 @@
 
         let hasOpened = false;
 
+        // Se inicializa el reproductor de Vimeo para poder controlarlo por API
+        const player = new Vimeo.Player(vimeoTrailer);
+
         setTimeout(() => {
             document.querySelector('.intro-screen').style.display = 'none';
             document.querySelector('.main-content').style.display = 'block';
             
+            // Intentar reproducir con sonido tras la interacción de espera
+            player.setVolume(1).catch(error => console.log("Audio bloqueado por el navegador"));
+
             if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
                 setButtonToWatchedState();
             } else {
@@ -346,7 +349,7 @@
             localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
             playerFullscreenContainer.style.display = 'block';
             movieIframe.src = BASE_DRIVE_URL;
-            vimeoTrailer.contentWindow.postMessage('{"method":"pause"}', '*');
+            player.pause(); // Pausa el tráiler
             if (playerFullscreenContainer.requestFullscreen) playerFullscreenContainer.requestFullscreen();
         }
 
@@ -371,7 +374,7 @@
                 playerFullscreenContainer.style.display = 'none';
                 movieIframe.src = "";
                 hasOpened = false;
-                vimeoTrailer.contentWindow.postMessage('{"method":"play"}', '*');
+                player.play(); // Reanuda el tráiler al salir de pantalla completa
             }
         });
     </script>
