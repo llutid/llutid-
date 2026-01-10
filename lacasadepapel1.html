@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>LLUTID+ | La Casa de Papel T1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Netflix Sans', 'Roboto', sans-serif;
+            background-color: #000; color: #fff; margin: 0; padding: 0; overflow-x: hidden;
+        }
+
+        /* Intro Original */
+        .intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #000, #0a0a0a);
+            display: flex; justify-content: center; align-items: center; z-index: 10000;
+        }
+        .logo-container-intro {
+            font-size: 4rem; font-weight: 800; color: white; opacity: 0;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            font-family: 'Montserrat', sans-serif;
+            text-shadow: 0 0 20px rgba(30, 144, 255, 0.6);
+        }
+        @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(1.05); } }
+
+        .main-content { display: none; }
+
+        /* Header */
+        header {
+            padding: 15px 20px; background: rgba(0,0,0,0.9);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header-logo { font-size: 1.5rem; font-weight: 900; color: #1e90ff; text-decoration: none; }
+        .header-logo span { color: #fff; }
+
+        /* Trailer - Sin Controles */
+        .video-container { width: 100%; aspect-ratio: 16 / 9; background: #000; position: relative; overflow: hidden; }
+        .video-container iframe { 
+            width: 100%; height: 100%; border: none; 
+            pointer-events: none; /* Evita que el usuario interactúe con el trailer */
+            transform: scale(1.1); /* Oculta posibles bordes negros */
+        }
+
+        /* Info */
+        .info-section { padding: 20px; background: #000; }
+        .badges-container { display: flex; gap: 8px; margin-bottom: 15px; }
+        .badge-serie { background: #1e90ff; padding: 4px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: 900; }
+        .badge-parte { background: #e50914; padding: 4px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: 900; }
+        .serie-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 10px 0; }
+        .serie-desc { color: #aaa; font-size: 0.95rem; line-height: 1.4; max-width: 800px; margin-bottom: 25px; }
+
+        /* Botón Continuar Temporada 2 */
+        .btn-container { display: flex; justify-content: center; width: 100%; margin-bottom: 30px; }
+        .btn-next-season {
+            background: #fff; color: #000; border: none; padding: 14px; width: 95%; 
+            border-radius: 5px; font-weight: 700; font-size: 1rem; text-decoration: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: 0.3s;
+        }
+        .btn-next-season:hover { background: #e6e6e6; transform: scale(1.02); }
+
+        /* Episodios */
+        .episodes-section { padding: 20px; }
+        .section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; color: #1e90ff; }
+        .episodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .episode-card {
+            background: #141414; border-radius: 10px; overflow: hidden;
+            cursor: pointer; position: relative; border: 1px solid #222; transition: 0.3s;
+        }
+        .episode-card:hover { border-color: #1e90ff; transform: scale(1.05); }
+        .number-bg { height: 110px; display: flex; justify-content: center; align-items: center; background: #0f0f0f; position: relative; overflow: hidden; }
+        .big-number { font-family: 'Montserrat', sans-serif; font-size: 5.5rem; font-weight: 900; background: linear-gradient(to bottom, #444, #111); -webkit-background-clip: text; -webkit-text-fill-color: transparent; opacity: 0.6; position: absolute; bottom: -20px; right: 5px; }
+        .play-overlay { position: absolute; color: #fff; font-size: 1.8rem; opacity: 0.9; }
+        .episode-info { padding: 10px; }
+        .ep-label { color: #1e90ff; font-size: 0.7rem; font-weight: 900; }
+        .ep-name { font-size: 0.8rem; font-weight: 700; margin-top: 4px; color: #efefef; }
+
+        /* PLAYER FULLSCREEN */
+        #player {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 99999;
+        }
+        #videoIframe { width: 100%; height: 100%; border: none; }
+        .close-btn { 
+            position: absolute; top: 30px; left: 30px; z-index: 100000; 
+            font-size: 2.5rem; cursor: pointer; color: white;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+        }
+
+        @media (max-width: 600px) { .episodes-grid { grid-template-columns: 1fr 1fr; gap: 10px; } }
+    </style>
+</head>
+<body>
+
+    <div class="intro-screen" id="intro">
+        <div class="logo-container-intro">LLUTID</div>
+    </div>
+
+    <div class="main-content" id="content">
+        <header>
+            <a href="#" class="header-logo">Llutid<span>+</span></a>
+            <i class="fas fa-user-circle fa-lg"></i>
+        </header>
+
+        <div class="video-container">
+            <iframe id="vimeoTrailer" 
+                src="https://player.vimeo.com/video/1153076684?badge=0&autopause=0&autoplay=1&loop=1&muted=0&controls=0&background=1" 
+                allow="autoplay; fullscreen"></iframe>
+        </div>
+
+        <section class="info-section">
+            <div class="badges-container">
+                <span class="badge-serie">SERIE</span>
+                <span class="badge-parte">PARTE 1</span>
+            </div>
+            <h1 class="serie-title">La Casa de Papel</h1>
+            <p class="serie-desc">Un misterioso personaje, apodado el Profesor, planea el mayor atraco de la historia: entrar en la Fábrica Nacional de Moneda y Timbre e imprimir 2.400 millones de euros.</p>
+            <div class="btn-container">
+                <a href="lacasadepapel2.html" class="btn-next-season">
+                    <i class="fas fa-step-forward"></i> Continuar con Temporada 2
+                </a>
+            </div>
+        </section>
+
+        <section class="episodes-section">
+            <h2 class="section-title">Episodios - Temporada 1</h2>
+            <div class="episodes-grid" id="grid"></div>
+        </section>
+    </div>
+
+    <div id="player">
+        <i class="fas fa-arrow-left close-btn" id="close"></i>
+        <iframe id="videoIframe" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <script>
+        const episodes = [
+            { n: 1, title: "Efectuar lo acordado", url: "https://drive.google.com/file/d/1I7qaVi0wrmO46Qz_li8NMFtz4nJjXTAY/preview" },
+            { n: 2, title: "Imprudencias letales", url: "https://drive.google.com/file/d/1M0u3Zh92hY42rpVBSmuc4lTKV89SeLXn/preview" },
+            { n: 3, title: "Errar al disparar", url: "https://drive.google.com/file/d/18uZz0lTcZXJXveAaNZguUbEH12j0P2Dh/preview" },
+            { n: 4, title: "Caballo de Troya", url: "https://drive.google.com/file/d/1YXiHWlkmHj_qmzkGAZg3Oci5DBS32I5z/preview" },
+            { n: 5, title: "El día de la marmota", url: "https://drive.google.com/file/d/1lHJDfPAntaqeSVzoMYyhIJ6dgpOjvjHQ/preview" },
+            { n: 6, title: "La cálida Guerra Fría", url: "https://drive.google.com/file/d/1x53NIiuiovCB0-E-kbXJTEvRXlzhZvJZ/preview" },
+            { n: 7, title: "Refrigerada inestabilidad", url: "https://drive.google.com/file/d/1TZhuuyak1Mni-mS62ZQQDsin0-mQxmpA/preview" },
+            { n: 8, title: "Tú lo has buscado", url: "https://drive.google.com/file/d/1WAbS2IZc5Zg56YP1eKTDYEuzmXQQm5lF/preview" },
+            { n: 9, title: "La codicia", url: "https://drive.google.com/file/d/1DsP6bPTLzTY3hba60n5ZtFrMMZkc6KD6/preview" }
+        ];
+
+        const grid = document.getElementById('grid');
+        const playerDiv = document.getElementById('player');
+        const videoIframe = document.getElementById('videoIframe');
+        const trailerIframe = document.getElementById('vimeoTrailer');
+        const vimeoPlayer = new Vimeo.Player(trailerIframe);
+
+        episodes.forEach(ep => {
+            const card = document.createElement('div');
+            card.className = 'episode-card';
+            card.innerHTML = `<div class="number-bg"><span class="big-number">${ep.n}</span><i class="fas fa-play play-overlay"></i></div><div class="episode-info"><span class="ep-label">CAPÍTULO ${ep.n}</span><div class="ep-name">${ep.title}</div></div>`;
+            
+            card.onclick = () => {
+                vimeoPlayer.pause();
+                videoIframe.src = ep.url;
+                playerDiv.style.display = 'block';
+                if (playerDiv.requestFullscreen) { playerDiv.requestFullscreen(); }
+                else if (playerDiv.webkitRequestFullscreen) { playerDiv.webkitRequestFullscreen(); }
+            };
+            grid.appendChild(card);
+        });
+
+        document.getElementById('close').onclick = () => {
+            playerDiv.style.display = 'none';
+            videoIframe.src = "";
+            vimeoPlayer.play();
+            if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
+        };
+
+        // Lógica de Intro y Sonido
+        setTimeout(() => {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            
+            vimeoPlayer.setVolume(1).catch(() => {
+                console.log("El audio requiere interacción previa.");
+            });
+        }, 5500);
+    </script>
+</body>
+</html>
