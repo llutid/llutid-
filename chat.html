@@ -26,8 +26,8 @@
         .content-scroll { height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 150px; }
         .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #111; cursor: pointer; }
         
-        /* AVATAR ESTILO CIRCULAR */
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; border: 2px solid transparent; flex-shrink: 0; }
+        /* AVATAR CIRCULAR */
+        .avatar { width: 52px; height: 52px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; border: 2px solid transparent; flex-shrink: 0; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .bottom-nav {
@@ -39,13 +39,13 @@
         .bottom-nav button { background: none; border: none; color: #aeb0b5; display: flex; flex-direction: column; align-items: center; font-size: 11px; flex: 1; gap: 4px; }
         .btn-active { color: var(--accent-blue) !important; }
 
-        /* MODAL PERFIL MEJORADO */
+        /* MODAL PERFIL DESLIZANTE */
         #profile-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 6000; display: none; align-items: flex-end; }
-        .profile-card { background: var(--bg-panel); width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px; animation: slideUp 0.3s ease-out; }
+        .profile-card { background: var(--bg-panel); width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px; animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-        .avatar-option { width: 60px; height: 60px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+        .avatar-option { width: 100%; aspect-ratio: 1; border-radius: 50%; border: 3px solid transparent; cursor: pointer; object-fit: cover; }
         .avatar-option.selected { border-color: var(--azul-rey); }
 
         .full-screen { position: fixed; inset: 0; background: #000; z-index: 2500; display: none; flex-direction: column; }
@@ -55,8 +55,8 @@
         .chat-footer { position: fixed; bottom: 95px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2600; }
         .chat-footer input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid #444; padding: 15px; border-radius: 30px; color: white; outline: none; }
         
-        #group-creation-bar { display: none; background: var(--azul-rey); padding: 12px 20px; justify-content: space-between; align-items: center; }
-        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; }
+        #group-creation-bar { display: none; background: var(--azul-rey); padding: 12px 20px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -64,14 +64,14 @@
     <div id="profile-modal" onclick="if(event.target === this) toggleProfile(false)">
         <div class="profile-card">
             <div style="width: 50px; height: 5px; background: #333; border-radius: 10px; margin: 0 auto 20px;"></div>
-            <h2 id="p-name" style="text-align:center; margin-bottom:5px;">Cargando...</h2>
-            <p id="p-email" style="text-align:center; color:gray; font-size:14px; margin-bottom:20px;"></p>
+            <h2 id="p-name" style="text-align:center; margin-bottom:5px;">Nombre</h2>
+            <p id="p-email" style="text-align:center; color:gray; font-size:14px; margin-bottom:20px;">correo@ejemplo.com</p>
             
-            <p style="font-weight:bold; margin-bottom:10px;">Elige tu avatar:</p>
+            <p style="font-weight:bold; margin-bottom:10px;">Elige un Avatar:</p>
             <div class="avatar-grid" id="avatar-selector"></div>
             
-            <p style="font-weight:bold; margin-bottom:10px;">O pega una URL propia:</p>
-            <input type="text" id="custom-avatar-url" placeholder="https://imagen.com/foto.jpg" style="width:100%; padding:12px; border-radius:10px; background:#111; border:1px solid #333; color:white; margin-bottom:20px;">
+            <p style="font-weight:bold; margin-bottom:10px;">O pega URL de imagen:</p>
+            <input type="text" id="custom-avatar-url" placeholder="https://..." style="width:100%; padding:12px; border-radius:10px; background:#111; border:1px solid #333; color:white; margin-bottom:20px;">
             
             <button onclick="saveProfile()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:15px; font-weight:bold; margin-bottom:10px;">GUARDAR CAMBIOS</button>
             <button onclick="auth.signOut()" style="width:100%; padding:15px; background:#ff444422; color:#ff4444; border:none; border-radius:15px; font-weight:bold;">CERRAR SESIÓN</button>
@@ -97,8 +97,8 @@
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div class="logo-text"><span class="logo-llutid">Llutid</span><span class="logo-plus">+</span></div>
                 <div style="display:flex; gap:20px;">
-                    <i class="fas fa-plus-square" onclick="startGroupMode()" style="font-size:22px;"></i>
-                    <i class="fas fa-user-circle" onclick="toggleProfile(true)" style="font-size:22px;"></i>
+                    <i class="fas fa-plus-square" onclick="startGroupMode()" style="font-size:22px; cursor:pointer;"></i>
+                    <i class="fas fa-user-circle" onclick="toggleProfile(true)" style="font-size:22px; cursor:pointer;"></i>
                 </div>
             </div>
             <div class="top-tabs">
@@ -116,19 +116,19 @@
         <div style="width:80%; margin-top:30px;">
             <input type="text" id="reg-name" placeholder="Nombre de usuario" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; background:#111; border:1px solid #333; color:white;">
             <input type="email" id="reg-email" placeholder="Correo electrónico" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; background:#111; border:1px solid #333; color:white;">
-            <input type="password" id="reg-pin" placeholder="PIN (mín. 6)" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; background:#111; border:1px solid #333; color:white;">
-            <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">ENTRAR</button>
+            <input type="password" id="reg-pin" placeholder="PIN (mín. 6 caracteres)" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; background:#111; border:1px solid #333; color:white;">
+            <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">ENTRAR / REGISTRAR</button>
         </div>
     </div>
 
     <div id="chat-window" class="full-screen">
         <div class="header" style="display:flex; align-items:center; gap:15px; justify-content: space-between;">
             <div style="display:flex; align-items:center; gap:12px;">
-                <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-                <div id="chat-avatar-top" class="avatar" style="width:35px; height:35px; margin:0; font-size:14px;"></div>
+                <i class="fas fa-arrow-left" onclick="closeChat()" style="cursor:pointer; padding:5px;"></i>
+                <div id="chat-avatar-top" class="avatar" style="width:38px; height:38px; margin:0; font-size:14px;"></div>
                 <div id="chat-name-top" style="font-weight:bold; font-size:16px;">Chat</div>
             </div>
-            <i class="fas fa-ellipsis-v" id="btn-group-options" style="padding:10px; display:none;" onclick="showChatOptions()"></i>
+            <i class="fas fa-ellipsis-v" id="btn-group-options" style="padding:10px; display:none; cursor:pointer;" onclick="showChatOptions()"></i>
         </div>
         <div id="msg-box" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:5px;"></div>
         <div class="chat-footer">
@@ -191,47 +191,12 @@
             const email = document.getElementById('reg-email').value;
             const pin = document.getElementById('reg-pin').value;
             const name = document.getElementById('reg-name').value || email.split('@')[0];
-            if(pin.length < 6) return alert("El PIN debe tener al menos 6 números");
+            if(pin.length < 6) return alert("El PIN debe tener al menos 6 caracteres");
             try { await auth.signInWithEmailAndPassword(email, pin); } 
             catch {
                 const res = await auth.createUserWithEmailAndPassword(email, pin);
                 await db.ref('users/' + res.user.uid).set({ uid: res.user.uid, nombre: name, email, avatar: '' });
             }
-        }
-
-        function toggleProfile(show) {
-            const modal = document.getElementById('profile-modal');
-            if(show) {
-                document.getElementById('p-name').innerText = me.nombre;
-                document.getElementById('p-email').innerText = me.email;
-                document.getElementById('custom-avatar-url').value = me.avatar || '';
-                modal.style.display = 'flex';
-            } else {
-                modal.style.display = 'none';
-            }
-        }
-
-        function initAvatarSelector() {
-            const container = document.getElementById('avatar-selector');
-            container.innerHTML = '';
-            defaultAvatars.forEach(url => {
-                const img = document.createElement('img');
-                img.src = url;
-                img.className = `avatar-option ${me.avatar === url ? 'selected' : ''}`;
-                img.onclick = () => {
-                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
-                    img.classList.add('selected');
-                    document.getElementById('custom-avatar-url').value = url;
-                };
-                container.appendChild(img);
-            });
-        }
-
-        async function saveProfile() {
-            const newAvatar = document.getElementById('custom-avatar-url').value;
-            await db.ref('users/' + me.uid).update({ avatar: newAvatar });
-            alert("Perfil actualizado");
-            toggleProfile(false);
         }
 
         function setTab(type) {
@@ -244,20 +209,28 @@
         function renderList(type) {
             const list = document.getElementById('content-list');
             list.innerHTML = '';
+            db.ref('recent/' + me.uid).off();
+            db.ref('users').off();
+
             if(type === 'chats') {
                 db.ref('recent/' + me.uid).on('value', snap => {
                     list.innerHTML = '';
                     let chats = [];
                     snap.forEach(c => chats.push(c.val()));
-                    // ORDENAR: EL MÁS RECIENTE ARRIBA
-                    chats.sort((a, b) => (b.time || 0) - (a.time || 0));
                     
+                    // ORDEN: El último mensaje arriba
+                    chats.sort((a, b) => (b.time || 0) - (a.time || 0));
+
                     chats.forEach(item => {
-                        const avatarContent = item.avatar ? `<img src="${item.avatar}">` : item.nombre[0];
-                        list.innerHTML += `<div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${item.isGroup}, '${item.avatar || ''}')">
-                            <div class="avatar" style="${item.isGroup?'background:var(--azul-rey)':''}">${avatarContent}</div>
-                            <div style="flex:1"><b>${item.nombre}</b><br><small style="color:gray">${item.lastMsg || 'Sin mensajes'}</small></div>
-                        </div>`;
+                        const avatarSrc = item.avatar ? `<img src="${item.avatar}">` : (item.nombre ? item.nombre[0] : '?');
+                        list.innerHTML += `
+                            <div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${item.isGroup || false}, '${item.avatar || ''}')">
+                                <div class="avatar" style="${item.isGroup ? 'background:var(--azul-rey)' : ''}">${avatarSrc}</div>
+                                <div style="flex:1">
+                                    <b>${item.nombre}</b><br>
+                                    <small style="color:gray">${item.lastMsg || 'Sin mensajes'}</small>
+                                </div>
+                            </div>`;
                     });
                 });
             } else {
@@ -266,12 +239,13 @@
                         if(u.key === me.uid) return;
                         const user = u.val();
                         const isSel = selectedUsers.includes(u.key);
-                        const avatarContent = user.avatar ? `<img src="${user.avatar}">` : user.nombre[0];
-                        list.innerHTML += `<div class="chat-item list-row user-row" onclick="${isGroupMode ? `toggleSelect('${u.key}')` : `openChat('${u.key}', '${user.nombre}', false, '${user.avatar || ''}')`}">
-                            <div class="avatar">${avatarContent}</div>
-                            <div style="flex:1"><b>${user.nombre}</b></div>
-                            ${isGroupMode ? `<i class="fas ${isSel ? 'fa-check-circle' : 'fa-circle'}" style="color:${isSel?'var(--accent-blue)':'#333'}; font-size:22px;"></i>` : ''}
-                        </div>`;
+                        const avatarSrc = user.avatar ? `<img src="${user.avatar}">` : (user.nombre ? user.nombre[0] : '?');
+                        list.innerHTML += `
+                            <div class="chat-item list-row user-row" onclick="${isGroupMode ? `toggleSelect('${u.key}')` : `openChat('${u.key}', '${user.nombre}', false, '${user.avatar || ''}')`}">
+                                <div class="avatar">${avatarSrc}</div>
+                                <div style="flex:1"><b>${user.nombre}</b></div>
+                                ${isGroupMode ? `<i class="fas ${isSel ? 'fa-check-circle' : 'fa-circle'}" style="color:${isSel?'var(--accent-blue)':'#333'}; font-size:22px;"></i>` : ''}
+                            </div>`;
                     });
                 });
             }
@@ -281,7 +255,7 @@
             activeChat = { id, nombre, isGroup, avatar };
             document.getElementById('chat-name-top').innerText = nombre;
             const topAvatar = document.getElementById('chat-avatar-top');
-            topAvatar.innerHTML = avatar ? `<img src="${avatar}">` : nombre[0];
+            topAvatar.innerHTML = avatar ? `<img src="${avatar}">` : (nombre ? nombre[0] : '?');
             topAvatar.style.background = isGroup ? 'var(--azul-rey)' : '#333';
             
             document.getElementById('chat-window').style.display = 'flex';
@@ -303,11 +277,15 @@
             const val = document.getElementById('msg-input').value; if(!val) return;
             const now = Date.now();
             const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
+            
             db.ref('messages/' + chatID).push({ text: val, sender: me.uid, time: now });
             
             if(activeChat.isGroup) {
                 db.ref('recent/' + me.uid + '/' + activeChat.id).once('value', s => {
-                    s.val().members.forEach(m => db.ref('recent/' + m + '/' + activeChat.id).update({lastMsg: val, time: now}));
+                    const members = s.val().members || [];
+                    members.forEach(m => {
+                        db.ref('recent/' + m + '/' + activeChat.id).update({ lastMsg: val, time: now });
+                    });
                 });
             } else {
                 db.ref('recent/' + me.uid + '/' + activeChat.id).update({lastMsg: val, time: now, nombre: activeChat.nombre, id: activeChat.id, isGroup: false, avatar: activeChat.avatar || ''});
@@ -316,18 +294,41 @@
             document.getElementById('msg-input').value = '';
         }
 
-        function filterLists() {
-            const q = document.getElementById('main-search').value.toLowerCase();
-            document.querySelectorAll('.list-row').forEach(r => {
-                r.style.display = r.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+        function toggleProfile(show) {
+            const modal = document.getElementById('profile-modal');
+            if(show) {
+                document.getElementById('p-name').innerText = me.nombre;
+                document.getElementById('p-email').innerText = me.email;
+                document.getElementById('custom-avatar-url').value = me.avatar || '';
+                modal.style.display = 'flex';
+                initAvatarSelector();
+            } else { modal.style.display = 'none'; }
+        }
+
+        function initAvatarSelector() {
+            const container = document.getElementById('avatar-selector');
+            container.innerHTML = '';
+            defaultAvatars.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = `avatar-option ${me.avatar === url ? 'selected' : ''}`;
+                img.onclick = () => {
+                    document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+                    img.classList.add('selected');
+                    document.getElementById('custom-avatar-url').value = url;
+                };
+                container.appendChild(img);
             });
         }
 
-        function startGroupMode() {
-            isGroupMode = true; selectedUsers = [me.uid];
-            document.getElementById('group-creation-bar').style.display = 'flex';
-            setTab('users');
+        async function saveProfile() {
+            const newAvatar = document.getElementById('custom-avatar-url').value;
+            await db.ref('users/' + me.uid).update({ avatar: newAvatar });
+            alert("¡Perfil actualizado!");
+            toggleProfile(false);
         }
+
+        function startGroupMode() { isGroupMode = true; selectedUsers = [me.uid]; document.getElementById('group-creation-bar').style.display = 'flex'; setTab('users'); }
 
         function toggleSelect(uid) {
             const idx = selectedUsers.indexOf(uid);
@@ -337,14 +338,11 @@
             renderList('users');
         }
 
-        function openGroupNameModal() {
-            if(selectedUsers.length < 2) return alert("Selecciona al menos 1 persona");
-            document.getElementById('group-name-modal').style.display = 'flex';
-        }
+        function openGroupNameModal() { if(selectedUsers.length < 2) return alert("Selecciona al menos 1 usuario"); document.getElementById('group-name-modal').style.display = 'flex'; }
 
         function finishGroupCreation() {
             const name = document.getElementById('new-group-name').value;
-            if(!name) return alert("Ponle un nombre al grupo");
+            if(!name) return alert("Nombre obligatorio");
             const gId = 'group_' + Date.now();
             const groupData = { id: gId, nombre: name, isGroup: true, members: selectedUsers, admin: me.uid, time: Date.now(), lastMsg: 'Comunidad creada', avatar: '' };
             const updates = {};
@@ -356,21 +354,26 @@
             });
         }
 
+        function filterLists() {
+            const q = document.getElementById('main-search').value.toLowerCase();
+            document.querySelectorAll('.list-row').forEach(r => {
+                r.style.display = r.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+            });
+        }
+
         function closeChat() { document.getElementById('chat-window').style.display = 'none'; }
-        
+
         function showChatOptions() {
             db.ref('recent/' + me.uid + '/' + activeChat.id).once('value', snap => {
                 const data = snap.val();
                 if(data.admin === me.uid) {
-                    if(confirm("Eres Administrador. ¿Deseas ELIMINAR el grupo para todos?")) {
+                    if(confirm("Eres Admin. ¿Eliminar grupo para todos?")) {
                         const updates = {};
                         data.members.forEach(m => updates['/recent/' + m + '/' + activeChat.id] = null);
                         db.ref().update(updates).then(closeChat);
                     }
                 } else {
-                    if(confirm("¿Deseas SALIR de este grupo?")) {
-                        db.ref('recent/' + me.uid + '/' + activeChat.id).remove().then(closeChat);
-                    }
+                    if(confirm("¿Salir del grupo?")) db.ref('recent/' + me.uid + '/' + activeChat.id).remove().then(closeChat);
                 }
             });
         }
