@@ -14,23 +14,20 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: white; height: 100vh; overflow: hidden; }
 
-        /* LOGO ESTILO SOLICITADO */
         .logo-text { font-size: 24px; font-weight: 800; letter-spacing: -1px; }
         .logo-llutid { color: var(--azul-rey); }
         .logo-plus { color: #ffffff; }
 
-        /* HEADER */
         .header { padding: 20px; background: var(--bg-panel); border-bottom: 1px solid #222; }
         .top-tabs { display: flex; gap: 20px; margin-top: 15px; }
         .tab { color: #aeb0b5; font-weight: 600; cursor: pointer; padding-bottom: 5px; font-size: 14px; }
         .tab.active { color: var(--azul-rey); border-bottom: 2px solid var(--azul-rey); }
 
-        /* LISTAS */
         .content-scroll { height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 150px; }
         .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #111; cursor: pointer; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* BARRA INFERIOR */
         .bottom-nav {
             position: fixed; left: 15px; right: 15px; bottom: 15px; height: 70px;
             display: flex; justify-content: space-around; align-items: center;
@@ -40,26 +37,31 @@
         .bottom-nav button { background: none; border: none; color: #aeb0b5; display: flex; flex-direction: column; align-items: center; font-size: 11px; flex: 1; gap: 4px; }
         .btn-active { color: var(--accent-blue) !important; }
 
-        /* MODALES */
         .full-screen { position: fixed; inset: 0; background: #000; z-index: 2500; display: none; flex-direction: column; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; }
         .modal-card { background: var(--bg-panel); padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; border: 1px solid #333; }
 
-        /* INPUT CHAT */
         .chat-footer { position: fixed; bottom: 95px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2600; }
         .chat-footer input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid #444; padding: 15px; border-radius: 30px; color: white; outline: none; }
         
         #group-creation-bar { display: none; background: var(--azul-rey); padding: 12px 20px; justify-content: space-between; align-items: center; }
         
-        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; }
+        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; position: relative; }
+        
+        /* NUEVOS ESTILOS */
+        .unread-dot { background: var(--accent-blue); color: white; font-size: 10px; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .sender-tag { font-size: 10px; font-weight: bold; color: #aaa; display: block; margin-bottom: 3px; }
+        .typing-text { font-size: 12px; color: #00ff88; font-weight: normal; margin-left: 5px; }
+        .verified-icon { color: #007bff; font-size: 14px; margin-left: 4px; }
     </style>
 </head>
 <body>
 
     <div id="group-name-modal" class="modal-overlay">
         <div class="modal-card">
-            <h3>Nueva Comunidad</h3>
-            <input type="text" id="new-group-name" placeholder="Nombre del grupo..." style="width:100%; padding:12px; margin:20px 0; border-radius:10px; background:#111; color:white; border:1px solid #333;">
+            <h3>Nueva Comunidad Pública</h3>
+            <p style="font-size: 12px; color: gray; margin-bottom: 10px;">Todos los usuarios verán este grupo.</p>
+            <input type="text" id="new-group-name" placeholder="Nombre del grupo..." style="width:100%; padding:12px; margin:10px 0; border-radius:10px; background:#111; color:white; border:1px solid #333;">
             <button onclick="finishGroupCreation()" style="width:100%; padding:12px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">CREAR</button>
             <button onclick="document.getElementById('group-name-modal').style.display='none'" style="color:gray; background:none; border:none; margin-top:15px;">Cancelar</button>
         </div>
@@ -103,13 +105,16 @@
         <div class="header" style="display:flex; align-items:center; gap:15px; justify-content: space-between;">
             <div style="display:flex; align-items:center; gap:15px;">
                 <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-                <div id="chat-name-top" style="font-weight:bold;">Chat</div>
+                <div id="chat-header-info">
+                    <div id="chat-name-top" style="font-weight:bold;">Chat</div>
+                    <div id="typing-indicator" class="typing-text"></div>
+                </div>
             </div>
             <i class="fas fa-ellipsis-v" id="btn-group-options" style="padding:10px; display:none;" onclick="showChatOptions()"></i>
         </div>
         <div id="msg-box" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:5px;"></div>
         <div class="chat-footer">
-            <input type="text" id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter') send()">
+            <input type="text" id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter') send()" oninput="handleTyping()">
             <button onclick="send()" style="background:var(--azul-rey); width:50px; height:50px; border-radius:50%; border:none; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
@@ -134,7 +139,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        let me = null, activeChat = null, isGroupMode = false, selectedUsers = [];
+        let me = null, activeChat = null, isGroupMode = false, selectedUsers = [], typingTimeout;
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -176,15 +181,33 @@
         function renderList(type) {
             const list = document.getElementById('content-list');
             list.innerHTML = '';
+            
             if(type === 'chats') {
+                // Combinar chats personales con grupos globales
                 db.ref('recent/' + me.uid).on('value', snap => {
-                    list.innerHTML = '';
-                    snap.forEach(c => {
-                        const item = c.val();
-                        list.innerHTML += `<div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${item.isGroup})">
-                            <div class="avatar" style="${item.isGroup?'background:var(--azul-rey)':''}">${item.nombre[0]}</div>
-                            <div style="flex:1"><b>${item.nombre}</b><br><small style="color:gray">${item.lastMsg || 'Sin mensajes'}</small></div>
-                        </div>`;
+                    db.ref('public_groups').once('value', pubSnap => {
+                        list.innerHTML = '';
+                        let allChats = [];
+                        pubSnap.forEach(g => allChats.push(g.val()));
+                        snap.forEach(c => {
+                            if (!allChats.find(x => x.id === c.key)) allChats.push(c.val());
+                        });
+
+                        allChats.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+                        allChats.forEach(item => {
+                            const isLlutid = item.email === 'llutidoficial@gmail.com' || item.id === 'llutid_oficial';
+                            const badge = item.unreadCount > 0 ? `<div class="unread-dot">${item.unreadCount}</div>` : '';
+                            const avatarHtml = isLlutid ? `<img src="https://thumbs.dreamstime.com/b/dise%C3%B1o-de-icono-usuario-verificado-vector-219719498.jpg">` : item.nombre[0];
+                            const nameHtml = item.nombre + (isLlutid ? ' <i class="fas fa-check-circle verified-icon"></i>' : '');
+
+                            list.innerHTML += `
+                                <div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${!!item.isGroup})">
+                                    <div class="avatar" style="${item.isGroup?'background:var(--azul-rey)':''}">${avatarHtml}</div>
+                                    <div style="flex:1"><b>${nameHtml}</b><br><small style="color:gray">${item.lastMsg || 'Sin mensajes'}</small></div>
+                                    ${badge}
+                                </div>`;
+                        });
                     });
                 });
             } else {
@@ -192,15 +215,109 @@
                     snap.forEach(u => {
                         if(u.key === me.uid) return;
                         const user = u.val();
+                        const isLlutid = user.email === 'llutidoficial@gmail.com';
                         const isSel = selectedUsers.includes(u.key);
+                        const avatarHtml = isLlutid ? `<img src="https://thumbs.dreamstime.com/b/dise%C3%B1o-de-icono-usuario-verificado-vector-219719498.jpg">` : user.nombre[0];
+                        const nameHtml = user.nombre + (isLlutid ? ' <i class="fas fa-check-circle verified-icon"></i>' : '');
+
                         list.innerHTML += `<div class="chat-item list-row user-row" onclick="${isGroupMode ? `toggleSelect('${u.key}')` : `openChat('${u.key}', '${user.nombre}', false)`}">
-                            <div class="avatar">${user.nombre[0]}</div>
-                            <div style="flex:1"><b>${user.nombre}</b></div>
+                            <div class="avatar">${avatarHtml}</div>
+                            <div style="flex:1"><b>${nameHtml}</b></div>
                             ${isGroupMode ? `<i class="fas ${isSel ? 'fa-check-circle' : 'fa-circle'}" style="color:${isSel?'var(--accent-blue)':'#333'}; font-size:22px;"></i>` : ''}
                         </div>`;
                     });
                 });
             }
+        }
+
+        function handleTyping() {
+            if(!activeChat) return;
+            const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
+            db.ref('typing/' + chatID + '/' + me.uid).set(true);
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                db.ref('typing/' + chatID + '/' + me.uid).set(false);
+            }, 2000);
+        }
+
+        function openChat(id, nombre, isGroup) {
+            activeChat = { id, nombre, isGroup };
+            const isLlutid = nombre.includes("Llutid") || id.includes("llutid");
+            document.getElementById('chat-name-top').innerHTML = nombre + (isLlutid ? ' <i class="fas fa-check-circle verified-icon"></i>' : '');
+            document.getElementById('chat-window').style.display = 'flex';
+            document.getElementById('btn-group-options').style.display = isGroup ? 'block' : 'none';
+            
+            const chatID = isGroup ? id : (me.uid < id ? me.uid + id : id + me.uid);
+            
+            // Quitar punto azul al abrir
+            db.ref('recent/' + me.uid + '/' + id + '/unreadCount').set(0);
+
+            // Escuchar escribiendo
+            db.ref('typing/' + chatID).on('value', snap => {
+                let someoneTyping = false;
+                snap.forEach(s => { if(s.key !== me.uid && s.val()) someoneTyping = true; });
+                document.getElementById('typing-indicator').innerText = someoneTyping ? 'escribiendo...' : '';
+            });
+
+            db.ref('messages/' + chatID).on('value', snap => {
+                const box = document.getElementById('msg-box'); box.innerHTML = '';
+                snap.forEach(m => {
+                    const msg = m.val();
+                    const isMe = msg.sender === me.uid;
+                    const senderLabel = (isGroup && !isMe) ? `<span class="sender-tag">${msg.senderName || 'Usuario'}</span>` : '';
+                    box.innerHTML += `<div class="bubble" style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe? 'var(--azul-rey)':'#222'};">
+                        ${senderLabel}${msg.text}
+                    </div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        function send() {
+            const val = document.getElementById('msg-input').value; if(!val) return;
+            const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
+            
+            const msgObj = { text: val, sender: me.uid, senderName: me.nombre, time: Date.now() };
+            db.ref('messages/' + chatID).push(msgObj);
+            
+            if(activeChat.isGroup) {
+                // Actualizar para todos en grupos (incluyendo el global)
+                db.ref('public_groups/' + activeChat.id).once('value', sg => {
+                    const data = sg.val();
+                    if(data) db.ref('public_groups/' + activeChat.id).update({lastMsg: val, time: Date.now()});
+                });
+                // Notificar unread a otros (esto requiere que estén en la lista de members)
+                db.ref('recent').once('value', allRecent => {
+                    allRecent.forEach(userRecent => {
+                        if(userRecent.key !== me.uid && userRecent.hasChild(activeChat.id)) {
+                            db.ref('recent/' + userRecent.key + '/' + activeChat.id + '/unreadCount').transaction(c => (c || 0) + 1);
+                        }
+                    });
+                });
+            } else {
+                db.ref('recent/' + me.uid + '/' + activeChat.id).update({lastMsg: val, time: Date.now(), nombre: activeChat.nombre, id: activeChat.id, isGroup: false});
+                db.ref('recent/' + activeChat.id + '/' + me.uid).update({lastMsg: val, time: Date.now(), nombre: me.nombre, id: me.uid, isGroup: false});
+                db.ref('recent/' + activeChat.id + '/' + me.uid + '/unreadCount').transaction(c => (c || 0) + 1);
+            }
+            document.getElementById('msg-input').value = '';
+            db.ref('typing/' + chatID + '/' + me.uid).set(false);
+        }
+
+        function finishGroupCreation() {
+            const name = document.getElementById('new-group-name').value;
+            if(!name) return alert("Ponle un nombre");
+            const gId = 'group_' + Date.now();
+            const groupData = { id: gId, nombre: name, isGroup: true, members: selectedUsers, admin: me.uid, time: Date.now(), lastMsg: 'Comunidad creada' };
+            
+            const updates = {};
+            selectedUsers.forEach(uid => updates['/recent/' + uid + '/' + gId] = groupData);
+            updates['/public_groups/' + gId] = groupData; // Se guarda como grupo global para todos
+
+            db.ref().update(updates).then(() => {
+                document.getElementById('group-name-modal').style.display = 'none';
+                isGroupMode = false;
+                setTab('chats');
+            });
         }
 
         function filterLists() {
@@ -229,68 +346,20 @@
             document.getElementById('group-name-modal').style.display = 'flex';
         }
 
-        function finishGroupCreation() {
-            const name = document.getElementById('new-group-name').value;
-            if(!name) return alert("Ponle un nombre al grupo");
-            const gId = 'group_' + Date.now();
-            const groupData = { id: gId, nombre: name, isGroup: true, members: selectedUsers, admin: me.uid, time: Date.now(), lastMsg: 'Comunidad creada' };
-            const updates = {};
-            selectedUsers.forEach(uid => updates['/recent/' + uid + '/' + gId] = groupData);
-            db.ref().update(updates).then(() => {
-                document.getElementById('group-name-modal').style.display = 'none';
-                isGroupMode = false;
-                setTab('chats');
-            });
-        }
-
-        function openChat(id, nombre, isGroup) {
-            activeChat = { id, nombre, isGroup };
-            document.getElementById('chat-name-top').innerText = nombre;
-            document.getElementById('chat-window').style.display = 'flex';
-            document.getElementById('btn-group-options').style.display = isGroup ? 'block' : 'none';
-            
-            const chatID = isGroup ? id : (me.uid < id ? me.uid + id : id + me.uid);
-            db.ref('messages/' + chatID).on('value', snap => {
-                const box = document.getElementById('msg-box'); box.innerHTML = '';
-                snap.forEach(m => {
-                    const isMe = m.val().sender === me.uid;
-                    box.innerHTML += `<div class="bubble" style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe? 'var(--azul-rey)':'#222'};">${m.val().text}</div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        }
-
         function showChatOptions() {
-            db.ref('recent/' + me.uid + '/' + activeChat.id).once('value', snap => {
+            db.ref('public_groups/' + activeChat.id).once('value', snap => {
                 const data = snap.val();
-                if(data.admin === me.uid) {
-                    if(confirm("¿Eres Administrador. Deseas ELIMINAR el grupo para todos?")) {
-                        const updates = {};
-                        data.members.forEach(m => updates['/recent/' + m + '/' + activeChat.id] = null);
-                        db.ref().update(updates).then(closeChat);
+                if(data && data.admin === me.uid) {
+                    if(confirm("Eres Admin. ¿Eliminar grupo para TODOS?")) {
+                        db.ref('public_groups/' + activeChat.id).remove();
+                        closeChat();
                     }
                 } else {
-                    if(confirm("¿Deseas SALIR de este grupo?")) {
+                    if(confirm("¿Salir de este grupo?")) {
                         db.ref('recent/' + me.uid + '/' + activeChat.id).remove().then(closeChat);
                     }
                 }
             });
-        }
-
-        function send() {
-            const val = document.getElementById('msg-input').value; if(!val) return;
-            const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
-            db.ref('messages/' + chatID).push({ text: val, sender: me.uid, time: Date.now() });
-            
-            if(activeChat.isGroup) {
-                db.ref('recent/' + me.uid + '/' + activeChat.id).once('value', s => {
-                    s.val().members.forEach(m => db.ref('recent/' + m + '/' + activeChat.id + '/lastMsg').set(val));
-                });
-            } else {
-                db.ref('recent/' + me.uid + '/' + activeChat.id).update({lastMsg: val, time: Date.now(), nombre: activeChat.nombre, id: activeChat.id, isGroup: false});
-                db.ref('recent/' + activeChat.id + '/' + me.uid).update({lastMsg: val, time: Date.now(), nombre: me.nombre, id: me.uid, isGroup: false});
-            }
-            document.getElementById('msg-input').value = '';
         }
 
         function closeChat() { document.getElementById('chat-window').style.display = 'none'; }
