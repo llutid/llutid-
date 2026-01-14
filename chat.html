@@ -14,7 +14,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: white; height: 100vh; overflow: hidden; }
 
-        /* HEADER Y TABS */
         .header { padding: 20px; background: var(--bg-panel); border-bottom: 1px solid #222; }
         .logo-text { font-size: 24px; font-weight: 800; }
         .logo-llutid { color: var(--azul-rey); }
@@ -22,77 +21,62 @@
         .tab { color: #aeb0b5; font-weight: 600; cursor: pointer; padding-bottom: 5px; font-size: 14px; }
         .tab.active { color: var(--azul-rey); border-bottom: 2px solid var(--azul-rey); }
 
-        /* LISTAS */
         .content-scroll { height: calc(100vh - 220px); overflow-y: auto; padding-bottom: 150px; }
         .chat-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #111; cursor: pointer; position: relative; }
-        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; border: 2px solid transparent; flex-shrink: 0; }
+        
+        .avatar { width: 50px; height: 50px; border-radius: 50%; background: #333; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; flex-shrink: 0; position: relative; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* ESTADOS */
-        .online-dot { width: 12px; height: 12px; background: var(--online); border: 2px solid var(--bg-dark); border-radius: 50%; position: absolute; bottom: 15px; left: 50px; }
-        .unread-badge { background: var(--accent-blue); color: white; font-size: 10px; min-width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-left: 10px; }
-        .typing-global { color: var(--online); font-size: 12px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .online-dot { width: 12px; height: 12px; background: var(--online); border: 2px solid var(--bg-dark); border-radius: 50%; position: absolute; bottom: 0; right: 0; z-index: 10; }
+        .unread-badge { background: var(--accent-blue); color: white; font-size: 10px; min-width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* PERFIL MODAL */
-        #profile-panel { padding: 20px; text-align: center; }
-        .avatar-option { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.3s; object-fit: cover; }
-        .avatar-option:hover { border-color: var(--accent-blue); transform: scale(1.1); }
-        .profile-card { background: #111; padding: 20px; border-radius: 20px; margin-top: 20px; }
-
-        /* CHAT WINDOW */
         .full-screen { position: fixed; inset: 0; background: #000; z-index: 2500; display: none; flex-direction: column; }
-        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; position: relative; }
-        .sender-name { font-size: 10px; color: #888; display: block; margin-bottom: 2px; font-weight: bold; }
+        .bubble { padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; margin-bottom: 2px; }
         .verified-badge { color: #007bff; font-size: 12px; margin-left: 5px; }
 
         .chat-footer { position: fixed; bottom: 95px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2600; }
         .chat-footer input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid #444; padding: 15px; border-radius: 30px; color: white; outline: none; }
         
         .bottom-nav { position: fixed; left: 15px; right: 15px; bottom: 15px; height: 70px; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 15, 17, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; z-index: 4000; }
-        .bottom-nav button { background: none; border: none; color: #aeb0b5; display: flex; flex-direction: column; align-items: center; font-size: 11px; flex: 1; gap: 4px; }
+        .bottom-nav button { background: none; border: none; color: #aeb0b5; display: flex; flex-direction: column; align-items: center; font-size: 11px; flex: 1; gap: 4px; cursor: pointer; }
         .btn-active { color: var(--accent-blue) !important; }
         
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; display: none; align-items: center; justify-content: center; }
-        .modal-card { background: var(--bg-panel); padding: 25px; border-radius: 25px; width: 90%; max-width: 400px; border: 1px solid #333; }
+        .modal-card { background: var(--bg-panel); padding: 25px; border-radius: 25px; width: 90%; max-width: 400px; }
+        .avatar-option { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; object-fit: cover; border: 2px solid transparent; }
     </style>
 </head>
 <body>
 
     <div id="profile-modal" class="modal-overlay">
         <div class="modal-card">
-            <h2 style="margin-bottom: 20px;">Mi Perfil</h2>
-            <div id="current-my-avatar" class="avatar" style="width: 80px; height: 80px; margin: 0 auto 20px;"></div>
-            
-            <p style="font-size: 13px; color: #888; margin-bottom: 10px;">Elige un avatar o pega una URL:</p>
-            <div id="avatar-picker" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
-                </div>
-            
-            <input type="text" id="custom-url" placeholder="Pegar URL de imagen propia..." style="width: 100%; padding: 12px; border-radius: 10px; background: #000; border: 1px solid #333; color: white; margin-bottom: 15px;">
-            <button onclick="saveProfile()" style="width: 100%; padding: 15px; background: var(--azul-rey); border: none; border-radius: 12px; font-weight: bold; color: white;">GUARDAR CAMBIOS</button>
-            <button onclick="auth.signOut()" style="width: 100%; padding: 15px; background: #311; color: #f44; border: none; border-radius: 12px; font-weight: bold; margin-top: 10px;">CERRAR SESIÓN</button>
-            <button onclick="document.getElementById('profile-modal').style.display='none'" style="margin-top: 15px; background: none; border: none; color: gray; width: 100%;">Cancelar</button>
+            <h2>Mi Perfil</h2>
+            <div id="p-avatar" class="avatar" style="width:70px; height:70px; margin: 15px auto;"></div>
+            <div id="avatar-picker" style="display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin:15px 0;"></div>
+            <input type="text" id="custom-url" placeholder="URL de imagen..." style="width:100%; padding:10px; background:#000; color:white; border:1px solid #333; border-radius:8px;">
+            <button onclick="saveProfile()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:10px; margin-top:15px; font-weight:bold;">GUARDAR</button>
+            <button onclick="auth.signOut()" style="width:100%; margin-top:10px; color:red; background:none; border:none;">Cerrar Sesión</button>
+            <button onclick="document.getElementById('profile-modal').style.display='none'" style="width:100%; margin-top:10px; color:gray; background:none; border:none;">Cancelar</button>
         </div>
     </div>
 
     <div id="group-name-modal" class="modal-overlay">
         <div class="modal-card">
-            <h3>Nueva Comunidad</h3>
-            <input type="text" id="new-group-name" placeholder="Nombre del grupo..." style="width:100%; padding:12px; margin:20px 0; border-radius:10px; background:#111; color:white; border:1px solid #333;">
-            <button onclick="finishGroupCreation()" style="width:100%; padding:12px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">CREAR</button>
-            <button onclick="document.getElementById('group-name-modal').style.display='none'" style="color:gray; background:none; border:none; margin-top:15px;">Cancelar</button>
+            <h3>Nombre de la Comunidad</h3>
+            <input type="text" id="new-group-name" style="width:100%; padding:12px; margin:20px 0; border-radius:10px; background:#111; color:white; border:1px solid #333;">
+            <button onclick="finishGroupCreation()" style="width:100%; padding:12px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">CREAR GRUPO</button>
         </div>
     </div>
 
     <div id="main-app" style="display:none;">
         <div id="group-creation-bar" style="display:none; background:var(--azul-rey); padding:12px 20px; justify-content:space-between; align-items:center;">
-            <span id="selected-count">Seleccionados: 1</span>
-            <button onclick="openGroupNameModal()" style="background:white; color:black; border:none; padding:8px 20px; border-radius:20px; font-weight:bold;">LISTO</button>
+            <span id="selected-count">Seleccionados: 0</span>
+            <button onclick="openGroupNameModal()" style="background:white; color:black; border:none; padding:8px 20px; border-radius:20px; font-weight:bold;">CONTINUAR</button>
         </div>
 
         <div class="header">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div class="logo-text"><span class="logo-llutid">Llutid</span><span class="logo-plus">+</span></div>
+                <div class="logo-text"><span class="logo-llutid">Llutid</span><span style="color:white">+</span></div>
                 <div style="display:flex; gap:20px;">
                     <i class="fas fa-plus-square" onclick="startGroupMode()" style="font-size:22px;"></i>
                     <i class="fas fa-user-circle" onclick="openProfile()" style="font-size:22px;"></i>
@@ -109,37 +93,36 @@
     </div>
 
     <div id="auth-screen" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh;">
-        <div class="logo-text" style="font-size:40px;"><span class="logo-llutid">Llutid</span><span class="logo-plus">+</span></div>
+        <div class="logo-text" style="font-size:40px;"><span class="logo-llutid">Llutid</span><span style="color:white">+</span></div>
         <div style="width:80%; margin-top:30px;">
-            <input type="text" id="reg-name" placeholder="Nombre de usuario" style="width:100%; padding:12px; margin-bottom:10px;">
-            <input type="email" id="reg-email" placeholder="Correo electrónico" style="width:100%; padding:12px; margin-bottom:10px;">
+            <input type="text" id="reg-name" placeholder="Nombre" style="width:100%; padding:12px; margin-bottom:10px;">
+            <input type="email" id="reg-email" placeholder="Correo" style="width:100%; padding:12px; margin-bottom:10px;">
             <input type="password" id="reg-pin" placeholder="PIN" style="width:100%; padding:12px; margin-bottom:20px;">
-            <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:10px; font-weight:bold;">ENTRAR</button>
+            <button onclick="handleAuth()" style="width:100%; padding:15px; background:var(--azul-rey); color:white; border:none; border-radius:10px;">ENTRAR</button>
         </div>
     </div>
 
     <div id="chat-window" class="full-screen">
-        <div class="header" style="display:flex; align-items:center; gap:15px; justify-content: space-between;">
-            <div style="display:flex; align-items:center; gap:15px;">
-                <i class="fas fa-arrow-left" onclick="closeChat()"></i>
-                <div id="chat-header-info">
-                    <div id="chat-name-top" style="font-weight:bold;">Chat</div>
-                    <div id="typing-status" style="font-size:12px; color:var(--online);"></div>
-                </div>
+        <div class="header" style="display:flex; align-items:center; gap:12px;">
+            <i class="fas fa-arrow-left" onclick="closeChat()"></i>
+            <div id="chat-header-avatar" class="avatar" style="width:40px; height:40px; margin-right:0;"></div>
+            <div style="flex:1">
+                <div id="chat-name-top" style="font-weight:bold; font-size:15px;"></div>
+                <div id="chat-status-top" style="font-size:11px; color:var(--online);"></div>
             </div>
         </div>
-        <div id="msg-box" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:5px;"></div>
+        <div id="msg-box" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:8px;"></div>
         <div class="chat-footer">
-            <input type="text" id="msg-input" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter') send()" oninput="updateTyping(true)">
+            <input type="text" id="msg-input" placeholder="Mensaje..." oninput="updateTyping(true)">
             <button onclick="send()" style="background:var(--azul-rey); width:50px; height:50px; border-radius:50%; border:none; color:white;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
 
     <nav class="bottom-nav">
-        <button onclick="location.reload()"><i class="fas fa-home"></i><span>Home</span></button>
-        <button><i class="fas fa-calendar"></i><span>Próximos</span></button>
-        <button class="btn-active"><i class="fas fa-broadcast-tower"></i><span>En Vivo</span></button>
-        <button><i class="fas fa-search"></i><span>Buscar</span></button>
+        <button onclick="location.href='home.html'"><i class="fas fa-home"></i><span>Home</span></button>
+        <button onclick="location.href='proximos.html'"><i class="fas fa-calendar"></i><span>Próximos</span></button>
+        <button class="btn-active" onclick="location.reload()"><i class="fas fa-broadcast-tower"></i><span>En Vivo</span></button>
+        <button onclick="location.href='home.html'"><i class="fas fa-search"></i><span>Buscar</span></button>
     </nav>
 
     <script>
@@ -153,9 +136,8 @@
             appId: "1:1062883694774:web:f6ce82bc42cdf64866ae17"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-        let me = null, activeChat = null, isGroupMode = false, selectedUsers = [], typingTimeout;
+        const auth = firebase.auth(), db = firebase.database();
+        let me = null, activeChat = null, isGroupMode = false, selectedUsers = [];
 
         const AVATARS = [
             "https://lafrikileria.com/blog/wp-content/uploads/2023/04/mejores-peliculas-animacion-disney.jpeg",
@@ -175,25 +157,22 @@
                     if(me) {
                         document.getElementById('main-app').style.display = 'block';
                         document.getElementById('auth-screen').style.display = 'none';
-                        db.ref('users/' + me.uid + '/online').set(true);
-                        db.ref('users/' + me.uid + '/online').onDisconnect().set(false);
+                        db.ref('users/'+me.uid+'/online').set(true);
+                        db.ref('users/'+me.uid+'/online').onDisconnect().set(false);
                         setTab('chats');
                     }
                 });
             } else {
-                document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('main-app').style.display = 'none';
+                document.getElementById('auth-screen').style.display = 'flex';
             }
         });
 
         async function handleAuth() {
-            const email = document.getElementById('reg-email').value;
-            const pin = document.getElementById('reg-pin').value;
-            const name = document.getElementById('reg-name').value || email.split('@')[0];
-            try { await auth.signInWithEmailAndPassword(email, pin); } 
-            catch {
+            const email = document.getElementById('reg-email').value, pin = document.getElementById('reg-pin').value, name = document.getElementById('reg-name').value;
+            try { await auth.signInWithEmailAndPassword(email, pin); } catch {
                 const res = await auth.createUserWithEmailAndPassword(email, pin);
-                await db.ref('users/' + res.user.uid).set({ uid: res.user.uid, nombre: name, email, avatar: AVATARS[0] });
+                await db.ref('users/' + res.user.uid).set({ uid: res.user.uid, nombre: name, email, avatar: AVATARS[0], online: true });
             }
         }
 
@@ -204,34 +183,31 @@
             if(type === 'chats') {
                 db.ref('recent/' + me.uid).on('value', snap => {
                     list.innerHTML = '';
-                    let chats = [];
-                    snap.forEach(c => chats.push(c.val()));
+                    let chats = []; snap.forEach(c => chats.push(c.val()));
                     chats.sort((a,b) => b.time - a.time).forEach(item => {
                         const isLlutid = item.email === 'llutidoficial@gmail.com' || item.id === 'llutid_oficial';
                         const avatarUrl = isLlutid ? "https://thumbs.dreamstime.com/b/dise%C3%B1o-de-icono-usuario-verificado-vector-219719498.jpg" : (item.avatar || '');
                         
-                        // Escuchar escribiendo en tiempo real para la lista
-                        const chatID = item.isGroup ? item.id : (me.uid < item.id ? me.uid + item.id : item.id + me.uid);
-                        
-                        list.innerHTML += `
-                            <div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${item.isGroup})">
-                                <div class="avatar">${avatarUrl ? `<img src="${avatarUrl}">` : item.nombre[0]}</div>
-                                <div style="flex:1">
-                                    <b>${item.nombre} ${isLlutid ? '<i class="fas fa-check-circle verified-badge"></i>':''}</b>
-                                    <br><small id="last-msg-${item.id}" style="color:gray">${item.lastMsg || ''}</small>
-                                </div>
-                                <div id="status-box-${item.id}" style="display:flex; align-items:center;">
-                                    ${item.unreadCount > 0 ? `<div class="unread-badge">${item.unreadCount}</div>` : ''}
-                                </div>
-                            </div>`;
+                        // Listener Online para la lista de chats
+                        if(!item.isGroup) {
+                            db.ref('users/' + item.id + '/online').on('value', s => {
+                                const dot = document.getElementById('online-chat-'+item.id);
+                                if(dot) dot.style.display = s.val() ? 'block' : 'none';
+                            });
+                        }
 
-                        // Listener de escribiendo para la lista
-                        db.ref('typing/' + chatID).on('value', s => {
-                            let writing = false;
-                            s.forEach(u => { if(u.key !== me.uid && u.val()) writing = true; });
-                            const msgEl = document.getElementById('last-msg-'+item.id);
-                            if(msgEl) msgEl.innerHTML = writing ? '<span class="typing-global">Escribiendo...</span>' : (item.lastMsg || '');
-                        });
+                        list.innerHTML += `
+                            <div class="chat-item list-row" onclick="openChat('${item.id}', '${item.nombre}', ${item.isGroup}, '${avatarUrl}')">
+                                <div class="avatar">
+                                    ${avatarUrl ? `<img src="${avatarUrl}">` : item.nombre[0]}
+                                    <div class="online-dot" id="online-chat-${item.id}" style="display:none"></div>
+                                </div>
+                                <div style="flex:1">
+                                    <b>${item.nombre} ${isLlutid?'<i class="fas fa-check-circle verified-badge"></i>':''}</b>
+                                    <br><small id="last-${item.id}" style="color:gray">${item.lastMsg || ''}</small>
+                                </div>
+                                ${item.unreadCount > 0 ? `<div class="unread-badge">${item.unreadCount}</div>` : ''}
+                            </div>`;
                     });
                 });
             } else {
@@ -239,44 +215,48 @@
                     list.innerHTML = '';
                     snap.forEach(u => {
                         if(u.key === me.uid) return;
-                        const user = u.val();
-                        const isLlutid = user.email === 'llutidoficial@gmail.com';
+                        const user = u.val(), isLlutid = user.email === 'llutidoficial@gmail.com';
+                        const isSel = selectedUsers.includes(u.key);
                         const avatarUrl = isLlutid ? "https://thumbs.dreamstime.com/b/dise%C3%B1o-de-icono-usuario-verificado-vector-219719498.jpg" : user.avatar;
                         list.innerHTML += `
-                            <div class="chat-item list-row" onclick="openChat('${user.uid}', '${user.nombre}', false)">
-                                <div class="avatar">${avatarUrl ? `<img src="${avatarUrl}">` : user.nombre[0]}</div>
-                                ${user.online ? '<div class="online-dot"></div>' : ''}
-                                <div style="flex:1"><b>${user.nombre} ${isLlutid ? '<i class="fas fa-check-circle verified-badge"></i>':''}</b></div>
+                            <div class="chat-item list-row" onclick="${isGroupMode ? `toggleSelect('${u.key}')` : `openChat('${user.uid}', '${user.nombre}', false, '${avatarUrl}')`}">
+                                <div class="avatar">
+                                    ${avatarUrl ? `<img src="${avatarUrl}">` : user.nombre[0]}
+                                    ${user.online ? '<div class="online-dot"></div>' : ''}
+                                </div>
+                                <div style="flex:1"><b>${user.nombre} ${isLlutid?'<i class="fas fa-check-circle verified-badge"></i>':''}</b></div>
+                                ${isGroupMode ? `<i class="fas ${isSel?'fa-check-circle':'fa-circle'}" style="color:${isSel?'var(--accent-blue)':'#333'}; font-size:20px;"></i>` : ''}
                             </div>`;
                     });
                 });
             }
         }
 
-        function openChat(id, nombre, isGroup) {
-            activeChat = { id, nombre, isGroup };
-            const isLlutid = nombre.includes("Llutid") || id === 'llutid_oficial';
-            document.getElementById('chat-name-top').innerHTML = nombre + (isLlutid ? ' <i class="fas fa-check-circle verified-badge"></i>' : '');
+        function openChat(id, nombre, isGroup, avatar) {
+            activeChat = { id, nombre, isGroup, avatar };
             document.getElementById('chat-window').style.display = 'flex';
+            document.getElementById('chat-name-top').innerText = nombre;
+            document.getElementById('chat-header-avatar').innerHTML = avatar ? `<img src="${avatar}">` : nombre[0];
             
             const chatID = isGroup ? id : (me.uid < id ? me.uid + id : id + me.uid);
             db.ref('recent/' + me.uid + '/' + id + '/unreadCount').set(0);
 
+            // Estado online/escribiendo en cabecera
+            if(!isGroup) {
+                db.ref('users/' + id + '/online').on('value', s => {
+                    document.getElementById('chat-status-top').innerText = s.val() ? 'En línea' : 'Desconectado';
+                });
+            }
             db.ref('typing/' + chatID).on('value', s => {
-                let typing = false;
-                s.forEach(u => { if(u.key !== me.uid && u.val()) typing = true; });
-                document.getElementById('typing-status').innerText = typing ? 'escribiendo...' : '';
+                let isTyping = false; s.forEach(u => { if(u.key !== me.uid && u.val()) isTyping = true; });
+                if(isTyping) document.getElementById('chat-status-top').innerText = 'escribiendo...';
             });
 
             db.ref('messages/' + chatID).on('value', snap => {
                 const box = document.getElementById('msg-box'); box.innerHTML = '';
                 snap.forEach(m => {
-                    const msg = m.val();
-                    const isMe = msg.sender === me.uid;
-                    box.innerHTML += `<div class="bubble" style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe? 'var(--azul-rey)':'#222'};">
-                        ${isGroup && !isMe ? `<span class="sender-name">${msg.senderName}</span>` : ''}
-                        ${msg.text}
-                    </div>`;
+                    const d = m.val(); const isMe = d.sender === me.uid;
+                    box.innerHTML += `<div class="bubble" style="align-self:${isMe?'flex-end':'flex-start'}; background:${isMe?'var(--azul-rey)':'#222'};">${d.text}</div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             });
@@ -286,71 +266,83 @@
             const val = document.getElementById('msg-input').value; if(!val) return;
             const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
             
-            db.ref('messages/' + chatID).push({ text: val, sender: me.uid, senderName: me.nombre, time: Date.now() });
+            db.ref('messages/' + chatID).push({ text: val, sender: me.uid, time: Date.now() });
             
             if(activeChat.isGroup) {
                 db.ref('recent/' + me.uid + '/' + activeChat.id).once('value', s => {
-                    (s.val().members || []).forEach(m => {
+                    const members = s.val().members || [];
+                    members.forEach(m => {
                         db.ref('recent/' + m + '/' + activeChat.id).update({ lastMsg: val, time: Date.now() });
                         if(m !== me.uid) db.ref('recent/' + m + '/' + activeChat.id + '/unreadCount').transaction(c => (c||0)+1);
                     });
                 });
             } else {
-                // Actualización instantánea para ambos
-                db.ref('recent/' + me.uid + '/' + activeChat.id).update({ lastMsg: val, time: Date.now(), nombre: activeChat.nombre, id: activeChat.id, isGroup: false, avatar: activeChat.avatar || '' });
-                db.ref('recent/' + activeChat.id + '/' + me.uid).update({ lastMsg: val, time: Date.now(), nombre: me.nombre, id: me.uid, isGroup: false, avatar: me.avatar || '' });
+                // Actualización para que NO desaparezca de chats
+                db.ref('recent/' + me.uid + '/' + activeChat.id).update({ id: activeChat.id, nombre: activeChat.nombre, avatar: activeChat.avatar || '', lastMsg: val, time: Date.now(), isGroup: false });
+                db.ref('recent/' + activeChat.id + '/' + me.uid).update({ id: me.uid, nombre: me.nombre, avatar: me.avatar || '', lastMsg: val, time: Date.now(), isGroup: false });
                 db.ref('recent/' + activeChat.id + '/' + me.uid + '/unreadCount').transaction(c => (c||0)+1);
             }
             document.getElementById('msg-input').value = '';
             updateTyping(false);
         }
 
-        function updateTyping(state) {
-            if(!activeChat) return;
-            const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
-            db.ref('typing/' + chatID + '/' + me.uid).set(state);
-            clearTimeout(typingTimeout);
-            if(state) typingTimeout = setTimeout(() => updateTyping(false), 3000);
+        function startGroupMode() { isGroupMode = true; selectedUsers = [me.uid]; document.getElementById('group-creation-bar').style.display = 'flex'; setTab('users'); }
+        
+        function toggleSelect(uid) {
+            if(uid === me.uid) return;
+            const i = selectedUsers.indexOf(uid);
+            if(i > -1) selectedUsers.splice(i, 1); else selectedUsers.push(uid);
+            document.getElementById('selected-count').innerText = "Seleccionados: " + (selectedUsers.length - 1);
+            renderList('users');
         }
 
-        // FUNCIONES DE PERFIL
+        function openGroupNameModal() { if(selectedUsers.length < 2) return alert("Selecciona a alguien"); document.getElementById('group-name-modal').style.display = 'flex'; }
+
+        function finishGroupCreation() {
+            const name = document.getElementById('new-group-name').value; if(!name) return;
+            const gid = 'group_' + Date.now();
+            const gData = { id: gid, nombre: name, isGroup: true, members: selectedUsers, lastMsg: 'Comunidad creada', time: Date.now() };
+            const updates = {};
+            selectedUsers.forEach(u => updates['recent/' + u + '/' + gid] = gData);
+            db.ref().update(updates).then(() => {
+                document.getElementById('group-name-modal').style.display = 'none';
+                isGroupMode = false; setTab('chats');
+            });
+        }
+
         function openProfile() {
-            const modal = document.getElementById('profile-modal');
-            const picker = document.getElementById('avatar-picker');
-            const myAvatarBox = document.getElementById('current-my-avatar');
-            
-            myAvatarBox.innerHTML = me.avatar ? `<img src="${me.avatar}">` : me.nombre[0];
-            picker.innerHTML = '';
+            const p = document.getElementById('profile-modal'); p.style.display = 'flex';
+            document.getElementById('p-avatar').innerHTML = me.avatar ? `<img src="${me.avatar}">` : me.nombre[0];
+            const picker = document.getElementById('avatar-picker'); picker.innerHTML = '';
             AVATARS.forEach(url => {
                 picker.innerHTML += `<img src="${url}" class="avatar-option" onclick="selectAvatar('${url}')">`;
             });
-            modal.style.display = 'flex';
         }
-
-        function selectAvatar(url) {
-            document.getElementById('custom-url').value = url;
-            document.getElementById('current-my-avatar').innerHTML = `<img src="${url}">`;
-        }
-
+        function selectAvatar(url) { document.getElementById('custom-url').value = url; document.getElementById('p-avatar').innerHTML = `<img src="${url}">`; }
         async function saveProfile() {
-            const url = document.getElementById('custom-url').value;
-            if(!url) return;
+            const url = document.getElementById('custom-url').value; if(!url) return;
             await db.ref('users/' + me.uid).update({ avatar: url });
             document.getElementById('profile-modal').style.display = 'none';
         }
 
-        function setTab(t) {
+        function updateTyping(s) {
+            if(!activeChat) return;
+            const chatID = activeChat.isGroup ? activeChat.id : (me.uid < activeChat.id ? me.uid + activeChat.id : activeChat.id + me.uid);
+            db.ref('typing/' + chatID + '/' + me.uid).set(s);
+            if(s) { clearTimeout(window.tyT); window.tyT = setTimeout(() => updateTyping(false), 2000); }
+        }
+
+        function setTab(t) { 
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
             document.getElementById('tab-'+t).classList.add('active');
             renderList(t);
         }
-
         function closeChat() { document.getElementById('chat-window').style.display = 'none'; activeChat = null; }
         function filterLists() {
             const q = document.getElementById('main-search').value.toLowerCase();
             document.querySelectorAll('.list-row').forEach(r => r.style.display = r.innerText.toLowerCase().includes(q) ? 'flex' : 'none');
         }
-        function startGroupMode() { isGroupMode = true; selectedUsers = [me.uid]; document.getElementById('group-creation-bar').style.display = 'flex'; setTab('users'); }
     </script>
 </body>
 </html>
+
