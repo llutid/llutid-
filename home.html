@@ -1,1240 +1,289 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>LLUTID+</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{
-  --dark-bg:#050507;
-  --accent-blue:#007bff;
-  --text-light:#fff;
-  --text-muted:#aeb0b5;
-  --panel:#0f0f11;
-  --border-soft:#2f2f33;
-  --shadow-strong: rgba(0,0,0,0.6);
-}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>LLUTID+ | Inmaculada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Netflix+Sans:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Netflix Sans';
+            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
+            font-weight: 400;
+            font-display: swap;
+        }
 
-/* Reset */
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{
-  font-family:'Inter',sans-serif;
-  background:var(--dark-bg);
-  color:var(--text-light);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  overflow-x:hidden;
-  scroll-behavior:smooth;
-}
+        body {
+            font-family: 'Netflix Sans', 'Roboto', sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-/* ---------- HERO ---------- */
-.hero-section{
-  position:relative;
-  width:100%;
-  height:83vh;
-  min-height:520px;
-  overflow:hidden;
-  background:#000;
-}
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #000000, #0a0a0a);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
 
-/* images */
-.carousel-image{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  object-position:center;
-  opacity:0;
-  transition:opacity 1s ease-in-out, transform 1s ease;
-  will-change:opacity;
-}
-.carousel-image.active{opacity:1;z-index:1;transform:scale(1.02);}
+        .logo-container-intro {
+            font-size: 4rem; font-weight: 800; color: white; opacity: 0;
+            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
+            font-family: 'Montserrat', sans-serif;
+        }
 
-/* overlay degradado grande que inicia bajo el logo del film y cubre laterales */
-.hero-overlay{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:-40px;
-  height:84%;
-  background:linear-gradient(
-    to top,
-    rgba(0,0,0,1) 0%,
-    rgba(0,0,0,0.96) 16%,
-    rgba(0,0,0,0.82) 34%,
-    rgba(0,0,0,0.55) 56%,
-    rgba(0,0,0,0.2) 82%,
-    transparent 100%
-  );
-  z-index:3;
-  pointer-events:none;
-}
+        @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { to { opacity: 0; transform: scale(1.05); } }
 
-/* LL+ circular logo */
-.hero-logo-inner{
-  position:absolute;
-  top:14px;
-  left:14px;
-  z-index:9999;
-  width:46px;height:46px;border-radius:50%;
-  background:rgba(255,255,255,0.06);
-  display:flex;align-items:center;justify-content:center;
-  pointer-events:none;user-select:none;
-  transition:opacity .28s, transform .28s;
-}
-.hero-logo-inner .hero-ll{color:var(--accent-blue);font-weight:900;font-size:16px}
-.hero-logo-inner .hero-plus{color:#fff;font-weight:900;font-size:16px}
+        .main-content { display: none; flex-grow: 1; }
 
-/* hero info area (moved down for breathing room) */
-.hero-info{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:70px;
-  text-align:center;
-  z-index:5;
-  padding:0 16px;
-}
-.hero-info h1{
-  font-size:0;
-  height:90px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin:0;
-}
-.hero-info h1 img{
-  max-width:78%;
-  max-height:100%;
-  object-fit:contain;
-  filter:drop-shadow(0 12px 30px rgba(0,0,0,0.6));
-}
-.hero-info p#heroDesc{
-  margin-top:8px;
-  color:var(--text-muted);
-  font-size:13px;
-  letter-spacing:0.6px;
-}
-.hero-desc{
-  margin-top:12px;
-  color:#eaeaea;
-  font-size:14px;
-  line-height:1.45;
-  text-align:center;
-  max-width:760px;
-  margin-left:auto;margin-right:auto;
-  padding:12px 18px;
-  border-radius:10px;
-  background:linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.7) 100%);
-  box-shadow:0 8px 30px rgba(0,0,0,0.6);
-}
+        header {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 10;
+        }
 
-/* dots */
-.carousel-dots{
-  position:absolute;
-  bottom:22px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:6;
-  display:flex;
-  gap:8px;
-}
-.carousel-dots span{
-  width:8px;height:8px;border-radius:50%;
-  background:rgba(255,255,255,0.28);
-  transition:all .28s;
-}
-.carousel-dots span.active{width:22px;border-radius:8px;background:#fff}
+        .header-left { display: flex; align-items: center; }
+        .header-back { color: #fff; font-size: 28px; margin-right: 15px; cursor: pointer; }
+        .header-logo { font-size: 1.8rem; font-weight: 800; color: #1e90ff; text-decoration: none; }
+        .header-logo span { color: white; }
 
-/* ---------- MAIN / SECTIONS ---------- */
-.content{
-  padding:26px 16px 120px;
-  background:linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.18) 100%);
-}
+        .movie-hero {
+            position: relative; width: 100%; padding-top: 56.25%; 
+            background-color: #000; overflow: hidden;
+        }
 
-/* section header */
-.category-section{margin-bottom:28px}
-.category-title-container{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.category-section h2{font-size:20px;margin:0;color:var(--text-light);border-left:5px solid var(--accent-blue);padding-left:12px;font-weight:600}
-.view-more-link{font-size:13px;color:var(--accent-blue);text-decoration:none;font-weight:600;cursor:pointer}
+        .movie-hero .video-background {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+        }
 
-/* horizontal lanes */
-.movie-grid{
-  display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px;
-}
-.movie-grid::-webkit-scrollbar{display:none}
+        .movie-hero iframe { width: 100%; height: 100%; border: none; pointer-events: none; transform: scale(1.1); }
 
-/* AUMENTO DE ESPACIADO LATERAL SOLO EN TOP 10 */
-#top10MoviesSection .movie-grid {
-    gap: 24px; 
-}
+        .movie-details-header {
+            padding: 10px 20px 5px 20px; 
+            background-color: #000;
+            margin-top: -5px; 
+        }
 
-/* Estilo por defecto de la tarjeta de película */
-.movie-card{
-  flex-shrink:0;width:148px;height:220px;border-radius:10px;
-  overflow:hidden; 
-  background:var(--panel);border:1px solid var(--border-soft);
-  box-shadow:0 12px 36px var(--shadow-strong);
-  cursor:pointer;position:relative;
-}
-.movie-card img{width:100%;height:100%;object-fit:cover;display:block; position: relative; z-index: 1;}
+        .movie-title-main { 
+            font-size: 1.9rem; 
+            font-weight: 800; 
+            margin: 0 0 4px 0; 
+            text-transform: none;
+            letter-spacing: -0.5px;
+        }
 
-/* --- CAMBIOS ESPECÍFICOS PARA TOP 10 --- */
+        .movie-info-line { 
+            display: flex; 
+            align-items: center; 
+            font-size: 0.85rem; 
+            color: #a3a3a3; 
+            margin-bottom: 12px; 
+        }
+        .movie-info-line span { margin-right: 12px; }
+        .movie-info-line .rating { border: 1px solid #a3a3a3; padding: 1px 5px; border-radius: 3px; font-size: 0.75rem; }
 
-/* 1. Tarjeta Contenedora del Top 10 */
-#top10MoviesSection .movie-card {
-    width: 230px; 
-    height: 220px;
-    overflow: visible; 
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    position: relative; 
-}
+        .actions { display: flex; flex-direction: column; gap: 12px; padding: 0 20px; margin-bottom: 25px; }
+        .btn {
+            display: flex; align-items: center; justify-content: center;
+            padding: 14px; border-radius: 6px; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; position: relative; overflow: hidden; border: none;
+        }
 
-/* 2. Imagen del Top 10 */
-#top10MoviesSection .movie-card img {
-    width: 148px; 
-    height: 220px; 
-    position: absolute;
-    right: 0; 
-    top: 0;
-    border-radius: 10px; 
-    border: 1px solid var(--border-soft);
-    box-shadow: 0 12px 36px var(--shadow-strong);
-    z-index: 1; 
-}
+        .btn-play { background-color: #282828; }
+        .btn-play.loaded-state { background-color: #fff; }
 
-/* 3. Número del Top 10: Base más agresiva (-20px) */
-#top10MoviesSection .movie-number{
-    position:absolute;
-    left: -20px; 
-    bottom: -20px; 
-    font-size: 14em; 
-    font-weight:900;
-    line-height:1; 
-    color: rgba(200, 200, 200, 0.2); 
-    -webkit-text-stroke: 2px #fff; 
-    text-stroke: 2px #fff; 
-    z-index:0; 
-    pointer-events:none;
-    user-select:none;
-    text-shadow: none; 
-}
+        #playButton .btn-text, #playButton i { color: #000 !important; position: relative; z-index: 5; }
 
-/* 3.1. Ajuste para el Número 1 (sin solapamiento) */
-#top10MoviesSection .movie-card:nth-child(1) .movie-number {
-    left: 0; 
-}
+        .progress-bar-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0;
+            background-color: #fff; z-index: 1;
+        }
 
-/* 3.2. Ajuste para los números 5 en adelante (menor solapamiento) */
-#top10MoviesSection .movie-card:nth-child(n+5) .movie-number {
-    left: -10px; 
-}
+        .btn-play.loading .progress-bar-fill { animation: fillProgressBar 22s linear forwards; }
+        @keyframes fillProgressBar { from { width: 0; } to { width: 100%; } }
 
-/* --- REPRODUCTOR INCORPORADO (PREVIEW) --- */
-.video-preview-container{
-  margin:30px 0;
-  height:220px; 
-  border-radius:12px;
-  overflow:hidden;
-  position:relative;
-  box-shadow:0 12px 40px var(--shadow-strong);
-  cursor:pointer;
-  transition:transform .2s;
-}
-.video-preview-container:active{transform:scale(0.99);}
+        .btn-share { background-color: #282828; color: #fff; }
 
-.video-playback-area {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-.preview-video-element {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; 
-  display: block;
-}
+        .details-section { padding: 0 20px; margin-bottom: 30px; }
+        .summary { font-size: 0.95rem; line-height: 1.4; color: #ccc; margin-bottom: 20px; }
+        .info-details { font-size: 0.85rem; color: #808080; line-height: 1.6; }
+        .info-details strong { color: #fff; }
 
-.video-controls{
-  position:absolute;
-  left:0; right:0; bottom:0; 
-  height:50px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between; 
-  padding: 0 12px;
-  background:linear-gradient(to top, rgba(0,0,0,0.8), transparent); 
-}
-.control-button{
-  background:rgba(0,0,0,0.6);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:50%;
-  color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  padding:6px; 
-  margin:0; 
-  backdrop-filter:blur(3px);
-  cursor:pointer;
-  transition:background .2s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-.control-button:hover{background:rgba(0,0,0,0.8);}
-.control-button svg { width: 20px; height: 20px; } 
+        .player-fullscreen-container {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: black; z-index: 9999;
+        }
+        .player-fullscreen-container iframe { width: 100%; height: 100%; border: none; }
 
-
-.play-button{
-  width:36px;height:36px; 
-  background:rgba(255,255,255,0.1); 
-  border:1px solid rgba(0,0,0,0.4);
-  color:var(--dark-bg);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.8);
-}
-.play-button svg {
-  width: 14px; height: 14px; 
-  fill: var(--dark-bg); 
-  stroke: var(--dark-bg);
-  margin-left: 2px;
-}
-
-
-/* --- OVERLAY REPRODUCTOR VERTICAL --- */
-.video-overlay{
-  position:fixed;inset:0;
-  background:var(--dark-bg);
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:1500;
-  padding:20px;
-}
-.video-overlay.active{display:flex}
-
-.vertical-player-window{
-  width:100%;
-  max-width:400px; 
-  height:70vh; /* Ventana más compacta */
-  min-height: 400px;
-  border-radius:12px;
-  overflow:hidden;
-  background:#000;
-  position:relative;
-  box-shadow:0 0 40px rgba(0,0,0,0.9);
-  display: flex;
-  flex-direction: column;
-}
-
-.player-header{
-  position:absolute;top:0;left:0;right:0;height:40px;
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:0 10px;z-index:10;
-  background:linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
-}
-.back-button{
-  background:rgba(255,255,255,0.2);
-  border:none;border-radius:50%;
-  color:#fff;font-size:24px;
-  width:32px;height:32px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-}
-
-.video-content{
-  width:100%; height:100%;
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  flex-grow: 1;
-}
-
-/* Nuevo contenedor para el video y la barra de progreso */
-.video-player-wrapper { 
-    width: 100%;
-    max-height: 65%; /* Limita la altura del reproductor dentro del overlay */
-    position: relative;
-    flex-grow: 0;
-    flex-shrink: 0;
-    background: black;
-}
-
-.vertical-video-element{
-  width:100%;
-  height:100%; /* Ocupa todo el wrapper */
-  object-fit: contain; 
-  display: block;
-}
-
-/* Barra de avance simulada */
-.progress-bar-container{
-  height:6px;width:100%;
-  background:rgba(255,255,255,0.2);
-  position:absolute;
-  bottom:0; /* Posicionado correctamente al final del wrapper del video */
-  left:0;
-  z-index: 5; 
-}
-.progress-bar{
-  height:100%;width:0%; 
-  background:var(--accent-blue);
-}
-
-/* Descripción Area (interactiva) */
-.video-description-area {
-    padding: 15px;
-    color: var(--text-light);
-    font-size: 14px;
-    line-height: 1.5;
-    background: var(--panel);
-    flex-grow: 1; /* Ocupa el espacio restante */
-    overflow-y: auto;
-    border-top: 1px solid var(--border-soft);
-}
-.video-description-area h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
-    color: var(--accent-blue);
-    font-weight: 700;
-}
-
-
-/* ad style */
-.ad-banner{margin:30px 0;height:100px;border-radius:12px;overflow:hidden;background:linear-gradient(45deg,#121212,#2b2b2b);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-.ad-banner img{width:100%;height:100%;object-fit:cover}
-
-/* ---------- BOTTOM NAV MODERNA ---------- */
-.bottom-nav{
-  position:fixed;
-  left:15px;right:15px;bottom:15px; /* Flotante */
-  height:70px;
-  display:flex;justify-content:space-around;align-items:center;
-  background: rgba(15, 15, 17, 0.75); /* Transparencia */
-  backdrop-filter:blur(20px); 
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px; /* Bordes redondeados */
-  z-index:999;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.bottom-nav button{
-  background:none;border:none;color:var(--text-muted);
-  display:flex;flex-direction:column;align-items:center;
-  font-size:11px;font-weight:600;cursor:pointer;
-  padding:10px;gap:4px;
-  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex: 1;
-}
-.bottom-nav button:active{transform:scale(0.9)}
-.bottom-nav button svg{
-  width:24px;height:24px;
-  transition: transform .3s ease, color .3s ease;
-}
-/* Estilo para botón activo o resaltado (opcional) */
-.bottom-nav button:hover {
-  color: var(--text-light);
-}
-.bottom-nav button:hover svg {
-  transform: translateY(-3px);
-  color: var(--accent-blue);
-}
-
-/* search overlay */
-.search-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.96);display:none;flex-direction:column;z-index:1200}
-.search-overlay.active{display:flex}
-.close-search-button{background:none;border:none;color:var(--text-muted);font-size:28px;padding:12px;align-self:flex-end;cursor:pointer}
-.overlay-search-input-container{padding:12px 18px}
-.overlay-search-input-container input{width:100%;padding:12px;border-radius:8px;border:2px solid var(--accent-blue);background:#0b0b0c;color:var(--text-light);font-size:16px}
-.search-results-grid{flex-grow:1;padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;overflow-y:auto}
-.search-results-grid a{display: block; border-radius: 8px; overflow: hidden;} /* Estilo para el resultado del buscador */
-.search-results-grid img{width:100%;border-radius:8px}
-.no-results-message{color:var(--text-muted);text-align:center;grid-column:1/-1;margin-top:30px}
-
-/* category overlay */
-.category-overlay{
-  position:fixed;
-  inset:0;
-  background:var(--dark-bg);
-  display:none;
-  flex-direction:column;
-  z-index:1100;
-  padding-top: 50px;
-  overflow-y: auto;
-}
-.category-overlay.active{display:flex}
-
-.overlay-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50px;
-    background: rgba(5, 5, 7, 0.98);
-    border-bottom: 1px solid var(--border-soft);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    z-index: 1200;
-}
-
-.overlay-header h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-    flex-grow: 1;
-    text-align: center;
-    margin-right: 40px;
-}
-
-.close-category-button{
-  background:none;
-  border:none;
-  color:var(--text-muted);
-  font-size:24px;
-  cursor:pointer;
-  padding: 0;
-  margin-left: -10px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Two-column grid inside the overlay */
-.overlay-content-grid{
-  padding:16px;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:16px;
-}
-
-/* Ajustes de las tarjetas dentro del overlay */
-.category-overlay .movie-card {
-    /* Revierte los estilos específicos del Top 10 para la vista "Ver Más" */
-    width: 100%;
-    height: auto;
-    aspect-ratio: 148 / 220;
-    box-shadow: 0 4px 12px var(--shadow-strong);
-    transition: none;
-    transform: none;
-    background: var(--panel);
-    border: 1px solid var(--border-soft);
-    overflow: hidden;
-}
-.category-overlay .movie-card img {
-    /* Revierte los estilos de posicionamiento de imagen */
-    width: 100%;
-    height: 100%;
-    position: static;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-}
-.category-overlay .movie-card:hover {
-    transform: none;
-}
-/* Ocultar números Top 10 en la vista general de la categoría */
-.category-overlay .movie-number {
-    display: none;
-}
-
-
-/* responsive */
-@media (max-width:1000px){
-  .movie-card{width:132px;height:196px}
-  .hero-info h1{height:78px}
-  .hero-desc{max-width:540px}
-
-  /* Ajuste de Top 10 para pantallas medianas */
-  #top10MoviesSection .movie-card {
-      width: 200px; /* 68px + 132px */
-      height: 196px;
-  }
-  #top10MoviesSection .movie-card img {
-      width: 132px; 
-      height: 196px;
-  }
-  #top10MoviesSection .movie-number{
-      font-size: 13em; 
-      bottom: -18px; 
-      /* BASE: Mayor solapamiento para 2, 3, 4 */
-      left: -18px; 
-  }
-  #top10MoviesSection .movie-card:nth-child(1) .movie-number {
-      left: 0; /* Mantiene el 1 en posición */
-  }
-  #top10MoviesSection .movie-card:nth-child(n+5) .movie-number {
-      left: -8px; /* Menor solapamiento para 5-10 */
-  }
-}
-@media (max-width:600px){
-  .hero-section{height:72vh;min-height:460px}
-  .hero-info{bottom:56px}
-  .hero-info h1{height:70px}
-  .hero-desc{max-width:92%;font-size:13px;padding:10px}
-  .movie-card{width:120px;height:170px}
-  
-  /* Ajuste de Top 10 para pantallas pequeñas */
-  #top10MoviesSection .movie-card {
-      width: 170px; /* 50px + 120px */
-      height: 170px;
-  }
-  #top10MoviesSection .movie-card img {
-      width: 120px; 
-      height: 170px;
-  }
-  #top10MoviesSection .movie-number{
-    font-size: 10em;
-    bottom: -10px;
-    /* BASE: Mayor solapamiento para 2, 3, 4 en móvil */
-    left: -18px;
-  }
-  #top10MoviesSection .movie-card:nth-child(1) .movie-number {
-    left: 0; /* Mantiene el 1 en posición */
-  }
-  #top10MoviesSection .movie-card:nth-child(n+5) .movie-number {
-    left: -8px; /* Menor solapamiento para 5-10 en móvil */
-  }
-  
-  .search-results-grid{grid-template-columns:repeat(2,1fr)}
-  
-  /* Ajuste del grid de categorías en overlay para móviles */
-  .overlay-content-grid{grid-template-columns:repeat(2,1fr)}
-}
-</style>
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+    </style>
 </head>
 <body>
 
-<section class="hero-section" id="heroSection">
-  <div class="hero-logo-inner" aria-hidden="true"><span class="hero-ll">LL</span><span class="hero-plus">+</span></div>
-
-  <a class="carousel-link" href="hapygilmore.html">
-    <img class="carousel-image active"
-         src="https://i.postimg.cc/yxTTtjhd/hapy.jpg"
-         alt="Fórmula 1"
-         data-desc="COMEDIA · DEPORTE · CAOS"
-         data-info="El icónico golfista regresa para demostrar que el talento, la pasión y el caos aún pueden cambiar el juego."
-         data-logo-url="https://i.postimg.cc/dVfjbLC4/AAAAOh-Ut-Va-MWi-DMq-Vw2f-XJZo-QES5X1u-JQj-SHg-H7g-Y85Tf-CU2k00o-H9MW7pab-RVZBc-Bzc7kvp-W1t-Zes-CD2G.png">
-  </a>
-
-  <a class="carousel-link" href="elexorcistadelpapa.html">
-    <img class="carousel-image"
-         src="https://i.postimg.cc/5NGd9BxY/Whats-App-Image-2025-09-18-at-12-06-11-PM.jpg"
-         alt="Misión Imposible"
-         data-desc="TERROR · SUSPENSO · DRAMA"
-         data-info="El jefe de los exorcistas enfrenta el mal que desafía su fe."
-         data-logo-url="https://i.postimg.cc/NG6qXq3b/png-clipart-the-exorcist-illustration-the-exorcist-logo-at-the-movies-horror-movies-thumbnail-remove.png">
-  </a>
-
-  <div class="hero-overlay" aria-hidden="true"></div>
-
-  <div class="hero-info" id="heroInfo">
-    <h1 id="heroTitle"><img src="https://upload.wikimedia.org/wikipedia/commons/0/05/F1_2025_Logo.png" alt="Formula 1"></h1>
-    <p id="heroDesc">ACCIÓN · DEPORTE · AVENTURA</p>
-    <p class="hero-desc" id="heroInfoText">Una mirada intensa al campeonato más veloz del planeta.</p>
-  </div>
-
-  <div class="carousel-dots" id="carouselDots" aria-hidden="true"></div>
-</section>
-
-<main class="content">
-  <section class="category-section" id="recentlyAddedSection">
-    <div class="category-title-container">
-      <h2>Recién Agregado</h2>
-      <a href="#" class="view-more-link">Ver Más</a>
+    <div class="intro-screen">
+        <div class="logo-container-intro">LLUTID</div>
     </div>
-    <div class="movie-grid">
-      <a href="lainmaculada.html" class="movie-card" data-title=".."><img src="https://m.media-amazon.com/images/S/pv-target-images/ae5392d746731715a5218c63fa5eabac7de538b0aa325e7744e40a9696a089b5.png" alt="sonic"></a>
-      <a href="gente.html" class="movie-card" data-title=".."><img src="https://image.tmdb.org/t/p/w342//9SUEbyc5OUaNkGPLK3f1w3Ryoyo.jpg" alt="sonic"></a>
-      <a href="lanochesiemprellega.html" class="movie-card" data-title=".."><img src="https://images.justwatch.com/poster/334610343/s718/night-always-comes.jpg" alt="sonic"></a>
-      <a href="caramelo.html" class="movie-card" data-title=",,"><img src="https://resizing.flixster.com/mKKmrj6RQLnOy_lZVtiH1kaYKnc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p31204312_v_v9_ab.jpg" alt="sonic"></a>
-      <a href="sonic.html" class="movie-card" data-title="sonic la pelicula"><img src="https://es.web.img2.acsta.net/pictures/19/11/12/12/25/0815514.jpg" alt="sonic"></a>
-      <a href="lacasadepapel4.html" class="movie-card" data-title="sonic la pelicula"><img src="https://es.web.img3.acsta.net/pictures/20/03/14/09/59/0004815.jpg" alt="sonic"></a>
+
+    <div class="main-content">
+        <header>
+            <div class="header-left">
+                <i class="fas fa-arrow-left header-back" onclick="window.history.back()"></i> 
+                <a href="home.html" class="header-logo">Llutid<span>+</span></a>
+            </div>
+            <div class="header-right">
+                <i class="fas fa-cast" style="margin-right: 15px;"></i> <i class="fas fa-user-circle"></i> 
+            </div>
+        </header>
+
+        <section class="movie-hero">
+            <div class="video-background">
+                <iframe 
+                    id="vimeoTrailer"
+                    src="https://player.vimeo.com/video/1154524850?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;background=1&amp;muted=0" 
+                    allow="autoplay; fullscreen" 
+                    title="Inmaculada Tráiler">
+                </iframe>
+            </div>
+        </section>
+
+        <section class="movie-details-header">
+            <h1 class="movie-title-main">Inmaculada</h1>
+            <div class="movie-info-line">
+                <span>2024</span>
+                <span class="rating">18+</span>
+                <span>1h 29min</span>
+                <span>4K</span>
+            </div>
+        </section>
+
+        <section class="actions">
+            <button class="btn btn-play" id="playButton">
+                <span class="progress-bar-fill"></span>
+                <i class="fas fa-spinner fa-spin" style="display:none;"></i>
+                <i class="fas fa-play" style="margin-right: 8px;"></i>
+                <span class="btn-text">Ver</span>
+            </button>
+            <button class="btn btn-share" id="shareButton">
+                <i class="fas fa-share-alt" style="margin-right: 8px;"></i> Compartir
+            </button>
+        </section>
+
+        <section class="details-section">
+            <p class="summary">
+                Cecilia, una monja fervientemente devota, se embarca en un viaje hacia un remoto convento en la campiña italiana. Lo que parecía un refugio espiritual pronto se convierte en una pesadilla aterradora cuando descubre los oscuros secretos que guardan sus paredes.
+            </p>
+            <div class="info-details">
+                <strong>Director:</strong> Michael Mohan<br>
+                <strong>Género:</strong> Terror / Psicológico<br>
+                <strong>Idioma:</strong> Español
+            </div>
+        </section>
     </div>
-  </section>
 
-  <section class="category-section" id="top10MoviesSection">
-    <div class="category-title-container"><h2>Top 10 películas LLUTID+</h2></div>
-    <div class="movie-grid">
-      <a href="lacasadepapel1.html" class="movie-card" data-title="">
-        <img src="https://www.aceprensa.com/wp-content/uploads/2019/08/71446-1-683x1024.jpg">
-        <div class="movie-number">1</div>
-      </a>
-      <a href="undonexepcional.html" class="movie-card" data-title="Un Don Exepcional">
-        <img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="un Don">
-        <div class="movie-number">2</div>
-      </a>
-      <a href="misionimposible.html" class="movie-card" data-title="Intensamente 2">
-        <img src="https://i.postimg.cc/L40V3hDN/result-mision.jpg" alt="Mision imposible">
-        <div class="movie-number">3</div>
-      </a>
-      <a href="intensamente2.html" class="movie-card" data-title="intensamente 2">
-        <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="intensamente">
-        <div class="movie-number">4</div>
-      </a>
-      <a href="hapygilmore.html" class="movie-card" data-title="hapy gilmore">
-        <img src="https://i.postimg.cc/0y2dMgpJ/result-hapu-gilmore.jpg" alt="hapy gilmore">
-        <div class="movie-number">5</div>
-      </a>
-      <a href="mujermaravilla.html" class="movie-card" data-title="Mujer maravilla">
-        <img src="https://i.postimg.cc/XNBWNbBW/result-mujer-maravilla.jpg" alt="Mujer maravilla">
-        <div class="movie-number">6</div>
-      </a>
-      <a href="lamonja.html" class="movie-card" data-title="La monja">
-        <img src="https://i.postimg.cc/zB2rhgyZ/result-la-monja.png" alt="La monja">
-        <div class="movie-number">7</div>
-      </a>
-      <a href="elexorcistadelpapa.html" class="movie-card" data-title="El exorcista del papa">
-        <img src="https://i.postimg.cc/5NGd9BxY/Whats-App-Image-2025-09-18-at-12-06-11-PM.jpg" alt="El exorcista del papa">
-        <div class="movie-number">8</div>
-      </a>
-      <a href="ted.html" class="movie-card" data-title="ted">
-        <img src="https://i.postimg.cc/tT7QF56X/result-TED-PORTADA.jpg" alt="ted">
-        <div class="movie-number">9</div>
-      </a>
-      <a href="terrifer1.html" class="movie-card" data-title="terrifer">
-        <img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="Terrifer 1" alt="terrifer">
-        <div class="movie-number">10</div>
-      </a>
+    <div id="playerFullscreenContainer" class="player-fullscreen-container">
+        <iframe id="movieIframe" src="https://drive.google.com/file/d/19T7Xyor2vkyi9nRifPRu8YqhDNoYcES1/preview" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
     </div>
-  </section>
 
-  <section class="category-section" id="popularMoviesSection">
-    <div class="category-title-container"><h2>Películas Populares</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="lapasiondecristo.html" class="movie-card" data-title="la pasion de cristo"><img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="the passion"></a>
-      <a href="ungranchico.html" class="movie-card" data-title="Un Gran Chico"><img src="https://i.postimg.cc/tCYbpvQ2/un-gran-chico.png" alt="Un Gran Chico"></a>
-      <a href="lanochesiemprellega.html" class="movie-card" data-title=",,"><img src="https://images.justwatch.com/poster/334610343/s718/night-always-comes.jpg" alt="sonic"></a>
-      <a href="tiburontoro.html" class="movie-card" data-title="Tiburón Toro 2"><img src="https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png" alt="Tiburon"></a>
-      <a href="sonic.html" class="movie-card" data-title="sonic la pelicula"><img src="https://es.web.img2.acsta.net/pictures/19/11/12/12/25/0815514.jpg" alt="sonic"></a>
-      <a href="larazondeestarcontigo.html" class="movie-card" data-title="La Razón 1"><img src="https://i.postimg.cc/Y2x0hsP7/la-razon-1.png" alt="Razón1"></a>
-      <a href="pata de guerra.html" class="movie-card" data-title="en pie pata de guerra"><img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="pata de guerra"></a>
-    </div>
-  </section>
-  
-  <div class="video-preview-container" id="videoPreviewContainer">
-    <div class="video-playback-area">
-      <video class="preview-video-element" id="previewVideo" autoplay muted loop playsinline>
-        <source src="./promocional.mp4" type="video/mp4">
-      </video>
-    </div>
-    
-    <div class="video-controls">
-      <button class="control-button" id="toggleMuteButton" aria-label="Alternar silencio">
-        <svg id="muteIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg>
-        <svg id="unmuteIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-      </button>
-      
-      <button class="control-button play-button" id="openPlayerButton" aria-label="Abrir reproductor y reproducir">
-        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#050507" stroke="#050507" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-      </button>
-    </div>
-  </div>
-  <div class="ad-banner"><img src="https://i.postimg.cc/2SrB0txK/VR-ACTUA.jpg" alt="Banner"></div>
+    <script>
+        const playButton = document.getElementById('playButton');
+        const playerFullscreenContainer = document.getElementById('playerFullscreenContainer');
+        const shareButton = document.getElementById('shareButton');
+        const playButtonText = playButton.querySelector('.btn-text');
+        const playButtonSpinner = playButton.querySelector('.fa-spinner');
+        const playIcon = playButton.querySelector('.fa-play');
+        const progressBarFill = playButton.querySelector('.progress-bar-fill');
+        const vimeoTrailer = document.getElementById('vimeoTrailer');
 
-  <section class="category-section" id="terrorSection">
-    <div class="category-title-container"><h2>Terror / Suspenso</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="lainmaculada.html" class="movie-card" data-title="la inmaculada"><img src="https://m.media-amazon.com/images/S/pv-target-images/ae5392d746731715a5218c63fa5eabac7de538b0aa325e7744e40a9696a089b5.png" alt="sonic"></a>
-      <a href="lamonja.html" class="movie-card"><img src="https://i.postimg.cc/zB2rhgyZ/result-la-monja.png" alt="La Monja"></a>
-      <a href="elexorcistadelpapa.html" class="movie-card"><img src="https://i.postimg.cc/5NGd9BxY/Whats-App-Image-2025-09-18-at-12-06-11-PM.jpg" alt="Exorcista Papa"></a>
-      <a href="megan.html" class="movie-card"><img src="https://i.postimg.cc/QdyF5pwZ/Whats-App-Image-2025-09-18-at-5-55-02-PM.jpg" alt="Megan"></a>
-      <a href="laexorcista.html" class="movie-card"><img src="https://i.postimg.cc/C5vwJWyf/la-exorcista.png" alt="Exorcista"></a>
-      <a href="terrifer1.html" class="movie-card"><img src="https://i.postimg.cc/GpYhr7DZ/terrifer-1.png" alt="Terrifer"></a>
-      <a href="lareencarnacion.html" class="movie-card"><img src="https://i.postimg.cc/8cWH9QLF/result-reencarnacion-port.jpg" alt="Reencarnacion"></a>
-      <a href="payasoit.html" class="movie-card"><img src="https://i.postimg.cc/2SrP30gs/payaso-it.png" alt="It"></a>
-    </div>
-  </section>
+        const MOVIE_WATCHED_KEY = 'movieWatched_Inmaculada'; 
 
-  <section class="category-section" id="dramaSection">
-    <div class="category-title-container"><h2>Drama</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="gente.html" class="movie-card" data-title=".."><img src="https://image.tmdb.org/t/p/w342//9SUEbyc5OUaNkGPLK3f1w3Ryoyo.jpg" alt="sonic"></a>
-      <a href="caramelo.html" class="movie-card" data-title=".."><img src="https://resizing.flixster.com/mKKmrj6RQLnOy_lZVtiH1kaYKnc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p31204312_v_v9_ab.jpg" alt="sonic"></a>
-      <a href="vals.html" class="movie-card"><img src="https://i.postimg.cc/15xgG3gD/result-vals.jpg" alt="vals"></a>
-      <a href="reveldesalos16.html" class="movie-card"><img src="https://i.postimg.cc/g2snbygK/result-reveldes-a-los-16.jpg" alt="Reveldes a los 16"></a>
-      <a href="larazondeestarcontigo.html" class="movie-card"><img src="https://i.postimg.cc/Y2x0hsP7/la-razon-1.png" alt="Razón1"></a>
-      <a href="elvoto.html" class="movie-card"><img src="https://i.postimg.cc/V6gwL3kH/el-voto.png" alt="el voto"></a>
-      <a href="undonexepcional.html" class="movie-card"><img src="https://i.postimg.cc/WzWKqVrt/un-don-exepcional.png" alt="un don exepcional"></a>
-      <a href="dioscambiosuvidaparasiempre.html" class="movie-card"><img src="https://i.postimg.cc/BQshCXND/dios-cambio-su-vida.png" alt="dios cambio su vida para siempre"></a>
-      <a href="larazondeestarcontico2.html" class="movie-card"><img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="la razon de estar contigo 2"></a>
-      <a href="pata de guerra.html" class="movie-card"><img src="https://i.postimg.cc/3rj42RdP/en-pie-de-guerra.png" alt="en pie pata de guerra"></a>
-      <a href="elretador.html" class="movie-card"><img src="https://i.postimg.cc/XvDqpjSG/el-retador.png" alt="el retador"></a>
-      <a href="lost.html" class="movie-card"><img src="https://i.postimg.cc/1zQcLFyC/result-lost-and-found.jpg" alt="lost y found"></a>
-      <a href="leny.html" class="movie-card"><img src="https://i.postimg.cc/7LvwB3RX/leny.png" alt="leny"></a>
-      <a href="desastredelapelicula.html" class="movie-card"><img src="https://i.postimg.cc/7YyRQBP5/desastre-pelicula.png" alt="Desastre"></a>
-    </div>
-  </section>
+        let hasOpened = false;
 
-  <section class="category-section" id="accionSection">
-    <div class="category-title-container"><h2>Acción / Crimen</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="superman2025.html" class="movie-card" data-title="Superman"><img src="https://i.postimg.cc/NfKRtDJd/result-superman.jpg" alt="Superman"></a>
-      <a href="misionimposible.html" class="movie-card"><img src="https://i.postimg.cc/L40V3hDN/result-mision.jpg" alt="Mision"></a>
-      <a href="formula1.html" class="movie-card"><img src="https://i.postimg.cc/VLJVSCm8/result-f1.jpg" alt="F1"></a>
-      <a href="mujermaravilla.html" class="movie-card"><img src="https://i.postimg.cc/XNBWNbBW/result-mujer-maravilla.jpg" alt="mujer maravilla"></a>
-      <a href="karatekids.html" class="movie-card"><img src="https://i.postimg.cc/9MVGjqz1/result-karate-kid-legends-poster-2.png" alt="Karate"></a>
-      <a href="elroboperfecto.html" class="movie-card"><img src="https://i.postimg.cc/BQC2J20q/result-el-robo-perfecto.png" alt="el robo perfecto"></a>
-      <a href="hacker.html" class="movie-card"><img src="https://i.postimg.cc/zXLs9LKQ/hacker.png" alt="Hacker"></a> 
-      <a href="asaltoalfurgon.html" class="movie-card"><img src="https://i.postimg.cc/fL84hm8G/asalto-al-furgon.png" alt="asalto al furgon blindado"></a>
-      <a href="hombrearaña2.html" class="movie-card"><img src="https://i.postimg.cc/GtnXV2CW/hombre-ara-a.png" alt="spiderman 2"></a>
-      <a href="fautland.html" class="movie-card"><img src="https://i.postimg.cc/0j4LzxRZ/fautland.png" alt="fauntland"></a>
-      <a href="tiburontoro.html" class="movie-card"><img src="https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png" alt="tiburon toro 2"></a>
-    </div>
-  </section>
+        setTimeout(() => {
+            document.querySelector('.intro-screen').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
+                setButtonToWatchedState();
+            } else {
+                startPlayButtonAnimation();
+            }
+        }, 5500);
 
-  <section class="category-section" id="animadaSection">
-    <div class="category-title-container"><h2>Animada / Familiar</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="intensamente2.html" class="movie-card"><img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Intensamente"></a>
-      <a href="ole.html" class="movie-card"><img src="https://i.postimg.cc/J0D3jpwP/ole-viaje-de-ferdinad.png" alt="Ole"></a>
-      <a href="stuby.html" class="movie-card"><img src="https://i.postimg.cc/0Q3DzHjP/sgt-stuby.png" alt="Stubby"></a>
-      <a href="encanto.html" class="movie-card"><img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="Encanto"></a>
-      <a href="patos.html" class="movie-card"><img src="https://i.postimg.cc/66GsP2dm/patos.png" alt="patos"></a>
-      <a href="perrorokero2.html" class="movie-card"><img src="https://i.postimg.cc/tJ8MX5WM/perro-rokero-2.png" alt="perro rokero 2"></a>
-    </div>
-  </section>
-
-  <section class="category-section" id="comediaSection">
-    <div class="category-title-container"><h2>Comedia</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="ted.html" class="movie-card"><img src="https://i.postimg.cc/tT7QF56X/result-TED-PORTADA.jpg" alt="Ted"></a>
-      <a href="hotdog.html" class="movie-card"><img src="https://pics.filmaffinity.com/Hot_Dog-870584008-mmed.jpg" alt="HotDog"></a>
-      <a href="dondeestanlasrubias.html" class="movie-card"><img src="https://i.postimg.cc/rsrWDzWH/rubias.png" alt="Rubias"></a>
-      <a href="elpaseo5.html" class="movie-card"><img src="https://i.postimg.cc/Qdmv7p3H/paseo-5.png" alt="Paseo"></a>
-      <a href="elpaseo6.html" class="movie-card"><img src="https://i.postimg.cc/6ptyPbf3/result-el-paseo-6.png" alt="el Paseo 6"></a>
-      <a href="elpaseo7.html" class="movie-card"><img src="https://i.postimg.cc/5ttTS64p/paseo-7.png" alt="el Paseo 7"></a>
-      <a href="2tontos.html" class="movie-card"><img src="https://i.postimg.cc/yNFB2J4K/2-tontos.png" alt="2 Tontos"></a>
-    </div>
-  </section>
-
-  <section class="category-section" id="netflixSection">
-    <div class="category-title-container"><h2>Contenido De Netflix</h2><a href="#" class="view-more-link">Ver Más</a></div>
-    <div class="movie-grid">
-      <a href="gente.html" class="movie-card" data-title="Gente que conocemos en vacaciones"><img src="https://image.tmdb.org/t/p/w342//9SUEbyc5OUaNkGPLK3f1w3Ryoyo.jpg" alt="sonic"></a>
-      <a href="lacasadepapel1.html" class="movie-card" data-title="la casa de papel"><img src="https://www.aceprensa.com/wp-content/uploads/2019/08/71446-1-683x1024.jpg" alt="sonic"></a>
-      <a href="caramelo.html" class="movie-card" data-title="caramelo"><img src="https://resizing.flixster.com/mKKmrj6RQLnOy_lZVtiH1kaYKnc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p31204312_v_v9_ab.jpg" alt="sonic"></a>
-      <a href="lanochesiemprellega.html" class="movie-card" data-title="la noche siempre llega"><img src="https://images.justwatch.com/poster/334610343/s718/night-always-comes.jpg" alt="sonic"></a>
-      <a href="hapygilmore.html" class="movie-card"><img src="https://i.postimg.cc/0y2dMgpJ/result-hapu-gilmore.jpg" alt="Happy"></a>
-    </div>
-  </section>
-
-</main>
-
-<nav class="bottom-nav" role="navigation" aria-label="Navegación inferior">
-  <button aria-label="Inicio" onclick="scrollToTop()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-    <span>Home</span>
-  </button>
-
-  <button aria-label="Próximos" onclick="window.location.href='proximasenlanzamiento.html'">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-    <span>Próximos</span>
-  </button>
-
-  <button aria-label="En Vivo" onclick="window.location.href='chat.html'">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.48m-9.19 0a6 6 0 0 1 0-8.48m13.43-4.24a10 10 0 0 1 0 14.14m-17.67 0a10 10 0 0 1 0-14.14"></path></svg>
-    <span>En Vivo</span>
-  </button>
-
-  <button id="openSearchButton" aria-label="Buscar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-    <span>Buscar</span>
-  </button>
-</nav>
-
-<div class="search-overlay" id="searchOverlay" aria-modal="true" role="dialog" aria-hidden="true">
-  <button class="close-search-button" id="closeSearchButton" aria-label="Cerrar búsqueda">✖</button>
-  <div class="overlay-search-input-container">
-    <input id="overlaySearchInput" type="text" placeholder="Escribe para buscar...">
-  </div>
-  <div class="search-results-grid" id="overlaySearchResultsGrid">
-    <p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>
-  </div>
-</div>
-
-<div class="category-overlay" id="categoryOverlay" aria-modal="true" role="dialog" aria-hidden="true">
-  <div class="overlay-header">
-    <button class="close-category-button" id="closeCategoryButton" aria-label="Cerrar vista de categoría">✖</button>
-    <h2 id="categoryOverlayTitle"></h2>
-  </div>
-  <div class="overlay-content-grid" id="overlayCategoryContentGrid">
-    </div>
-</div>
-
-<div class="video-overlay" id="videoOverlay" aria-modal="true" role="dialog" aria-hidden="true">
-  <div class="vertical-player-window">
-    <div class="player-header">
-      <button class="back-button" id="closePlayerButton" aria-label="Volver al inicio">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      </button>
-    </div>
-    <div class="video-content">
-      <div class="video-player-wrapper"> 
-          <video class="vertical-video-element" id="localVideoPlayer" playsinline controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture>
-              <source src="./promocional.mp4" type="video/mp4">
-              Tu navegador no soporta el elemento de video.
-          </video>
-          <div class="progress-bar-container"><div class="progress-bar" id="videoProgressBar"></div></div>
-      </div>
-      
-      <div class="video-description-area">
-          <h3>¡Gran Estreno! - LLUTID+</h3>
-          <p>Disfruta de la nueva película de acción y suspenso que está rompiendo récords. No te pierdas esta aventura con efectos especiales inigualables. Solo en LLUTID+.</p>
-          <p>Esta es una descripción interactiva que permite a los usuarios leer sobre el contenido mientras esperan que cargue el video o simplemente para obtener más información.</p>
-      </div>
-      </div>
-  </div>
-</div>
-<script>
-// --- Carousel: images, dots, descriptions
-const carouselImages = Array.from(document.querySelectorAll('.carousel-image'));
-const heroTitle = document.getElementById('heroTitle');
-const heroDesc = document.getElementById('heroDesc');
-const heroInfoText = document.getElementById('heroInfoText');
-const dotsContainer = document.getElementById('carouselDots');
-
-let currentIndex = 0;
-let intervalId = null;
-
-// build dots
-function buildDots(){
-  dotsContainer.innerHTML = '';
-  carouselImages.forEach((_,i)=>{
-    const dot = document.createElement('span');
-    if(i===0) dot.classList.add('active');
-    dot.addEventListener('click', ()=> {
-      clearInterval(intervalId);
-      currentIndex = i;
-      showImage(i);
-      intervalId = setInterval(nextImage, 6000);
-    });
-    dotsContainer.appendChild(dot);
-  });
-}
-buildDots();
-
-function showImage(index){
-  carouselImages.forEach((img,i)=>{
-    img.classList.toggle('active', i===index);
-  });
-  const dots = dotsContainer.querySelectorAll('span');
-  dots.forEach((d,i)=> d.classList.toggle('active', i===index));
-  const active = carouselImages[index];
-  if(!active) return;
-  const logoUrl = active.dataset.logoUrl || '';
-  const desc = active.dataset.desc || '';
-  const info = active.dataset.info || '';
-  heroTitle.innerHTML = logoUrl ? `<img src="${logoUrl}" alt="">` : '';
-  heroDesc.textContent = desc;
-  heroInfoText.textContent = info;
-}
-function nextImage(){ currentIndex = (currentIndex + 1) % carouselImages.length; showImage(currentIndex); }
-
-// start autoplay
-intervalId = setInterval(nextImage, 6000);
-showImage(0);
-
-// --- LL+ hide on scroll (IntersectionObserver)
-const heroSection = document.getElementById('heroSection');
-const heroLogo = document.querySelector('.hero-logo-inner');
-if(heroSection && heroLogo){
-  const obs = new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        heroLogo.style.opacity = '1';
-        heroLogo.style.transform = 'translateY(0)';
-      } else {
-        heroLogo.style.opacity = '0';
-        heroLogo.style.transform = 'translateY(-8px)';
-      }
-    });
-  }, { threshold: 0.1 });
-  obs.observe(heroSection);
-}
-
-// --- Search overlay and search logic
-const searchOverlay = document.getElementById('searchOverlay');
-const openSearchButton = document.getElementById('openSearchButton');
-const closeSearchButton = document.getElementById('closeSearchButton');
-const overlaySearchInput = document.getElementById('overlaySearchInput');
-const overlaySearchResultsGrid = document.getElementById('overlaySearchResultsGrid');
-
-openSearchButton.addEventListener('click', ()=> {
-  searchOverlay.classList.add('active');
-  searchOverlay.setAttribute('aria-hidden','false');
-  document.body.style.overflow = 'hidden'; 
-  overlaySearchInput.value = '';
-  overlaySearchInput.focus();
-});
-closeSearchButton.addEventListener('click', ()=> {
-  searchOverlay.classList.remove('active');
-  searchOverlay.setAttribute('aria-hidden','true');
-  document.body.style.overflow = ''; 
-});
-
-// collect movies from movie-card elements
-function getAllMoviesData(){
-  const cards = document.querySelectorAll('.movie-card');
-  const map = new Map();
-  cards.forEach(card=>{
-    const title = (card.dataset.title || (card.querySelector('img')?.alt || '')).trim();
-    if(!title) return;
-    if(!map.has(title)){
-      map.set(title, {
-        originalTitle: title,
-        title: title.toLowerCase(),
-        image: card.querySelector('img') ? card.querySelector('img').src : '',
-        link: card.href || '#'
-      });
-    }
-  });
-  return Array.from(map.values());
-}
-let allMoviesData = getAllMoviesData();
-
-function renderSearchResults(term){
-  overlaySearchResultsGrid.innerHTML = '';
-  const q = (term || '').trim().toLowerCase();
-  if(!q){
-    overlaySearchResultsGrid.innerHTML = '<p class="no-results-message">Empieza a escribir para encontrar películas y series.</p>';
-    return;
-  }
-  const filtered = allMoviesData.filter(m=> m.title.includes(q));
-  if(filtered.length===0){
-    overlaySearchResultsGrid.innerHTML = `<p class="no-results-message">No se encontraron resultados para "${term}".</p>`;
-    return;
-  }
-  filtered.forEach(m=>{
-    const a = document.createElement('a');
-    a.href = m.link;
-    // Eliminado el estilo inline de margin-bottom, se usa el grid gap del CSS
-    a.innerHTML = `<img src="${m.image}" alt="${m.originalTitle}">`;
-    overlaySearchResultsGrid.appendChild(a);
-  });
-}
-
-let searchTimeout;
-overlaySearchInput.addEventListener('input', ()=> {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(()=> renderSearchResults(overlaySearchInput.value), 180);
-});
-
-// update movies list on DOM changes
-const domObserver = new MutationObserver(()=> { allMoviesData = getAllMoviesData(); });
-domObserver.observe(document.querySelector('main'), { childList:true, subtree:true });
-
-
-// --- Category Overlay Logic
-const categoryOverlay = document.getElementById('categoryOverlay');
-const closeCategoryButton = document.getElementById('closeCategoryButton');
-const categoryOverlayTitle = document.getElementById('categoryOverlayTitle');
-const overlayCategoryContentGrid = document.getElementById('overlayCategoryContentGrid');
-const viewMoreLinks = document.querySelectorAll('.view-more-link');
-
-function openCategoryOverlay(title, movieGridElement){
-    categoryOverlayTitle.textContent = title;
-    overlayCategoryContentGrid.innerHTML = '';
-    
-    const movieCards = movieGridElement.querySelectorAll('.movie-card');
-    movieCards.forEach(card => {
-        const clonedCard = card.cloneNode(true); 
-        overlayCategoryContentGrid.appendChild(clonedCard);
-    });
-    
-    categoryOverlay.classList.add('active');
-    categoryOverlay.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden'; 
-    categoryOverlay.scrollTo(0, 0); 
-}
-
-viewMoreLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault(); 
-        const section = link.closest('.category-section');
-        if(!section) return;
-
-        const titleElement = section.querySelector('h2');
-        const movieGridElement = section.querySelector('.movie-grid');
-
-        if(titleElement && movieGridElement){
-            const title = titleElement.innerText.trim(); 
-            openCategoryOverlay(title, movieGridElement);
+        function setButtonToWatchedState() {
+            playButton.classList.remove('loading');
+            playButton.classList.add('loaded-state'); 
+            progressBarFill.style.width = '100%';
+            playButtonSpinner.style.display = 'none';
+            playIcon.style.display = 'inline-block';
+            playButtonText.textContent = 'Ver otra vez';
         }
-    });
-});
 
-closeCategoryButton.addEventListener('click', ()=> {
-    categoryOverlay.classList.remove('active');
-    categoryOverlay.setAttribute('aria-hidden','true');
-    document.body.style.overflow = ''; 
-});
+        function startPlayButtonAnimation() {
+            playButton.classList.add('loading');
+            playButtonSpinner.style.display = 'inline-block';
+            playIcon.style.display = 'none';
+            setTimeout(() => {
+                if (!hasOpened) openMovieFullscreen();
+                setButtonToWatchedState();
+            }, 22000);
+        }
 
-// --- Lógica del Reproductor de Video (Local MP4) ---
-const videoPreviewContainer = document.getElementById('videoPreviewContainer');
-const toggleMuteButton = document.getElementById('toggleMuteButton');
-const muteIcon = document.getElementById('muteIcon');
-const unmuteIcon = document.getElementById('unmuteIcon');
-const openPlayerButton = document.getElementById('openPlayerButton');
+        function openMovieFullscreen() {
+            if (hasOpened) return;
+            hasOpened = true;
+            localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+            playerFullscreenContainer.style.display = 'block';
+            if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                vimeoTrailer.contentWindow.postMessage(JSON.stringify({method: 'pause'}), '*'); 
+            }
+            if (playerFullscreenContainer.requestFullscreen) playerFullscreenContainer.requestFullscreen();
+            else if (playerFullscreenContainer.webkitRequestFullscreen) playerFullscreenContainer.webkitRequestFullscreen();
+        }
 
-const videoOverlay = document.getElementById('videoOverlay');
-const closePlayerButton = document.getElementById('closePlayerButton');
-const localVideoPlayer = document.getElementById('localVideoPlayer');
-const previewVideo = document.getElementById('previewVideo'); 
-const videoProgressBar = document.getElementById('videoProgressBar');
+        shareButton.addEventListener('click', () => {
+            const shareData = {
+                title: 'Inmaculada',
+                text: '¡Mira esta peli de terror en LLUTID+! ⛪😱',
+                url: window.location.href
+            };
 
-let isMuted = true;
-let isPlayerOpen = false;
-
-// 1. Inicializar el estado de silencio (por defecto)
-if (previewVideo && localVideoPlayer) {
-    previewVideo.muted = true;
-    localVideoPlayer.muted = true;
-}
-
-// 2. Alternar Mute en el botón de la vista previa
-if (toggleMuteButton && previewVideo && localVideoPlayer) {
-    toggleMuteButton.addEventListener('click', (e) => {
-        e.stopPropagation(); 
-        isMuted = !isMuted;
-        
-        // Actualizar iconos
-        if (muteIcon) muteIcon.style.display = isMuted ? 'block' : 'none';
-        if (unmuteIcon) unmuteIcon.style.display = isMuted ? 'none' : 'block';
-        
-        // Aplicar a los videos
-        previewVideo.muted = isMuted; 
-        localVideoPlayer.muted = isMuted;
-        
-        // Si se quita el silencio y el preview está pausado (raro, pero posible), intentar reproducir
-        if(!isMuted && previewVideo.paused) previewVideo.play().catch(console.error);
-    });
-}
-
-// 3. Abrir el reproductor vertical
-const openPlayer = () => {
-    isPlayerOpen = true;
-    
-    if (previewVideo) previewVideo.pause(); 
-    
-    // Abrir el overlay
-    if (videoOverlay) {
-        videoOverlay.classList.add('active');
-        videoOverlay.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden'; 
-    }
-    
-    // Reproducir el video del overlay con el estado de silencio actual
-    if (localVideoPlayer) {
-        localVideoPlayer.muted = isMuted;
-        localVideoPlayer.play().catch(error => {
-            console.log("Error de auto-play en overlay:", error);
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
+                });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank');
+            }
         });
-    }
-}
 
-// Abrir al hacer clic en el botón de Play o el contenedor
-if (openPlayerButton) {
-    openPlayerButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openPlayer();
-    });
-}
-if (videoPreviewContainer) {
-    videoPreviewContainer.addEventListener('click', openPlayer);
-}
+        playButton.addEventListener('click', openMovieFullscreen);
 
-
-// 4. Cerrar el reproductor
-if (closePlayerButton) {
-    closePlayerButton.addEventListener('click', () => {
-        isPlayerOpen = false;
-        if (videoOverlay) {
-            videoOverlay.classList.remove('active');
-            videoOverlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+        function exitHandler() {
+            if (!document.fullscreenElement && !document.webkitIsFullScreen) {
+                playerFullscreenContainer.style.display = 'none';
+                hasOpened = false;
+                if (vimeoTrailer && vimeoTrailer.contentWindow) {
+                    vimeoTrailer.contentWindow.postMessage(JSON.stringify({method: 'play'}), '*');
+                }
+            }
         }
-        
-        // Pausar el video del overlay y resetear el tiempo
-        if (localVideoPlayer) {
-            localVideoPlayer.pause();
-            localVideoPlayer.currentTime = 0;
-        }
-        if (videoProgressBar) videoProgressBar.style.width = '0%';
-        
-        // Reanudar la reproducción en el preview
-        if (previewVideo) previewVideo.play().catch(console.error);
-    });
-}
-
-// 5. Actualizar barra de progreso (Solo para el player de overlay)
-if (localVideoPlayer && videoProgressBar) {
-    localVideoPlayer.addEventListener('timeupdate', () => {
-        const progress = (localVideoPlayer.currentTime / localVideoPlayer.duration) * 100;
-        videoProgressBar.style.width = `${progress || 0}%`;
-    });
-}
-
-// 6. Loop en Preview (asegura que el loop funcione)
-if (previewVideo) {
-    previewVideo.addEventListener('ended', () => {
-        previewVideo.currentTime = 0;
-        previewVideo.play().catch(console.error);
-    });
-}
-
-// ESC closes overlay (incluyendo el del video)
-document.addEventListener('keydown', (e)=> {
-  if(e.key === 'Escape'){
-    if(searchOverlay.classList.contains('active')){
-      searchOverlay.classList.remove('active');
-      searchOverlay.setAttribute('aria-hidden','true');
-      document.body.style.overflow = '';
-    }
-    if(categoryOverlay.classList.contains('active')){
-      categoryOverlay.classList.remove('active');
-      categoryOverlay.setAttribute('aria-hidden','true');
-      document.body.style.overflow = '';
-    }
-    if(videoOverlay && videoOverlay.classList.contains('active')){
-      isPlayerOpen = false;
-      videoOverlay.classList.remove('active');
-      videoOverlay.setAttribute('aria-hidden','true');
-      document.body.style.overflow = '';
-      
-      if (localVideoPlayer) {
-          localVideoPlayer.pause();
-          localVideoPlayer.currentTime = 0;
-      }
-      if (videoProgressBar) videoProgressBar.style.width = '0%';
-      // Reanudar el preview al cerrar
-      if (previewVideo) previewVideo.play().catch(console.error);
-    }
-  }
-});
-
-// helper scroll to top
-function scrollToTop(){ window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-// ensure initial
-window.addEventListener('load', ()=> { 
-    showImage(0); 
-    allMoviesData = getAllMoviesData(); 
-    // Intentar iniciar la reproducción del video de vista previa al cargar
-    if (previewVideo) {
-        previewVideo.play().catch(error => {
-            console.log("Auto-play de preview bloqueado:", error);
-        });
-    }
-});
-</script>
+        document.addEventListener('fullscreenchange', exitHandler);
+        document.addEventListener('webkitfullscreenchange', exitHandler);
+    </script>
 </body>
 </html>
+
 
 
 
