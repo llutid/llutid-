@@ -3,713 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>llutid+ | Tu Destino de Streaming</title>
+    <title>llutid+ | Nivel Pro</title>
 
     <script>
-        // --- Lógica de redirección condicional (MOVIDA AL PRINCIPIO DEL HEAD) ---
-        const REDIRECT_KEY = 'llutid_redirect_timestamp';
-        const REDIRECT_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 días en milisegundos
+        // --- LÓGICA DE BLOQUEO POR 30 DÍAS ---
+        const REDIRECT_KEY = 'llutid_welcome_hidden';
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000; // Milisegundos en 30 días
 
-        const lastRedirectTimestamp = localStorage.getItem(REDIRECT_KEY);
-        if (lastRedirectTimestamp) {
-            const now = new Date().getTime();
-            if (now - parseInt(lastRedirectTimestamp) < REDIRECT_DURATION_MS) {
-                // Si el tiempo no ha pasado, redirige a login.html INMEDIATAMENTE
-                window.location.replace('login.html'); // .replace() es mejor para evitar que el usuario pueda volver atrás con el botón de retroceso
-            } else {
-                // Si el tiempo ha pasado, limpia el registro para mostrar la interfaz
-                localStorage.removeItem(REDIRECT_KEY);
+        function checkAccess() {
+            const savedData = localStorage.getItem(REDIRECT_KEY);
+            if (savedData) {
+                const registrationDate = parseInt(savedData);
+                const now = new Date().getTime();
+                
+                // Si han pasado menos de 30 días, saltar a login.html
+                if (now - registrationDate < THIRTY_DAYS) {
+                    window.location.replace('login.html');
+                } else {
+                    // Si ya pasaron los 30 días, borramos para que vea la bienvenida de nuevo
+                    localStorage.removeItem(REDIRECT_KEY);
+                }
             }
         }
-        // Fin de la lógica de redirección
+
+        // Función para activar el bloqueo de 30 días
+        function setAccessBlock() {
+            const now = new Date().getTime();
+            localStorage.setItem(REDIRECT_KEY, now.toString());
+        }
+
+        // Ejecutar comprobación antes de mostrar nada
+        checkAccess();
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #141414; /* Fondo oscuro tipo Netflix */
-            color: #e0e0e0; /* Color de texto claro */
-            overflow-x: hidden; /* Evita el scroll horizontal en todo el body */
-        }
-        /* Estilos personalizados para el scrollbar */
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f1014;
+            color: #ffffff;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        /* Estilos específicos para los pasos integrados */
-        .plan-steps-container {
-            /* Estilos iniciales para que esté oculto */
-            max-height: 0;
+        .hero-section {
+            position: relative;
+            height: 80vh;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 2.5rem;
             overflow: hidden;
-            transition: max-height 0.7s ease-out, padding 0.7s ease-out;
-            opacity: 0;
-            padding: 0 1.5rem; /* Ajuste el padding para espacio horizontal */
-        }
-        .plan-steps-container.active {
-            max-height: 500px; /* Suficiente altura para mostrar los pasos */
-            opacity: 1;
-            padding: 1.5rem;
-            margin-top: 1rem;
-            background-color: #2a2a2a; /* Un poco más claro que el fondo principal */
-            border-radius: 8px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
-        .step-content {
-            display: none;
+        .brand-header {
+            position: absolute;
+            top: 25px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
         }
-        .step-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
+
+        .hero-gradient {
+            background: linear-gradient(to top, #0f1014 8%, rgba(15, 16, 20, 0) 45%, rgba(15, 16, 20, 0.7) 100%);
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+
+        .app-card {
+            background: #1c1d24;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            border-radius: 12px;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .plan-steps-container { display: none; }
+        .plan-steps-container.active { display: block; animation: slideUp 0.4s ease; }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .progress-bar-container {
-            width: 100%;
-            background-color: #333;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-            height: 8px;
-        }
-        .progress-bar {
-            height: 100%;
-            background-color: #007bff; /* Color azul para el progreso */
-            width: 0%;
-            border-radius: 5px;
-            transition: width 0.5s ease-in-out;
-        }
-        input[type="email"],
-        input[type="text"] {
-            background-color: #333;
-            border: 1px solid #555;
-            color: #e0e0e0;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        input[type="email"]:focus,
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #007bff;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-        .btn-whatsapp {
-            background-color: #25D366; /* Color de WhatsApp */
-            color: white;
-            padding: 1rem 1.5rem;
+        .step-content { display: none; }
+        .step-content.active { display: block; }
+
+        input {
+            background: #2a2b33 !important;
+            border: 1px solid #3f404a !important;
+            color: white !important;
+            height: 52px;
             border-radius: 12px;
-            font-weight: 700;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-            text-decoration: none; /* Asegura que no tenga subrayado por ser un enlace */
-        }
-        .btn-whatsapp:hover {
-            background-color: #1DA851;
+            width: 100%;
+            padding: 0 1rem;
+            margin-bottom: 0.75rem;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <nav class="bg-black bg-opacity-70 fixed w-full z-10 p-4 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="text-3xl font-bold rounded-md">
-                <span class="text-blue-700">llutid</span><span class="text-white">+</span>
+    <header class="hero-section">
+        <div class="brand-header">
+            <div class="text-2xl font-extrabold tracking-tighter">
+                <span class="text-blue-500">llutid</span><span class="text-white">+</span>
             </div>
-            
-            <div class="hidden space-x-6" id="mobile-menu">
-                <a href="#" class="text-white hover:text-red-500 transition duration-300">Inicio</a>
-                <a href="#" class="text-white hover:text-red-500 transition duration-300">Películas</a>
-                <a href="#" class="text-white hover:text-red-500 transition duration-300">Novedades</a>
-                <a href="#" class="text-white hover:text-red-500 transition duration-300">Mi Lista</a>
-            </div>
-
-            <div class="flex items-center space-x-4">
-                <button class="text-white hover:text-red-500 transition duration-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </button>
-                <button class="text-white hover:text-red-500 transition duration-300" id="nav-login-btn">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    <span>Entrar</span>
-                </button>
-            </div>
+            <button id="nav-login-btn" class="text-sm font-bold bg-white/10 backdrop-blur-md px-5 py-2 rounded-full border border-white/20">
+                Entrar
+            </button>
         </div>
-    </nav>
 
-    <header class="relative h-screen w-full flex items-center justify-center text-white overflow-hidden">
-        <div id="hero-background-images" class="absolute inset-0 w-full h-full">
-            </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+        <div id="hero-background-images" class="absolute inset-0 w-full h-full"></div>
+        <div class="absolute inset-0 hero-gradient"></div>
         
-        <div class="relative z-10 text-center px-4">
-            <h1 class="inline-block text-5xl md:text-8xl font-bold mb-4 drop-shadow-lg bg-black bg-opacity-40 backdrop-blur-sm rounded-lg px-4 py-2">
-                <span class="text-blue-700">llutid</span><span class="text-white">+</span>
-            </h1>
-            <p class="text-base md:text-xl max-w-2xl mx-auto mb-8 drop-shadow-md">
-                Sumérgete en una experiencia de streaming inigualable con nuestro contenido exclusivo.
-                ¡Prepara tus sentidos para la revolución del entretenimiento que solo llutid+ te puede ofrecer!
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button id="scrollToPlansBtn" class="bg-white text-black py-3 px-8 rounded-full text-lg font-semibold hover:bg-gray-300 transition duration-300 flex items-center justify-center space-x-2 shadow-lg">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"></path></svg>
-                    <span>Iniciar Experiencia</span>
-                </button>
-                <button class="bg-gray-700 text-white py-3 px-8 rounded-full text-lg font-semibold hover:bg-gray-600 transition duration-300 flex items-center justify-center space-x-2 shadow-lg" id="hero-login-btn">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path></svg>
-                    <span>Entrar</span>
-                </button>
-            </div>
+        <div class="relative z-10 px-6 w-full text-left">
+            <h1 class="text-5xl font-extrabold mb-3 tracking-tight leading-[1.1]">Dale play al<br>nivel pro.</h1>
+            <p class="text-gray-300 text-sm mb-6 max-w-[280px]">Tu contenido favorito, sin anuncios y en la mejor calidad.</p>
+            
+            <button id="scrollToPlansBtn" class="w-full btn-primary py-4 text-lg font-bold">
+                Iniciar Experiencia
+            </button>
         </div>
     </header>
 
-    <main class="container mx-auto py-12 px-4">
-        <section class="mb-10">
-            <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-white rounded-md">Películas Populares</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/DfH1cd7w/o3413284-16754682.png" alt="Película 1" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">INTENSAMENTE 2</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año 2024 | Género Animación, Aventura, Comedia</p>
-                    </div>
+    <main class="px-6 relative z-20">
+        <section class="mt-8 mb-10">
+            <h2 class="text-lg font-bold mb-4">Tendencias ahora</h2>
+            <div class="flex overflow-x-auto gap-3 scrollbar-hide">
+                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
+                    <img src="https://cinemauniplaza.com.co/wp-content/uploads/2025/10/77fe751f4b3a-bp2_cineco_2-poster_480x670.jpg" class="w-full h-full object-cover">
                 </div>
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/J46hQBmd/la-razon-2.png" alt="Película 2" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">La Razón de Estar Contigo 2</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año 2022 | Género Drama, Familiar, Aventura</p>
-                    </div>
+                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
+                    <img src="https://www.aceprensa.com/wp-content/uploads/2019/08/71446-1-683x1024.jpg" class="w-full h-full object-cover">
                 </div>
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/QCnrc15Q/encanto.png" alt="Película 3" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">Encanto</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año 2021 | Género Animación, Musical, Fantasía</p>
-                    </div>
+                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
+                    <img src="https://m.media-amazon.com/images/S/pv-target-images/ae5392d746731715a5218c63fa5eabac7de538b0aa325e7744e40a9696a089b5.png" class="w-full h-full object-cover">
                 </div>
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/T1VgLD5J/result-la-pasion-de-cristo.jpg" alt="Película 4" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">La Pasión de Cristo</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año | Género Drama, Histórica, Bíblica</p>
-                    </div>
+                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
+                    <img src="https://resizing.flixster.com/mKKmrj6RQLnOy_lZVtiH1kaYKnc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p31204312_v_v9_ab.jpg" class="w-full h-full object-cover">
                 </div>
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/rsrWDzWH/rubias.png" alt="Película 5" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">Las Rubias</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año | Género</p>
+            </div>
+        </section>
+
+        <section id="planes-section" class="pb-10">
+            <h2 class="text-2xl font-bold mb-6 text-center">Nuestros Planes</h2>
+            <div class="space-y-4">
+                <div class="app-card p-6 border-l-4 border-gray-600">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold">Plan Gratuito</h3>
+                            <p class="text-blue-400 text-[11px] font-semibold uppercase">Código de regalo o cupón</p>
+                        </div>
+                        <span class="text-xl font-bold text-gray-400">0 COP</span>
                     </div>
+                    <button id="free-register-btn" class="w-full btn-primary block text-center py-3 font-bold">Registrarse</button>
                 </div>
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:scale-105 transition duration-300 cursor-pointer">
-                    <img src="https://i.postimg.cc/K8j1XDJ2/tiburon-toro-2.png" alt="Película 6" class="w-full h-auto object-cover rounded-t-lg">
-                    <div class="p-2 sm:p-3">
-                        <h3 class="text-sm sm:text-md font-semibold text-white truncate">TIBURON TORO 2</h3>
-                        <p class="text-xs sm:text-sm text-gray-400">Año | Género</p>
+
+                <div class="app-card p-6 border-l-4 border-blue-500 plan-card" data-plan="Basico">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Plan Básico</h3>
+                        <div class="text-right">
+                            <span class="text-xl font-bold">$2.500</span>
+                            <span class="text-[10px] block text-gray-400 uppercase">Mes</span>
+                        </div>
+                    </div>
+                    <button class="select-plan-btn w-full bg-white/5 py-3 rounded-xl font-bold border border-white/10">Seleccionar</button>
+                    <div class="plan-steps-container pt-4" data-plan-target="Basico">
+                        <div class="step-content active">
+                            <input type="email" class="email-input" placeholder="Correo electrónico">
+                            <button class="next-step-btn w-full btn-primary py-3">Siguiente</button>
+                        </div>
+                        <div class="step-content">
+                            <input type="text" class="fullname-input" placeholder="Nombre completo">
+                            <button class="send-whatsapp-btn w-full bg-[#25D366] py-3 rounded-xl font-bold">Activar en WhatsApp</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <footer class="mt-10 border-t border-white/10 pt-8 pb-12">
+            <div class="space-y-5">
+                <div class="flex items-center gap-4">
+                    <div class="bg-blue-500/10 p-3 rounded-xl"><svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Email</p><p class="text-sm font-semibold">llutidoficial@gmail.com</p></div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-green-500/10 p-3 rounded-xl"><svg class="w-5 h-5 text-[#25D366]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div>
+                    <div><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">WhatsApp</p><p class="text-sm font-semibold">+57 318 1087834</p></div>
+                </div>
+            </div>
+        </footer>
     </main>
 
-    <section id="planes-section" class="bg-gray-900 py-12 px-4 text-center">
-        <div class="container mx-auto">
-            <h2 class="text-3xl sm:text-4xl font-bold mb-8 text-white rounded-md">Descubre llutid+: La App que Cambiará tu Entretenimiento</h2>
-            <p class="text-base sm:text-lg text-gray-300 mb-8 max-w-3xl mx-auto rounded-md">
-                llutid+ es tu nueva aplicación de streaming diseñada para ofrecerte una experiencia única.
-                Estamos enfocados en brindarte contenido exclusivo y de alta calidad
-                que te mantendrá siempre entretenido. ¡Prepárate para la app que va a cambiar la forma en que disfrutas del streaming!
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                <div class="bg-gray-800 p-6 rounded-lg shadow-xl border border-gray-500 transform hover:scale-105 transition duration-300">
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-400 mb-4">Plan Gratuito</h3>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-white mb-2">0<span class="text-base sm:text-xl font-normal">COP</span></p>
-                    <p class="text-gray-300 mb-4">¡Prueba gratuita por un mes!</p>
-                    <ul class="text-gray-300 text-left mx-auto max-w-xs space-y-2 text-sm sm:text-base mb-6">
-                        <li>✔️ Acceso limitado a contenido</li>
-                        <li>✔️ Calidad de streaming estándar</li>
-                        <li>✔️ Un perfil de usuario</li>
-                        <li>✔️ Duración: 1 mes</li>
-                    </ul>
-                    <a href="prueba.html" class="btn-primary w-full block text-center">¡Probar Gratis!</a>
-                </div>
-
-                <div class="plan-card bg-gray-800 p-6 rounded-lg shadow-xl border border-blue-700 transform hover:scale-105 transition duration-300" data-plan="Basico">
-                    <h3 class="text-xl sm:text-2xl font-bold text-blue-400 mb-4">Plan Básico</h3>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-white mb-2">2.500<span class="text-base sm:text-xl font-normal">COP</span></p>
-                    <p class="text-gray-400 line-through mb-4 text-sm sm:text-base">Antes: 5.000 COP</p>
-                    <p class="text-gray-300 mb-4 text-sm sm:text-base">¡Precio de promoción mensual!</p>
-                    <ul class="text-gray-300 text-left mx-auto max-w-xs space-y-2 text-sm sm:text-base mb-6">
-                        <li>✔️ Acceso a contenido exclusivo</li>
-                        <li>✔️ Calidad de streaming estándar</li>
-                        <li>✔️ Un perfil de usuario</li>
-                    </ul>
-                    <button class="select-plan-btn btn-primary w-full">Seleccionar Plan</button>
-                    
-                    <div class="plan-steps-container mt-4" data-plan-target="Basico">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" data-progress-bar="Basico"></div>
-                        </div>
-
-                        <div class="step-content active" data-step="1">
-                            <h4 class="text-xl font-semibold mb-3 text-blue-400">Paso 1: Plan Elegido</h4>
-                            <p class="text-gray-300 mb-4">Has seleccionado el <span class="font-bold text-white">Plan Básico</span>.</p>
-                            <button class="next-step-btn btn-primary w-full sm:w-auto" data-plan="Basico">Siguiente</button>
-                        </div>
-                        <div class="step-content" data-step="2">
-                            <h4 class="text-xl font-semibold mb-3 text-blue-400">Paso 2: Correo Electrónico</h4>
-                            <input type="email" class="email-input" placeholder="ejemplo@dominio.com" data-plan="Basico">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Basico">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Basico">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="3">
-                            <h4 class="text-xl font-semibold mb-3 text-blue-400">Paso 3: Nombre Completo</h4>
-                            <input type="text" class="fullname-input" placeholder="Tu Nombre Completo" data-plan="Basico">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Basico">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Basico">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="4">
-                            <h4 class="text-xl font-semibold mb-3 text-blue-400">Paso 4: País de Residencia</h4>
-                            <input type="text" class="country-input" placeholder="Tu País" data-plan="Basico">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Basico">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Basico">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="5">
-                            <h4 class="text-xl font-semibold mb-3 text-blue-400">Paso Final: Enviar a Asesor</h4>
-                            <p class="text-gray-300 mb-4 text-sm">Confirma tus datos y envía a WhatsApp para finalizar:</p>
-                            <ul class="text-gray-300 mb-6 text-left space-y-1 text-sm">
-                                <li>**Plan:** <span class="final-plan font-bold text-white" data-plan="Basico"></span></li>
-                                <li>**Correo:** <span class="final-email font-bold text-white" data-plan="Basico"></span></li>
-                                <li>**Nombre:** <span class="final-fullname font-bold text-white" data-plan="Basico"></span></li>
-                                <li>**País:** <span class="final-country font-bold text-white" data-plan="Basico"></span></li>
-                            </ul>
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Basico">Anterior</button>
-                                <a href="#" class="send-whatsapp-btn btn-whatsapp flex-1" data-plan="Basico">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.918.552 3.712 1.503 5.251L2 22l4.749-1.503A9.943 9.943 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zM16.5 15.5c-.2-.1-.8-.49-1.16-.54-.36-.05-.62-.05-.88.04-.26.09-1.01 1.23-1.24 1.48-.23.26-.46.29-.86.11-.4-.18-1.55-.57-2.95-1.82-.91-.81-1.53-1.62-1.71-1.92-.18-.3-.02-.46.12-.59.1-.1.22-.18.33-.28.11-.1.15-.19.22-.31.07-.12.03-.23-.01-.32-.04-.08-.36-.88-.49-1.2-.13-.31-.26-.26-.37-.26-.11 0-.24-.02-.38-.02-.14 0-.25.04-.38.16-.13.11-.49.48-.49 1.17s.5 1.35.57 1.45c.07.1.99 1.59 2.4 2.14 1.41.56 2.47.53 2.76.49.29-.04.8-.33.92-.66.12-.33.12-.61.08-.66-.05-.05-.19-.11-.4-.21z"/></svg>
-                                    <span>Enviar por WhatsApp</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="plan-card bg-gray-800 p-6 rounded-lg shadow-xl border border-red-600 transform hover:scale-105 transition duration-300" data-plan="Duo">
-                    <h3 class="text-xl sm:text-2xl font-bold text-red-400 mb-4">Plan Dúo</h3>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-white mb-2">4.500<span class="text-base sm:text-xl font-normal">COP</span></p>
-                    <p class="text-gray-400 mb-4 text-sm sm:text-base">Mensuales</p>
-                    <ul class="text-gray-300 text-left mx-auto max-w-xs space-y-2 text-sm sm:text-base mb-6">
-                        <li>✔️ Todo lo del plan Básico</li>
-                        <li>✔️ Dos perfiles de usuario</li>
-                        <li>✔️ Streaming simultáneo en 2 dispositivos</li>
-                    </ul>
-                    <button class="select-plan-btn btn-primary w-full">Seleccionar Plan</button>
-                    
-                    <div class="plan-steps-container mt-4" data-plan-target="Duo">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" data-progress-bar="Duo"></div>
-                        </div>
-
-                        <div class="step-content active" data-step="1">
-                            <h4 class="text-xl font-semibold mb-3 text-red-400">Paso 1: Plan Elegido</h4>
-                            <p class="text-gray-300 mb-4">Has seleccionado el <span class="font-bold text-white">Plan Dúo</span>.</p>
-                            <button class="next-step-btn btn-primary w-full sm:w-auto" data-plan="Duo">Siguiente</button>
-                        </div>
-                        <div class="step-content" data-step="2">
-                            <h4 class="text-xl font-semibold mb-3 text-red-400">Paso 2: Correo Electrónico</h4>
-                            <input type="email" class="email-input" placeholder="ejemplo@dominio.com" data-plan="Duo">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Duo">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Duo">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="3">
-                            <h4 class="text-xl font-semibold mb-3 text-red-400">Paso 3: Nombre Completo</h4>
-                            <input type="text" class="fullname-input" placeholder="Tu Nombre Completo" data-plan="Duo">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Duo">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Duo">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="4">
-                            <h4 class="text-xl font-semibold mb-3 text-red-400">Paso 4: País de Residencia</h4>
-                            <input type="text" class="country-input" placeholder="Tu País" data-plan="Duo">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Duo">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Duo">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="5">
-                            <h4 class="text-xl font-semibold mb-3 text-red-400">Paso Final: Enviar a Asesor</h4>
-                            <p class="text-gray-300 mb-4 text-sm">Confirma tus datos y envía a WhatsApp para finalizar:</p>
-                            <ul class="text-gray-300 mb-6 text-left space-y-1 text-sm">
-                                <li>**Plan:** <span class="final-plan font-bold text-white" data-plan="Duo"></span></li>
-                                <li>**Correo:** <span class="final-email font-bold text-white" data-plan="Duo"></span></li>
-                                <li>**Nombre:** <span class="final-fullname font-bold text-white" data-plan="Duo"></span></li>
-                                <li>**País:** <span class="final-country font-bold text-white" data-plan="Duo"></span></li>
-                            </ul>
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Duo">Anterior</button>
-                                <a href="#" class="send-whatsapp-btn btn-whatsapp flex-1" data-plan="Duo">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.918.552 3.712 1.503 5.251L2 22l4.749-1.503A9.943 9.943 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zM16.5 15.5c-.2-.1-.8-.49-1.16-.54-.36-.05-.62-.05-.88.04-.26.09-1.01 1.23-1.24 1.48-.23.26-.46.29-.86.11-.4-.18-1.55-.57-2.95-1.82-.91-.81-1.53-1.62-1.71-1.92-.18-.3-.02-.46.12-.59.1-.1.22-.18.33-.28.11-.1.15-.19.22-.31.07-.12.03-.23-.01-.32-.04-.08-.36-.88-.49-1.2-.13-.31-.26-.26-.37-.26-.11 0-.24-.02-.38-.02-.14 0-.25.04-.38.16-.13.11-.49.48-.49 1.17s.5 1.35.57 1.45c.07.1.99 1.59 2.4 2.14 1.41.56 2.47.53 2.76.49.29-.04.8-.33.92-.66.12-.33.12-.61.08-.66-.05-.05-.19-.11-.4-.21z"/></svg>
-                                    <span>Enviar por WhatsApp</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="plan-card bg-gray-800 p-6 rounded-lg shadow-xl border border-green-600 transform hover:scale-105 transition duration-300" data-plan="Familiar">
-                    <h3 class="text-xl sm:text-2xl font-bold text-green-400 mb-4">Plan Familiar</h3>
-                    <p class="text-3xl sm:text-4xl font-extrabold text-white mb-2">6.700<span class="text-base sm:text-xl font-normal">COP</span></p>
-                    <p class="text-gray-400 mb-4 text-sm sm:text-base">Mensuales</p>
-                    <ul class="text-gray-300 text-left mx-auto max-w-xs space-y-2 text-sm sm:text-base mb-6">
-                        <li>✔️ Todo lo del plan Dúo</li>
-                        <li>✔️ Hasta cinco perfiles de usuario</li>
-                        <li>✔️ Streaming simultáneo en 4 dispositivos</li>
-                    </ul>
-                    <button class="select-plan-btn btn-primary w-full">Seleccionar Plan</button>
-                    
-                    <div class="plan-steps-container mt-4" data-plan-target="Familiar">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" data-progress-bar="Familiar"></div>
-                        </div>
-
-                        <div class="step-content active" data-step="1">
-                            <h4 class="text-xl font-semibold mb-3 text-green-400">Paso 1: Plan Elegido</h4>
-                            <p class="text-gray-300 mb-4">Has seleccionado el <span class="font-bold text-white">Plan Familiar</span>.</p>
-                            <button class="next-step-btn btn-primary w-full sm:w-auto" data-plan="Familiar">Siguiente</button>
-                        </div>
-                        <div class="step-content" data-step="2">
-                            <h4 class="text-xl font-semibold mb-3 text-green-400">Paso 2: Correo Electrónico</h4>
-                            <input type="email" class="email-input" placeholder="ejemplo@dominio.com" data-plan="Familiar">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Familiar">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Familiar">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="3">
-                            <h4 class="text-xl font-semibold mb-3 text-green-400">Paso 3: Nombre Completo</h4>
-                            <input type="text" class="fullname-input" placeholder="Tu Nombre Completo" data-plan="Familiar">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Familiar">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Familiar">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="4">
-                            <h4 class="text-xl font-semibold mb-3 text-green-400">Paso 4: País de Residencia</h4>
-                            <input type="text" class="country-input" placeholder="Tu País" data-plan="Familiar">
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Familiar">Anterior</button>
-                                <button class="next-step-btn btn-primary flex-1" data-plan="Familiar">Siguiente</button>
-                            </div>
-                        </div>
-                        <div class="step-content" data-step="5">
-                            <h4 class="text-xl font-semibold mb-3 text-green-400">Paso Final: Enviar a Asesor</h4>
-                            <p class="text-gray-300 mb-4 text-sm">Confirma tus datos y envía a WhatsApp para finalizar:</p>
-                            <ul class="text-gray-300 mb-6 text-left space-y-1 text-sm">
-                                <li>**Plan:** <span class="final-plan font-bold text-white" data-plan="Familiar"></span></li>
-                                <li>**Correo:** <span class="final-email font-bold text-white" data-plan="Familiar"></span></li>
-                                <li>**Nombre:** <span class="final-fullname font-bold text-white" data-plan="Familiar"></span></li>
-                                <li>**País:** <span class="final-country font-bold text-white" data-plan="Familiar"></span></li>
-                            </ul>
-                            <div class="flex justify-between space-x-2 mt-4">
-                                <button class="prev-step-btn btn-primary bg-gray-600 hover:bg-gray-500 flex-1" data-plan="Familiar">Anterior</button>
-                                <a href="#" class="send-whatsapp-btn btn-whatsapp flex-1" data-plan="Familiar">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.918.552 3.712 1.503 5.251L2 22l4.749-1.503A9.943 9.943 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zM16.5 15.5c-.2-.1-.8-.49-1.16-.54-.36-.05-.62-.05-.88.04-.26.09-1.01 1.23-1.24 1.48-.23.26-.46.29-.86.11-.4-.18-1.55-.57-2.95-1.82-.91-.81-1.53-1.62-1.71-1.92-.18-.3-.02-.46.12-.59.1-.1.22-.18.33-.28.11-.1.15-.19.22-.31.07-.12.03-.23-.01-.32-.04-.08-.36-.88-.49-1.2-.13-.31-.26-.26-.37-.26-.11 0-.24-.02-.38-.02-.14 0-.25.04-.38.16-.13.11-.49.48-.49 1.17s.5 1.35.57 1.45c.07.1.99 1.59 2.4 2.14 1.41.56 2.47.53 2.76.49.29-.04.8-.33.92-.66.12-.33.12-.61.08-.66-.05-.05-.19-.11-.4-.21z"/></svg>
-                                    <span>Enviar por WhatsApp</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-base sm:text-lg text-gray-300 mb-8 max-w-3xl mx-auto rounded-md">
-                ¡Siempre te mantendremos informado sobre tu facturación, nuevas promociones y más a través de mensajes!
-            </p>
-
-            <div class="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-8 mt-12">
-                <div class="bg-gray-700 p-6 rounded-2xl shadow-2xl w-full md:w-1/2 lg:w-1/4 transform hover:scale-105 transition duration-300">
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Llámanos para Activar tu Plan</h3>
-                    <a href="tel:+573181087834" class="text-blue-400 text-xl sm:text-2xl font-semibold hover:underline block">+57 3181087834</a>
-                </div>
-                <div class="bg-gray-700 p-6 rounded-2xl shadow-2xl w-full md:w-1/2 lg:w-1/4 transform hover:scale-105 transition duration-300">
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Envíanos un Correo</h3>
-                    <a href="mailto:llutidoficial@gmail.com" class="text-blue-400 text-xl sm:text-2xl font-semibold hover:underline block">llutidoficial@gmail.com</a>
-                </div>
-            </div>
-
-            <div class="mt-8 flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-8">
-                <div class="bg-gray-700 p-6 rounded-2xl shadow-2xl w-full md:w-1/2 lg:w-1/4 transform hover:scale-105 transition duration-300">
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2">¿Tienes Dudas? Pregúntale a Nuestro Chatbot</h3>
-                    <a href="https://llutid.github.io/chat-bot-llutid-/" target="_blank" class="text-blue-400 hover:underline text-base sm:text-lg font-semibold block">
-                        Visita el Chatbot
-                    </a>
-                </div>
-                <div class="bg-gray-700 p-6 rounded-2xl shadow-2xl w-full md:w-1/2 lg:w-1/4 transform hover:scale-105 transition duration-300">
-                    <h3 class="text-lg sm:text-xl font-bold text-white mb-2">Únete a Nuestro Canal de WhatsApp</h3>
-                    <p class="text-gray-300 mb-2 text-sm sm:text-base">Mantente al día con noticias, promociones y más.</p>
-                    <a href="https://whatsapp.com/channel/0029VbARP6eLSmbXXtKdvK2N" target="_blank" class="text-blue-400 hover:underline text-base sm:text-lg font-semibold block">
-                        Unirse al Canal
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="bg-black py-8 text-gray-400 text-center">
-        <div class="container mx-auto">
-            <p class="text-sm sm:text-base">&copy; 2024 llutid+. Todos los derechos reservados.</p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-6 mt-4">
-                <a href="#" class="hover:text-white transition duration-300 text-sm sm:text-base">Términos de Servicio</a>
-                <a href="#" class="hover:text-white transition duration-300 text-sm sm:text-base">Política de Privacidad</a>
-                <a href="#" class="hover:text-white transition duration-300 text-sm sm:text-base">Contacto</a>
-            </div>
-        </div>
-    </footer>
-
     <script>
-        // La mayor parte de la lógica de redirección se movió al <head>
-        // Solo necesitamos la función para establecer el timestamp aquí
-
-        function setRedirectTimestamp() {
-            localStorage.setItem(REDIRECT_KEY, new Date().getTime());
-        }
-
-        // --- Lógica del carrusel de imágenes de fondo ---
+        // --- Carrusel de Fondos ---
         const imageUrls = [
-            "https://cdn.computerhoy.com/sites/navi.axelspringer.es/public/media/image/2018/06/series-netflix.jpg?tf=3840x",
-            "https://erikstore.com/blog/wp-content/uploads/2025/01/Mejores-estrenos-2025.jpg",
-            "https://st4.depositphotos.com/1000975/24095/i/450/depositphotos_240951562-stock-photo-concept-of-streaming-video-con.jpg"
+            "https://www.cronista.com/resizer/v2/2CLZCBNMPVCEBFPI2X2RBOZPOY.jpg?auth=59c5d4a99d034dbb5ecf0e07eab0c2ff099846721721ef9156699134f18eea3c&height=533&width=800&quality=70&smart=true", 
+            "https://blob.elporvenir.mx/images/2020/08/31/streaming-focus-0-0-750-440.jpg"
         ];
-        let currentImageIndex = 0;
-        const heroBackgroundContainer = document.getElementById('hero-background-images');
-
-        const images = imageUrls.map(url => {
+        const bgContainer = document.getElementById('hero-background-images');
+        const images = imageUrls.map((url, i) => {
             const img = document.createElement('img');
             img.src = url;
-            img.alt = 'Imagen de Fondo de Contenido';
-            img.className = 'absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out';
-            heroBackgroundContainer.appendChild(img);
+            img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i===0 ? 'opacity-40' : 'opacity-0'}`;
+            bgContainer.appendChild(img);
             return img;
         });
 
-        function changeBackgroundImage() {
-            images.forEach(img => img.classList.remove('opacity-60'));
-            images[currentImageIndex].classList.add('opacity-60');
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-        }
+        let currentIdx = 0;
+        setInterval(() => {
+            images[currentIdx].classList.replace('opacity-40', 'opacity-0');
+            currentIdx = (currentIdx + 1) % images.length;
+            images[currentIdx].classList.replace('opacity-0', 'opacity-40');
+        }, 5000);
 
-        changeBackgroundImage();
-        setInterval(changeBackgroundImage, 5000);  
-
-        // --- Lógica de desplazamiento suave ---
-        document.getElementById('scrollToPlansBtn').addEventListener('click', () => {
-            document.getElementById('planes-section').scrollIntoView({ behavior: 'smooth' });
-        });
-
-
-        // --- Lógica de suscripción de planes integrada ---
-        const whatsappNumber = '573181087834'; // Tu número de WhatsApp oficial
-
-        // Objeto para almacenar el estado y datos de cada plan
-        const plansState = {
-            Basico: { currentStep: 0, data: { email: '', fullName: '', country: '' } },
-            Duo: { currentStep: 0, data: { email: '', fullName: '', country: '' } },
-            Familiar: { currentStep: 0, data: { email: '', fullName: '', country: '' } }
+        // --- MANEJO DE REDIRECCIÓN Y BLOQUEO ---
+        
+        // Botón Entrar
+        document.getElementById('nav-login-btn').onclick = () => {
+            setAccessBlock();
+            window.location.replace('login.html');
         };
 
-        const totalSteps = 5; // Paso 1 (visualización del plan) + 3 campos + Paso 5 (envío)
+        // Botón Iniciar Experiencia
+        document.getElementById('scrollToPlansBtn').onclick = () => {
+            setAccessBlock();
+            window.location.replace('registro.html');
+        };
 
-        document.querySelectorAll('.select-plan-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const planCard = event.target.closest('.plan-card');
-                const planType = planCard.dataset.plan;
-                const stepsContainer = document.querySelector(`.plan-steps-container[data-plan-target="${planType}"]`);
+        // Botón Registrarse (Gratis)
+        document.getElementById('free-register-btn').onclick = () => {
+            setAccessBlock();
+            window.location.replace('registro.html');
+        };
 
-                // Oculta todos los contenedores de pasos y reinicia los pasos de otros planes
-                document.querySelectorAll('.plan-steps-container').forEach(container => {
-                    if (container !== stepsContainer) {
-                        container.classList.remove('active');
-                        // Reinicia los pasos para el plan que se está ocultando
-                        const otherPlanType = container.dataset.planTarget;
-                        if (plansState[otherPlanType]) {
-                            plansState[otherPlanType].currentStep = 0; // Reinicia a la primera "página"
-                            // Limpia los inputs y el resumen final para el plan reiniciado
-                            const otherStepsContainer = document.querySelector(`.plan-steps-container[data-plan-target="${otherPlanType}"]`);
-                            if (otherStepsContainer) {
-                                otherStepsContainer.querySelectorAll('.email-input, .fullname-input, .country-input').forEach(input => input.value = '');
-                                otherStepsContainer.querySelectorAll('.final-plan, .final-email, .final-fullname, .final-country').forEach(span => span.textContent = '');
-                            }
-                            updateStepDisplay(otherPlanType); // Actualiza la visualización
-                        }
-                    }
-                });
+        // Lógica de Pasos Plan Básico
+        const state = { email: '', name: '' };
+        document.querySelector('.select-plan-btn').onclick = (e) => {
+            e.target.style.display = 'none';
+            document.querySelector('[data-plan-target="Basico"]').classList.add('active');
+        };
 
-                // Muestra u oculta el contenedor de pasos del plan seleccionado
-                if (stepsContainer.classList.contains('active')) {
-                    stepsContainer.classList.remove('active');
-                    // Resetear el estado si se cierra
-                    plansState[planType].currentStep = 0;
-                    // Limpiar los inputs y el resumen final del plan que se cierra
-                    stepsContainer.querySelectorAll('.email-input, .fullname-input, .country-input').forEach(input => input.value = '');
-                    stepsContainer.querySelectorAll('.final-plan, .final-email, .final-fullname, .final-country').forEach(span => span.textContent = '');
-                    updateStepDisplay(planType);
-                } else {
-                    stepsContainer.classList.add('active');
-                    // Asegúrate de mostrar el primer paso si se abre
-                    updateStepDisplay(planType);
-                }
-            });
-        });
+        document.querySelector('.next-step-btn').onclick = () => {
+            state.email = document.querySelector('.email-input').value;
+            if(!state.email) return alert("Ingresa tu correo");
+            document.querySelectorAll('.step-content')[0].classList.remove('active');
+            document.querySelectorAll('.step-content')[1].classList.add('active');
+        };
 
-        // Manejo de botones Siguiente y Anterior
-        document.querySelectorAll('.next-step-btn, .prev-step-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const planType = event.target.dataset.plan;
-                const isNext = event.target.classList.contains('next-step-btn');
-                
-                let currentPlanState = plansState[planType];
-                
-                // Validar campos antes de avanzar
-                if (isNext) {
-                    if (currentPlanState.currentStep === 1) { // Paso 2: Correo
-                        const emailInput = document.querySelector(`.email-input[data-plan="${planType}"]`);
-                        if (!emailInput.value.trim() || !emailInput.value.includes('@') || !emailInput.value.includes('.')) {
-                            alert('Por favor, ingresa un correo electrónico válido.');
-                            return;
-                        }
-                        currentPlanState.data.email = emailInput.value.trim();
-                    } else if (currentPlanState.currentStep === 2) { // Paso 3: Nombre
-                        const fullNameInput = document.querySelector(`.fullname-input[data-plan="${planType}"]`);
-                        if (!fullNameInput.value.trim() || fullNameInput.value.trim().length < 2) {
-                            alert('Por favor, ingresa tu nombre completo.');
-                            return;
-                        }
-                        currentPlanState.data.fullName = fullNameInput.value.trim();
-                    } else if (currentPlanState.currentStep === 3) { // Paso 4: País
-                        const countryInput = document.querySelector(`.country-input[data-plan="${planType}"]`);
-                        if (!countryInput.value.trim() || countryInput.value.trim().length < 2) {
-                            alert('Por favor, ingresa tu país de residencia.');
-                            return;
-                        }
-                        currentPlanState.data.country = countryInput.value.trim();
-                    }
-                }
+        document.querySelector('.send-whatsapp-btn').onclick = () => {
+            state.name = document.querySelector('.fullname-input').value;
+            if(!state.name) return alert("Ingresa tu nombre");
+            
+            // También bloqueamos aquí porque ya interactuó
+            setAccessBlock();
 
-                if (isNext) {
-                    currentPlanState.currentStep = Math.min(currentPlanState.currentStep + 1, totalSteps - 1);
-                } else {
-                    currentPlanState.currentStep = Math.max(currentPlanState.currentStep - 1, 0);
-                }
-
-                updateStepDisplay(planType);
-            });
-        });
-
-        // Función para actualizar la visualización de los pasos
-        function updateStepDisplay(planType) {
-            const currentPlanState = plansState[planType];
-            const stepsContainer = document.querySelector(`.plan-steps-container[data-plan-target="${planType}"]`);
-            const allSteps = stepsContainer.querySelectorAll('.step-content');
-            const progressBar = stepsContainer.querySelector('.progress-bar');
-
-            // Oculta todos los pasos de este plan
-            allSteps.forEach(step => step.classList.remove('active'));
-
-            // Muestra el paso actual
-            const activeStepElement = stepsContainer.querySelector(`[data-step="${currentPlanState.currentStep + 1}"]`);
-            if (activeStepElement) {
-                activeStepElement.classList.add('active');
-            }
-
-            // Actualiza la barra de progreso
-            const progress = ((currentPlanState.currentStep + 1) / totalSteps) * 100;
-            progressBar.style.width = `${progress}%`;
-
-            // Rellena los datos finales si estamos en el último paso
-            if (currentPlanState.currentStep === totalSteps - 1) {
-                stepsContainer.querySelector(`.final-plan[data-plan="${planType}"]`).textContent = planType;
-                stepsContainer.querySelector(`.final-email[data-plan="${planType}"]`).textContent = currentPlanState.data.email;
-                stepsContainer.querySelector(`.final-fullname[data-plan="${planType}"]`).textContent = currentPlanState.data.fullName;
-                stepsContainer.querySelector(`.final-country[data-plan="${planType}"]`).textContent = currentPlanState.data.country;
-            } else {
-                // Restablece los inputs si se retrocede o avanza antes del paso final
-                // Aseguramos que los inputs se llenen con los datos actuales del estado
-                const emailInput = document.querySelector(`.email-input[data-plan="${planType}"]`);
-                const fullNameInput = document.querySelector(`.fullname-input[data-plan="${planType}"]`);
-                const countryInput = document.querySelector(`.country-input[data-plan="${planType}"]`);
-
-                if (emailInput) emailInput.value = currentPlanState.data.email;
-                if (fullNameInput) fullNameInput.value = currentPlanState.data.fullName;
-                if (countryInput) countryInput.value = currentPlanState.data.country;
-            }
-        }
-
-        // Manejo del botón de WhatsApp
-        document.querySelectorAll('.send-whatsapp-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                event.preventDefault(); // Previene la acción por defecto del enlace
-                const planType = event.target.dataset.plan;
-                const currentPlanData = plansState[planType].data;
-
-                const message = `¡Hola Asesor de llutid+!%0A%0AMe gustaría suscribirme al siguiente plan:%0A%0A*Plan Elegido:* ${planType}%0A*Correo Electrónico:* ${currentPlanData.email}%0A*Nombre Completo:* ${currentPlanData.fullName}%0A*País de Residencia:* ${currentPlanData.country}%0A%0APor favor, ayúdame a finalizar mi suscripción. ¡Gracias!`;
-                const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-                window.open(whatsappUrl, '_blank');
-
-                // Establece el timestamp después de enviar la información del plan
-                setRedirectTimestamp();
-            });
-        });
-
-        // Añade un event listener para los botones "Entrar"
-        document.getElementById('nav-login-btn').addEventListener('click', () => {
-            setRedirectTimestamp();
-            // Ya no es necesario window.location.href aquí porque la lógica del head lo maneja
-            // Pero lo dejamos si quieres que el clic redirija inmediatamente
-            window.location.replace('login.html'); 
-        });
-
-        document.getElementById('hero-login-btn').addEventListener('click', () => {
-            setRedirectTimestamp();
-            // Igual que el anterior
-            window.location.replace('login.html');
-        });
-
+            const msg = `¡Hola! Me interesa el Plan Básico.\nEmail: ${state.email}\nNombre: ${state.name}`;
+            window.open(`https://wa.me/573181087834?text=${encodeURIComponent(msg)}`, '_blank');
+        };
     </script>
-
 </body>
 </html>
