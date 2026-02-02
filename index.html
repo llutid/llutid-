@@ -2,13 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>llutid+ | Nivel Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>llutid+ | Experiencia Premium</title>
 
     <script>
         // --- LÓGICA DE BLOQUEO POR 30 DÍAS ---
         const REDIRECT_KEY = 'llutid_welcome_hidden';
-        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000; // Milisegundos en 30 días
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
         function checkAccess() {
             const savedData = localStorage.getItem(REDIRECT_KEY);
@@ -16,262 +19,1051 @@
                 const registrationDate = parseInt(savedData);
                 const now = new Date().getTime();
                 
-                // Si han pasado menos de 30 días, saltar a login.html
                 if (now - registrationDate < THIRTY_DAYS) {
                     window.location.replace('login.html');
                 } else {
-                    // Si ya pasaron los 30 días, borramos para que vea la bienvenida de nuevo
                     localStorage.removeItem(REDIRECT_KEY);
                 }
             }
         }
 
-        // Función para activar el bloqueo de 30 días
         function setAccessBlock() {
             const now = new Date().getTime();
             localStorage.setItem(REDIRECT_KEY, now.toString());
         }
 
-        // Ejecutar comprobación antes de mostrar nada
         checkAccess();
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0f1014;
-            color: #ffffff;
+        * {
             margin: 0;
-            overflow-x: hidden;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .hero-section {
-            position: relative;
-            height: 80vh;
-            width: 100%;
-            display: flex;
-            align-items: flex-end;
-            padding-bottom: 2.5rem;
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            color: #fff;
             overflow: hidden;
+            height: 100vh;
+            height: 100dvh; /* Dynamic viewport height para móviles */
+            width: 100vw;
+            position: fixed;
+            overscroll-behavior: none;
         }
 
-        .brand-header {
+        /* Partículas de Fondo Animadas */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
             position: absolute;
-            top: 25px;
-            left: 20px;
-            right: 20px;
+            width: 2px;
+            height: 2px;
+            background: rgba(0, 113, 235, 0.5);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+            box-shadow: 0 0 8px rgba(0, 113, 235, 0.6);
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) translateX(30px);
+                opacity: 0;
+            }
+        }
+
+        /* Top Bar Glassmorphism */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 50;
-        }
-
-        .hero-gradient {
-            background: linear-gradient(to top, #0f1014 8%, rgba(15, 16, 20, 0) 45%, rgba(15, 16, 20, 0.7) 100%);
-        }
-
-        .app-card {
-            background: #1c1d24;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            border-radius: 12px;
-        }
-
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .plan-steps-container { display: none; }
-        .plan-steps-container.active { display: block; animation: slideUp 0.4s ease; }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .step-content { display: none; }
-        .step-content.active { display: block; }
-
-        input {
-            background: #2a2b33 !important;
-            border: 1px solid #3f404a !important;
-            color: white !important;
+            animation: slideDown 0.6s ease-out;
             height: 52px;
-            border-radius: 12px;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: #0071eb; /* Azul rey para "llutid" */
+        }
+
+        .logo-text .plus {
+            color: #fff; /* Blanco para el "+" */
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, rgba(0, 113, 235, 0.2) 0%, rgba(0, 212, 255, 0.2) 100%);
+            border: 1.5px solid rgba(0, 113, 235, 0.5);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 8px 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-login:active::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .btn-login:active {
+            transform: scale(0.95);
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+
+        /* Slides Container */
+        .slides-wrapper {
             width: 100%;
-            padding: 0 1rem;
-            margin-bottom: 0.75rem;
+            height: 100vh;
+            height: 100dvh;
+            position: relative;
+            overflow: hidden;
+            padding-top: 52px; /* Altura del top bar */
+        }
+
+        .slide {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 52px);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px 105px; /* Aumentado de 85px a 105px para dar más espacio */
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Fondos Degradados Animados */
+        .slide-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .slide-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, 
+                rgba(0, 113, 235, 0.12) 0%, 
+                rgba(0, 212, 255, 0.08) 25%,
+                transparent 50%);
+            animation: rotate-gradient 20s linear infinite;
+        }
+
+        @keyframes rotate-gradient {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slide[data-slide="1"] .slide-bg::before {
+            background: radial-gradient(circle at center, 
+                rgba(138, 43, 226, 0.12) 0%, 
+                rgba(220, 20, 220, 0.08) 25%,
+                transparent 50%);
+        }
+
+        .slide[data-slide="2"] .slide-bg::before {
+            background: radial-gradient(circle at center, 
+                rgba(255, 99, 71, 0.12) 0%, 
+                rgba(255, 140, 0, 0.08) 25%,
+                transparent 50%);
+        }
+
+        .slide[data-slide="3"] .slide-bg::before {
+            background: radial-gradient(circle at center, 
+                rgba(0, 255, 127, 0.12) 0%, 
+                rgba(46, 213, 115, 0.08) 25%,
+                transparent 50%);
+        }
+
+        /* Slide Visual - Optimizado para móviles */
+        .slide-visual {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-height: 45vh;
+            margin-top: 10px;
+        }
+
+        /* Texto del Slide - Mejorado para móviles */
+        .slide-text {
+            text-align: center;
+            padding: 0 16px;
+            max-width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .slide-title {
+            font-size: clamp(22px, 6vw, 32px);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(14px, 3.5vw, 16px);
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 400;
+        }
+
+        /* Slider de Películas - Slide 0 */
+        .poster-slider {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            height: 320px;
+            perspective: 1200px;
+        }
+
+        .poster-slide {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) rotateY(-90deg);
+            width: 200px;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 20px 50px rgba(0, 113, 235, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .poster-slide.active {
+            transform: translateX(-50%) rotateY(0deg) scale(1);
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .poster-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Beneficios Grid - Slide 0 */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 340px;
+            margin-bottom: 15px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .benefit-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, rgba(0, 113, 235, 0.3), rgba(0, 212, 255, 0.3));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .benefit-text {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.3;
+        }
+
+        /* Box 3D - Slide 1 */
+        .box-3d-container {
+            perspective: 1000px;
+            width: 200px;
+            height: 200px;
+        }
+
+        .box-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotate3d 8s infinite linear;
+        }
+
+        @keyframes rotate3d {
+            from { transform: rotateY(0deg) rotateX(10deg); }
+            to { transform: rotateY(360deg) rotateX(10deg); }
+        }
+
+        .box-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(0, 113, 235, 0.15) 0%, 
+                rgba(0, 212, 255, 0.15) 100%);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.3),
+                inset 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .box-icon svg {
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.6));
+        }
+
+        .box-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        }
+
+        .box-sublabel {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Message Container - Slide 2 */
+        .message-container {
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .message-bubble {
+            background: linear-gradient(135deg, 
+                rgba(0, 255, 127, 0.15) 0%, 
+                rgba(46, 213, 115, 0.15) 100%);
+            border: 2px solid rgba(0, 255, 127, 0.4);
+            border-radius: 24px;
+            padding: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 20px 60px rgba(0, 255, 127, 0.3),
+                inset 0 0 40px rgba(0, 255, 127, 0.1);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 20px 60px rgba(0, 255, 127, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 25px 70px rgba(0, 255, 127, 0.5);
+            }
+        }
+
+        .message-bubble svg {
+            filter: drop-shadow(0 0 15px rgba(0, 255, 127, 0.8));
+        }
+
+        /* Devices Container - Slide 3 */
+        .devices-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 300px;
+            height: 180px;
+            perspective: 1000px;
+        }
+
+        .device {
+            background: linear-gradient(135deg, 
+                rgba(0, 113, 235, 0.2) 0%, 
+                rgba(0, 212, 255, 0.2) 100%);
+            border: 2px solid rgba(0, 212, 255, 0.4);
+            border-radius: 12px;
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 15px 40px rgba(0, 113, 235, 0.3),
+                inset 0 0 30px rgba(0, 212, 255, 0.1);
+            transition: transform 0.4s ease;
+            animation: float-device 4s infinite ease-in-out;
+        }
+
+        .device-phone {
+            width: 70px;
+            height: 130px;
+            border-radius: 12px;
+        }
+
+        .device-tablet {
+            width: 100px;
+            height: 140px;
+            border-radius: 14px;
+            animation-delay: -1.3s;
+        }
+
+        .device-laptop {
+            width: 120px;
+            height: 85px;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            animation-delay: -2.6s;
+        }
+
+        .device-laptop::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 6px;
+            background: linear-gradient(135deg, 
+                rgba(0, 113, 235, 0.3) 0%, 
+                rgba(0, 212, 255, 0.3) 100%);
+            border-radius: 0 0 8px 8px;
+        }
+
+        @keyframes float-device {
+            0%, 100% { 
+                transform: translateY(0px) rotateY(0deg);
+            }
+            50% { 
+                transform: translateY(-12px) rotateY(5deg);
+            }
+        }
+
+        /* Swipe Indicator */
+        .swipe-indicator {
+            position: fixed;
+            bottom: 165px; /* Ajustado de 145px a 165px */
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(0, 113, 235, 0.15);
+            border: 1.5px solid rgba(0, 113, 235, 0.4);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            animation: bounce 2s infinite;
+            pointer-events: none;
+        }
+
+        .swipe-indicator svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(6px); }
+        }
+
+        /* Dots Pagination - Mejorado */
+        .dots-pagination {
+            position: fixed;
+            bottom: 73px; /* Reducido de 93px a 73px (20px más abajo) */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #0071eb, #00d4ff);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
+        }
+
+        /* CTA Button - Optimizado para móviles */
+        .cta-button {
+            position: fixed;
+            bottom: 58px; /* Aumentado de 50px a 58px */
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 380px;
+            padding: 15px 32px;
+            font-size: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            background: linear-gradient(135deg, #0071eb 0%, #00d4ff 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 
+                0 10px 30px rgba(0, 113, 235, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:active {
+            transform: translateX(-50%) scale(0.97);
+            box-shadow: 
+                0 5px 15px rgba(0, 113, 235, 0.6),
+                0 0 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .cta-button:active::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        /* Safe Area para dispositivos con notch */
+        @supports (padding: max(0px)) {
+            .top-bar {
+                padding-top: max(12px, env(safe-area-inset-top));
+            }
+
+            .cta-button {
+                bottom: max(58px, calc(38px + env(safe-area-inset-bottom)));
+            }
+
+            .dots-pagination {
+                bottom: max(73px, calc(53px + env(safe-area-inset-bottom)));
+            }
+
+            .swipe-indicator {
+                bottom: max(165px, calc(145px + env(safe-area-inset-bottom)));
+            }
+        }
+
+        /* Pantallas muy pequeñas */
+        @media (max-height: 667px) {
+            .slide {
+                padding: 12px 20px 78px;
+            }
+
+            .slide-visual {
+                max-height: 40vh;
+            }
+
+            .slide-title {
+                font-size: clamp(20px, 5.5vw, 28px);
+                margin-bottom: 10px;
+            }
+
+            .slide-subtitle {
+                font-size: clamp(13px, 3vw, 15px);
+            }
+
+            .poster-slider {
+                max-width: 240px;
+                height: 280px;
+            }
+
+            .poster-slide {
+                width: 170px;
+                height: 255px;
+            }
+
+            .box-3d-container {
+                width: 170px;
+                height: 170px;
+            }
+
+            .message-bubble {
+                padding: 28px;
+            }
+
+            .message-bubble svg {
+                width: 75px;
+                height: 75px;
+            }
+
+            .devices-container {
+                height: 150px;
+            }
+
+            .device-phone {
+                width: 60px;
+                height: 110px;
+            }
+
+            .device-tablet {
+                width: 85px;
+                height: 120px;
+            }
+
+            .device-laptop {
+                width: 100px;
+                height: 70px;
+            }
+
+            .cta-button {
+                padding: 14px 28px;
+                font-size: 14px;
+                bottom: 53px;
+            }
+
+            .dots-pagination {
+                bottom: 68px;
+            }
+        }
+
+        /* Pantallas extra pequeñas */
+        @media (max-height: 600px) {
+            .slide-title {
+                font-size: clamp(18px, 5vw, 24px);
+            }
+
+            .benefits-grid {
+                gap: 8px;
+            }
+
+            .benefit-item {
+                padding: 10px 14px;
+            }
+
+            .dots-pagination {
+                bottom: 65px;
+            }
+
+            .cta-button {
+                padding: 13px 24px;
+                font-size: 13px;
+                bottom: 50px;
+            }
         }
     </style>
 </head>
-<body class="antialiased">
+<body>
 
-    <header class="hero-section">
-        <div class="brand-header">
-            <div class="text-2xl font-extrabold tracking-tighter">
-                <span class="text-blue-500">llutid</span><span class="text-white">+</span>
-            </div>
-            <button id="nav-login-btn" class="text-sm font-bold bg-white/10 backdrop-blur-md px-5 py-2 rounded-full border border-white/20">
-                Entrar
-            </button>
+    <div class="particles" id="particles"></div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-container">
+            <div class="logo-text">llutid<span class="plus">+</span></div>
         </div>
+        <button class="btn-login" id="loginBtn">Iniciar Sesión</button>
+    </div>
 
-        <div id="hero-background-images" class="absolute inset-0 w-full h-full"></div>
-        <div class="absolute inset-0 hero-gradient"></div>
-        
-        <div class="relative z-10 px-6 w-full text-left">
-            <h1 class="text-5xl font-extrabold mb-3 tracking-tight leading-[1.1]">Dale play al<br>nivel pro.</h1>
-            <p class="text-gray-300 text-sm mb-6 max-w-[280px]">Tu contenido favorito, sin anuncios y en la mejor calidad.</p>
+    <!-- Slides Wrapper -->
+    <div class="slides-wrapper" id="slidesWrapper">
+
+        <!-- Slide 0: Catálogo de películas -->
+        <div class="slide active" data-slide="0">
+            <div class="slide-bg"></div>
             
-            <button id="scrollToPlansBtn" class="w-full btn-primary py-4 text-lg font-bold">
-                Iniciar Experiencia
-            </button>
+            <div class="slide-visual">
+                <div class="poster-slider">
+                    <div class="poster-slide active">
+                        <img src="https://image.tmdb.org/t/p/w342//LrMBxFwnsMgXTnaWqHYinn3vDN.jpg" alt="Fight Club">
+                    </div>
+                    <div class="poster-slide">
+                        <img src="https://www.aceprensa.com/wp-content/uploads/2019/08/71446-1-683x1024.jpg" alt="The Shining">
+                    </div>
+                    <div class="poster-slide">
+                        <img src="https://i.postimg.cc/NfKRtDJd/result-superman.jpg" alt="The Matrix">
+                    </div>
+                    <div class="poster-slide">
+                        <img src="https://cinemauniplaza.com.co/wp-content/uploads/2025/10/77fe751f4b3a-bp2_cineco_2-poster_480x670.jpg" alt="The Godfather">
+                    </div>
+                    <div class="poster-slide">
+                        <img src="https://i.postimg.cc/5NGd9BxY/Whats-App-Image-2025-09-18-at-12-06-11-PM.jpg" alt="Inception">
+                    </div>
+                </div>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" stroke="white" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">Soporte 24/7</span>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke="white" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                    <span class="benefit-text">Calidad 4K HDR disponible</span>
+                </div>
+            </div>
+            
+            <div class="slide-text">
+                <h1 class="slide-title">Entretenimiento ilimitado</h1>
+                <p class="slide-subtitle">Miles de películas y series en un solo lugar. Tu contenido favorito siempre disponible.</p>
+            </div>
         </div>
-    </header>
 
-    <main class="px-6 relative z-20">
-        <section class="mt-8 mb-10">
-            <h2 class="text-lg font-bold mb-4">Tendencias ahora</h2>
-            <div class="flex overflow-x-auto gap-3 scrollbar-hide">
-                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
-                    <img src="https://cinemauniplaza.com.co/wp-content/uploads/2025/10/77fe751f4b3a-bp2_cineco_2-poster_480x670.jpg" class="w-full h-full object-cover">
-                </div>
-                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
-                    <img src="https://www.aceprensa.com/wp-content/uploads/2019/08/71446-1-683x1024.jpg" class="w-full h-full object-cover">
-                </div>
-                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
-                    <img src="https://m.media-amazon.com/images/S/pv-target-images/ae5392d746731715a5218c63fa5eabac7de538b0aa325e7744e40a9696a089b5.png" class="w-full h-full object-cover">
-                </div>
-                <div class="min-w-[150px] h-[220px] rounded-xl overflow-hidden shadow-lg border border-white/5">
-                    <img src="https://resizing.flixster.com/mKKmrj6RQLnOy_lZVtiH1kaYKnc=/fit-in/705x460/v2/https://resizing.flixster.com/-XZAfHZM39UwaGJIFWKAE8fS0ak=/v3/t/assets/p31204312_v_v9_ab.jpg" class="w-full h-full object-cover">
-                </div>
-            </div>
-        </section>
-
-        <section id="planes-section" class="pb-10">
-            <h2 class="text-2xl font-bold mb-6 text-center">Nuestros Planes</h2>
-            <div class="space-y-4">
-                <div class="app-card p-6 border-l-4 border-gray-600">
-                    <div class="flex justify-between items-center mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold">Plan Gratuito</h3>
-                            <p class="text-blue-400 text-[11px] font-semibold uppercase">Código de regalo o cupón</p>
-                        </div>
-                        <span class="text-xl font-bold text-gray-400">0 COP</span>
-                    </div>
-                    <button id="free-register-btn" class="w-full btn-primary block text-center py-3 font-bold">Registrarse</button>
-                </div>
-
-                <div class="app-card p-6 border-l-4 border-blue-500 plan-card" data-plan="Basico">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold">Plan Básico</h3>
-                        <div class="text-right">
-                            <span class="text-xl font-bold">$2.500</span>
-                            <span class="text-[10px] block text-gray-400 uppercase">Mes</span>
-                        </div>
-                    </div>
-                    <button class="select-plan-btn w-full bg-white/5 py-3 rounded-xl font-bold border border-white/10">Seleccionar</button>
-                    <div class="plan-steps-container pt-4" data-plan-target="Basico">
-                        <div class="step-content active">
-                            <input type="email" class="email-input" placeholder="Correo electrónico">
-                            <button class="next-step-btn w-full btn-primary py-3">Siguiente</button>
-                        </div>
-                        <div class="step-content">
-                            <input type="text" class="fullname-input" placeholder="Nombre completo">
-                            <button class="send-whatsapp-btn w-full bg-[#25D366] py-3 rounded-xl font-bold">Activar en WhatsApp</button>
+        <!-- Slide 1: Planes -->
+        <div class="slide" data-slide="1">
+            <div class="slide-bg"></div>
+            
+            <div class="slide-visual">
+                <div class="box-3d-container">
+                    <div class="box-3d">
+                        <div class="box-face">
+                            <div class="box-icon">
+                                <svg width="38" height="38" fill="white" viewBox="0 0 24 24">
+                                    <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke="white" stroke-width="2" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="box-label">Códigos desde</div>
+                            <div class="box-sublabel">$2.500</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+            
+            <div class="slide-text">
+                <h1 class="slide-title">Compra tu código de regalo</h1>
+                <p class="slide-subtitle">Consíguelo en eventos oficiales. Con el código podrás crear tu cuenta de llutid+. Códigos desde $2.500 para disfrutar todo lo que quieras, el tiempo que quieras.</p>
+            </div>
+        </div>
 
-        <footer class="mt-10 border-t border-white/10 pt-8 pb-12">
-            <div class="space-y-5">
-                <div class="flex items-center gap-4">
-                    <div class="bg-blue-500/10 p-3 rounded-xl"><svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg></div>
-                    <div><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Email</p><p class="text-sm font-semibold">llutidoficial@gmail.com</p></div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-500/10 p-3 rounded-xl"><svg class="w-5 h-5 text-[#25D366]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div>
-                    <div><p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">WhatsApp</p><p class="text-sm font-semibold">+57 318 1087834</p></div>
+        <!-- Slide 2: Cancelación -->
+        <div class="slide" data-slide="2">
+            <div class="slide-bg"></div>
+            
+            <div class="slide-visual">
+                <div class="message-container">
+                    <div class="message-bubble">
+                        <svg width="95" height="95" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4"></polyline>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
-        </footer>
-    </main>
+            
+            <div class="slide-text">
+                <h1 class="slide-title">Libertad total, sin ataduras</h1>
+                <p class="slide-subtitle">Sin compromisos ni contratos. Únete hoy y cancela cuando quieras.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Dispositivos -->
+        <div class="slide" data-slide="3">
+            <div class="slide-bg"></div>
+            
+            <div class="slide-visual">
+                <div class="devices-container">
+                    <div class="device device-phone"></div>
+                    <div class="device device-tablet"></div>
+                    <div class="device device-laptop"></div>
+                </div>
+            </div>
+            
+            <div class="slide-text">
+                <h1 class="slide-title">En todos tus dispositivos</h1>
+                <p class="slide-subtitle">Móvil, tablet, PC y Smart TV. Disfruta en cualquier pantalla.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Swipe Indicator -->
+    <div class="swipe-indicator">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"/>
+        </svg>
+        Desliza
+    </div>
+
+    <!-- Dots Pagination -->
+    <div class="dots-pagination" id="dotsPagination">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <!-- CTA Button -->
+    <button class="cta-button" id="ctaBtn">Comenzar Ahora</button>
 
     <script>
-        // --- Carrusel de Fondos ---
-        const imageUrls = [
-            "https://www.cronista.com/resizer/v2/2CLZCBNMPVCEBFPI2X2RBOZPOY.jpg?auth=59c5d4a99d034dbb5ecf0e07eab0c2ff099846721721ef9156699134f18eea3c&height=533&width=800&quality=70&smart=true", 
-            "https://blob.elporvenir.mx/images/2020/08/31/streaming-focus-0-0-750-440.jpg"
-        ];
-        const bgContainer = document.getElementById('hero-background-images');
-        const images = imageUrls.map((url, i) => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = `absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ${i===0 ? 'opacity-40' : 'opacity-0'}`;
-            bgContainer.appendChild(img);
-            return img;
+        // Crear partículas animadas
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 25; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // ROTACIÓN AUTOMÁTICA DE PELÍCULAS
+        let currentPoster = 0;
+        const posterSlides = document.querySelectorAll('.poster-slide');
+        
+        function rotatePoster() {
+            posterSlides[currentPoster].classList.remove('active');
+            currentPoster = (currentPoster + 1) % posterSlides.length;
+            posterSlides[currentPoster].classList.add('active');
+        }
+
+        setInterval(rotatePoster, 4000);
+
+        // Sistema de Slides Principal
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        const wrapper = document.getElementById('slidesWrapper');
+        const ctaBtn = document.getElementById('ctaBtn');
+        const loginBtn = document.getElementById('loginBtn');
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        function goToSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }
+
+        function prevSlide() {
+            const prev = (currentSlide - 1 + slides.length) % slides.length;
+            goToSlide(prev);
+        }
+
+        // Touch Events
+        wrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        wrapper.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const threshold = 50;
+            const diffX = touchStartX - touchEndX;
+            const diffY = Math.abs(touchStartY - touchEndY);
+
+            if (diffY < 100 && Math.abs(diffX) > threshold) {
+                if (diffX > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+
+        // Click en Dots
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+            });
         });
 
-        let currentIdx = 0;
-        setInterval(() => {
-            images[currentIdx].classList.replace('opacity-40', 'opacity-0');
-            currentIdx = (currentIdx + 1) % images.length;
-            images[currentIdx].classList.replace('opacity-0', 'opacity-40');
-        }, 5000);
+        // Auto Play de Slides
+        let autoPlay = setInterval(nextSlide, 5000);
 
-        // --- MANEJO DE REDIRECCIÓN Y BLOQUEO ---
-        
-        // Botón Entrar
-        document.getElementById('nav-login-btn').onclick = () => {
+        wrapper.addEventListener('touchstart', () => {
+            clearInterval(autoPlay);
+        }, { once: true });
+
+        // CTA Button
+        ctaBtn.addEventListener('click', () => {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            setAccessBlock();
+            window.location.replace('registro.html');
+        });
+
+        // Login Button
+        loginBtn.addEventListener('click', () => {
+            if (navigator.vibrate) {
+                navigator.vibrate(30);
+            }
             setAccessBlock();
             window.location.replace('login.html');
-        };
+        });
 
-        // Botón Iniciar Experiencia
-        document.getElementById('scrollToPlansBtn').onclick = () => {
-            setAccessBlock();
-            window.location.replace('registro.html');
-        };
+        // Prevenir bounce en iOS
+        document.body.addEventListener('touchmove', (e) => {
+            if (e.target === document.body) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
-        // Botón Registrarse (Gratis)
-        document.getElementById('free-register-btn').onclick = () => {
-            setAccessBlock();
-            window.location.replace('registro.html');
-        };
-
-        // Lógica de Pasos Plan Básico
-        const state = { email: '', name: '' };
-        document.querySelector('.select-plan-btn').onclick = (e) => {
-            e.target.style.display = 'none';
-            document.querySelector('[data-plan-target="Basico"]').classList.add('active');
-        };
-
-        document.querySelector('.next-step-btn').onclick = () => {
-            state.email = document.querySelector('.email-input').value;
-            if(!state.email) return alert("Ingresa tu correo");
-            document.querySelectorAll('.step-content')[0].classList.remove('active');
-            document.querySelectorAll('.step-content')[1].classList.add('active');
-        };
-
-        document.querySelector('.send-whatsapp-btn').onclick = () => {
-            state.name = document.querySelector('.fullname-input').value;
-            if(!state.name) return alert("Ingresa tu nombre");
-            
-            // También bloqueamos aquí porque ya interactuó
-            setAccessBlock();
-
-            const msg = `¡Hola! Me interesa el Plan Básico.\nEmail: ${state.email}\nNombre: ${state.name}`;
-            window.open(`https://wa.me/573181087834?text=${encodeURIComponent(msg)}`, '_blank');
-        };
+        // Ocultar swipe indicator después de la primera interacción
+        let firstInteraction = false;
+        wrapper.addEventListener('touchstart', () => {
+            if (!firstInteraction) {
+                document.querySelector('.swipe-indicator').style.display = 'none';
+                firstInteraction = true;
+            }
+        }, { once: true });
     </script>
+
 </body>
 </html>
