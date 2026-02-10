@@ -1358,7 +1358,7 @@ const firebaseConfigUsers = {
   projectId: "llutid-18d26",
   storageBucket: "llutid-18d26.firebasestorage.app",
   messagingSenderId: "900505351564",
-  appId: "1:900505351564:web:ff54f0dc8d1e8cbdc18e34"
+  appId: "1:900505351564:web:e71805939e3488170652a9"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -2043,23 +2043,28 @@ onAuthStateChanged(auth, async (user) => {
         avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
         historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
       };
-      updateProfileUI();
+      // Solo actualizar UI si los elementos existen
+      if (profileButtonPlaceholder) {
+        updateProfileUI();
+      }
     }
   }
 });
 
-// Inicializar perfil inmediatamente con datos de localStorage
-const savedCorreo = localStorage.getItem('correo');
-if (savedCorreo && !userProfile) {
-  userProfile = {
-    email: savedCorreo,
-    nombre: savedCorreo.split('@')[0],
-    telefono: '',
-    avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
-    historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
-  };
-  updateProfileUI();
-}
+// Inicializar perfil inmediatamente con datos de localStorage (solo si hay elementos)
+setTimeout(() => {
+  const savedCorreo = localStorage.getItem('correo');
+  if (savedCorreo && !userProfile && profileButtonPlaceholder) {
+    userProfile = {
+      email: savedCorreo,
+      nombre: savedCorreo.split('@')[0],
+      telefono: '',
+      avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
+      historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+    };
+    updateProfileUI();
+  }
+}, 100);
 
 async function loadUserProfile() {
   try {
@@ -2103,30 +2108,41 @@ async function loadUserProfile() {
 }
 
 function updateProfileUI() {
+  if (!userProfile) return;
+  
   // Actualizar botón de perfil
-  if (userProfile.avatar) {
-    profileButtonPlaceholder.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
-  } else {
-    const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
-    profileButtonPlaceholder.textContent = inicial;
+  if (profileButtonPlaceholder) {
+    if (userProfile.avatar) {
+      profileButtonPlaceholder.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
+    } else {
+      const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
+      profileButtonPlaceholder.textContent = inicial;
+    }
   }
 
-  // Actualizar datos en el overlay de perfil
-  document.getElementById('profileName').textContent = userProfile.nombre || 'Usuario';
-  document.getElementById('profileEmail').textContent = userProfile.email || 'Sin correo';
-  document.getElementById('profileEmailInfo').textContent = userProfile.email || 'Sin correo';
-  document.getElementById('profilePhone').textContent = userProfile.telefono || 'No registrado';
+  // Actualizar datos en el overlay de perfil (solo si existen los elementos)
+  const profileName = document.getElementById('profileName');
+  const profileEmail = document.getElementById('profileEmail');
+  const profileEmailInfo = document.getElementById('profileEmailInfo');
+  const profilePhone = document.getElementById('profilePhone');
+  
+  if (profileName) profileName.textContent = userProfile.nombre || 'Usuario';
+  if (profileEmail) profileEmail.textContent = userProfile.email || 'Sin correo';
+  if (profileEmailInfo) profileEmailInfo.textContent = userProfile.email || 'Sin correo';
+  if (profilePhone) profilePhone.textContent = userProfile.telefono || 'No registrado';
 
   // Actualizar avatar en perfil
   const profileAvatar = document.getElementById('profileAvatar');
   const profileAvatarInitial = document.getElementById('profileAvatarInitial');
   
-  if (userProfile.avatar) {
-    profileAvatar.style.background = 'transparent';
-    profileAvatarInitial.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
-  } else {
-    const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
-    profileAvatarInitial.textContent = inicial;
+  if (profileAvatar && profileAvatarInitial) {
+    if (userProfile.avatar) {
+      profileAvatar.style.background = 'transparent';
+      profileAvatarInitial.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
+    } else {
+      const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
+      profileAvatarInitial.textContent = inicial;
+    }
   }
 
   // Cargar historial
