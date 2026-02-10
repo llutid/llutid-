@@ -1665,14 +1665,17 @@ async function loadMoviesFromCache() {
 }
 
 function loadMoviesFromFirebase() {
+  console.log('🎬 Iniciando carga de películas desde Firebase...');
   const q = query(collection(db, "movies"), orderBy("order"));
   
   onSnapshot(q, (querySnapshot) => {
+    console.log('📦 Snapshot recibido, películas encontradas:', querySnapshot.size);
     const movies = [];
     querySnapshot.forEach((doc) => {
       movies.push({ id: doc.id, ...doc.data() });
     });
     
+    console.log('✅ Películas procesadas:', movies.length);
     cache.set('movies', movies);
     renderMoviesByCategory(movies);
     
@@ -1757,9 +1760,13 @@ function renderMoviesByCategory(movies) {
 
 // ==================== INICIALIZACIÓN ====================
 async function init() {
+  console.log('📍 Función init() ejecutándose...');
   const heroFromCache = await loadHeroesFromCache();
   if (!heroFromCache) {
+    console.log('⏳ Cargando héroes desde Firebase...');
     await loadHeroesFromFirebase();
+  } else {
+    console.log('✅ Héroes cargados desde caché');
   }
   
   // Escuchar cambios en tiempo real de heroes
@@ -1782,10 +1789,13 @@ async function init() {
     }
   });
   
+  console.log('🎬 Intentando cargar películas...');
   const moviesFromCache = await loadMoviesFromCache();
   if (!moviesFromCache) {
+    console.log('⏳ No hay películas en caché, cargando desde Firebase...');
     loadMoviesFromFirebase();
   } else {
+    console.log('✅ Películas en caché encontradas, también cargando desde Firebase...');
     loadMoviesFromFirebase();
   }
 }
@@ -2005,12 +2015,6 @@ document.addEventListener('keydown', (e) => {
     }
   }
 });
-
-// ==================== UTILIDADES ====================
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-window.scrollToTop = scrollToTop;
 
 // ==================== GESTIÓN DE PERFIL ====================
 const profileButton = document.getElementById('profileButton');
@@ -2333,4 +2337,34 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Popup
-function show
+function showPopup(title, message) {
+  const popupTitle = document.getElementById('popupTitle');
+  const popupMessage = document.getElementById('popupMessage');
+  
+  if (popupTitle) popupTitle.textContent = title;
+  if (popupMessage) popupMessage.textContent = message;
+  
+  popupOverlay.classList.add('active');
+}
+
+// ==================== UTILIDADES ====================
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.scrollToTop = scrollToTop;
+
+// ==================== INICIO ====================
+console.log('🚀 Iniciando aplicación LLUTID+');
+console.log('🔥 Firebase config películas:', firebaseConfig.projectId);
+console.log('👤 Firebase config usuarios:', firebaseConfigUsers.projectId);
+init();
+
+if (previewVideo) {
+  previewVideo.play().catch(error => {
+    console.log("Auto-play de preview bloqueado:", error);
+  });
+}
+</script>
+
+</body>
+</html>
