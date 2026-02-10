@@ -1263,7 +1263,7 @@ body{
         </div>
       </div>
       <h2 class="profile-name" id="profileName">Usuario</h2>
-      <p class="profile-email" id="profileEmail">usuario@ejemplo.com</p>
+      <p class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="106563657162797f50757a757d607c7f3e737f7d">[email&#160;protected]</a></p>
     </div>
 
     <!-- Selector de Avatar -->
@@ -1291,7 +1291,7 @@ body{
       </div>
       <div class="profile-info-row">
         <span class="profile-info-label">Correo electrónico</span>
-        <span class="profile-info-value" id="profileEmailInfo">usuario@ejemplo.com</span>
+        <span class="profile-info-value" id="profileEmailInfo"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c696f697d6e75735c797679716c7073327f7371">[email&#160;protected]</a></span>
       </div>
     </div>
 
@@ -1336,7 +1336,7 @@ body{
   </div>
 </div>
 
-<script type="module">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
@@ -2032,13 +2032,53 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     await loadUserProfile();
   } else {
-    // Redirigir al login si no hay usuario autenticado
-    window.location.href = 'login.html';
+    // Si no hay usuario, crear perfil básico temporal usando el correo guardado
+    const savedCorreo = localStorage.getItem('correo');
+    if (savedCorreo) {
+      // Crear perfil temporal sin autenticación
+      userProfile = {
+        email: savedCorreo,
+        nombre: savedCorreo.split('@')[0],
+        telefono: '',
+        avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
+        historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+      };
+      updateProfileUI();
+    }
   }
 });
 
+// Inicializar perfil inmediatamente con datos de localStorage
+const savedCorreo = localStorage.getItem('correo');
+if (savedCorreo && !userProfile) {
+  userProfile = {
+    email: savedCorreo,
+    nombre: savedCorreo.split('@')[0],
+    telefono: '',
+    avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
+    historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+  };
+  updateProfileUI();
+}
+
 async function loadUserProfile() {
   try {
+    if (!currentUser) {
+      // Si no hay usuario autenticado, usar datos del localStorage
+      const savedCorreo = localStorage.getItem('correo');
+      if (savedCorreo) {
+        userProfile = {
+          email: savedCorreo,
+          nombre: savedCorreo.split('@')[0],
+          telefono: '',
+          avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
+          historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+        };
+        updateProfileUI();
+      }
+      return;
+    }
+    
     const userDocRef = doc(dbUsers, 'users', currentUser.uid);
     const userDoc = await getDoc(userDocRef);
     
@@ -2139,8 +2179,15 @@ async function saveAvatar() {
   }
 
   try {
-    const userDocRef = doc(dbUsers, 'users', currentUser.uid);
-    await updateDoc(userDocRef, { avatar: selectedAvatar });
+    if (currentUser) {
+      // Si hay usuario autenticado, guardar en Firebase
+      const userDocRef = doc(dbUsers, 'users', currentUser.uid);
+      await updateDoc(userDocRef, { avatar: selectedAvatar });
+    } else {
+      // Si no, guardar en localStorage
+      localStorage.setItem('userAvatar', selectedAvatar);
+    }
+    
     userProfile.avatar = selectedAvatar;
     updateProfileUI();
     avatarSelector.classList.remove('active');
@@ -2153,6 +2200,11 @@ async function saveAvatar() {
 
 // Cambio de contraseña
 async function changePassword() {
+  if (!currentUser) {
+    showPopup('Error', 'Debes iniciar sesión para cambiar tu contraseña.');
+    return;
+  }
+  
   try {
     await sendPasswordResetEmail(auth, currentUser.email);
     showPopup(
@@ -2190,7 +2242,7 @@ function loadWatchingHistory() {
 }
 
 async function addToHistory(movieData) {
-  if (!currentUser || !userProfile) return;
+  if (!userProfile) return;
 
   try {
     const historyItem = {
@@ -2213,8 +2265,14 @@ async function addToHistory(movieData) {
       }
     }
 
-    const userDocRef = doc(dbUsers, 'users', currentUser.uid);
-    await updateDoc(userDocRef, { historial: userProfile.historial });
+    if (currentUser) {
+      // Si hay usuario autenticado, guardar en Firebase
+      const userDocRef = doc(dbUsers, 'users', currentUser.uid);
+      await updateDoc(userDocRef, { historial: userProfile.historial });
+    } else {
+      // Si no, guardar en localStorage
+      localStorage.setItem('userHistorial', JSON.stringify(userProfile.historial));
+    }
   } catch (error) {
     console.error('Error al actualizar historial:', error);
   }
@@ -2259,21 +2317,4 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Popup
-function showPopup(title, message) {
-  popupTitle.textContent = title;
-  popupMessage.textContent = message;
-  popupOverlay.classList.add('active');
-}
-
-// ==================== INICIO ====================
-init();
-
-if (previewVideo) {
-  previewVideo.play().catch(error => {
-    console.log("Auto-play de preview bloqueado:", error);
-  });
-}
-</script>
-
-</body>
-</html>
+function show
