@@ -106,6 +106,503 @@ body{
 .hero-logo-inner .hero-ll{color:var(--accent-blue);font-weight:900;font-size:16px}
 .hero-logo-inner .hero-plus{color:#fff;font-weight:900;font-size:16px}
 
+/* ---------- BOTÓN DE PERFIL ---------- */
+.profile-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 9999;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.profile-button:hover {
+  transform: scale(1.08);
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+
+.profile-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.profile-button-placeholder {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 14px;
+  color: #fff;
+}
+
+/* ---------- OVERLAY DE PERFIL ---------- */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.96);
+  backdrop-filter: blur(12px);
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.profile-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  position: relative;
+}
+
+.profile-close-btn {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.profile-close-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: rotate(90deg);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(0,123,255,0.1), rgba(0,198,255,0.05));
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.profile-avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.15);
+  object-fit: cover;
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 900;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  border: 3px solid var(--dark-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+.profile-edit-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 18px rgba(0,123,255,0.6);
+}
+
+.profile-edit-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+.profile-name {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.profile-email {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.profile-section {
+  margin-bottom: 30px;
+  padding: 25px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.profile-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-section-title svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--accent-blue);
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.profile-info-row:last-child {
+  border-bottom: none;
+}
+
+.profile-info-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.profile-info-value {
+  font-size: 15px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.profile-action-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.profile-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,123,255,0.5);
+}
+
+.profile-action-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+}
+
+/* Avatar Selector */
+.avatar-selector {
+  display: none;
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.avatar-selector.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.avatar-category {
+  margin-bottom: 20px;
+}
+
+.avatar-category-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #fff;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--accent-blue);
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 12px;
+}
+
+.avatar-option {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+}
+
+.avatar-option:hover {
+  transform: scale(1.08);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.avatar-option.selected {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+}
+
+.avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-save-btn {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #00c853, #00e676);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.avatar-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,200,83,0.4);
+}
+
+/* Historial de Vistas */
+.watching-history {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+}
+
+.history-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  aspect-ratio: 2/3;
+}
+
+.history-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  border-color: var(--accent-blue);
+}
+
+.history-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.history-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0,0,0,0.5);
+}
+
+.history-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), #00c6ff);
+  transition: width 0.3s ease;
+}
+
+.no-history-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* Popup de confirmación */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.popup-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-content {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  animation: popupSlideIn 0.3s ease;
+}
+
+@keyframes popupSlideIn {
+  from { transform: scale(0.9) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.popup-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-icon.success {
+  background: rgba(0,200,83,0.15);
+}
+
+.popup-icon.success svg {
+  width: 32px;
+  height: 32px;
+  stroke: #00c853;
+}
+
+.popup-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.popup-message {
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.popup-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.popup-btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  color: #fff;
+}
+
+.popup-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,123,255,0.4);
+}
+
+.popup-btn-secondary {
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+}
+
+.popup-btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+}
+
 .hero-info{
   position:absolute;
   left:0;
@@ -597,6 +1094,11 @@ body{
   <div class="hero-logo-inner">
     <span class="hero-ll">LL</span><span class="hero-plus">+</span>
   </div>
+
+  <!-- Botón de Perfil -->
+  <div class="profile-button" id="profileButton">
+    <div class="profile-button-placeholder" id="profileButtonPlaceholder">?</div>
+  </div>
   
   <div id="carouselImagesContainer"></div>
   
@@ -746,10 +1248,100 @@ body{
   </div>
 </div>
 
+<!-- Overlay de Perfil -->
+<div class="profile-overlay" id="profileOverlay">
+  <div class="profile-container">
+    <button class="profile-close-btn" id="closeProfileBtn" aria-label="Cerrar perfil">&times;</button>
+    
+    <div class="profile-header">
+      <div class="profile-avatar-container">
+        <div class="profile-avatar" id="profileAvatar">
+          <span id="profileAvatarInitial">?</span>
+        </div>
+        <div class="profile-edit-icon" id="editAvatarBtn">
+          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        </div>
+      </div>
+      <h2 class="profile-name" id="profileName">Usuario</h2>
+      <p class="profile-email" id="profileEmail">usuario@ejemplo.com</p>
+    </div>
+
+    <!-- Selector de Avatar -->
+    <div class="avatar-selector" id="avatarSelector">
+      <div class="avatar-category">
+        <h3 class="avatar-category-title">👨 Avatares Masculinos</h3>
+        <div class="avatar-grid" id="maleAvatarsGrid"></div>
+      </div>
+      <div class="avatar-category">
+        <h3 class="avatar-category-title">👩 Avatares Femeninos</h3>
+        <div class="avatar-grid" id="femaleAvatarsGrid"></div>
+      </div>
+      <button class="avatar-save-btn" id="saveAvatarBtn">Guardar Avatar</button>
+    </div>
+
+    <!-- Información Personal -->
+    <div class="profile-section">
+      <h3 class="profile-section-title">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        Información Personal
+      </h3>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Número de celular</span>
+        <span class="profile-info-value" id="profilePhone">Cargando...</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Correo electrónico</span>
+        <span class="profile-info-value" id="profileEmailInfo">usuario@ejemplo.com</span>
+      </div>
+    </div>
+
+    <!-- Cambiar Contraseña -->
+    <div class="profile-section">
+      <h3 class="profile-section-title">
+        <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+        Seguridad
+      </h3>
+      <button class="profile-action-btn" id="changePasswordBtn">
+        <svg viewBox="0 0 24 24"><path d="M21 10h-8.35C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H13l2 2 2-2 2 2 4-4.04L21 10zM7 15c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+        Cambiar Contraseña
+      </button>
+    </div>
+
+    <!-- Historial de Visualización -->
+    <div class="profile-section">
+      <h3 class="profile-section-title">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        Seguir Viendo
+      </h3>
+      <div class="watching-history" id="watchingHistory">
+        <p class="no-history-message">No has visto ninguna película o serie todavía.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup de Confirmación -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-content">
+    <div class="popup-icon success">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <h3 class="popup-title" id="popupTitle">¡Éxito!</h3>
+    <p class="popup-message" id="popupMessage">La operación se completó correctamente.</p>
+    <div class="popup-buttons">
+      <button class="popup-btn popup-btn-primary" id="popupCloseBtn">Entendido</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
+// Firebase config para películas (home)
 const firebaseConfig = {
   apiKey: "AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
   authDomain: "peliculas-88668.firebaseapp.com",
@@ -759,8 +1351,47 @@ const firebaseConfig = {
   appId: "1:475189564333:web:7fe74613ca5082d3890724"
 };
 
+// Firebase config para usuarios (login)
+const firebaseConfigUsers = {
+  apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
+  authDomain: "llutid-18d26.firebaseapp.com",
+  projectId: "llutid-18d26",
+  storageBucket: "llutid-18d26.firebasestorage.app",
+  messagingSenderId: "900505351564",
+  appId: "1:900505351564:web:ff54f0dc8d1e8cbdc18e34"
+};
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Inicializar segunda app para usuarios
+const appUsers = initializeApp(firebaseConfigUsers, "users");
+const dbUsers = getFirestore(appUsers);
+const auth = getAuth(appUsers);
+
+// ==================== AVATARES DISPONIBLES ====================
+const MALE_AVATARS = [
+  'https://i.postimg.cc/prwRdSmh/male-1.png',
+  'https://i.postimg.cc/sXVz0Fnw/male-2.png',
+  'https://i.postimg.cc/KzR14Knn/male-3.png',
+  'https://i.postimg.cc/GpYcDdvd/male-4.png',
+  'https://i.postimg.cc/pXy2r6gK/male-5.png',
+  'https://i.postimg.cc/nzMQs3Mx/male-6.png'
+];
+
+const FEMALE_AVATARS = [
+  'https://i.postimg.cc/W4MF9Jw7/female-1.png',
+  'https://i.postimg.cc/wMpWKjYY/female-2.png',
+  'https://i.postimg.cc/Dy7HsZ9t/female-3.png',
+  'https://i.postimg.cc/0jh2S6sK/female-4.png',
+  'https://i.postimg.cc/YqGGW8hC/female-5.png',
+  'https://i.postimg.cc/Xqr3VmF8/female-6.png'
+];
+
+// ==================== VARIABLES DE PERFIL ====================
+let currentUser = null;
+let userProfile = null;
+let selectedAvatar = null;
 
 // ==================== SISTEMA DE CACHÉ ====================
 const CACHE_VERSION = 'v1';
@@ -1094,6 +1725,18 @@ function renderMoviesByCategory(movies) {
       card.dataset.id = movie.id;
       card.dataset.title = movie.title;
       
+      // Agregar al historial al hacer clic
+      card.addEventListener('click', (e) => {
+        if (window.addToHistory && typeof window.addToHistory === 'function') {
+          window.addToHistory({
+            id: movie.id,
+            title: movie.title,
+            image: movie.image,
+            link: movie.link
+          });
+        }
+      });
+      
       if (section === 'top10') {
         const position = sectionMovies.indexOf(movie) + 1;
         card.innerHTML = `
@@ -1368,6 +2011,259 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.scrollToTop = scrollToTop;
+
+// ==================== GESTIÓN DE PERFIL ====================
+const profileButton = document.getElementById('profileButton');
+const profileButtonPlaceholder = document.getElementById('profileButtonPlaceholder');
+const profileOverlay = document.getElementById('profileOverlay');
+const closeProfileBtn = document.getElementById('closeProfileBtn');
+const editAvatarBtn = document.getElementById('editAvatarBtn');
+const avatarSelector = document.getElementById('avatarSelector');
+const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+const changePasswordBtn = document.getElementById('changePasswordBtn');
+const popupOverlay = document.getElementById('popupOverlay');
+const popupTitle = document.getElementById('popupTitle');
+const popupMessage = document.getElementById('popupMessage');
+const popupCloseBtn = document.getElementById('popupCloseBtn');
+
+// Verificar autenticación
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    await loadUserProfile();
+  } else {
+    // Redirigir al login si no hay usuario autenticado
+    window.location.href = 'login.html';
+  }
+});
+
+async function loadUserProfile() {
+  try {
+    const userDocRef = doc(dbUsers, 'users', currentUser.uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    if (userDoc.exists()) {
+      userProfile = userDoc.data();
+      updateProfileUI();
+    } else {
+      // Crear perfil básico si no existe
+      userProfile = {
+        email: currentUser.email,
+        nombre: currentUser.email.split('@')[0],
+        telefono: '',
+        avatar: MALE_AVATARS[0],
+        historial: []
+      };
+      await setDoc(userDocRef, userProfile);
+      updateProfileUI();
+    }
+  } catch (error) {
+    console.error('Error al cargar perfil:', error);
+  }
+}
+
+function updateProfileUI() {
+  // Actualizar botón de perfil
+  if (userProfile.avatar) {
+    profileButtonPlaceholder.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
+  } else {
+    const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
+    profileButtonPlaceholder.textContent = inicial;
+  }
+
+  // Actualizar datos en el overlay de perfil
+  document.getElementById('profileName').textContent = userProfile.nombre || 'Usuario';
+  document.getElementById('profileEmail').textContent = userProfile.email || 'Sin correo';
+  document.getElementById('profileEmailInfo').textContent = userProfile.email || 'Sin correo';
+  document.getElementById('profilePhone').textContent = userProfile.telefono || 'No registrado';
+
+  // Actualizar avatar en perfil
+  const profileAvatar = document.getElementById('profileAvatar');
+  const profileAvatarInitial = document.getElementById('profileAvatarInitial');
+  
+  if (userProfile.avatar) {
+    profileAvatar.style.background = 'transparent';
+    profileAvatarInitial.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
+  } else {
+    const inicial = userProfile.nombre ? userProfile.nombre.charAt(0).toUpperCase() : '?';
+    profileAvatarInitial.textContent = inicial;
+  }
+
+  // Cargar historial
+  loadWatchingHistory();
+}
+
+// Selector de Avatar
+function initAvatarSelector() {
+  const maleGrid = document.getElementById('maleAvatarsGrid');
+  const femaleGrid = document.getElementById('femaleAvatarsGrid');
+
+  maleGrid.innerHTML = '';
+  femaleGrid.innerHTML = '';
+
+  MALE_AVATARS.forEach(url => {
+    const option = document.createElement('div');
+    option.className = 'avatar-option';
+    if (userProfile.avatar === url) {
+      option.classList.add('selected');
+      selectedAvatar = url;
+    }
+    option.innerHTML = `<img src="${url}" alt="Avatar masculino">`;
+    option.addEventListener('click', () => selectAvatar(option, url));
+    maleGrid.appendChild(option);
+  });
+
+  FEMALE_AVATARS.forEach(url => {
+    const option = document.createElement('div');
+    option.className = 'avatar-option';
+    if (userProfile.avatar === url) {
+      option.classList.add('selected');
+      selectedAvatar = url;
+    }
+    option.innerHTML = `<img src="${url}" alt="Avatar femenino">`;
+    option.addEventListener('click', () => selectAvatar(option, url));
+    femaleGrid.appendChild(option);
+  });
+}
+
+function selectAvatar(element, url) {
+  document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+  element.classList.add('selected');
+  selectedAvatar = url;
+}
+
+async function saveAvatar() {
+  if (!selectedAvatar) {
+    showPopup('Error', 'Por favor selecciona un avatar primero.');
+    return;
+  }
+
+  try {
+    const userDocRef = doc(dbUsers, 'users', currentUser.uid);
+    await updateDoc(userDocRef, { avatar: selectedAvatar });
+    userProfile.avatar = selectedAvatar;
+    updateProfileUI();
+    avatarSelector.classList.remove('active');
+    showPopup('¡Avatar actualizado!', 'Tu avatar se ha guardado correctamente.');
+  } catch (error) {
+    console.error('Error al guardar avatar:', error);
+    showPopup('Error', 'No se pudo guardar el avatar. Intenta de nuevo.');
+  }
+}
+
+// Cambio de contraseña
+async function changePassword() {
+  try {
+    await sendPasswordResetEmail(auth, currentUser.email);
+    showPopup(
+      '¡Correo enviado!',
+      `Hemos enviado un correo a ${currentUser.email} con las instrucciones para cambiar tu contraseña.`
+    );
+  } catch (error) {
+    console.error('Error al enviar correo:', error);
+    showPopup('Error', 'No se pudo enviar el correo. Verifica tu conexión e intenta de nuevo.');
+  }
+}
+
+// Historial de visualización
+function loadWatchingHistory() {
+  const historyContainer = document.getElementById('watchingHistory');
+  
+  if (!userProfile.historial || userProfile.historial.length === 0) {
+    historyContainer.innerHTML = '<p class="no-history-message">No has visto ninguna película o serie todavía.</p>';
+    return;
+  }
+
+  historyContainer.innerHTML = '';
+  userProfile.historial.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'history-card';
+    card.innerHTML = `
+      <img src="${item.image}" alt="${item.title}" loading="lazy">
+      <div class="history-progress">
+        <div class="history-progress-bar" style="width: ${item.progress || 0}%"></div>
+      </div>
+    `;
+    card.addEventListener('click', () => window.location.href = item.link);
+    historyContainer.appendChild(card);
+  });
+}
+
+async function addToHistory(movieData) {
+  if (!currentUser || !userProfile) return;
+
+  try {
+    const historyItem = {
+      id: movieData.id || Date.now(),
+      title: movieData.title,
+      image: movieData.image,
+      link: movieData.link,
+      progress: 0,
+      timestamp: Date.now()
+    };
+
+    const existingIndex = userProfile.historial.findIndex(item => item.id === historyItem.id);
+    
+    if (existingIndex >= 0) {
+      userProfile.historial[existingIndex] = historyItem;
+    } else {
+      userProfile.historial.unshift(historyItem);
+      if (userProfile.historial.length > 20) {
+        userProfile.historial = userProfile.historial.slice(0, 20);
+      }
+    }
+
+    const userDocRef = doc(dbUsers, 'users', currentUser.uid);
+    await updateDoc(userDocRef, { historial: userProfile.historial });
+  } catch (error) {
+    console.error('Error al actualizar historial:', error);
+  }
+}
+
+// Hacer disponible globalmente
+window.addToHistory = addToHistory;
+
+// Eventos del perfil
+profileButton.addEventListener('click', () => {
+  profileOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+});
+
+closeProfileBtn.addEventListener('click', () => {
+  profileOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+  avatarSelector.classList.remove('active');
+});
+
+editAvatarBtn.addEventListener('click', () => {
+  avatarSelector.classList.toggle('active');
+  if (avatarSelector.classList.contains('active')) {
+    initAvatarSelector();
+  }
+});
+
+saveAvatarBtn.addEventListener('click', saveAvatar);
+changePasswordBtn.addEventListener('click', changePassword);
+
+popupCloseBtn.addEventListener('click', () => {
+  popupOverlay.classList.remove('active');
+});
+
+// Cerrar perfil con ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && profileOverlay.classList.contains('active')) {
+    profileOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+    avatarSelector.classList.remove('active');
+  }
+});
+
+// Popup
+function showPopup(title, message) {
+  popupTitle.textContent = title;
+  popupMessage.textContent = message;
+  popupOverlay.classList.add('active');
+}
 
 // ==================== INICIO ====================
 init();
