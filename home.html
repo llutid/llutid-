@@ -28,7 +28,6 @@ body{
   scroll-behavior:smooth;
 }
 
-/* Loading skeleton para hero */
 .hero-skeleton {
   width: 100%;
   height: 83vh;
@@ -43,7 +42,6 @@ body{
   100% { background-position: -200% 0; }
 }
 
-/* ---------- HERO ---------- */
 .hero-section{
   position:relative;
   width:100%;
@@ -106,33 +104,31 @@ body{
 .hero-logo-inner .hero-ll{color:var(--accent-blue);font-weight:900;font-size:16px}
 .hero-logo-inner .hero-plus{color:#fff;font-weight:900;font-size:16px}
 
-/* ---------- BOTÓN DE PERFIL ---------- */
+/* Botón de perfil mejorado */
 .profile-button {
   position: absolute;
   top: 14px;
   right: 14px;
   z-index: 99999;
-  width: 46px;
-  height: 46px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(0,123,255,0.2), rgba(138,43,226,0.2));
+  border: 3px solid rgba(255,255,255,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 16px rgba(0,123,255,0.4);
   pointer-events: auto;
 }
 
 .profile-button:hover {
-  transform: scale(1.08);
-  background: rgba(255,255,255,0.14);
-  border-color: rgba(255,255,255,0.2);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  transform: scale(1.1);
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: 0 6px 24px rgba(0,123,255,0.6);
 }
 
 .profile-button img {
@@ -143,30 +139,28 @@ body{
 }
 
 .profile-button-placeholder {
-  width: 24px;
-  height: 24px;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  font-size: 14px;
+  font-size: 20px;
   color: #fff;
 }
 
-/* ---------- OVERLAY DE PERFIL ---------- */
+/* Overlay de perfil optimizado para móvil */
 .profile-overlay {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(10,10,30,0.98) 100%);
-  backdrop-filter: blur(20px);
+  background: var(--dark-bg);
   z-index: 99999;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   overflow-y: auto;
-  padding: 20px;
 }
 
 .profile-overlay.active {
@@ -175,243 +169,142 @@ body{
 }
 
 .profile-container {
-  max-width: 680px;
-  margin: 40px auto;
-  position: relative;
-  animation: profileSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes profileSlideIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px) scale(0.95);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-  }
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
 }
 
 .profile-close-btn {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  width: 44px;
-  height: 44px;
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(255,50,50,0.2), rgba(200,0,0,0.3));
+  background: rgba(255,50,50,0.15);
   border: 2px solid rgba(255,100,100,0.3);
   color: #fff;
-  font-size: 26px;
+  font-size: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  font-weight: 300;
+  z-index: 10;
   backdrop-filter: blur(10px);
 }
 
-.profile-close-btn:hover {
-  background: linear-gradient(135deg, rgba(255,50,50,0.4), rgba(200,0,0,0.5));
-  border-color: rgba(255,100,100,0.6);
-  transform: rotate(90deg) scale(1.1);
-  box-shadow: 0 0 20px rgba(255,50,50,0.4);
+.profile-close-btn:active {
+  transform: scale(0.9);
+  background: rgba(255,50,50,0.3);
 }
 
 .profile-header {
-  text-align: center;
-  margin-bottom: 35px;
-  padding: 50px 35px 40px;
-  background: linear-gradient(135deg, 
-    rgba(0,123,255,0.08) 0%, 
-    rgba(0,198,255,0.04) 50%,
-    rgba(138,43,226,0.06) 100%);
-  border-radius: 24px;
-  border: 1px solid rgba(255,255,255,0.1);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-
-.profile-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%, 
-    #8a2be2 100%);
+  padding: 60px 20px 30px;
+  background: linear-gradient(135deg, rgba(0,123,255,0.1) 0%, rgba(138,43,226,0.1) 100%);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .profile-avatar-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
   position: relative;
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 25px;
 }
 
 .profile-avatar {
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  border: 5px solid rgba(255,255,255,0.15);
-  object-fit: cover;
-  background: linear-gradient(135deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%,
-    #8a2be2 100%);
+  border: 4px solid rgba(0,123,255,0.4);
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 56px;
+  font-size: 48px;
   font-weight: 900;
   color: #fff;
-  box-shadow: 0 12px 40px rgba(0,123,255,0.4),
-              0 0 0 10px rgba(0,123,255,0.05);
-  transition: all 0.3s ease;
-}
-
-.profile-avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 16px 50px rgba(0,123,255,0.6),
-              0 0 0 10px rgba(0,123,255,0.08);
+  box-shadow: 0 8px 32px rgba(0,123,255,0.5);
+  overflow: hidden;
 }
 
 .profile-avatar img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
   object-fit: cover;
 }
 
 .profile-edit-icon {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
-  width: 42px;
-  height: 42px;
+  bottom: 0;
+  right: 0;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
-  border: 4px solid var(--dark-bg);
+  border: 3px solid var(--dark-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0,123,255,0.5);
+  box-shadow: 0 4px 12px rgba(0,123,255,0.6);
 }
 
-.profile-edit-icon:hover {
-  transform: scale(1.15) rotate(15deg);
-  box-shadow: 0 8px 30px rgba(0,123,255,0.7);
-  background: linear-gradient(135deg, #00c6ff, var(--accent-blue));
-}
-.profile-edit-icon:hover {
-  transform: scale(1.15) rotate(15deg);
-  box-shadow: 0 8px 30px rgba(0,123,255,0.7);
-  background: linear-gradient(135deg, #00c6ff, var(--accent-blue));
+.profile-edit-icon:active {
+  transform: scale(0.9);
 }
 
 .profile-edit-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   fill: #fff;
 }
 
 .profile-name {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 900;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  text-align: center;
   color: #fff;
-  letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .profile-email {
-  font-size: 15px;
+  font-size: 14px;
   color: rgba(255,255,255,0.6);
+  text-align: center;
   font-weight: 500;
-  letter-spacing: 0.3px;
 }
 
 .profile-section {
-  margin-bottom: 25px;
-  padding: 28px;
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.04) 0%, 
-    rgba(255,255,255,0.02) 100%);
-  border-radius: 20px;
+  margin: 16px;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%,
-    #8a2be2 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.profile-section:hover {
-  border-color: rgba(0,123,255,0.3);
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.06) 0%, 
-    rgba(255,255,255,0.03) 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0,123,255,0.15);
-}
-
-.profile-section:hover::before {
-  opacity: 1;
 }
 
 .profile-section-title {
-  font-size: 19px;
-  font-weight: 800;
-  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
   color: #fff;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .profile-section-title svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   fill: var(--accent-blue);
-  filter: drop-shadow(0 2px 4px rgba(0,123,255,0.3));
 }
 
 .profile-info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  transition: all 0.2s ease;
-}
-
-.profile-info-row:hover {
-  padding-left: 8px;
-  border-bottom-color: rgba(0,123,255,0.2);
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 .profile-info-row:last-child {
@@ -419,62 +312,47 @@ body{
 }
 
 .profile-info-label {
-  font-size: 14px;
+  font-size: 13px;
   color: rgba(255,255,255,0.5);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 12px;
 }
 
 .profile-info-value {
-  font-size: 16px;
+  font-size: 14px;
   color: #fff;
-  font-weight: 700;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-action-btn {
   width: 100%;
   padding: 16px;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, #00c6ff 100%);
+  background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   color: #fff;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-shadow: 0 6px 20px rgba(0,123,255,0.4);
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-action-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.profile-action-btn:hover::before {
-  left: 100%;
-}
-
-.profile-action-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 30px rgba(0,123,255,0.6);
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(0,123,255,0.4);
+  transition: all 0.2s ease;
 }
 
 .profile-action-btn:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: scale(0.97);
+}
+
+.profile-action-btn.logout-btn {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  box-shadow: 0 4px 16px rgba(220,53,69,0.4);
+  margin-top: 12px;
 }
 
 .profile-action-btn svg {
@@ -483,122 +361,58 @@ body{
   fill: #fff;
 }
 
-/* Avatar Selector */
+/* Selector de avatar optimizado */
 .avatar-selector {
   display: none;
-  margin-top: 25px;
-  padding: 28px;
-  background: linear-gradient(135deg, 
-    rgba(138,43,226,0.08) 0%, 
-    rgba(0,123,255,0.08) 100%);
-  border-radius: 18px;
+  margin: 16px;
+  padding: 20px;
+  background: rgba(138,43,226,0.08);
+  border-radius: 16px;
   border: 1px solid rgba(138,43,226,0.2);
-  backdrop-filter: blur(10px);
 }
 
 .avatar-selector.active {
   display: block;
-  animation: avatarSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes avatarSlideIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-15px) scale(0.95);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0) scale(1);
-  }
 }
 
 .avatar-category {
-  margin-bottom: 28px;
-}
-
-.avatar-category:last-of-type {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .avatar-category-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   margin-bottom: 12px;
   color: #fff;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--accent-blue);
-  font-weight: 800;
-  margin-bottom: 16px;
-  color: #fff;
-  padding-bottom: 12px;
-  border-bottom: 2px solid;
-  border-image: linear-gradient(90deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%,
-    transparent 100%) 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .avatar-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 16px;
-  padding: 8px 0;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
 .avatar-option {
-  width: 80px;
-  height: 80px;
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.1);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
   overflow: hidden;
-  background: linear-gradient(135deg, 
-    rgba(0,123,255,0.1) 0%, 
-    rgba(138,43,226,0.1) 100%);
+  background: rgba(0,123,255,0.1);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  position: relative;
 }
 
-.avatar-option::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  padding: 3px;
-  background: linear-gradient(135deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%,
-    #8a2be2 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.avatar-option:hover {
-  transform: scale(1.15);
-  border-color: rgba(255,255,255,0.3);
-  box-shadow: 0 8px 24px rgba(0,123,255,0.3);
-}
-
-.avatar-option:hover::before {
-  opacity: 0.5;
+.avatar-option:active {
+  transform: scale(0.9);
 }
 
 .avatar-option.selected {
-  border-color: transparent;
-  box-shadow: 0 0 0 4px rgba(0,123,255,0.4),
-              0 8px 24px rgba(0,123,255,0.5);
-  transform: scale(1.1);
-}
-
-.avatar-option.selected::before {
-  opacity: 1;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.3);
+  transform: scale(1.05);
 }
 
 .avatar-option img {
@@ -608,98 +422,49 @@ body{
 }
 
 .avatar-save-btn {
-  margin-top: 20px;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+  margin-top: 16px;
+  padding: 14px;
+  background: linear-gradient(135deg, #00c853, #00e676);
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   color: #fff;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
-  box-shadow: 0 6px 20px rgba(0,200,83,0.4);
-  position: relative;
-  overflow: hidden;
-}
-
-.avatar-save-btn::before {
-  content: '✓';
-  position: absolute;
-  right: 20px;
-  font-size: 20px;
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.3s ease;
-}
-
-.avatar-save-btn:hover::before {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.avatar-save-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 10px 30px rgba(0,200,83,0.6);
+  box-shadow: 0 4px 16px rgba(0,200,83,0.4);
 }
 
 .avatar-save-btn:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: scale(0.97);
 }
 
-/* Historial de Vistas */
+/* Historial optimizado */
 .watching-history {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
 }
 
 .history-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
-  background: linear-gradient(135deg, 
-    rgba(0,123,255,0.05) 0%, 
-    rgba(138,43,226,0.05) 100%);
+  background: rgba(0,123,255,0.05);
   border: 2px solid rgba(255,255,255,0.08);
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   aspect-ratio: 2/3;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
-.history-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, 
-    transparent 0%, 
-    rgba(0,0,0,0.4) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-
-.history-card:hover::before {
-  opacity: 1;
-}
-
-.history-card:hover {
-  transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 16px 40px rgba(0,123,255,0.4);
-  border-color: var(--accent-blue);
+.history-card:active {
+  transform: scale(0.95);
 }
 
 .history-card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.history-card:hover img {
-  transform: scale(1.1);
 }
 
 .history-progress {
@@ -707,39 +472,29 @@ body{
   bottom: 0;
   left: 0;
   right: 0;
-  height: 5px;
+  height: 4px;
   background: rgba(0,0,0,0.6);
-  z-index: 2;
 }
 
 .history-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, 
-    var(--accent-blue) 0%, 
-    #00c6ff 50%,
-    #8a2be2 100%);
-  transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(0,123,255,0.6);
+  background: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(0,123,255,0.6);
 }
 
 .no-history-message {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: rgba(255,255,255,0.4);
-  font-size: 15px;
-  font-weight: 500;
-  background: linear-gradient(135deg, 
-    rgba(255,255,255,0.02) 0%, 
-    rgba(255,255,255,0.01) 100%);
-  border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,0.1);
+  font-size: 14px;
+  grid-column: 1/-1;
 }
 
-/* Popup de confirmación */
+/* Popup */
 .popup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   backdrop-filter: blur(8px);
   z-index: 999999;
   display: flex;
@@ -758,34 +513,25 @@ body{
 .popup-content {
   background: var(--panel);
   border-radius: 16px;
-  padding: 30px;
-  max-width: 400px;
+  padding: 30px 24px;
+  max-width: 340px;
   width: 90%;
   border: 1px solid rgba(255,255,255,0.1);
   box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-  animation: popupSlideIn 0.3s ease;
-}
-
-@keyframes popupSlideIn {
-  from { transform: scale(0.9) translateY(20px); opacity: 0; }
-  to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
 .popup-icon {
   width: 60px;
   height: 60px;
-  margin: 0 auto 20px;
+  margin: 0 auto 16px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.popup-icon.success {
   background: rgba(0,200,83,0.15);
 }
 
-.popup-icon.success svg {
+.popup-icon svg {
   width: 32px;
   height: 32px;
   stroke: #00c853;
@@ -795,7 +541,7 @@ body{
   font-size: 20px;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: #fff;
 }
 
@@ -803,43 +549,24 @@ body{
   font-size: 14px;
   text-align: center;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   line-height: 1.5;
 }
 
-.popup-buttons {
-  display: flex;
-  gap: 12px;
-}
-
 .popup-btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.popup-btn-primary {
+  width: 100%;
+  padding: 14px;
   background: linear-gradient(135deg, var(--accent-blue), #00c6ff);
+  border: none;
+  border-radius: 12px;
   color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.popup-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,123,255,0.4);
-}
-
-.popup-btn-secondary {
-  background: rgba(255,255,255,0.06);
-  color: #fff;
-}
-
-.popup-btn-secondary:hover {
-  background: rgba(255,255,255,0.1);
+.popup-btn:active {
+  transform: scale(0.97);
 }
 
 .hero-info{
@@ -1325,16 +1052,13 @@ body{
 </head>
 <body>
 
-<!-- Skeleton del Hero mientras carga -->
 <div id="heroSkeleton" class="hero-skeleton"></div>
 
-<!-- Hero section dinámico desde Firebase -->
 <section class="hero-section" id="heroSection" style="display: none;">
   <div class="hero-logo-inner">
     <span class="hero-ll">LL</span><span class="hero-plus">+</span>
   </div>
 
-  <!-- Botón de Perfil -->
   <div class="profile-button" id="profileButton">
     <div class="profile-button-placeholder" id="profileButtonPlaceholder">?</div>
   </div>
@@ -1487,7 +1211,6 @@ body{
   </div>
 </div>
 
-<!-- Overlay de Perfil -->
 <div class="profile-overlay" id="profileOverlay">
   <div class="profile-container">
     <button class="profile-close-btn" id="closeProfileBtn" aria-label="Cerrar perfil">&times;</button>
@@ -1502,10 +1225,9 @@ body{
         </div>
       </div>
       <h2 class="profile-name" id="profileName">Usuario</h2>
-      <p class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="106563657162797f50757a757d607c7f3e737f7d">[email&#160;protected]</a></p>
+      <p class="profile-email" id="profileEmail">usuario@ejemplo.com</p>
     </div>
 
-    <!-- Selector de Avatar -->
     <div class="avatar-selector" id="avatarSelector">
       <div class="avatar-category">
         <h3 class="avatar-category-title">👨 Avatares Masculinos</h3>
@@ -1518,23 +1240,21 @@ body{
       <button class="avatar-save-btn" id="saveAvatarBtn">Guardar Avatar</button>
     </div>
 
-    <!-- Información Personal -->
     <div class="profile-section">
       <h3 class="profile-section-title">
         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
         Información Personal
       </h3>
       <div class="profile-info-row">
-        <span class="profile-info-label">Número de celular</span>
+        <span class="profile-info-label">Celular</span>
         <span class="profile-info-value" id="profilePhone">Cargando...</span>
       </div>
       <div class="profile-info-row">
-        <span class="profile-info-label">Correo electrónico</span>
-        <span class="profile-info-value" id="profileEmailInfo"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c696f697d6e75735c797679716c7073327f7371">[email&#160;protected]</a></span>
+        <span class="profile-info-label">Email</span>
+        <span class="profile-info-value" id="profileEmailInfo">usuario@ejemplo.com</span>
       </div>
     </div>
 
-    <!-- Cambiar Contraseña -->
     <div class="profile-section">
       <h3 class="profile-section-title">
         <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
@@ -1544,43 +1264,42 @@ body{
         <svg viewBox="0 0 24 24"><path d="M21 10h-8.35C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H13l2 2 2-2 2 2 4-4.04L21 10zM7 15c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
         Cambiar Contraseña
       </button>
+      <button class="profile-action-btn logout-btn" id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Cerrar Sesión
+      </button>
     </div>
 
-    <!-- Historial de Visualización -->
     <div class="profile-section">
       <h3 class="profile-section-title">
         <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
         Seguir Viendo
       </h3>
       <div class="watching-history" id="watchingHistory">
-        <p class="no-history-message">No has visto ninguna película o serie todavía.</p>
+        <p class="no-history-message">No has visto ninguna película todavía.</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Popup de Confirmación -->
 <div class="popup-overlay" id="popupOverlay">
   <div class="popup-content">
-    <div class="popup-icon success">
+    <div class="popup-icon">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
     </div>
     <h3 class="popup-title" id="popupTitle">¡Éxito!</h3>
     <p class="popup-message" id="popupMessage">La operación se completó correctamente.</p>
-    <div class="popup-buttons">
-      <button class="popup-btn popup-btn-primary" id="popupCloseBtn">Entendido</button>
-    </div>
+    <button class="popup-btn" id="popupCloseBtn">Entendido</button>
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
 import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-// Firebase config para películas (home)
 const firebaseConfig = {
   apiKey: "AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
   authDomain: "peliculas-88668.firebaseapp.com",
@@ -1590,7 +1309,6 @@ const firebaseConfig = {
   appId: "1:475189564333:web:7fe74613ca5082d3890724"
 };
 
-// Firebase config para usuarios (login)
 const firebaseConfigUsers = {
   apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
   authDomain: "llutid-18d26.firebaseapp.com",
@@ -1603,74 +1321,31 @@ const firebaseConfigUsers = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Inicializar segunda app para usuarios
 const appUsers = initializeApp(firebaseConfigUsers, "users");
 const dbUsers = getFirestore(appUsers);
 const auth = getAuth(appUsers);
 
-// ==================== AVATARES DISPONIBLES ====================
+// Solo 4 avatares por categoría
 const MALE_AVATARS = [
   'https://i.pravatar.cc/150?img=12',
   'https://i.pravatar.cc/150?img=13',
-  'https://i.pravatar.cc/150?img=14',
-  'https://i.pravatar.cc/150?img=15',
   'https://i.pravatar.cc/150?img=51',
-  'https://i.pravatar.cc/150?img=52',
-  'https://i.pravatar.cc/150?img=53',
-  'https://i.pravatar.cc/150?img=54',
-  'https://i.pravatar.cc/150?img=56',
-  'https://i.pravatar.cc/150?img=57',
-  'https://i.pravatar.cc/150?img=58',
-  'https://i.pravatar.cc/150?img=59',
-  'https://i.pravatar.cc/150?img=60',
-  'https://i.pravatar.cc/150?img=68',
-  'https://i.pravatar.cc/150?img=69',
-  'https://i.pravatar.cc/150?img=70',
-  'https://avatars.dicebear.com/api/avataaars/man1.svg',
-  'https://avatars.dicebear.com/api/avataaars/man2.svg',
-  'https://avatars.dicebear.com/api/avataaars/man3.svg',
-  'https://avatars.dicebear.com/api/avataaars/man4.svg',
-  'https://avatars.dicebear.com/api/micah/john.svg',
-  'https://avatars.dicebear.com/api/micah/mike.svg',
-  'https://avatars.dicebear.com/api/micah/david.svg',
-  'https://avatars.dicebear.com/api/micah/alex.svg'
+  'https://i.pravatar.cc/150?img=52'
 ];
 
 const FEMALE_AVATARS = [
   'https://i.pravatar.cc/150?img=1',
   'https://i.pravatar.cc/150?img=5',
   'https://i.pravatar.cc/150?img=9',
-  'https://i.pravatar.cc/150?img=10',
-  'https://i.pravatar.cc/150?img=16',
-  'https://i.pravatar.cc/150?img=20',
-  'https://i.pravatar.cc/150?img=23',
-  'https://i.pravatar.cc/150?img=24',
-  'https://i.pravatar.cc/150?img=25',
-  'https://i.pravatar.cc/150?img=26',
-  'https://i.pravatar.cc/150?img=27',
-  'https://i.pravatar.cc/150?img=29',
-  'https://i.pravatar.cc/150?img=31',
-  'https://i.pravatar.cc/150?img=32',
-  'https://i.pravatar.cc/150?img=41',
-  'https://i.pravatar.cc/150?img=42',
-  'https://avatars.dicebear.com/api/avataaars/woman1.svg',
-  'https://avatars.dicebear.com/api/avataaars/woman2.svg',
-  'https://avatars.dicebear.com/api/avataaars/woman3.svg',
-  'https://avatars.dicebear.com/api/avataaars/woman4.svg',
-  'https://avatars.dicebear.com/api/micah/maria.svg',
-  'https://avatars.dicebear.com/api/micah/sofia.svg',
-  'https://avatars.dicebear.com/api/micah/ana.svg',
-  'https://avatars.dicebear.com/api/micah/laura.svg'
+  'https://i.pravatar.cc/150?img=10'
 ];
 
-// ==================== VARIABLES DE PERFIL ====================
 let currentUser = null;
 let userProfile = null;
 let selectedAvatar = null;
 
-// ==================== SISTEMA DE CACHÉ ====================
 const CACHE_VERSION = 'v1';
-const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutos
+const CACHE_EXPIRY = 30 * 60 * 1000;
 
 class CacheManager {
   constructor() {
@@ -1735,7 +1410,6 @@ class CacheManager {
 
 const cache = new CacheManager();
 
-// ==================== PRECARGA DE IMÁGENES ====================
 function preloadImage(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1750,7 +1424,6 @@ async function preloadImages(urls) {
   await Promise.allSettled(promises);
 }
 
-// ==================== HERO CAROUSEL ====================
 let currentSlideIndex = 0;
 let carouselInterval = null;
 let heroesData = [];
@@ -1779,7 +1452,6 @@ async function loadHeroesFromFirebase() {
       cache.set('heroes', heroes);
       renderHeroes(heroes);
       
-      // Precargar imágenes
       const allImages = heroes.flatMap(h => h.images || []);
       if (allImages.length > 0) {
         preloadImages(allImages);
@@ -1804,7 +1476,6 @@ function renderHeroes(heroes) {
   carouselImagesContainer.innerHTML = '';
   carouselDots.innerHTML = '';
 
-  // Combinar todas las imágenes de todos los heroes
   const allSlides = [];
   heroes.forEach(hero => {
     if (hero.images && hero.images.length > 0) {
@@ -1822,7 +1493,6 @@ function renderHeroes(heroes) {
 
   if (allSlides.length === 0) return;
 
-  // Renderizar imágenes del carousel
   allSlides.forEach((slide, index) => {
     const img = document.createElement('img');
     img.src = slide.image;
@@ -1836,7 +1506,6 @@ function renderHeroes(heroes) {
     carouselDots.appendChild(dot);
   });
 
-  // Renderizar info del primer slide
   if (allSlides[0].logo) {
     heroLogoContainer.innerHTML = `<img src="${allSlides[0].logo}" alt="Logo">`;
   }
@@ -1847,7 +1516,6 @@ function renderHeroes(heroes) {
     heroDescription.textContent = allSlides[0].description;
   }
 
-  // Mostrar hero y ocultar skeleton
   heroSkeleton.style.display = 'none';
   heroSection.style.display = 'block';
   
@@ -1855,15 +1523,12 @@ function renderHeroes(heroes) {
     heroSection.classList.add('loaded');
   }, 50);
 
-  // Iniciar carousel si hay más de un slide
   if (allSlides.length > 1) {
     startCarousel(allSlides);
   }
 
-  // Click en hero para ir al link (excepto en el botón de perfil)
   heroSection.style.cursor = 'pointer';
   heroSection.addEventListener('click', (e) => {
-    // No hacer nada si se hizo click en el botón de perfil o sus hijos
     if (e.target.closest('.profile-button')) {
       return;
     }
@@ -1889,7 +1554,6 @@ function goToSlide(index, slides) {
   images[currentSlideIndex].classList.add('active');
   dots[currentSlideIndex].classList.add('active');
 
-  // Actualizar info
   const currentSlide = slides[currentSlideIndex];
   if (currentSlide.logo) {
     heroLogoContainer.innerHTML = `<img src="${currentSlide.logo}" alt="Logo">`;
@@ -1926,7 +1590,6 @@ function startCarousel(slides) {
   carouselInterval = setInterval(() => nextSlide(slides), 5000);
 }
 
-// ==================== PELÍCULAS ====================
 let allMoviesData = [];
 
 async function loadMoviesFromCache() {
@@ -1945,17 +1608,14 @@ async function loadMoviesFromCache() {
 }
 
 function loadMoviesFromFirebase() {
-  console.log('🎬 Iniciando carga de películas desde Firebase...');
   const q = query(collection(db, "movies"), orderBy("order"));
   
   onSnapshot(q, (querySnapshot) => {
-    console.log('📦 Snapshot recibido, películas encontradas:', querySnapshot.size);
     const movies = [];
     querySnapshot.forEach((doc) => {
       movies.push({ id: doc.id, ...doc.data() });
     });
     
-    console.log('✅ Películas procesadas:', movies.length);
     cache.set('movies', movies);
     renderMoviesByCategory(movies);
     
@@ -2008,7 +1668,6 @@ function renderMoviesByCategory(movies) {
       card.dataset.id = movie.id;
       card.dataset.title = movie.title;
       
-      // Agregar al historial al hacer clic
       card.addEventListener('click', (e) => {
         if (window.addToHistory && typeof window.addToHistory === 'function') {
           window.addToHistory({
@@ -2038,18 +1697,12 @@ function renderMoviesByCategory(movies) {
   });
 }
 
-// ==================== INICIALIZACIÓN ====================
 async function init() {
-  console.log('📍 Función init() ejecutándose...');
   const heroFromCache = await loadHeroesFromCache();
   if (!heroFromCache) {
-    console.log('⏳ Cargando héroes desde Firebase...');
     await loadHeroesFromFirebase();
-  } else {
-    console.log('✅ Héroes cargados desde caché');
   }
   
-  // Escuchar cambios en tiempo real de heroes
   const heroesQuery = query(collection(db, 'heroes'), orderBy('order'));
   onSnapshot(heroesQuery, (snapshot) => {
     const heroes = [];
@@ -2069,18 +1722,14 @@ async function init() {
     }
   });
   
-  console.log('🎬 Intentando cargar películas...');
   const moviesFromCache = await loadMoviesFromCache();
   if (!moviesFromCache) {
-    console.log('⏳ No hay películas en caché, cargando desde Firebase...');
     loadMoviesFromFirebase();
   } else {
-    console.log('✅ Películas en caché encontradas, también cargando desde Firebase...');
     loadMoviesFromFirebase();
   }
 }
 
-// ==================== BÚSQUEDA ====================
 const searchOverlay = document.getElementById('searchOverlay');
 const openSearchButton = document.getElementById('openSearchButton');
 const closeSearchButton = document.getElementById('closeSearchButton');
@@ -2126,7 +1775,6 @@ overlaySearchInput.addEventListener('input', () => {
   searchTimeout = setTimeout(() => renderSearchResults(overlaySearchInput.value), 180);
 });
 
-// ==================== CATEGORY OVERLAY ====================
 const categoryOverlay = document.getElementById('categoryOverlay');
 const closeCategoryButton = document.getElementById('closeCategoryButton');
 const categoryOverlayTitle = document.getElementById('categoryOverlayTitle');
@@ -2171,7 +1819,6 @@ closeCategoryButton.addEventListener('click', () => {
   document.body.style.overflow = '';
 });
 
-// ==================== VIDEO PLAYER ====================
 const videoPreviewContainer = document.getElementById('videoPreviewContainer');
 const toggleMuteButton = document.getElementById('toggleMuteButton');
 const muteIcon = document.getElementById('muteIcon');
@@ -2267,7 +1914,6 @@ if (previewVideo) {
   });
 }
 
-// ==================== KEYBOARD SHORTCUTS ====================
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (searchOverlay.classList.contains('active')) {
@@ -2293,10 +1939,14 @@ document.addEventListener('keydown', (e) => {
       if (videoProgressBar) videoProgressBar.style.width = '0%';
       if (previewVideo) previewVideo.play().catch(console.error);
     }
+    if (profileOverlay.classList.contains('active')) {
+      profileOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      avatarSelector.classList.remove('active');
+    }
   }
 });
 
-// ==================== GESTIÓN DE PERFIL ====================
 const profileButton = document.getElementById('profileButton');
 const profileButtonPlaceholder = document.getElementById('profileButtonPlaceholder');
 const profileOverlay = document.getElementById('profileOverlay');
@@ -2305,21 +1955,19 @@ const editAvatarBtn = document.getElementById('editAvatarBtn');
 const avatarSelector = document.getElementById('avatarSelector');
 const saveAvatarBtn = document.getElementById('saveAvatarBtn');
 const changePasswordBtn = document.getElementById('changePasswordBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 const popupOverlay = document.getElementById('popupOverlay');
 const popupTitle = document.getElementById('popupTitle');
 const popupMessage = document.getElementById('popupMessage');
 const popupCloseBtn = document.getElementById('popupCloseBtn');
 
-// Verificar autenticación
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     await loadUserProfile();
   } else {
-    // Si no hay usuario, crear perfil básico temporal usando el correo guardado
     const savedCorreo = localStorage.getItem('correo');
     if (savedCorreo) {
-      // Crear perfil temporal sin autenticación
       userProfile = {
         email: savedCorreo,
         nombre: savedCorreo.split('@')[0],
@@ -2327,7 +1975,6 @@ onAuthStateChanged(auth, async (user) => {
         avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
         historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
       };
-      // Solo actualizar UI si los elementos existen
       if (profileButtonPlaceholder) {
         updateProfileUI();
       }
@@ -2335,7 +1982,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Inicializar perfil inmediatamente con datos de localStorage (solo si hay elementos)
 setTimeout(() => {
   const savedCorreo = localStorage.getItem('correo');
   if (savedCorreo && !userProfile && profileButtonPlaceholder) {
@@ -2353,7 +1999,6 @@ setTimeout(() => {
 async function loadUserProfile() {
   try {
     if (!currentUser) {
-      // Si no hay usuario autenticado, usar datos del localStorage
       const savedCorreo = localStorage.getItem('correo');
       if (savedCorreo) {
         userProfile = {
@@ -2375,7 +2020,6 @@ async function loadUserProfile() {
       userProfile = userDoc.data();
       updateProfileUI();
     } else {
-      // Crear perfil básico si no existe
       userProfile = {
         email: currentUser.email,
         nombre: currentUser.email.split('@')[0],
@@ -2394,7 +2038,6 @@ async function loadUserProfile() {
 function updateProfileUI() {
   if (!userProfile) return;
   
-  // Actualizar botón de perfil
   if (profileButtonPlaceholder) {
     if (userProfile.avatar) {
       profileButtonPlaceholder.innerHTML = `<img src="${userProfile.avatar}" alt="Avatar">`;
@@ -2404,7 +2047,6 @@ function updateProfileUI() {
     }
   }
 
-  // Actualizar datos en el overlay de perfil (solo si existen los elementos)
   const profileName = document.getElementById('profileName');
   const profileEmail = document.getElementById('profileEmail');
   const profileEmailInfo = document.getElementById('profileEmailInfo');
@@ -2415,7 +2057,6 @@ function updateProfileUI() {
   if (profileEmailInfo) profileEmailInfo.textContent = userProfile.email || 'Sin correo';
   if (profilePhone) profilePhone.textContent = userProfile.telefono || 'No registrado';
 
-  // Actualizar avatar en perfil
   const profileAvatar = document.getElementById('profileAvatar');
   const profileAvatarInitial = document.getElementById('profileAvatarInitial');
   
@@ -2429,11 +2070,9 @@ function updateProfileUI() {
     }
   }
 
-  // Cargar historial
   loadWatchingHistory();
 }
 
-// Selector de Avatar
 function initAvatarSelector() {
   const maleGrid = document.getElementById('maleAvatarsGrid');
   const femaleGrid = document.getElementById('femaleAvatarsGrid');
@@ -2480,11 +2119,9 @@ async function saveAvatar() {
 
   try {
     if (currentUser) {
-      // Si hay usuario autenticado, guardar en Firebase
       const userDocRef = doc(dbUsers, 'users', currentUser.uid);
       await updateDoc(userDocRef, { avatar: selectedAvatar });
     } else {
-      // Si no, guardar en localStorage
       localStorage.setItem('userAvatar', selectedAvatar);
     }
     
@@ -2498,7 +2135,6 @@ async function saveAvatar() {
   }
 }
 
-// Cambio de contraseña
 async function changePassword() {
   if (!currentUser) {
     showPopup('Error', 'Debes iniciar sesión para cambiar tu contraseña.');
@@ -2517,12 +2153,24 @@ async function changePassword() {
   }
 }
 
-// Historial de visualización
+async function logout() {
+  try {
+    if (currentUser) {
+      await signOut(auth);
+    }
+    localStorage.clear();
+    window.location.href = 'login.html';
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+    showPopup('Error', 'No se pudo cerrar sesión. Intenta de nuevo.');
+  }
+}
+
 function loadWatchingHistory() {
   const historyContainer = document.getElementById('watchingHistory');
   
   if (!userProfile.historial || userProfile.historial.length === 0) {
-    historyContainer.innerHTML = '<p class="no-history-message">No has visto ninguna película o serie todavía.</p>';
+    historyContainer.innerHTML = '<p class="no-history-message">No has visto ninguna película todavía.</p>';
     return;
   }
 
@@ -2566,11 +2214,9 @@ async function addToHistory(movieData) {
     }
 
     if (currentUser) {
-      // Si hay usuario autenticado, guardar en Firebase
       const userDocRef = doc(dbUsers, 'users', currentUser.uid);
       await updateDoc(userDocRef, { historial: userProfile.historial });
     } else {
-      // Si no, guardar en localStorage
       localStorage.setItem('userHistorial', JSON.stringify(userProfile.historial));
     }
   } catch (error) {
@@ -2578,14 +2224,11 @@ async function addToHistory(movieData) {
   }
 }
 
-// Hacer disponible globalmente
 window.addToHistory = addToHistory;
 
-// Eventos del perfil
 profileButton.addEventListener('click', (e) => {
   e.preventDefault();
   e.stopPropagation();
-  console.log('🔘 Click en botón de perfil');
   profileOverlay.classList.add('active');
   document.body.style.overflow = 'hidden';
 });
@@ -2605,21 +2248,12 @@ editAvatarBtn.addEventListener('click', () => {
 
 saveAvatarBtn.addEventListener('click', saveAvatar);
 changePasswordBtn.addEventListener('click', changePassword);
+logoutBtn.addEventListener('click', logout);
 
 popupCloseBtn.addEventListener('click', () => {
   popupOverlay.classList.remove('active');
 });
 
-// Cerrar perfil con ESC
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && profileOverlay.classList.contains('active')) {
-    profileOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-    avatarSelector.classList.remove('active');
-  }
-});
-
-// Popup
 function showPopup(title, message) {
   const popupTitle = document.getElementById('popupTitle');
   const popupMessage = document.getElementById('popupMessage');
@@ -2630,16 +2264,11 @@ function showPopup(title, message) {
   popupOverlay.classList.add('active');
 }
 
-// ==================== UTILIDADES ====================
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 window.scrollToTop = scrollToTop;
 
-// ==================== INICIO ====================
-console.log('🚀 Iniciando aplicación LLUTID+');
-console.log('🔥 Firebase config películas:', firebaseConfig.projectId);
-console.log('👤 Firebase config usuarios:', firebaseConfigUsers.projectId);
 init();
 
 if (previewVideo) {
