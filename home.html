@@ -95,8 +95,6 @@ body{
   top:14px;
   left:14px;
   z-index:9999;
-  width:46px;height:46px;border-radius:50%;
-  background:rgba(255,255,255,0.06);
   display:flex;align-items:center;justify-content:center;
   pointer-events:none;user-select:none;
   transition:opacity .28s, transform .28s;
@@ -1225,7 +1223,7 @@ body{
         </div>
       </div>
       <h2 class="profile-name" id="profileName">Usuario</h2>
-      <p class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6712141206150e0827020d020a170b084904080a">[email&#160;protected]</a></p>
+      <p class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c8bdbbbda9baa1a788ada2ada5b8a4a7e6aba7a5">[email&#160;protected]</a></p>
     </div>
 
     <div class="avatar-selector" id="avatarSelector">
@@ -1251,7 +1249,7 @@ body{
       </div>
       <div class="profile-info-row">
         <span class="profile-info-label">Email</span>
-        <span class="profile-info-value" id="profileEmailInfo"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d9acaaacb8abb0b699bcb3bcb4a9b5b6f7bab6b4">[email&#160;protected]</a></span>
+        <span class="profile-info-value" id="profileEmailInfo"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="285d5b5d495a4147684d424d45584447064b4745">[email&#160;protected]</a></span>
       </div>
     </div>
 
@@ -1325,7 +1323,7 @@ const appUsers = initializeApp(firebaseConfigUsers, "users");
 const dbUsers = getFirestore(appUsers);
 const auth = getAuth(appUsers);
 
-// Avatares actualizados
+// Solo 4 avatares por categoría
 const MALE_AVATARS = [
   'https://i.pinimg.com/736x/9b/bd/92/9bbd9297b91dd8d8de331a4bfb6439db.jpg',
   'https://i.pinimg.com/736x/09/7b/7e/097b7ea4b53c7a7e3f740a00fb4fd3e7.jpg',
@@ -2001,30 +1999,13 @@ async function loadUserProfile() {
     if (!currentUser) {
       const savedCorreo = localStorage.getItem('correo');
       if (savedCorreo) {
-        // Intentar cargar desde Firebase usando el correo
-        const usersRef = collection(dbUsers, 'users');
-        const q = query(usersRef);
-        const querySnapshot = await getDocs(q);
-        
-        let foundProfile = null;
-        querySnapshot.forEach((doc) => {
-          if (doc.data().email === savedCorreo) {
-            foundProfile = { id: doc.id, ...doc.data() };
-          }
-        });
-        
-        if (foundProfile) {
-          userProfile = foundProfile;
-        } else {
-          // Si no existe en Firebase, crear perfil básico
-          userProfile = {
-            email: savedCorreo,
-            nombre: savedCorreo.split('@')[0],
-            telefono: '',
-            avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
-            historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
-          };
-        }
+        userProfile = {
+          email: savedCorreo,
+          nombre: savedCorreo.split('@')[0],
+          telefono: '',
+          avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
+          historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+        };
         updateProfileUI();
       }
       return;
@@ -2035,36 +2016,20 @@ async function loadUserProfile() {
     
     if (userDoc.exists()) {
       userProfile = userDoc.data();
-      // Sincronizar con localStorage
-      localStorage.setItem('userAvatar', userProfile.avatar || MALE_AVATARS[0]);
-      localStorage.setItem('userHistorial', JSON.stringify(userProfile.historial || []));
       updateProfileUI();
     } else {
-      // Crear nuevo perfil en Firebase
       userProfile = {
         email: currentUser.email,
         nombre: currentUser.email.split('@')[0],
         telefono: '',
-        avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
-        historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
+        avatar: MALE_AVATARS[0],
+        historial: []
       };
       await setDoc(userDocRef, userProfile);
       updateProfileUI();
     }
   } catch (error) {
     console.error('Error al cargar perfil:', error);
-    // Fallback a localStorage
-    const savedCorreo = localStorage.getItem('correo');
-    if (savedCorreo) {
-      userProfile = {
-        email: savedCorreo,
-        nombre: savedCorreo.split('@')[0],
-        telefono: '',
-        avatar: localStorage.getItem('userAvatar') || MALE_AVATARS[0],
-        historial: JSON.parse(localStorage.getItem('userHistorial') || '[]')
-      };
-      updateProfileUI();
-    }
   }
 }
 
@@ -2152,41 +2117,9 @@ async function saveAvatar() {
 
   try {
     if (currentUser) {
-      // Usuario autenticado - guardar directamente
       const userDocRef = doc(dbUsers, 'users', currentUser.uid);
       await updateDoc(userDocRef, { avatar: selectedAvatar });
     } else {
-      // Sin autenticación - buscar por correo y actualizar
-      const savedCorreo = localStorage.getItem('correo');
-      if (savedCorreo) {
-        const usersRef = collection(dbUsers, 'users');
-        const q = query(usersRef);
-        const querySnapshot = await getDocs(q);
-        
-        let userDocId = null;
-        querySnapshot.forEach((doc) => {
-          if (doc.data().email === savedCorreo) {
-            userDocId = doc.id;
-          }
-        });
-        
-        if (userDocId) {
-          // Actualizar documento existente
-          const userDocRef = doc(dbUsers, 'users', userDocId);
-          await updateDoc(userDocRef, { avatar: selectedAvatar });
-        } else {
-          // Crear nuevo documento
-          const newDocRef = doc(collection(dbUsers, 'users'));
-          await setDoc(newDocRef, {
-            email: savedCorreo,
-            nombre: savedCorreo.split('@')[0],
-            telefono: '',
-            avatar: selectedAvatar,
-            historial: userProfile.historial || []
-          });
-        }
-      }
-      // También guardar en localStorage como respaldo
       localStorage.setItem('userAvatar', selectedAvatar);
     }
     
@@ -2196,12 +2129,7 @@ async function saveAvatar() {
     showPopup('¡Avatar actualizado!', 'Tu avatar se ha guardado correctamente.');
   } catch (error) {
     console.error('Error al guardar avatar:', error);
-    // Guardar en localStorage como fallback
-    localStorage.setItem('userAvatar', selectedAvatar);
-    userProfile.avatar = selectedAvatar;
-    updateProfileUI();
-    avatarSelector.classList.remove('active');
-    showPopup('Avatar guardado localmente', 'Se guardó en este dispositivo.');
+    showPopup('Error', 'No se pudo guardar el avatar. Intenta de nuevo.');
   }
 }
 
@@ -2284,46 +2212,13 @@ async function addToHistory(movieData) {
     }
 
     if (currentUser) {
-      // Usuario autenticado - actualizar Firebase directamente
       const userDocRef = doc(dbUsers, 'users', currentUser.uid);
       await updateDoc(userDocRef, { historial: userProfile.historial });
     } else {
-      // Sin autenticación - buscar por correo y actualizar
-      const savedCorreo = localStorage.getItem('correo');
-      if (savedCorreo) {
-        const usersRef = collection(dbUsers, 'users');
-        const q = query(usersRef);
-        const querySnapshot = await getDocs(q);
-        
-        let userDocId = null;
-        querySnapshot.forEach((doc) => {
-          if (doc.data().email === savedCorreo) {
-            userDocId = doc.id;
-          }
-        });
-        
-        if (userDocId) {
-          const userDocRef = doc(dbUsers, 'users', userDocId);
-          await updateDoc(userDocRef, { historial: userProfile.historial });
-        } else {
-          // Crear nuevo documento con historial
-          const newDocRef = doc(collection(dbUsers, 'users'));
-          await setDoc(newDocRef, {
-            email: savedCorreo,
-            nombre: savedCorreo.split('@')[0],
-            telefono: '',
-            avatar: userProfile.avatar || MALE_AVATARS[0],
-            historial: userProfile.historial
-          });
-        }
-      }
-      // Guardar también en localStorage como respaldo
       localStorage.setItem('userHistorial', JSON.stringify(userProfile.historial));
     }
   } catch (error) {
     console.error('Error al actualizar historial:', error);
-    // Guardar en localStorage como fallback
-    localStorage.setItem('userHistorial', JSON.stringify(userProfile.historial));
   }
 }
 
@@ -2362,4 +2257,24 @@ function showPopup(title, message) {
   const popupMessage = document.getElementById('popupMessage');
   
   if (popupTitle) popupTitle.textContent = title;
-  if (popupMessage) popup
+  if (popupMessage) popupMessage.textContent = message;
+  
+  popupOverlay.classList.add('active');
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.scrollToTop = scrollToTop;
+
+init();
+
+if (previewVideo) {
+  previewVideo.play().catch(error => {
+    console.log("Auto-play de preview bloqueado:", error);
+  });
+}
+</script>
+
+</body>
+</html>
