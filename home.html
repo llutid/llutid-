@@ -195,25 +195,15 @@ body{
 .top-bar.scrolled .top-bar-logo {
   opacity: 1;
   transform: translateY(0);
-  animation: glow-pulse 3s ease-in-out infinite;
 }
 
-/* Efecto glow animado en el logo */
-@keyframes glow-pulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(0,123,255,0.4));
-  }
-  50% {
-    filter: drop-shadow(0 0 16px rgba(0,123,255,0.7));
-  }
-}
+/* Efecto glow animado en el logo - REMOVIDO */
 
 .top-bar-logo .hero-llutid {
   color: var(--accent-blue);
   font-weight: 900;
   font-size: 20px;
   letter-spacing: -0.5px;
-  text-shadow: 0 0 20px rgba(0,123,255,0.5);
 }
 
 .top-bar-logo .hero-plus {
@@ -221,7 +211,6 @@ body{
   font-weight: 900;
   font-size: 20px;
   margin-left: 2px;
-  text-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
 .top-bar-avatar {
