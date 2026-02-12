@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Llutid+ | Panel de Administración</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* PIN Screen */
+        .pin-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+        }
+
+        .pin-screen.hidden {
+            display: none;
+        }
+
+        .pin-container {
+            text-align: center;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pin-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .pin-logo .llutid {
+            color: #2196F3;
+        }
+
+        .pin-logo .plus {
+            color: #ffffff;
+        }
+
+        .pin-subtitle {
+            color: #999;
+            margin-bottom: 3rem;
+            font-size: 0.95rem;
+        }
+
+        .pin-input-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .pin-input {
+            width: 280px;
+            padding: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            letter-spacing: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.3);
+        }
+
+        .pin-input.error {
+            border-color: #f44336;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .pin-error {
+            color: #f44336;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pin-error.show {
+            opacity: 1;
+        }
+
+        .pin-submit {
+            padding: 1rem 3rem;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .pin-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .pin-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Main Dashboard */
+        .dashboard {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .dashboard.visible {
+            opacity: 1;
+        }
+
+        .header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .logo .llutid {
+            color: #2196F3;
+        }
+
+        .logo .plus {
+            color: #ffffff;
+        }
+
+        .logout-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome p {
+            color: #999;
+            font-size: 1.1rem;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .admin-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(33, 150, 243, 0.5);
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
+        }
+
+        .admin-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-description {
+            color: #999;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            color: #2196F3;
+            font-weight: 500;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+            transition: gap 0.3s ease;
+        }
+
+        .admin-card:hover .card-link {
+            gap: 0.75rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            gap: 2rem;
+            margin-top: 4rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            .welcome h1 {
+                font-size: 1.8rem;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .pin-input {
+                width: 240px;
+                font-size: 1.2rem;
+            }
+
+            .pin-logo {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- PIN Screen -->
+    <div class="pin-screen" id="pinScreen">
+        <div class="pin-container">
+            <div class="pin-logo">
+                <span class="llutid">Llutid</span><span class="plus">+</span>
+            </div>
+            <p class="pin-subtitle">Panel de Administración</p>
+            <div class="pin-input-container">
+                <input 
+                    type="password" 
+                    id="pinInput" 
+                    class="pin-input" 
+                    placeholder="•••" 
+                    maxlength="3"
+                    inputmode="numeric"
+                >
+                <div class="pin-error" id="pinError">PIN incorrecto. Inténtalo de nuevo.</div>
+            </div>
+            <button class="pin-submit" onclick="checkPin()">Acceder</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="llutid">Llutid</span><span class="plus">+</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="welcome">
+                <h1>Panel de Administración</h1>
+                <p>Gestiona todo el contenido de Llutid+ desde un solo lugar</p>
+            </div>
+
+            <div class="admin-grid">
+                <div class="admin-card" onclick="navigateTo('https://llutid.github.io/llutid-/admin.html')">
+                    <div class="card-icon">🎬</div>
+                    <div class="card-title">Editar Películas</div>
+                    <div class="card-description">
+                        Administra el catálogo completo de películas. Añade, edita o elimina contenido del sistema.
+                    </div>
+                    <span class="card-link">Administrar →</span>
+                </div>
+
+                <div class="admin-card" onclick="navigateTo('https://llutid.github.io/llutid-/llutid_generator%20(3).html')">
+                    <div class="card-icon">🎁</div>
+                    <div class="card-title">Códigos de Regalo</div>
+                    <div class="card-description">
+                        Genera tarjetas QR y códigos de regalo para tus usuarios. Sistema de promociones y beneficios.
+                    </div>
+                    <span class="card-link">Generar →</span>
+                </div>
+
+                <div class="admin-card" onclick="navigateTo('https://llutid.github.io/llutid-/adminproximos.html')">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-title">Próximos Lanzamientos</div>
+                    <div class="card-description">
+                        Gestiona los próximos estrenos y contenido que llegará pronto a la plataforma.
+                    </div>
+                    <span class="card-link">Gestionar →</span>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value loading">—</div>
+                    <div class="stat-label">Películas Activas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value loading">—</div>
+                    <div class="stat-label">Códigos Generados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value loading">—</div>
+                    <div class="stat-label">Próximos Lanzamientos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PIN authentication
+        const CORRECT_PIN = '131';
+        const pinScreen = document.getElementById('pinScreen');
+        const dashboard = document.getElementById('dashboard');
+        const pinInput = document.getElementById('pinInput');
+        const pinError = document.getElementById('pinError');
+
+        // Check if already authenticated
+        if (sessionStorage.getItem('llutidAuth') === 'true') {
+            showDashboard();
+        }
+
+        // Enter key support
+        pinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPin();
+            }
+        });
+
+        // Focus input on load
+        pinInput.focus();
+
+        function checkPin() {
+            const enteredPin = pinInput.value;
+            
+            if (enteredPin === CORRECT_PIN) {
+                sessionStorage.setItem('llutidAuth', 'true');
+                pinInput.classList.remove('error');
+                pinError.classList.remove('show');
+                showDashboard();
+            } else {
+                pinInput.classList.add('error');
+                pinError.classList.add('show');
+                pinInput.value = '';
+                
+                setTimeout(() => {
+                    pinInput.classList.remove('error');
+                    pinError.classList.remove('show');
+                }, 2000);
+            }
+        }
+
+        function showDashboard() {
+            pinScreen.classList.add('hidden');
+            setTimeout(() => {
+                dashboard.classList.add('visible');
+            }, 100);
+        }
+
+        function logout() {
+            sessionStorage.removeItem('llutidAuth');
+            dashboard.classList.remove('visible');
+            setTimeout(() => {
+                pinScreen.classList.remove('hidden');
+                pinInput.value = '';
+                pinInput.focus();
+            }, 300);
+        }
+
+        function navigateTo(url) {
+            window.open(url, '_blank');
+        }
+
+        // Simulate loading stats
+        setTimeout(() => {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues[0].textContent = '247';
+            statValues[1].textContent = '89';
+            statValues[2].textContent = '12';
+            
+            statValues.forEach(stat => {
+                stat.classList.remove('loading');
+            });
+        }, 1500);
+
+        // Prevent right click on sensitive areas
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.pin-screen')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
