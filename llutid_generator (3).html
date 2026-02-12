@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador LLUTID+ Código Seguro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-download {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1fb855;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #preview {
+            margin: 30px 0;
+            text-align: center;
+            display: none;
+        }
+
+        #cardCanvas {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .actions {
+            display: none;
+        }
+
+        .actions.show {
+            display: block;
+        }
+
+        .example {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .example strong {
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 LLUTID+ Generador</h1>
+        <p class="subtitle">Genera tu tarjeta de código seguro personalizada</p>
+
+        <div class="example">
+            <strong>💡 Ejemplo:</strong> LLUTID-Z6F8M o cualquier código que necesites
+        </div>
+
+        <div class="input-group">
+            <label for="codeInput">Ingresa tu código:</label>
+            <input type="text" id="codeInput" placeholder="Ejemplo: LLUTID-Z6F8M" maxlength="50">
+        </div>
+
+        <button class="btn btn-generate" onclick="generateCard()">
+            ✨ Generar Tarjeta
+        </button>
+
+        <div id="preview">
+            <canvas id="cardCanvas"></canvas>
+        </div>
+
+        <div class="actions" id="actions">
+            <button class="btn btn-download" onclick="downloadImage()">
+                ⬇️ Descargar Imagen
+            </button>
+            <button class="btn btn-whatsapp" onclick="shareWhatsApp()">
+                📱 Compartir por WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let generatedImageData = null;
+
+        async function generateCard() {
+            const code = document.getElementById('codeInput').value.trim();
+            
+            if (!code) {
+                alert('Por favor ingresa un código');
+                return;
+            }
+
+            try {
+                // Crear canvas
+                const canvas = document.getElementById('cardCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Dimensiones de la tarjeta
+                canvas.width = 1280;
+                canvas.height = 720;
+
+                // Generar código QR primero en un elemento temporal
+                const qrDiv = document.createElement('div');
+                qrDiv.style.position = 'absolute';
+                qrDiv.style.left = '-9999px';
+                document.body.appendChild(qrDiv);
+                
+                // Crear el QR
+                new QRCode(qrDiv, {
+                    text: code,
+                    width: 450,
+                    height: 450,
+                    colorDark: '#000000',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                // Esperar a que el QR se genere completamente
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                const qrImage = qrDiv.querySelector('img');
+                
+                if (!qrImage) {
+                    throw new Error('No se pudo generar el código QR');
+                }
+
+                // Esperar a que la imagen del QR se cargue
+                await new Promise((resolve) => {
+                    if (qrImage.complete) {
+                        resolve();
+                    } else {
+                        qrImage.onload = resolve;
+                    }
+                });
+
+                // Ahora dibujar todo en el canvas
+                // Fondo negro con bordes redondeados y sombra
+                ctx.fillStyle = '#1a1a1a';
+                roundRect(ctx, 0, 0, canvas.width, canvas.height, 40);
+                ctx.fill();
+
+                // Dibujar QR con fondo blanco
+                ctx.fillStyle = '#ffffff';
+                roundRect(ctx, 75, 115, 460, 460, 10);
+                ctx.fill();
+                ctx.drawImage(qrImage, 80, 120, 450, 450);
+
+                // Texto "LLUTID" en azul - tamaño reducido para que quepa todo
+                ctx.fillStyle = '#3b82f6';
+                ctx.font = 'bold 160px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('LLUTID', 570, 290);
+
+                // Medir el ancho de "LLUTID" para posicionar el "+"
+                const llutidWidth = ctx.measureText('LLUTID').width;
+                
+                // Texto "+" en blanco - mismo tamaño
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 160px Arial';
+                ctx.fillText('+', 570 + llutidWidth + 5, 290);
+
+                // Texto "CÓDIGO SEGURO" con mejor espaciado
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '55px Arial';
+                ctx.letterSpacing = '3px';
+                ctx.fillText('CÓDIGO SEGURO', 570, 430);
+
+                // Rectángulo para el código con diseño mejorado
+                ctx.fillStyle = '#d4d4d4';
+                roundRect(ctx, 80, 600, 1120, 100, 20);
+                ctx.fill();
+
+                // Código en el rectángulo con mejor formato
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 60px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(code, canvas.width / 2, 662);
+
+                // Limpiar QR temporal
+                document.body.removeChild(qrDiv);
+
+                // Mostrar preview y botones
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('actions').classList.add('show');
+
+                // Guardar imagen para compartir
+                generatedImageData = canvas.toDataURL('image/png');
+
+                // Scroll hacia el preview
+                document.getElementById('preview').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } catch (error) {
+                console.error('Error al generar la tarjeta:', error);
+                alert('Hubo un error al generar la tarjeta. Por favor intenta de nuevo.');
+            }
+        }
+
+        // Función auxiliar para dibujar rectángulos redondeados
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function downloadImage() {
+            if (!generatedImageData) {
+                alert('Primero genera una tarjeta');
+                return;
+            }
+
+            const code = document.getElementById('codeInput').value.trim();
+            const link = document.createElement('a');
+            link.download = `LLUTID_${code}.png`;
+            link.href = generatedImageData;
+            link.click();
+        }
+
+        async function shareWhatsApp() {
+            if (!generatedImageData) {
+                alert('Primero genera una tarjeta');
+                return;
+            }
+
+            // Convertir base64 a blob
+            const response = await fetch(generatedImageData);
+            const blob = await response.blob();
+            const file = new File([blob], 'llutid-codigo.png', { type: 'image/png' });
+
+            // Verificar si el navegador soporta Web Share API con archivos
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Código LLUTID+',
+                        text: 'Mi código seguro LLUTID+'
+                    });
+                } catch (err) {
+                    console.log('Error al compartir:', err);
+                }
+            } else {
+                // Alternativa: abrir WhatsApp Web con texto
+                const code = document.getElementById('codeInput').value.trim();
+                const text = `Mi código seguro LLUTID+: ${code}`;
+                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+                window.open(whatsappUrl, '_blank');
+                
+                alert('💡 Tip: Descarga la imagen y compártela manualmente en WhatsApp para mejor resultado');
+            }
+        }
+
+        // Generar al presionar Enter
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateCard();
+            }
+        });
+    </script>
+</body>
+</html>
