@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-<title>LLUTID+</title>
+<title>LLUTID+ - v2.5 PORTADAS LARGAS</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -1894,16 +1894,16 @@ body{
 
 .overlay-content-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
   padding: 0;
   margin: 0;
 }
 
-/* Cards estilo Netflix - CORREGIDO: aspect-ratio 2/3 */
+/* Cards estilo Netflix - Ajustado para móvil sin zoom */
 .category-overlay .movie-card {
   width: 100%;
-  aspect-ratio: 2/3;
+  aspect-ratio: 2/4.2;
   border-radius: 6px;
   overflow: hidden;
   background: #2f2f2f;
@@ -1930,14 +1930,14 @@ body{
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
   display: block;
   transition: transform 0.3s ease;
 }
 
-/* Hover estilo Netflix - sin transformación exagerada */
+/* Hover para móvil - SIN zoom, solo overlay */
 .category-overlay .movie-card:hover {
-  transform: scale(1.08);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
   z-index: 10;
 }
 
@@ -1946,7 +1946,7 @@ body{
 }
 
 .category-overlay .movie-card:hover img {
-  transform: scale(1.1);
+  transform: none;
 }
 
 /* Ocultar números del top 10 */
@@ -2389,7 +2389,7 @@ body{
         </div>
       </div>
       <h2 class="profile-name" id="profileName">Usuario</h2>
-      <p class="profile-email" id="profileEmail">usuario@ejemplo.com</p>
+      <p class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8ffafcfaeefde6e0cfeae5eae2ffe3e0a1ece0e2">[email&#160;protected]</a></p>
     </div>
 
     <div class="avatar-selector" id="avatarSelector">
@@ -2415,7 +2415,7 @@ body{
       </div>
       <div class="profile-info-row">
         <span class="profile-info-label">Email</span>
-        <span class="profile-info-value" id="profileEmailInfo">usuario@ejemplo.com</span>
+        <span class="profile-info-value" id="profileEmailInfo"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0e7b7d7b6f7c67614e6b646b637e6261206d6163">[email&#160;protected]</a></span>
       </div>
     </div>
 
@@ -2459,10 +2459,10 @@ body{
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
@@ -2603,6 +2603,7 @@ async function loadHeroesFromCache() {
 
 async function loadHeroesFromFirebase() {
   try {
+    console.log('Intentando cargar heroes desde Firebase...');
     const q = query(collection(db, 'heroes'), orderBy('order'));
     const querySnapshot = await getDocs(q);
     
@@ -2610,6 +2611,8 @@ async function loadHeroesFromFirebase() {
     querySnapshot.forEach((doc) => {
       heroes.push({ id: doc.id, ...doc.data() });
     });
+    
+    console.log(`Heroes cargados desde Firebase: ${heroes.length}`);
     
     if (heroes.length > 0) {
       heroesData = heroes;
@@ -2620,9 +2623,20 @@ async function loadHeroesFromFirebase() {
       if (allImages.length > 0) {
         preloadImages(allImages);
       }
+    } else {
+      console.warn('No se encontraron heroes en Firebase');
     }
   } catch (error) {
-    console.error('Error cargando heroes:', error);
+    console.error('Error cargando heroes desde Firebase:', error);
+    console.error('Código de error:', error.code);
+    console.error('Mensaje:', error.message);
+    
+    // Intentar cargar desde caché
+    const cachedHeroes = cache.get('heroes');
+    if (cachedHeroes && cachedHeroes.length > 0) {
+      console.log('Cargando heroes desde caché debido a error de Firebase');
+      renderHeroes(cachedHeroes);
+    }
   }
 }
 
@@ -2780,6 +2794,8 @@ function loadMoviesFromFirebase() {
       movies.push({ id: doc.id, ...doc.data() });
     });
     
+    console.log(`Películas cargadas desde Firebase: ${movies.length}`);
+    
     cache.set('movies', movies);
     renderMoviesByCategory(movies);
     
@@ -2797,6 +2813,17 @@ function loadMoviesFromFirebase() {
       sectionMovies.forEach(m => imagesToPreload.push(m.image));
     });
     preloadImages(imagesToPreload);
+  }, (error) => {
+    console.error('Error cargando películas desde Firebase:', error);
+    console.error('Código de error:', error.code);
+    console.error('Mensaje:', error.message);
+    
+    // Intentar cargar desde caché si hay error
+    const cachedMovies = cache.get('movies');
+    if (cachedMovies && cachedMovies.length > 0) {
+      console.log('Cargando películas desde caché debido a error de Firebase');
+      renderMoviesByCategory(cachedMovies);
+    }
   });
 }
 
@@ -2863,17 +2890,23 @@ function renderMoviesByCategory(movies) {
 }
 
 async function init() {
+  console.log('Iniciando aplicación...');
+  console.log('Firebase configurado:', db ? 'Sí' : 'No');
+  
   const heroFromCache = await loadHeroesFromCache();
   if (!heroFromCache) {
     await loadHeroesFromFirebase();
   }
   
+  // Listener en tiempo real para heroes
   const heroesQuery = query(collection(db, 'heroes'), orderBy('order'));
   onSnapshot(heroesQuery, (snapshot) => {
     const heroes = [];
     snapshot.forEach((doc) => {
       heroes.push({ id: doc.id, ...doc.data() });
     });
+    
+    console.log(`Heroes actualizados en tiempo real: ${heroes.length}`);
     
     if (heroes.length > 0) {
       heroesData = heroes;
@@ -2885,12 +2918,16 @@ async function init() {
         preloadImages(allImages);
       }
     }
+  }, (error) => {
+    console.error('Error en listener de heroes:', error);
   });
   
   const moviesFromCache = await loadMoviesFromCache();
   if (!moviesFromCache) {
+    console.log('No hay películas en caché, cargando desde Firebase...');
     loadMoviesFromFirebase();
   } else {
+    console.log('Películas cargadas desde caché, actualizando desde Firebase...');
     loadMoviesFromFirebase();
   }
 }
@@ -3208,7 +3245,11 @@ if (toggleMuteButton && previewVideo && localVideoPlayer) {
 
 const openPlayer = () => {
   isPlayerOpen = true;
-  if (previewVideo) previewVideo.pause();
+  // Pausar Y silenciar el video de preview para evitar eco
+  if (previewVideo) {
+    previewVideo.pause();
+    previewVideo.muted = true;
+  }
   
   if (videoOverlay) {
     videoOverlay.classList.add('active');
@@ -3354,7 +3395,11 @@ document.addEventListener('keydown', (e) => {
         localVideoPlayer.currentTime = 0;
       }
       if (videoProgressBar) videoProgressBar.style.width = '0%';
-      if (previewVideo) previewVideo.play().catch(console.error);
+      // Mantener el preview silenciado al cerrar el player
+      if (previewVideo) {
+        previewVideo.muted = true;
+        previewVideo.play().catch(console.error);
+      }
     }
     if (profileOverlay.classList.contains('active')) {
       profileOverlay.classList.remove('active');
@@ -3745,19 +3790,13 @@ window.addEventListener('scroll', () => {
   }
 });
 
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-window.scrollToTop = scrollToTop;
-
-init();
-
-if (previewVideo) {
-  previewVideo.play().catch(error => {
-    console.log("Auto-play de preview bloqueado:", error);
-  });
-}
+// Iniciar la aplicación
+console.log('Ejecutando init()...');
+init().then(() => {
+  console.log('Aplicación inicializada correctamente');
+}).catch((error) => {
+  console.error('Error al inicializar la aplicación:', error);
+});
 </script>
-
 </body>
 </html>
