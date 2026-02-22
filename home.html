@@ -1567,7 +1567,7 @@ async function loadAnnouncement() {
       imgWrap.style.display = 'none';
     }
 
-    if (data.link) {
+    if (data.link && data.showBtn !== false) {
       infoBtn.style.display = 'block';
       infoBtn.textContent = data.btnText || 'Más Información';
       infoBtn.onclick = () => window.open(data.link, '_blank');
