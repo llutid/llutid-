@@ -193,7 +193,7 @@
     </div>
 
     <div id="playerFullscreenContainer" class="player-fullscreen-container">
-        <iframe id="movieIframe" src="https://drive.google.com/file/d/1aEkIfXCLpMJsO5YL8M0RPkvDYqa25Ep6/preview" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+        <iframe id="movieIframe" src="https://drive.google.com/file/d/1iFc5YOu07Hvp68c7CPNDU4nFObHhlIlT/preview" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
     </div>
 
     <script>
@@ -252,19 +252,19 @@
         }
 
         shareButton.addEventListener('click', () => {
-            const customMessage = "¡Acabo de ver La Empleada! Descárgala ya aquí 🧹🤫";
+            const customMessage = "si no haz instalado esta app espectacular que espera es gratis si yo le la recomiendo si no haz instalado la app hazlo con este link https://apk.e-droid.net/apk/app3603927-me107o.apk?v=3";
             const shareData = {
-                title: 'La Empleada',
-                text: customMessage,
-                url: window.location.href
+                title: 'Recomendación App',
+                text: customMessage
+                // URL de la página eliminada según solicitud
             };
 
             if (navigator.share) {
                 navigator.share(shareData).catch(() => {
-                    window.open(`https://wa.me/?text=${encodeURIComponent(customMessage + " " + shareData.url)}`, '_blank');
+                    window.open(`https://wa.me/?text=${encodeURIComponent(customMessage)}`, '_blank');
                 });
             } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(customMessage + " " + shareData.url)}`, '_blank');
+                window.open(`https://wa.me/?text=${encodeURIComponent(customMessage)}`, '_blank');
             }
         });
 
