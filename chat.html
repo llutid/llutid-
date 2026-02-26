@@ -5,737 +5,534 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>llutid+ | TV en vivo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        body {
+        html, body {
+            height: 100%;
+            overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #000000;
-            min-height: 100vh;
-            color: #ffffff;
+            background: #000;
+            color: #fff;
             -webkit-font-smoothing: antialiased;
         }
 
+        /* ─── ZONA FIJA ARRIBA ───────────────────── */
+        .top-fixed {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: #000;
+        }
+
+        /* ─── ZONA SCROLLEABLE (canales) ─────────── */
+        .scroll-area {
+            position: fixed;
+            left: 0; right: 0;
+            bottom: 75px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: #000;
+        }
+
+        /* ─── HEADER ─────────────────────────────── */
         .header {
-            background: #000000;
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(20px);
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .logo {
-            font-size: 36px;
-            font-weight: 900;
-            text-align: center;
-            letter-spacing: -1px;
-        }
-
+        .logo { font-size: 32px; font-weight: 900; text-align: center; letter-spacing: -1px; }
         .logo-llutid {
-            color: #2962FF;
             background: linear-gradient(135deg, #2962FF 0%, #1E88E5 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        .logo-plus { color: #fff; font-weight: 900; font-size: 36px; }
 
-        .logo-plus {
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 40px;
-        }
-
-        .player-section {
-            background: #000000;
-            padding: 0;
-            margin: 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
+        /* ─── BARRA CANAL ACTIVO ─────────────────── */
         .current-channel {
-            font-size: 16px;
-            padding: 15px 20px;
+            padding: 10px 20px;
             font-weight: 700;
-            color: #ffffff;
+            font-size: 15px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: #000000;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
-        .channel-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .channel-info { display: flex; align-items: center; gap: 8px; }
         .live-badge {
-            background: #ffffff;
-            color: #000000;
-            padding: 4px 10px;
+            background: #e53935;
+            color: #fff;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 900;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
+        /* ─── PLAYER ─────────────────────────────── */
         .video-container {
             position: relative;
             width: 100%;
             padding-bottom: 56.25%;
-            background: #000000;
-            overflow: hidden;
+            background: #000;
         }
-
         .video-container video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; border: none;
         }
-
         .placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #333333;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); text-align: center;
         }
-
-        .placeholder-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-            opacity: 0.3;
-        }
-
-        .placeholder-text {
-            font-size: 14px;
-            font-weight: 600;
-            color: #666666;
-        }
-
+        .placeholder-icon { font-size: 48px; opacity: 0.2; margin-bottom: 10px; }
+        .placeholder-text { font-size: 13px; color: #555; }
         .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid #ffffff;
+            width: 44px; height: 44px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #fff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.9s linear infinite;
         }
-
         @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            0%   { transform: translate(-50%, -50%) rotate(0deg); }
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
+        /* ─── FILTROS ────────────────────────────── */
         .filters {
-            display: flex;
-            gap: 10px;
-            padding: 15px 20px;
+            display: flex; gap: 8px;
+            padding: 10px 16px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            background: #000000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
-        .filters::-webkit-scrollbar {
-            display: none;
-        }
-
+        .filters::-webkit-scrollbar { display: none; }
         .filter-btn {
-            padding: 10px 20px;
-            background: #111111;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 25px;
-            color: #888888;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
+            padding: 8px 16px;
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: #888;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer; white-space: nowrap;
+            transition: all 0.25s; flex-shrink: 0;
         }
+        .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
 
-        .filter-btn.active {
-            background: #ffffff;
-            color: #000000;
-            border-color: #ffffff;
-        }
-
-        .category {
-            margin-bottom: 30px;
-        }
-
+        /* ─── LISTA CANALES ──────────────────────── */
         .category-header {
-            padding: 20px;
-            font-size: 20px;
-            font-weight: 800;
-            color: #ffffff;
-            background: #000000;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 20px 12px;
+            font-size: 17px; font-weight: 800;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
-        .channel-list {
-            background: #000000;
-        }
-
         .channel-item {
-            display: flex;
-            align-items: center;
-            padding: 18px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             cursor: pointer;
-            transition: all 0.2s ease;
-            background: #000000;
+            transition: background 0.15s;
         }
-
-        .channel-item:hover {
-            background: #0a0a0a;
-        }
-
-        .channel-item.active {
-            background: #111111;
-            border-left: 4px solid #ffffff;
-        }
-
+        .channel-item:hover  { background: #0d0d0d; }
+        .channel-item.active { background: #111; border-left: 3px solid #2962FF; }
         .channel-number {
-            font-size: 18px;
-            font-weight: 800;
-            color: #666666;
-            min-width: 50px;
-            margin-right: 15px;
+            font-size: 15px; font-weight: 800;
+            color: #444; min-width: 44px; margin-right: 12px;
         }
-
-        .channel-item.active .channel-number {
-            color: #ffffff;
-        }
-
+        .channel-item.active .channel-number { color: #fff; }
         .channel-icon {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-right: 15px;
-            background: #0a0a0a;
+            width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            margin-right: 14px;
+            background: #0d0d0d;
             border-radius: 10px;
+            overflow: hidden; flex-shrink: 0;
         }
-
-        .channel-details {
-            flex: 1;
-        }
-
+        .channel-icon img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+        .channel-details { flex: 1; min-width: 0; }
         .channel-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 15px; font-weight: 700; color: #fff;
+            margin-bottom: 3px;
+            display: flex; align-items: center; gap: 6px;
         }
-
         .language-badge {
-            background: rgba(255, 255, 255, 0.1);
-            color: #888888;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            background: rgba(255,255,255,0.08); color: #666;
+            padding: 1px 6px; border-radius: 3px;
+            font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+            text-transform: uppercase; flex-shrink: 0;
         }
+        .channel-description { font-size: 12px; color: #555; }
+        .channel-arrow { color: #2a2a2a; font-size: 18px; margin-left: 10px; }
+        .channel-item.active .channel-arrow { color: #2962FF; }
 
-        .channel-description {
-            font-size: 13px;
-            color: #666666;
-            font-weight: 500;
-        }
-
-        .channel-arrow {
-            color: #333333;
-            font-size: 20px;
-            margin-left: 15px;
-        }
-
-        .channel-item.active .channel-arrow {
-            color: #ffffff;
-        }
-
+        /* ─── NAV INFERIOR ───────────────────────── */
         .bottom-nav {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 75px;
-            background: rgba(15, 15, 17, 0.95);
+            bottom: 0; left: 0; right: 0; height: 75px;
+            background: rgba(10,10,12,0.97);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 10000;
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            z-index: 200;
             padding-bottom: env(safe-area-inset-bottom);
         }
-
         .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #aeb0b5;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0.7;
-            background: none;
-            border: none;
-            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center;
+            color: #666; text-decoration: none; font-size: 10px; font-weight: 500;
+            transition: all 0.25s; opacity: 0.7;
+            background: none; border: none; cursor: pointer;
         }
+        .nav-item.active { color: #fff; opacity: 1; transform: translateY(-2px); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
+        .nav-item.active svg { color: #2962FF; filter: drop-shadow(0 0 6px rgba(41,98,255,0.5)); }
 
-        .nav-item.active {
-            color: #fff;
-            opacity: 1;
-            transform: translateY(-2px);
-        }
-
-        .nav-item svg {
-            width: 26px;
-            height: 26px;
-            margin-bottom: 5px;
-            transition: transform 0.3s;
-        }
-
-        .nav-item.active svg {
-            color: #2962FF;
-            filter: drop-shadow(0 0 8px rgba(41, 98, 255, 0.5));
-        }
-
-        .channels-container {
-            padding-bottom: 90px;
-        }
-
-        @media (max-width: 768px) {
-            .channel-number {
-                min-width: 40px;
-                font-size: 16px;
-            }
-            
-            .channel-icon {
-                width: 45px;
-                height: 45px;
-                font-size: 24px;
-            }
-            
-            .channel-name {
-                font-size: 15px;
-            }
-            
-            .channel-description {
-                font-size: 12px;
-            }
-        }
+        .list-end { height: 16px; }
     </style>
 </head>
 <body>
+
+<!-- ══════ ZONA FIJA ══════ -->
+<div class="top-fixed" id="topFixed">
+
     <div class="header">
         <div class="logo">
             <span class="logo-llutid">llutid</span><span class="logo-plus">+</span>
         </div>
     </div>
 
-    <div class="player-section">
-        <div class="current-channel" id="currentChannel">
-            <span class="channel-info">📺 Selecciona un canal para comenzar</span>
-        </div>
-        <div class="video-container" id="playerContainer">
-            <div class="placeholder">
-                <div class="placeholder-icon">📺</div>
-                <div class="placeholder-text">Selecciona un canal para empezar</div>
-            </div>
+    <div class="current-channel" id="currentChannel">
+        <span class="channel-info">📺 Selecciona un canal</span>
+    </div>
+
+    <div class="video-container" id="playerContainer">
+        <div class="placeholder">
+            <div class="placeholder-icon">📺</div>
+            <div class="placeholder-text">Selecciona un canal para empezar</div>
         </div>
     </div>
 
     <div class="filters">
-        <button class="filter-btn active" onclick="filterChannels('all')">Todos</button>
-        <button class="filter-btn" onclick="filterChannels('colombia')">🇨🇴 Colombia</button>
-        <button class="filter-btn" onclick="filterChannels('deportes')">⚽ Deportes</button>
-        <button class="filter-btn" onclick="filterChannels('noticias')">📰 Noticias</button>
-        <button class="filter-btn" onclick="filterChannels('entretenimiento')">🎬 Entretenimiento</button>
-        <button class="filter-btn" onclick="filterChannels('musica')">🎵 Música</button>
+        <button class="filter-btn active" onclick="filterChannels('all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterChannels('colombia',this)">🇨🇴 Colombia</button>
+        <button class="filter-btn" onclick="filterChannels('deportes',this)">⚽ Deportes</button>
+        <button class="filter-btn" onclick="filterChannels('noticias',this)">📰 Noticias</button>
+        <button class="filter-btn" onclick="filterChannels('entretenimiento',this)">🎬 Entretenimiento</button>
+        <button class="filter-btn" onclick="filterChannels('musica',this)">🎵 Música</button>
     </div>
 
-    <div class="channels-container">
-        <!-- CANALES COLOMBIANOS -->
-        <div class="category" data-category="colombia">
-            <div class="category-header">🇨🇴 Canales Colombianos</div>
-            <div class="channel-list">
-                <div class="channel-item" onclick="playChannel('001', 'Canal 1', 'https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8', '1️⃣', 'Televisión nacional', false)">
-                    <div class="channel-number">001</div>
-                    <div class="channel-icon">1️⃣</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Canal 1</div>
-                        <div class="channel-description">Televisión nacional</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+</div>
 
-                <div class="channel-item" onclick="playChannel('002', 'Señal Colombia', 'https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8', '🇨🇴', 'Canal cultural', false)">
-                    <div class="channel-number">002</div>
-                    <div class="channel-icon">🇨🇴</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Señal Colombia</div>
-                        <div class="channel-description">Canal cultural</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+<!-- ══════ ZONA SCROLLEABLE ══════ -->
+<div class="scroll-area" id="scrollArea">
 
-                <div class="channel-item" onclick="playChannel('003', 'Canal Institucional', 'https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8', '🏛️', 'Canal del Estado', false)">
-                    <div class="channel-number">003</div>
-                    <div class="channel-icon">🏛️</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Canal Institucional</div>
-                        <div class="channel-description">Canal del Estado</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+    <!-- ── COLOMBIANOS ─────────────────────────── -->
+    <div class="category" data-category="colombia">
+        <div class="category-header">🇨🇴 Canales Colombianos</div>
 
-                <div class="channel-item" onclick="playChannel('004', 'Teleritmo', 'https://mdstrm.com/live-stream-playlist/5c911a1ba92dd01960799a5f.m3u8', '💃', 'Música tropical', false)">
-                    <div class="channel-number">004</div>
-                    <div class="channel-icon">💃</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Teleritmo</div>
-                        <div class="channel-description">Música tropical</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('005', 'Vive TV Colombia', 'http://192.144.113.132:1935/live/ViveTV/playlist.m3u8', '🎭', 'Entretenimiento local', false)">
-                    <div class="channel-number">005</div>
-                    <div class="channel-icon">🎭</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Vive TV Colombia</div>
-                        <div class="channel-description">Entretenimiento local</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('006', 'Canal Cali TV', 'https://5ab772334c39c.streamlock.net/live-calitv/_definst_/calitv1/playlist.m3u8', '🌴', 'Televisión regional', false)">
-                    <div class="channel-number">006</div>
-                    <div class="channel-icon">🌴</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Canal Cali TV</div>
-                        <div class="channel-description">Televisión regional</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+        <!-- Canal 1 -->
+        <div class="channel-item" onclick="playChannel(this,'Canal 1','https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png','Televisión nacional')">
+            <div class="channel-number">001</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png" alt="" onerror="this.parentElement.innerHTML='1️⃣'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Canal 1</div>
+                <div class="channel-description">Televisión nacional</div>
             </div>
+            <div class="channel-arrow">›</div>
         </div>
 
-        <!-- DEPORTES -->
-        <div class="category" data-category="deportes">
-            <div class="category-header">⚽ Deportes</div>
-            <div class="channel-list">
-                <div class="channel-item" onclick="playChannel('010', 'ESPN 2', 'https://fl2.moveonjoy.com/ESPN_2/index.m3u8', '🏆', 'Deportes en vivo', true)">
-                    <div class="channel-number">010</div>
-                    <div class="channel-icon">🏆</div>
-                    <div class="channel-details">
-                        <div class="channel-name">
-                            ESPN 2
-                            <span class="language-badge">Inglés</span>
-                        </div>
-                        <div class="channel-description">Deportes en vivo</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+        <!-- Señal Colombia -->
+        <div class="channel-item" onclick="playChannel(this,'Señal Colombia','https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8','https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB','Canal cultural')">
+            <div class="channel-number">002</div>
+            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB" alt="" onerror="this.parentElement.innerHTML='🇨🇴'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Señal Colombia</div>
+                <div class="channel-description">Canal cultural</div>
             </div>
+            <div class="channel-arrow">›</div>
         </div>
 
-        <!-- NOTICIAS -->
-        <div class="category" data-category="noticias">
-            <div class="category-header">📰 Noticias</div>
-            <div class="channel-list">
-                <div class="channel-item" onclick="playChannel('020', 'DW Español', 'https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8', '🌍', 'Noticias internacionales', false)">
-                    <div class="channel-number">020</div>
-                    <div class="channel-icon">🌍</div>
-                    <div class="channel-details">
-                        <div class="channel-name">DW Español</div>
-                        <div class="channel-description">Noticias internacionales</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('021', 'RT Español', 'https://rt-esp.rttv.com/live/rtesp/playlist.m3u8', '🌐', 'Noticias desde Rusia', false)">
-                    <div class="channel-number">021</div>
-                    <div class="channel-icon">🌐</div>
-                    <div class="channel-details">
-                        <div class="channel-name">RT Español</div>
-                        <div class="channel-description">Noticias desde Rusia</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+        <!-- Canal Institucional -->
+        <div class="channel-item" onclick="playChannel(this,'Canal Institucional','https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png','Canal del Estado')">
+            <div class="channel-number">003</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png" alt="" onerror="this.parentElement.innerHTML='🏛️'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Canal Institucional</div>
+                <div class="channel-description">Canal del Estado</div>
             </div>
+            <div class="channel-arrow">›</div>
         </div>
 
-        <!-- ENTRETENIMIENTO -->
-        <div class="category" data-category="entretenimiento">
-            <div class="category-header">🎬 Entretenimiento</div>
-            <div class="channel-list">
-                <div class="channel-item" onclick="playChannel('030', 'Runtime Movies', 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=2153', '🎥', 'Películas gratis', true)">
-                    <div class="channel-number">030</div>
-                    <div class="channel-icon">🎥</div>
-                    <div class="channel-details">
-                        <div class="channel-name">
-                            Runtime Movies
-                            <span class="language-badge">Inglés</span>
-                        </div>
-                        <div class="channel-description">Películas gratis</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('031', 'Runtime Acción', 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=2552', '💥', 'Acción pura', true)">
-                    <div class="channel-number">031</div>
-                    <div class="channel-icon">💥</div>
-                    <div class="channel-details">
-                        <div class="channel-name">
-                            Runtime Acción
-                            <span class="language-badge">Inglés</span>
-                        </div>
-                        <div class="channel-description">Acción pura</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('032', 'TCM', 'https://fl2.moveonjoy.com/TCM/index.m3u8', '🎞️', 'Cine clásico', true)">
-                    <div class="channel-number">032</div>
-                    <div class="channel-icon">🎞️</div>
-                    <div class="channel-details">
-                        <div class="channel-name">
-                            TCM
-                            <span class="language-badge">Inglés</span>
-                        </div>
-                        <div class="channel-description">Cine clásico</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
-
-                <div class="channel-item" onclick="playChannel('033', 'Canal 22 México', 'https://5fc584f3f19c9.streamlock.net/canal22/smil:canal22.smil/playlist.m3u8', '🇲🇽', 'Cultura mexicana', false)">
-                    <div class="channel-number">033</div>
-                    <div class="channel-icon">🇲🇽</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Canal 22 México</div>
-                        <div class="channel-description">Cultura mexicana</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+        <!-- Teleritmo -->
+        <div class="channel-item" onclick="playChannel(this,'Teleritmo','https://mdstrm.com/live-stream-playlist/57b4dc126338448314449d0c.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png','Música tropical')">
+            <div class="channel-number">004</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png" alt="" onerror="this.parentElement.innerHTML='💃'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Teleritmo</div>
+                <div class="channel-description">Música tropical</div>
             </div>
+            <div class="channel-arrow">›</div>
         </div>
 
-        <!-- MÚSICA -->
-        <div class="category" data-category="musica">
-            <div class="category-header">🎵 Música</div>
-            <div class="channel-list">
-                <div class="channel-item" onclick="playChannel('040', 'Bandamax', 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=848', '🎺', 'Música regional mexicana', false)">
-                    <div class="channel-number">040</div>
-                    <div class="channel-icon">🎺</div>
-                    <div class="channel-details">
-                        <div class="channel-name">Bandamax</div>
-                        <div class="channel-description">Música regional mexicana</div>
-                    </div>
-                    <div class="channel-arrow">→</div>
-                </div>
+        <!-- Vive TV Colombia -->
+        <div class="channel-item" onclick="playChannel(this,'Vive TV Colombia','http://192.144.113.132:1935/live/ViveTV/playlist.m3u8','https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png','Entretenimiento local')">
+            <div class="channel-number">005</div>
+            <div class="channel-icon"><img src="https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png" alt="" onerror="this.parentElement.innerHTML='🎭'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Vive TV Colombia</div>
+                <div class="channel-description">Entretenimiento local</div>
             </div>
+            <div class="channel-arrow">›</div>
         </div>
+
+        <!-- Canal Cali TV -->
+        <div class="channel-item" onclick="playChannel(this,'Canal Cali TV','https://5ab772334c39c.streamlock.net/live-calitv/_definst_/calitv1/playlist.m3u8','https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png','Televisión regional')">
+            <div class="channel-number">006</div>
+            <div class="channel-icon"><img src="https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png" alt="" onerror="this.parentElement.innerHTML='🌴'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Canal Cali TV</div>
+                <div class="channel-description">Televisión regional</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- Noticias Caracol -->
+        <div class="channel-item" onclick="playChannel(this,'Noticias Caracol','https://mdstrm.com/live-stream-playlist/58dc3d471cbe05ff3c8e463e.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png','Noticias Colombia')">
+            <div class="channel-number">007</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png" alt="" onerror="this.parentElement.innerHTML='📺'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Noticias Caracol</div>
+                <div class="channel-description">Noticias Colombia</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
     </div>
 
-    <nav class="bottom-nav">
-        <a href="home.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span>Home</span>
-        </a>
-        <button class="nav-item" onclick="location.href='proximasenlanzamiento.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            <span>Próximos</span>
-        </button>
-        <button class="nav-item active" onclick="location.href='en-vivo.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="2"></circle>
-                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
-            </svg>
-            <span>En Vivo</span>
-        </button>
-        <button class="nav-item" onclick="location.href='home.html'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <span>Buscador</span>
-        </button>
-    </nav>
+    <!-- ── DEPORTES ──────────────────────────────── -->
+    <div class="category" data-category="deportes">
+        <div class="category-header">⚽ Deportes</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <script>
-        let hls = null;
-        let isDragging = false;
-        let touchStartY = 0;
+        <!-- ESPN -->
+        <div class="channel-item" onclick="playChannel(this,'ESPN','https://fl2.moveonjoy.com/ESPN_2/index.m3u8','https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png','Deportes en vivo')">
+            <div class="channel-number">020</div>
+            <div class="channel-icon"><img src="https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png" alt="" onerror="this.parentElement.innerHTML='🏆'"></div>
+            <div class="channel-details">
+                <div class="channel-name">ESPN <span class="language-badge">Inglés</span></div>
+                <div class="channel-description">Deportes en vivo</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
 
-        function playChannel(number, name, url, icon, description, isEnglish) {
-            if (isDragging) return;
+    </div>
 
-            const playerContainer = document.getElementById('playerContainer');
-            const currentChannelDiv = document.getElementById('currentChannel');
-            
-            currentChannelDiv.innerHTML = `
-                <span class="channel-info">${icon} ${name}</span>
-                <span class="live-badge">LIVE</span>
-            `;
-            
-            document.querySelectorAll('.channel-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            event.currentTarget.classList.add('active');
-            
-            playerContainer.innerHTML = '<div class="loading-spinner"></div>';
-            
-            setTimeout(() => {
-                playerContainer.innerHTML = '';
-                
-                const video = document.createElement('video');
-                video.controls = true;
-                video.autoplay = true;
-                video.playsInline = true;
-                video.style.width = '100%';
-                video.style.height = '100%';
-                video.style.position = 'absolute';
-                video.style.top = '0';
-                video.style.left = '0';
-                video.style.backgroundColor = '#000';
-                
-                playerContainer.appendChild(video);
-                
-                if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = url;
-                    video.play().catch(e => console.log('Autoplay prevented'));
-                } else if (Hls.isSupported()) {
-                    if (hls) {
-                        hls.destroy();
+    <!-- ── NOTICIAS ──────────────────────────────── -->
+    <div class="category" data-category="noticias">
+        <div class="category-header">📰 Noticias</div>
+
+        <!-- DW Español -->
+        <div class="channel-item" onclick="playChannel(this,'DW Español','https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8','https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg','Noticias internacionales')">
+            <div class="channel-number">030</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg" alt="" onerror="this.parentElement.innerHTML='🌍'"></div>
+            <div class="channel-details">
+                <div class="channel-name">DW Español</div>
+                <div class="channel-description">Noticias internacionales</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- RT Español -->
+        <div class="channel-item" onclick="playChannel(this,'RT Español','https://rt-esp.rttv.com/live/rtesp/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg','Noticias desde Rusia')">
+            <div class="channel-number">031</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg" alt="" onerror="this.parentElement.innerHTML='🌐'"></div>
+            <div class="channel-details">
+                <div class="channel-name">RT Español</div>
+                <div class="channel-description">Noticias desde Rusia</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+    </div>
+
+    <!-- ── ENTRETENIMIENTO ───────────────────────── -->
+    <div class="category" data-category="entretenimiento">
+        <div class="category-header">🎬 Entretenimiento</div>
+
+        <!-- Runtime Movies -->
+        <div class="channel-item" onclick="playChannel(this,'Runtime Movies','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2153','','Películas gratis')">
+            <div class="channel-number">040</div>
+            <div class="channel-icon" style="font-size:26px;">🎥</div>
+            <div class="channel-details">
+                <div class="channel-name">Runtime Movies <span class="language-badge">Inglés</span></div>
+                <div class="channel-description">Películas gratis</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- Runtime Acción -->
+        <div class="channel-item" onclick="playChannel(this,'Runtime Acción','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2552','','Acción pura')">
+            <div class="channel-number">041</div>
+            <div class="channel-icon" style="font-size:26px;">💥</div>
+            <div class="channel-details">
+                <div class="channel-name">Runtime Acción <span class="language-badge">Inglés</span></div>
+                <div class="channel-description">Acción pura</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+    </div>
+
+    <!-- ── MÚSICA ────────────────────────────────── -->
+    <div class="category" data-category="musica">
+        <div class="category-header">🎵 Música</div>
+
+        <!-- Bandamax -->
+        <div class="channel-item" onclick="playChannel(this,'Bandamax','https://stream.ads.ottera.tv/playlist.m3u8?network_id=848','','Música regional mexicana')">
+            <div class="channel-number">050</div>
+            <div class="channel-icon" style="font-size:26px;">🎺</div>
+            <div class="channel-details">
+                <div class="channel-name">Bandamax</div>
+                <div class="channel-description">Música regional mexicana</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+    </div>
+
+    <div class="list-end"></div>
+</div>
+
+<!-- ══════ NAV INFERIOR ══════ -->
+<nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        <span>Home</span>
+    </a>
+    <button class="nav-item" onclick="location.href='proximasenlanzamiento.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span>Próximos</span>
+    </button>
+    <button class="nav-item active" onclick="location.href='en-vivo.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="2"></circle>
+            <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
+        </svg>
+        <span>En Vivo</span>
+    </button>
+    <button class="nav-item" onclick="location.href='home.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Buscador</span>
+    </button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+    let hls = null;
+    let isDragging = false;
+    let touchStartY = 0;
+
+    function adjustLayout() {
+        const h = document.getElementById('topFixed').offsetHeight;
+        document.getElementById('scrollArea').style.top = h + 'px';
+    }
+
+    window.addEventListener('load', adjustLayout);
+    window.addEventListener('resize', adjustLayout);
+
+    function playChannel(el, name, url, logoUrl, description) {
+        if (isDragging) return;
+
+        const playerContainer = document.getElementById('playerContainer');
+        const currentChannelDiv = document.getElementById('currentChannel');
+
+        const headerIcon = logoUrl
+            ? `<img src="${logoUrl}" style="width:26px;height:26px;object-fit:contain;border-radius:4px;background:#111;" onerror="this.style.display='none'">`
+            : '📺';
+
+        currentChannelDiv.innerHTML = `
+            <span class="channel-info">${headerIcon} ${name}</span>
+            <span class="live-badge">● LIVE</span>
+        `;
+
+        document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+
+        playerContainer.innerHTML = '<div class="loading-spinner"></div>';
+        setTimeout(adjustLayout, 50);
+
+        setTimeout(() => {
+            playerContainer.innerHTML = '';
+            const video = document.createElement('video');
+            video.controls = true;
+            video.autoplay = true;
+            video.playsInline = true;
+            video.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;background:#000;';
+            playerContainer.appendChild(video);
+
+            if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.play().catch(() => {});
+            } else if (Hls.isSupported()) {
+                if (hls) hls.destroy();
+                hls = new Hls({ enableWorker: true, lowLatencyMode: true, maxBufferLength: 30 });
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+                hls.on(Hls.Events.ERROR, (ev, data) => {
+                    if (data.fatal) {
+                        playerContainer.innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">No se pudo cargar el canal</div></div>`;
                     }
-                    hls = new Hls({
-                        enableWorker: true,
-                        lowLatencyMode: true,
-                        maxBufferLength: 30,
-                        maxMaxBufferLength: 600,
-                    });
-                    hls.loadSource(url);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                        video.play().catch(e => console.log('Autoplay prevented'));
-                    });
-                    hls.on(Hls.Events.ERROR, function(event, data) {
-                        if (data.fatal) {
-                            playerContainer.innerHTML = `
-                                <div class="placeholder">
-                                    <div class="placeholder-icon">⚠️</div>
-                                    <div class="placeholder-text">Error al cargar el canal</div>
-                                </div>
-                            `;
-                        }
-                    });
-                } else {
-                    playerContainer.innerHTML = `
-                        <div class="placeholder">
-                            <div class="placeholder-icon">⚠️</div>
-                            <div class="placeholder-text">Navegador no compatible</div>
-                        </div>
-                    `;
-                }
-            }, 200);
-            
-            setTimeout(() => {
-                document.querySelector('.player-section').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
                 });
-            }, 100);
-        }
+            } else {
+                playerContainer.innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">Navegador no compatible</div></div>`;
+            }
+            setTimeout(adjustLayout, 100);
+        }, 200);
+    }
 
-        function filterChannels(filterType) {
-            const categories = document.querySelectorAll('.category');
-            const buttons = document.querySelectorAll('.filter-btn');
-            
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            categories.forEach(category => {
-                const categoryType = category.getAttribute('data-category');
-                category.style.display = (filterType === 'all' || categoryType === filterType) ? 'block' : 'none';
-            });
-            
-            document.querySelectorAll('.channel-item').forEach(item => {
-                item.style.display = 'flex';
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Auto-reproducir Canal 1 al cargar la página
-            setTimeout(() => {
-                const canal1 = document.querySelector('.channel-item');
-                if (canal1) {
-                    canal1.click();
-                }
-            }, 500);
-            
-            document.querySelectorAll('.channel-item').forEach(card => {
-                card.addEventListener('touchstart', function(e) {
-                    touchStartY = e.touches[0].clientY;
-                    isDragging = false;
-                }, { passive: true });
-                
-                card.addEventListener('touchmove', function(e) {
-                    const touchMoveY = e.touches[0].clientY;
-                    const deltaY = Math.abs(touchMoveY - touchStartY);
-                    if (deltaY > 10) {
-                        isDragging = true;
-                    }
-                }, { passive: true });
-                
-                card.addEventListener('touchend', function(e) {
-                    if (!isDragging) {
-                        e.preventDefault();
-                        card.click();
-                    }
-                    setTimeout(() => {
-                        isDragging = false;
-                    }, 100);
-                }, { passive: false });
-            });
+    function filterChannels(type, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.category').forEach(cat => {
+            cat.style.display = (type === 'all' || cat.dataset.category === type) ? 'block' : 'none';
         });
-    </script>
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        adjustLayout();
+        setTimeout(() => {
+            const first = document.querySelector('.channel-item');
+            if (first) first.click();
+        }, 300);
+
+        document.querySelectorAll('.channel-item').forEach(card => {
+            card.addEventListener('touchstart', e => {
+                touchStartY = e.touches[0].clientY;
+                isDragging = false;
+            }, { passive: true });
+            card.addEventListener('touchmove', e => {
+                if (Math.abs(e.touches[0].clientY - touchStartY) > 8) isDragging = true;
+            }, { passive: true });
+            card.addEventListener('touchend', e => {
+                if (!isDragging) { e.preventDefault(); card.click(); }
+                setTimeout(() => isDragging = false, 100);
+            }, { passive: false });
+        });
+    });
+</script>
 </body>
 </html>
-
-
