@@ -43,6 +43,9 @@
             letter-spacing: 0.05em;
             line-height: 1;
             clip-path: circle(0% at 50% 50%);
+            /* Desplaza el texto a la izquierda ~30% del tamaño del + para que
+               el conjunto LLUTID + (canvas) quede visualmente centrado */
+            transform: translateX(calc(-1 * clamp(1rem, 3vw, 1.8rem)));
         }
 
         /* Tagline letra a letra */
@@ -580,3 +583,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
