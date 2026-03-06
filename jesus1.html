@@ -46,12 +46,12 @@
             transform: scale(1.1);
         }
 
-        /* Info */
+        /* Info - Titulo Achicado */
         .info-section { padding: 20px; background: #000; }
         .badges-container { display: flex; gap: 8px; margin-bottom: 15px; }
         .badge-serie { background: #1e90ff; padding: 4px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: 900; }
         .badge-parte { background: #e50914; padding: 4px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: 900; }
-        .serie-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 10px 0; }
+        .serie-title { font-size: 1.8rem; font-weight: 900; margin: 0 0 10px 0; } /* Ajustado de 2.2rem a 1.8rem */
         .serie-desc { color: #aaa; font-size: 0.95rem; line-height: 1.4; max-width: 800px; margin-bottom: 25px; }
 
         /* Botón Continuar */
@@ -103,7 +103,7 @@
 
     <div class="main-content" id="content">
         <header>
-            <a href="#" class="header-logo">Llutid<span>+</span></a>
+            <a href="home.html" class="header-logo">Llutid<span>+</span></a>
             <i class="fas fa-user-circle fa-lg"></i>
         </header>
 
@@ -140,7 +140,6 @@
 
     <script src="https://player.vimeo.com/api/player.js"></script>
     <script>
-        // Datos de The Chosen T1
         const episodes = [
             { n: 1, title: "Te he llamado por tu nombre", url: "https://drive.google.com/file/d/1OPnXv2MtSP6V4Fz0uz-aFGd3azY_BWsP/preview" },
             { n: 2, title: "Sabbat", url: "https://drive.google.com/file/d/1STOT9afiUTfGEdMQ4dN3SThrE6GwZqzg/preview" },
@@ -188,14 +187,10 @@
             if (document.exitFullscreen) { document.exitFullscreen().catch(() => {}); }
         };
 
-        // Lógica de Intro
         setTimeout(() => {
             document.getElementById('intro').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-            
-            vimeoPlayer.setVolume(1).catch(() => {
-                console.log("El audio requiere interacción previa.");
-            });
+            vimeoPlayer.setVolume(1).catch(() => {});
         }, 5500);
     </script>
 </body>
