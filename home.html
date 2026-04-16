@@ -96,7 +96,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .top10-num.two-digit{font-size:152px;letter-spacing:-8px;bottom:-16px;left:14px;}
 .top10-img{position:absolute;right:0;top:0;width:122px;height:174px;border-radius:var(--card-radius);object-fit:cover;display:block;z-index:1;box-shadow:0 8px 32px rgba(0,0,0,.8);}
 
-/* ══ PROMO CARD — Estilo Apple TV ══ */
+/* ══ PROMO CARD ══ */
 .promo-card{
   margin:20px 20px 0;
   border-radius:22px;
@@ -129,10 +129,14 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   object-fit:cover;border-radius:0;display:block;z-index:1;
 }
 .promo-mosaic-skel-item{border-radius:5px;}
+/* DIFUMINADO DINÁMICO — sin background fijo, se controla por JS */
 .promo-mosaic-fade{
   position:absolute;
   inset:0;
   z-index:2;
+  pointer-events:none;
+  transition:background 0.8s ease;
+  /* fallback neutro mientras carga el video */
   background:linear-gradient(to bottom,
     rgba(26,26,38,0) 0%,
     rgba(26,26,38,0) 10%,
@@ -141,11 +145,10 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     #1A1A26 82%,
     #1A1A26 100%
   );
-  pointer-events:none;
 }
 .promo-logo-overlay{
   position:absolute;
-  bottom:14px;
+  bottom:4px; /* ← bajado un tris respecto al 14px original */
   left:0;right:0;
   z-index:3;
   display:flex;
@@ -410,10 +413,9 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     <div class="row" id="popularesRow"></div>
   </section>
 
-  <!-- PROMO CARD — Estilo Apple TV con video -->
+  <!-- PROMO CARD -->
   <div class="promo-card" id="promoCard">
     <div class="promo-mosaic">
-      <!-- Fallback: mosaico de imágenes -->
       <div class="promo-mosaic-inner" id="promoMosaicGrid">
         <div class="promo-mosaic-skel-item skeleton"></div>
         <div class="promo-mosaic-skel-item skeleton"></div>
@@ -424,21 +426,17 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
         <div class="promo-mosaic-skel-item skeleton"></div>
         <div class="promo-mosaic-skel-item skeleton"></div>
       </div>
-      <!-- Video promocional -->
       <video class="promo-mosaic-video" id="promoVideo"
         src="./promocional.mp4"
         autoplay muted loop playsinline
         style="opacity:0;transition:opacity 1.2s ease;">
       </video>
-      <!-- Fade overlay -->
-      <div class="promo-mosaic-fade"></div>
-      <!-- Logo superpuesto donde empieza el desvanecido -->
+      <div class="promo-mosaic-fade" id="promoFade"></div>
       <div class="promo-logo-overlay" id="promoLogoOverlay">
         <div class="promo-logo-wrap" id="promoLogoWrap">
           <div class="promo-logo-txt">LLUTID<span>+</span></div>
         </div>
       </div>
-      <!-- Botón mute del video promo -->
       <button class="promo-mute-btn" id="promoMuteBtn" aria-label="Silenciar video promo">
         <svg id="promoMuteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
         <svg id="promoUnmuteIcon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
@@ -458,7 +456,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   <section style="margin-bottom:28px"><div class="sec-head"><span class="sec-title">Comedia</span><span class="sec-more" data-cat="Comedia" data-grid="comediaRow">Ver más</span></div><div class="row" id="comediaRow"></div></section>
   <section style="margin-bottom:28px"><div class="sec-head"><span class="sec-title">Contenido de Netflix</span><span class="sec-more" data-cat="Contenido de Netflix" data-grid="netflixRow">Ver más</span></div><div class="row" id="netflixRow"></div></section>
 
-  <!-- EN VIVO / PRÓXIMOS -->
   <section class="matches-section" id="matchesSection">
     <div class="sec-head"><span class="sec-title">En Vivo / Próximos</span></div>
     <div class="matches-row" id="matchesRow">
@@ -823,32 +820,128 @@ async function loadAnnouncement(){
   }catch(e){console.warn(e);}
 }
 
-/* ══ PROMO VIDEO ══ */
+/* ══ PROMO VIDEO con difuminado dinámico de color ══ */
 (function(){
   const vid=$('promoVideo');
   const muteBtn=$('promoMuteBtn');
+  const fade=$('promoFade');
   if(!vid)return;
+
   let promoMuted=true;
+  let rafId=null;
+  let samplingActive=false;
+
+  /* Canvas oculto para leer píxeles del video */
+  const canvas=document.createElement('canvas');
+  canvas.width=12;
+  canvas.height=8;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});
 
   function syncPromoMute(){
     $('promoMuteIcon').style.display=promoMuted?'':'none';
     $('promoUnmuteIcon').style.display=promoMuted?'none':'';
   }
 
+  /* Convierte un array de índices de píxeles en su color promedio */
+  function avgColor(data,indices){
+    let r=0,g=0,b=0,n=indices.length;
+    for(let i=0;i<n;i++){const p=indices[i];r+=data[p];g+=data[p+1];b+=data[p+2];}
+    return [Math.round(r/n),Math.round(g/n),Math.round(b/n)];
+  }
+
+  /* Oscurece un color para usarlo como fondo (factor entre 0 y 1) */
+  function dk(rgb,alpha){
+    const f=0.15; /* cuanto se oscurece el color base */
+    return `rgba(${Math.round(rgb[0]*f)},${Math.round(rgb[1]*f)},${Math.round(rgb[2]*f)},${alpha})`;
+  }
+
+  /* Color base del card (fondo) para el borde inferior sólido */
+  const CARD_BG='#1A1A26';
+
+  function sampleAndApply(){
+    if(!samplingActive||vid.paused||vid.ended||vid.readyState<2){
+      rafId=null;return;
+    }
+    try{
+      ctx.drawImage(vid,0,0,12,8);
+      const d=ctx.getImageData(0,0,12,8).data;
+
+      /* Dividimos el frame en 3 zonas horizontales: izq, centro, der */
+      const leftIdx=[],centerIdx=[],rightIdx=[];
+      for(let row=0;row<8;row++){
+        for(let col=0;col<12;col++){
+          const i=(row*12+col)*4;
+          if(col<4)leftIdx.push(i);
+          else if(col<8)centerIdx.push(i);
+          else rightIdx.push(i);
+        }
+      }
+      const cL=avgColor(d,leftIdx);
+      const cC=avgColor(d,centerIdx);
+      const cR=avgColor(d,rightIdx);
+
+      /* Construimos el degradado: vertical principal + horizontal sutil lateral */
+      fade.style.background=`
+        linear-gradient(to bottom,
+          ${dk(cL,0)}    0%,
+          ${dk(cL,0.05)} 10%,
+          ${dk(cC,0.3)}  42%,
+          ${dk(cR,0.75)} 65%,
+          ${dk(cR,1)}    82%,
+          ${CARD_BG}     100%
+        ),
+        linear-gradient(to right,
+          ${dk(cL,0.22)} 0%,
+          transparent    40%,
+          transparent    60%,
+          ${dk(cR,0.22)} 100%
+        )
+      `;
+    }catch(e){
+      /* Si hay error de CORS u otro, dejamos el fallback neutro */
+    }
+    rafId=requestAnimationFrame(sampleAndApply);
+  }
+
+  function startSampling(){
+    if(samplingActive)return;
+    samplingActive=true;
+    if(!rafId)rafId=requestAnimationFrame(sampleAndApply);
+  }
+
+  function stopSampling(){
+    samplingActive=false;
+    if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  }
+
   vid.addEventListener('canplay',()=>{
     vid.style.opacity='1';
     const grid=$('promoMosaicGrid');
-    if(grid)grid.style.transition='opacity 1s ease';
-    if(grid)grid.style.opacity='0';
+    if(grid){grid.style.transition='opacity 1s ease';grid.style.opacity='0';}
     muteBtn.classList.add('visible');
     syncPromoMute();
+    startSampling();
   });
 
+  vid.addEventListener('play',()=>startSampling());
+  vid.addEventListener('pause',()=>stopSampling());
+  vid.addEventListener('ended',()=>stopSampling());
+
   vid.addEventListener('error',()=>{
+    stopSampling();
     vid.style.display='none';
     const grid=$('promoMosaicGrid');
-    if(grid)grid.style.opacity='1';
+    if(grid){grid.style.transition='opacity 0.5s';grid.style.opacity='1';}
     muteBtn.classList.remove('visible');
+    /* Restaurar degradado neutro de fallback */
+    if(fade)fade.style.background=`linear-gradient(to bottom,
+      rgba(26,26,38,0) 0%,
+      rgba(26,26,38,0) 10%,
+      rgba(26,26,38,.25) 38%,
+      rgba(26,26,38,.72) 62%,
+      #1A1A26 82%,
+      #1A1A26 100%
+    )`;
   });
 
   muteBtn.onclick=(e)=>{
