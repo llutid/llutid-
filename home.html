@@ -104,6 +104,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   background:#1A1A26;
   box-shadow:0 20px 60px rgba(0,0,0,.7);
   border:1px solid rgba(255,255,255,.08);
+  transition:background 0.9s ease;
 }
 .promo-mosaic{
   position:relative;
@@ -129,14 +130,13 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   object-fit:cover;border-radius:0;display:block;z-index:1;
 }
 .promo-mosaic-skel-item{border-radius:5px;}
-/* DIFUMINADO DINÁMICO — sin background fijo, se controla por JS */
+/* DIFUMINADO DINÁMICO — controlado por JS */
 .promo-mosaic-fade{
   position:absolute;
   inset:0;
   z-index:2;
   pointer-events:none;
-  transition:background 0.8s ease;
-  /* fallback neutro mientras carga el video */
+  transition:background 0.7s ease;
   background:linear-gradient(to bottom,
     rgba(26,26,38,0) 0%,
     rgba(26,26,38,0) 10%,
@@ -148,7 +148,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 }
 .promo-logo-overlay{
   position:absolute;
-  bottom:4px; /* ← bajado un tris respecto al 14px original */
+  bottom:4px;
   left:0;right:0;
   z-index:3;
   display:flex;
@@ -171,6 +171,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   padding:4px 24px 26px;
   text-align:center;
   background:#1A1A26;
+  transition:background 0.9s ease;
 }
 .promo-logo-wrap{margin-bottom:12px;}
 .promo-logo-img{height:48px;width:auto;object-fit:contain;filter:drop-shadow(0 2px 10px rgba(0,0,0,.6));}
@@ -429,6 +430,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
       <video class="promo-mosaic-video" id="promoVideo"
         src="./promocional.mp4"
         autoplay muted loop playsinline
+        crossorigin="anonymous"
         style="opacity:0;transition:opacity 1.2s ease;">
       </video>
       <div class="promo-mosaic-fade" id="promoFade"></div>
@@ -442,7 +444,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
         <svg id="promoUnmuteIcon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
       </button>
     </div>
-    <div class="promo-body">
+    <div class="promo-body" id="promoBody">
       <p class="promo-title" id="promoTitle">Disfruta el mejor contenido cada semana</p>
       <button class="promo-cta" id="promoCta">Ver ahora</button>
       <p class="promo-sub" id="promoSubtext" style="display:none"></p>
@@ -820,137 +822,173 @@ async function loadAnnouncement(){
   }catch(e){console.warn(e);}
 }
 
-/* ══ PROMO VIDEO con difuminado dinámico de color ══ */
+/* ══ PROMO VIDEO — difuminado dinámico de color por frame ══ */
 (function(){
-  const vid=$('promoVideo');
-  const muteBtn=$('promoMuteBtn');
-  const fade=$('promoFade');
-  if(!vid)return;
+  const vid    = $('promoVideo');
+  const card   = $('promoCard');
+  const body   = $('promoBody');
+  const fade   = $('promoFade');
+  const muteBtn= $('promoMuteBtn');
+  if(!vid||!fade) return;
 
-  let promoMuted=true;
-  let rafId=null;
-  let samplingActive=false;
+  const CARD_BG_DEFAULT = '#1A1A26';
+  let promoMuted = true;
+  let rafId = null;
+  let samplingActive = false;
+  let corsOk = false; /* se confirma en el primer read de píxeles exitoso */
 
-  /* Canvas oculto para leer píxeles del video */
-  const canvas=document.createElement('canvas');
-  canvas.width=12;
-  canvas.height=8;
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+  /* Canvas pequeño para muestreo de color (16×10 px) */
+  const sc = document.createElement('canvas');
+  sc.width = 16; sc.height = 10;
+  const sCtx = sc.getContext('2d', {willReadFrequently: true});
 
-  function syncPromoMute(){
-    $('promoMuteIcon').style.display=promoMuted?'':'none';
-    $('promoUnmuteIcon').style.display=promoMuted?'none':'';
+  /* Valores suavizados actuales (interpolación lerp) */
+  let curR = 26, curG = 26, curB = 38;
+
+  /* ── Helpers ────────────────────────────────────── */
+  function lerp(a, b, t){ return a + (b - a) * t; }
+
+  /* Convierte un color dominante RGB en 3 paradas de oscuridad distintas */
+  function colorStops(r, g, b){
+    const hi   = [Math.round(r * 0.95), Math.round(g * 0.95), Math.round(b * 0.95)];
+    const mid  = [Math.round(r * 0.30 + 4), Math.round(g * 0.30 + 4), Math.round(b * 0.32 + 6)];
+    const base = [Math.round(r * 0.07 + 6), Math.round(g * 0.07 + 6), Math.round(b * 0.09 + 10)];
+    const side = [Math.round(r * 0.10), Math.round(g * 0.10), Math.round(b * 0.11)];
+    return { hi, mid, base, side };
   }
 
-  /* Convierte un array de índices de píxeles en su color promedio */
-  function avgColor(data,indices){
-    let r=0,g=0,b=0,n=indices.length;
-    for(let i=0;i<n;i++){const p=indices[i];r+=data[p];g+=data[p+1];b+=data[p+2];}
-    return [Math.round(r/n),Math.round(g/n),Math.round(b/n)];
+  /* Aplica el degradado y el color de fondo de la card */
+  function applyColor(r, g, b){
+    const { hi, mid, base, side } = colorStops(r, g, b);
+    const baseHex = `rgb(${base[0]},${base[1]},${base[2]})`;
+
+    /* Degradado vertical (vignette inferior con tinte de color)
+       + degradado horizontal sutil en los bordes laterales      */
+    fade.style.background = `
+      linear-gradient(to bottom,
+        rgba(${hi[0]},${hi[1]},${hi[2]},0)     0%,
+        rgba(${hi[0]},${hi[1]},${hi[2]},0.03)  8%,
+        rgba(${mid[0]},${mid[1]},${mid[2]},0.18) 28%,
+        rgba(${mid[0]},${mid[1]},${mid[2]},0.52) 48%,
+        rgba(${base[0]},${base[1]},${base[2]},0.88) 68%,
+        rgba(${base[0]},${base[1]},${base[2]},1)    80%,
+        ${baseHex} 100%
+      ),
+      linear-gradient(to right,
+        rgba(${side[0]},${side[1]},${side[2]},0.55) 0%,
+        rgba(${side[0]},${side[1]},${side[2]},0.12) 18%,
+        transparent 42%,
+        transparent 58%,
+        rgba(${side[0]},${side[1]},${side[2]},0.12) 82%,
+        rgba(${side[0]},${side[1]},${side[2]},0.55) 100%
+      )
+    `;
+
+    /* Tiñe el fondo de la card y del cuerpo con el color oscuro base */
+    card.style.background = baseHex;
+    body.style.background = baseHex;
   }
 
-  /* Oscurece un color para usarlo como fondo (factor entre 0 y 1) */
-  function dk(rgb,alpha){
-    const f=0.15; /* cuanto se oscurece el color base */
-    return `rgba(${Math.round(rgb[0]*f)},${Math.round(rgb[1]*f)},${Math.round(rgb[2]*f)},${alpha})`;
+  /* Extrae el color más saturado y visible del frame actual */
+  function getDominant(data){
+    let best = -1, dr = 40, dg = 50, db = 120;
+    for(let i = 0; i < data.length; i += 4){
+      const r = data[i], g = data[i+1], b = data[i+2];
+      const mx = Math.max(r,g,b), mn = Math.min(r,g,b);
+      const sat = mx === 0 ? 0 : (mx - mn) / mx;
+      const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+      /* Premia saturación y luminosidad media-alta; penaliza blancos y negros */
+      const score = sat * 3.0 + (1 - Math.abs(lum - 0.50)) * 0.8 - (lum > 0.92 ? 2 : 0) - (lum < 0.06 ? 1 : 0);
+      if(score > best){ best = score; dr = r; dg = g; db = b; }
+    }
+    return [dr, dg, db];
   }
 
-  /* Color base del card (fondo) para el borde inferior sólido */
-  const CARD_BG='#1A1A26';
-
-  function sampleAndApply(){
-    if(!samplingActive||vid.paused||vid.ended||vid.readyState<2){
-      rafId=null;return;
+  /* Loop principal: muestrea → suaviza → aplica */
+  function sample(){
+    if(!samplingActive || vid.paused || vid.ended || vid.readyState < 2){
+      rafId = null; return;
     }
     try{
-      ctx.drawImage(vid,0,0,12,8);
-      const d=ctx.getImageData(0,0,12,8).data;
-
-      /* Dividimos el frame en 3 zonas horizontales: izq, centro, der */
-      const leftIdx=[],centerIdx=[],rightIdx=[];
-      for(let row=0;row<8;row++){
-        for(let col=0;col<12;col++){
-          const i=(row*12+col)*4;
-          if(col<4)leftIdx.push(i);
-          else if(col<8)centerIdx.push(i);
-          else rightIdx.push(i);
-        }
-      }
-      const cL=avgColor(d,leftIdx);
-      const cC=avgColor(d,centerIdx);
-      const cR=avgColor(d,rightIdx);
-
-      /* Construimos el degradado: vertical principal + horizontal sutil lateral */
-      fade.style.background=`
-        linear-gradient(to bottom,
-          ${dk(cL,0)}    0%,
-          ${dk(cL,0.05)} 10%,
-          ${dk(cC,0.3)}  42%,
-          ${dk(cR,0.75)} 65%,
-          ${dk(cR,1)}    82%,
-          ${CARD_BG}     100%
-        ),
-        linear-gradient(to right,
-          ${dk(cL,0.22)} 0%,
-          transparent    40%,
-          transparent    60%,
-          ${dk(cR,0.22)} 100%
-        )
-      `;
-    }catch(e){
-      /* Si hay error de CORS u otro, dejamos el fallback neutro */
+      sCtx.drawImage(vid, 0, 0, 16, 10);
+      const d = sCtx.getImageData(0, 0, 16, 10).data;
+      corsOk = true;
+      const [tr, tg, tb] = getDominant(d);
+      /* Suavizado: velocidad 0.035 = cambio muy fluido sin saltos */
+      curR = lerp(curR, tr, 0.035);
+      curG = lerp(curG, tg, 0.035);
+      curB = lerp(curB, tb, 0.035);
+      applyColor(curR, curG, curB);
+    } catch(e){
+      /* SecurityError CORS: el video está servido sin cabeceras adecuadas.
+         En ese caso simplemente no aplicamos color y dejamos el fallback. */
+      samplingActive = false;
+      rafId = null;
+      return;
     }
-    rafId=requestAnimationFrame(sampleAndApply);
+    rafId = requestAnimationFrame(sample);
   }
 
   function startSampling(){
-    if(samplingActive)return;
-    samplingActive=true;
-    if(!rafId)rafId=requestAnimationFrame(sampleAndApply);
+    if(samplingActive) return;
+    samplingActive = true;
+    if(!rafId) rafId = requestAnimationFrame(sample);
   }
 
   function stopSampling(){
-    samplingActive=false;
-    if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+    samplingActive = false;
+    if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
   }
 
-  vid.addEventListener('canplay',()=>{
-    vid.style.opacity='1';
-    const grid=$('promoMosaicGrid');
-    if(grid){grid.style.transition='opacity 1s ease';grid.style.opacity='0';}
+  /* ── Eventos del video ──────────────────────────── */
+  vid.addEventListener('canplay', ()=>{
+    /* Mostrar video, ocultar mosaic de imágenes */
+    vid.style.opacity = '1';
+    const grid = $('promoMosaicGrid');
+    if(grid){ grid.style.transition = 'opacity 1.2s ease'; grid.style.opacity = '0'; }
     muteBtn.classList.add('visible');
     syncPromoMute();
     startSampling();
   });
 
-  vid.addEventListener('play',()=>startSampling());
-  vid.addEventListener('pause',()=>stopSampling());
-  vid.addEventListener('ended',()=>stopSampling());
+  vid.addEventListener('play',  ()=> startSampling());
+  vid.addEventListener('pause', ()=> stopSampling());
+  vid.addEventListener('ended', ()=> stopSampling());
 
-  vid.addEventListener('error',()=>{
+  vid.addEventListener('error', ()=>{
     stopSampling();
-    vid.style.display='none';
-    const grid=$('promoMosaicGrid');
-    if(grid){grid.style.transition='opacity 0.5s';grid.style.opacity='1';}
+    /* Ocultar video y mostrar mosaic como fallback */
+    vid.style.display = 'none';
+    const grid = $('promoMosaicGrid');
+    if(grid){ grid.style.transition = 'opacity 0.6s'; grid.style.opacity = '1'; }
     muteBtn.classList.remove('visible');
-    /* Restaurar degradado neutro de fallback */
-    if(fade)fade.style.background=`linear-gradient(to bottom,
+    /* Restaurar degradado neutro */
+    fade.style.background = `linear-gradient(to bottom,
       rgba(26,26,38,0) 0%,
       rgba(26,26,38,0) 10%,
       rgba(26,26,38,.25) 38%,
       rgba(26,26,38,.72) 62%,
-      #1A1A26 82%,
-      #1A1A26 100%
+      ${CARD_BG_DEFAULT} 82%,
+      ${CARD_BG_DEFAULT} 100%
     )`;
+    card.style.background = CARD_BG_DEFAULT;
+    body.style.background = CARD_BG_DEFAULT;
   });
 
-  muteBtn.onclick=(e)=>{
+  /* ── Control de mute ────────────────────────────── */
+  function syncPromoMute(){
+    $('promoMuteIcon').style.display   = promoMuted ? '' : 'none';
+    $('promoUnmuteIcon').style.display = promoMuted ? 'none' : '';
+  }
+
+  muteBtn.onclick = e => {
     e.stopPropagation();
-    promoMuted=!promoMuted;
-    vid.muted=promoMuted;
+    promoMuted = !promoMuted;
+    vid.muted = promoMuted;
     syncPromoMute();
   };
 
+  /* Forzar carga */
   vid.load();
   vid.play().catch(()=>{});
 })();
