@@ -1,638 +1,583 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-    <title>LLUTID+ | Reproductor</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html, body { width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Roboto', sans-serif; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+<title>LLUTID+ | Reproductor</title>
+<style>
+:root{
+  --bg:#000;--blue:#3B6EE8;--blue-light:#5E8FFF;
+  --font-display:'Bebas Neue',cursive;--font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
 
-        /* ── LOADING SCREEN ── */
-        #loadScreen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
-            transition: opacity 0.5s ease;
-        }
-        #loadScreen.hiding { opacity: 0; pointer-events: none; }
-        .load-logo {
-            font-size: 2.4rem; font-weight: 900; letter-spacing: 4px; color: #fff;
-        }
-        .load-logo span { color: #1e90ff; }
-        .load-bar {
-            width: 140px; height: 3px; background: rgba(255,255,255,.12); border-radius: 2px; overflow: hidden;
-        }
-        .load-bar-fill {
-            height: 100%; background: linear-gradient(90deg, #1e90ff, #60b4ff); border-radius: 2px;
-            animation: loadAnim 1.4s ease-in-out infinite;
-        }
-        @keyframes loadAnim {
-            0%   { width: 0;    margin-left: 0; }
-            50%  { width: 100%; margin-left: 0; }
-            100% { width: 0;    margin-left: 100%; }
-        }
+/* ── LOADING ── */
+#loadScreen{
+  position:fixed;inset:0;background:#000;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .5s ease;
+}
+#loadScreen.hiding{opacity:0;pointer-events:none}
+.load-logo{font-family:'Bebas Neue',cursive;font-size:2.4rem;letter-spacing:4px;color:#fff}
+.load-logo span{color:#5E8FFF}
+.load-bar{width:140px;height:3px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
+.load-bar-fill{height:100%;background:linear-gradient(90deg,#3B6EE8,#5E8FFF);border-radius:2px;animation:loadAnim 1.4s ease-in-out infinite}
+@keyframes loadAnim{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+.load-title{font-size:14px;color:rgba(255,255,255,.5);font-weight:500;max-width:260px;text-align:center;line-height:1.4}
 
-        /* ── PLAYER WRAP ── */
-        #playerWrap {
-            position: relative; width: 100vw; height: 100vh; background: #000; display: none;
-        }
+/* ── PLAYER WRAP ── */
+#playerWrap{position:fixed;inset:0;background:#000;display:none}
 
-        /* native video */
-        #movieVideo {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            object-fit: contain; display: block; background: #000;
-        }
-        /* iframe fallback (Drive / Vimeo) */
-        #movieIframe {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%; border: none; display: none;
-        }
+/* ── NATIVE VIDEO ── */
+#movieVideo{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;display:block;background:#000;
+}
 
-        /* ── BUFFER SPINNER ── */
-        #bufferSpinner {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 54px; height: 54px;
-            border: 4px solid rgba(255,255,255,.12);
-            border-top-color: #1e90ff;
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite;
-            display: none; z-index: 20;
-            pointer-events: none;
-        }
-        @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+/* ── IFRAME (Drive / Vimeo / YouTube) ── */
+#movieIframe{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;display:none;
+}
 
-        /* ── CONTROLS OVERLAY ── */
-        #controls {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column;
-            justify-content: space-between;
-            z-index: 30;
-            opacity: 0; transition: opacity 0.35s ease;
-            pointer-events: none;
-        }
-        #controls.visible { opacity: 1; pointer-events: all; }
+/* ── BUFFER SPINNER ── */
+#bufferSpinner{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:52px;height:52px;
+  border:3.5px solid rgba(255,255,255,.1);
+  border-top-color:#3B6EE8;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:none;z-index:20;pointer-events:none;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
-        /* gradient bars */
-        .ctrl-gradient-top {
-            background: linear-gradient(to bottom, rgba(0,0,0,.82) 0%, transparent 100%);
-            padding: 14px 18px 28px;
-        }
-        .ctrl-gradient-bottom {
-            background: linear-gradient(to top, rgba(0,0,0,.88) 0%, transparent 100%);
-            padding: 20px 18px 22px;
-        }
+/* ── CONTROLS OVERLAY ── */
+#controls{
+  position:absolute;inset:0;z-index:30;
+  display:flex;flex-direction:column;justify-content:space-between;
+  opacity:0;transition:opacity .3s ease;pointer-events:none;
+}
+#controls.visible{opacity:1;pointer-events:all}
 
-        /* ── TOP BAR ── */
-        .ctrl-top {
-            display: flex; align-items: center; gap: 14px;
-        }
-        .ctrl-back-btn {
-            width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
-            background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.22);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s, transform 0.15s;
-        }
-        .ctrl-back-btn:active { transform: scale(0.9); }
-        .ctrl-back-btn svg { width: 20px; height: 20px; }
-        .ctrl-movie-title {
-            font-size: 15px; font-weight: 700; color: #fff;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            flex: 1;
-        }
+/* gradient tops/bottoms */
+.ctrl-top-grad{
+  background:linear-gradient(to bottom,rgba(0,0,0,.85) 0%,transparent 100%);
+  padding:16px 16px 34px;
+  display:flex;align-items:center;gap:13px;
+}
+.ctrl-bot-grad{
+  background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 100%);
+  padding:22px 16px 24px;
+}
 
-        /* ── CENTRE PLAY AREA ── */
-        .ctrl-centre {
-            display: flex; align-items: center; justify-content: center; gap: 40px; flex: 1;
-        }
-        .ctrl-big-btn {
-            width: 56px; height: 56px; border-radius: 50%;
-            background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.2);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s, transform 0.15s;
-            position: relative;
-        }
-        .ctrl-big-btn:active { transform: scale(0.9); }
-        .ctrl-big-btn svg { width: 24px; height: 24px; }
-        .ctrl-big-btn .skip-label {
-            position: absolute; bottom: -20px; font-size: 11px; color: rgba(255,255,255,.7);
-            font-weight: 600; white-space: nowrap;
-        }
-        #playPauseBtn {
-            width: 68px; height: 68px;
-            background: rgba(255,255,255,.18);
-            border: 2px solid rgba(255,255,255,.35);
-        }
-        #playPauseBtn svg { width: 32px; height: 32px; }
+/* back button + title */
+.ctrl-back{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.ctrl-back:active{transform:scale(.9)}
+.ctrl-back svg{width:20px;height:20px}
+.ctrl-title{
+  font-size:15px;font-weight:700;color:#fff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;
+}
 
-        /* ── BOTTOM BAR ── */
-        /* seek bar */
-        .seekbar-wrap {
-            position: relative; height: 24px; display: flex; align-items: center;
-            margin-bottom: 8px; cursor: pointer; user-select: none;
-        }
-        .seekbar-track {
-            width: 100%; height: 4px; background: rgba(255,255,255,.22);
-            border-radius: 2px; position: relative; overflow: hidden;
-            transition: height 0.15s;
-        }
-        .seekbar-wrap:hover .seekbar-track,
-        .seekbar-wrap.dragging .seekbar-track { height: 6px; }
-        .seekbar-buffered {
-            position: absolute; top: 0; left: 0; height: 100%;
-            background: rgba(255,255,255,.28); border-radius: 2px;
-        }
-        .seekbar-fill {
-            position: absolute; top: 0; left: 0; height: 100%;
-            background: #1e90ff; border-radius: 2px;
-        }
-        /* thumb */
-        .seekbar-thumb {
-            position: absolute; top: 50%; left: 0;
-            transform: translate(-50%, -50%);
-            width: 14px; height: 14px; border-radius: 50%;
-            background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.6);
-            opacity: 0; transition: opacity 0.15s, left 0.05s linear;
-        }
-        .seekbar-wrap:hover .seekbar-thumb,
-        .seekbar-wrap.dragging .seekbar-thumb { opacity: 1; }
+/* centre play area */
+.ctrl-centre{
+  display:flex;align-items:center;justify-content:center;gap:38px;
+  flex:1;
+  /* hide centre for iframe mode */
+}
+.ctrl-centre.hidden{display:none}
 
-        /* bottom row */
-        .ctrl-bottom-row {
-            display: flex; align-items: center; gap: 4px; margin-top: 4px;
-        }
-        .ctrl-icon-btn {
-            width: 44px; height: 44px; border-radius: 50%; border: none;
-            background: none; color: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s, transform 0.15s;
-            flex-shrink: 0;
-        }
-        .ctrl-icon-btn:hover   { background: rgba(255,255,255,.12); }
-        .ctrl-icon-btn:active  { transform: scale(0.9); }
-        .ctrl-icon-btn svg { width: 22px; height: 22px; }
-        .ctrl-spacer { flex: 1; }
-        .ctrl-time {
-            font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8);
-            white-space: nowrap;
-        }
+.ctrl-skip{
+  width:54px;height:54px;border-radius:50%;position:relative;
+  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.18);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.ctrl-skip:active{transform:scale(.9)}
+.ctrl-skip svg{width:22px;height:22px}
+.ctrl-skip .skip-lbl{
+  position:absolute;bottom:-19px;
+  font-size:10.5px;font-weight:700;color:rgba(255,255,255,.65);white-space:nowrap;
+}
 
-        /* ── DOUBLE-TAP FLASH ── */
-        .tap-flash {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            width: 90px; height: 90px; border-radius: 50%;
-            background: rgba(255,255,255,.18); pointer-events: none;
-            display: flex; align-items: center; justify-content: center;
-            opacity: 0; z-index: 40;
-        }
-        .tap-flash.show { animation: flashPop 0.55s ease forwards; }
-        .tap-flash svg { width: 36px; height: 36px; color: #fff; }
-        @keyframes flashPop {
-            0%   { opacity: 0; transform: translateY(-50%) scale(.6); }
-            30%  { opacity: 1; transform: translateY(-50%) scale(1.05); }
-            70%  { opacity: 1; transform: translateY(-50%) scale(1); }
-            100% { opacity: 0; transform: translateY(-50%) scale(.8); }
-        }
-        #tapLeft  { left:  10%; }
-        #tapRight { right: 10%; }
+.ctrl-playpause{
+  width:70px;height:70px;border-radius:50%;
+  background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.ctrl-playpause:active{transform:scale(.93)}
+.ctrl-playpause svg{width:32px;height:32px}
 
-        /* ── ERROR VIEW ── */
-        #errorView {
-            display: none; position: absolute; inset: 0; z-index: 50;
-            flex-direction: column; align-items: center; justify-content: center;
-            gap: 18px; padding: 30px;
-        }
-        #errorView.show { display: flex; }
-        .err-icon  { font-size: 52px; opacity: .35; }
-        .err-msg   { font-size: 16px; color: rgba(255,255,255,.7); text-align: center; max-width: 300px; line-height: 1.5; }
-        .err-btn   {
-            background: #1e90ff; color: #fff; border: none; border-radius: 10px;
-            padding: 13px 28px; font-size: 15px; font-weight: 700; cursor: pointer;
-            transition: background .2s;
-        }
-        .err-btn:hover { background: #3da0ff; }
-    </style>
+/* seek bar */
+.seekbar-wrap{
+  position:relative;height:26px;display:flex;align-items:center;
+  cursor:pointer;user-select:none;margin-bottom:6px;
+}
+.seekbar-track{
+  width:100%;height:3.5px;background:rgba(255,255,255,.2);
+  border-radius:2px;position:relative;overflow:hidden;
+  transition:height .15s;
+}
+.seekbar-wrap:hover .seekbar-track,.seekbar-wrap.drag .seekbar-track{height:6px}
+.seekbar-buf{position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.25);border-radius:2px}
+.seekbar-fill{position:absolute;top:0;left:0;height:100%;background:#5E8FFF;border-radius:2px;transition:width .1s linear}
+.seekbar-thumb{
+  position:absolute;top:50%;left:0;
+  transform:translate(-50%,-50%);
+  width:14px;height:14px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.7);
+  opacity:0;transition:opacity .15s;pointer-events:none;
+}
+.seekbar-wrap:hover .seekbar-thumb,.seekbar-wrap.drag .seekbar-thumb{opacity:1}
+
+/* bottom row */
+.ctrl-bottom-row{display:flex;align-items:center;gap:2px}
+.ctrl-icon{
+  width:46px;height:46px;border-radius:50%;border:none;
+  background:none;color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,transform .15s;flex-shrink:0;
+}
+.ctrl-icon:hover{background:rgba(255,255,255,.1)}
+.ctrl-icon:active{transform:scale(.9)}
+.ctrl-icon svg{width:22px;height:22px}
+.ctrl-spacer{flex:1}
+.ctrl-time{
+  font-size:12.5px;font-weight:600;color:rgba(255,255,255,.75);
+  white-space:nowrap;padding:0 6px;
+}
+
+/* double-tap flash rings */
+.tap-flash{
+  position:absolute;top:50%;width:84px;height:84px;border-radius:50%;
+  background:rgba(255,255,255,.16);pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;z-index:40;
+}
+.tap-flash svg{width:34px;height:34px;color:#fff}
+.tap-flash.pop{animation:tapPop .55s ease forwards}
+@keyframes tapPop{
+  0%{opacity:0;transform:translateY(-50%) scale(.55)}
+  30%{opacity:1;transform:translateY(-50%) scale(1.08)}
+  70%{opacity:1;transform:translateY(-50%) scale(1)}
+  100%{opacity:0;transform:translateY(-50%) scale(.8)}
+}
+#tapLeft{left:10%;transform:translateY(-50%)}
+#tapRight{right:10%;transform:translateY(-50%)}
+
+/* iframe header bar (shown when playing Drive/Vimeo/YT) */
+#iframeHeader{
+  position:absolute;top:0;left:0;right:0;z-index:50;
+  height:60px;display:none;align-items:center;gap:13px;padding:0 16px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.88),transparent);
+}
+#iframeHeader.show{display:flex}
+.ifr-back{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:transform .15s;flex-shrink:0;
+}
+.ifr-back:active{transform:scale(.9)}
+.ifr-back svg{width:20px;height:20px}
+.ifr-title{font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+
+/* error view */
+#errorView{
+  display:none;position:absolute;inset:0;z-index:60;
+  flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;
+}
+#errorView.show{display:flex}
+.err-ico{font-size:52px;opacity:.35}
+.err-msg{font-size:15px;color:rgba(255,255,255,.65);text-align:center;max-width:280px;line-height:1.5}
+.err-back{background:#3B6EE8;color:#fff;border:none;border-radius:10px;padding:14px 30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
+.err-back:hover{background:#5E8FFF}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loadScreen">
-    <div class="load-logo">LLUTID<span>+</span></div>
-    <div class="load-bar"><div class="load-bar-fill"></div></div>
+  <div class="load-logo">LLUTID<span>+</span></div>
+  <div class="load-bar"><div class="load-bar-fill"></div></div>
+  <div class="load-title" id="loadTitle">Cargando película…</div>
 </div>
 
 <!-- PLAYER -->
 <div id="playerWrap">
 
-    <!-- Video / iframe -->
-    <video id="movieVideo" playsinline></video>
-    <iframe id="movieIframe" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>
+  <!-- Native video -->
+  <video id="movieVideo" playsinline></video>
 
-    <!-- Buffer spinner -->
-    <div id="bufferSpinner"></div>
+  <!-- Iframe (Drive, Vimeo, YouTube) -->
+  <iframe id="movieIframe" allowfullscreen allow="autoplay; encrypted-media; fullscreen"></iframe>
 
-    <!-- Double-tap flash indicators -->
-    <div class="tap-flash" id="tapLeft">
+  <!-- Iframe minimal header (back + title) -->
+  <div id="iframeHeader">
+    <button class="ifr-back" id="ifrBackBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <span class="ifr-title" id="ifrTitle"></span>
+  </div>
+
+  <!-- Buffer spinner -->
+  <div id="bufferSpinner"></div>
+
+  <!-- Double-tap flash -->
+  <div class="tap-flash" id="tapLeft">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3a9.5 9.5 0 1 0 9.5 9.5h-2A7.5 7.5 0 1 1 12.5 5V7l-4-4 4-4v2.5z"/></svg>
+  </div>
+  <div class="tap-flash" id="tapRight">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 3A9.5 9.5 0 1 1 2 12.5h2A7.5 7.5 0 1 0 11.5 5V7l4-4-4-4v2.5z"/></svg>
+  </div>
+
+  <!-- CONTROLS (native video only) -->
+  <div id="controls">
+
+    <!-- TOP -->
+    <div class="ctrl-top-grad">
+      <button class="ctrl-back" id="ctrlBack">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <span class="ctrl-title" id="ctrlTitle">LLUTID+</span>
+    </div>
+
+    <!-- CENTRE -->
+    <div class="ctrl-centre" id="ctrlCentre">
+      <button class="ctrl-skip" id="rewindBtn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3a9.5 9.5 0 1 0 9.5 9.5h-2A7.5 7.5 0 1 1 12.5 5V7l-4-4 4-4v2.5z"/></svg>
-    </div>
-    <div class="tap-flash" id="tapRight">
+        <span class="skip-lbl">10 s</span>
+      </button>
+      <button class="ctrl-playpause" id="playPauseBtn">
+        <svg id="iconPlay"  viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="ctrl-skip" id="forwardBtn">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 3A9.5 9.5 0 1 1 2 12.5h2A7.5 7.5 0 1 0 11.5 5V7l4-4-4-4v2.5z"/></svg>
+        <span class="skip-lbl">10 s</span>
+      </button>
     </div>
 
-    <!-- Controls overlay -->
-    <div id="controls">
-
-        <!-- TOP -->
-        <div class="ctrl-gradient-top">
-            <div class="ctrl-top">
-                <button class="ctrl-back-btn" id="backBtn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <span class="ctrl-movie-title" id="movieTitleDisplay">Cargando…</span>
-            </div>
+    <!-- BOTTOM -->
+    <div class="ctrl-bot-grad">
+      <div class="seekbar-wrap" id="seekbarWrap">
+        <div class="seekbar-track">
+          <div class="seekbar-buf"  id="seekBuf"></div>
+          <div class="seekbar-fill" id="seekFill"></div>
         </div>
-
-        <!-- CENTRE -->
-        <div class="ctrl-centre" id="centreControls">
-            <button class="ctrl-big-btn" id="rewindBtn" title="−10 s">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.5 3a9.5 9.5 0 1 0 9.5 9.5h-2A7.5 7.5 0 1 1 12.5 5V7l-4-4 4-4v2.5z"/>
-                </svg>
-                <span class="skip-label">10 s</span>
-            </button>
-
-            <button class="ctrl-big-btn" id="playPauseBtn">
-                <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-            </button>
-
-            <button class="ctrl-big-btn" id="forwardBtn" title="+10 s">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M11.5 3A9.5 9.5 0 1 1 2 12.5h2A7.5 7.5 0 1 0 11.5 5V7l4-4-4-4v2.5z"/>
-                </svg>
-                <span class="skip-label">10 s</span>
-            </button>
-        </div>
-
-        <!-- BOTTOM -->
-        <div class="ctrl-gradient-bottom" id="bottomBar">
-            <!-- Seek bar -->
-            <div class="seekbar-wrap" id="seekbarWrap">
-                <div class="seekbar-track">
-                    <div class="seekbar-buffered" id="seekBuffered"></div>
-                    <div class="seekbar-fill"     id="seekFill"></div>
-                </div>
-                <div class="seekbar-thumb" id="seekThumb"></div>
-            </div>
-
-            <!-- Bottom buttons + time -->
-            <div class="ctrl-bottom-row">
-                <!-- Mute -->
-                <button class="ctrl-icon-btn" id="muteBtn" title="Silencio">
-                    <svg id="volIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-                    </svg>
-                    <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                        <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-                    </svg>
-                </button>
-
-                <!-- Time display -->
-                <span class="ctrl-time"><span id="timeNow">0:00</span> / <span id="timeDur">0:00</span></span>
-
-                <div class="ctrl-spacer"></div>
-
-                <!-- Fullscreen -->
-                <button class="ctrl-icon-btn" id="fullscreenBtn" title="Pantalla completa">
-                    <svg id="fsExpandIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
-                    </svg>
-                    <svg id="fsCollapseIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
-                        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-    </div><!-- /controls -->
-
-    <!-- Error -->
-    <div id="errorView">
-        <div class="err-icon">⚠️</div>
-        <p class="err-msg" id="errorMsg">No se pudo cargar la película.</p>
-        <button class="err-btn" onclick="history.back()">← Volver</button>
+        <div class="seekbar-thumb" id="seekThumb"></div>
+      </div>
+      <div class="ctrl-bottom-row">
+        <!-- Mute -->
+        <button class="ctrl-icon" id="muteBtn">
+          <svg id="volOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          </svg>
+          <svg id="volOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+          </svg>
+        </button>
+        <!-- Time -->
+        <span class="ctrl-time"><span id="timeNow">0:00</span> / <span id="timeTot">0:00</span></span>
+        <div class="ctrl-spacer"></div>
+        <!-- Fullscreen -->
+        <button class="ctrl-icon" id="fsBtn">
+          <svg id="fsExpand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          <svg id="fsCollapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+        </button>
+      </div>
     </div>
+
+  </div><!-- /controls -->
+
+  <!-- Error -->
+  <div id="errorView">
+    <div class="err-ico">⚠️</div>
+    <p class="err-msg" id="errMsg">No se pudo cargar la película.</p>
+    <button class="err-back" onclick="history.back()">← Volver</button>
+  </div>
 
 </div><!-- /playerWrap -->
 
-<!-- ── SCRIPT ── -->
 <script type="module">
 import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const fbConfig = {
-    apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
-    authDomain:"peliculas-88668.firebaseapp.com",
-    projectId:"peliculas-88668",
-    storageBucket:"peliculas-88668.firebasestorage.app",
-    messagingSenderId:"475189564333",
-    appId:"1:475189564333:web:7fe74613ca5082d3890724"
-};
+const fbConfig = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
 const app = initializeApp(fbConfig);
 const db  = getFirestore(app);
 
-/* ── Selectors ── */
-const $  = id => document.getElementById(id);
-const vid          = $('movieVideo');
-const iframeEl     = $('movieIframe');
-const controls     = $('controls');
-const bufSpin      = $('bufferSpinner');
-const seekbarWrap  = $('seekbarWrap');
-const seekFill     = $('seekFill');
-const seekBuffered = $('seekBuffered');
-const seekThumb    = $('seekThumb');
+/* ── DOM refs ── */
+const $ = id => document.getElementById(id);
+const vid         = $('movieVideo');
+const iframeEl    = $('movieIframe');
+const controls    = $('controls');
+const bufSpin     = $('bufferSpinner');
+const seekWrap    = $('seekbarWrap');
+const seekFill    = $('seekFill');
+const seekBuf     = $('seekBuf');
+const seekThumb   = $('seekThumb');
+
+const movieId = new URLSearchParams(location.search).get('id');
 
 /* ── State ── */
-const movieId     = new URLSearchParams(location.search).get('id');
-let controlsTimer = null;
-let isDragging    = false;
-let tapTimer      = null;     // double-tap detection
-let lastTap       = { side: null, time: 0 };
-let useNativeVid  = false;
+let ctrlTimer   = null;
+let isDragging  = false;
+let lastTap     = {side:null, time:0};
+let useNative   = false;
 
 /* ── Helpers ── */
-function toDirectMp4(url) {
-    if (!url) return '';
-    if (url.includes('archive.org/details/')) {
-        const id = url.split('/details/')[1].split('/')[0].split('?')[0];
-        return `https://archive.org/download/${id}/${id}.mp4`;
-    }
-    return url;
+function toMp4(url){
+  if(!url)return'';
+  if(url.includes('archive.org/details/')){
+    const id=url.split('/details/')[1].split('/')[0].split('?')[0];
+    return`https://archive.org/download/${id}/${id}.mp4`;
+  }
+  return url;
 }
-function isDrive(u)   { return u && u.includes('drive.google.com'); }
-function isVimeo(u)   { return u && u.includes('vimeo.com'); }
-function isYouTube(u) { return u && (u.includes('youtube.com') || u.includes('youtu.be')); }
+function isDrive(u){return u&&u.includes('drive.google.com')}
+function isVimeo(u){return u&&u.includes('vimeo.com')}
+function isYouTube(u){return u&&(u.includes('youtube.com')||u.includes('youtu.be'))}
 
-function formatTime(s) {
-    if (!isFinite(s)) return '0:00';
-    const h = Math.floor(s / 3600),
-          m = Math.floor((s % 3600) / 60),
-          sec = Math.floor(s % 60);
-    return h > 0
-        ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
-        : `${m}:${String(sec).padStart(2,'0')}`;
+function fmtTime(s){
+  if(!isFinite(s)||isNaN(s))return'0:00';
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.floor(s%60);
+  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`:`${m}:${String(sc).padStart(2,'0')}`;
 }
 
-/* ── Load & play ── */
-async function init() {
-    if (!movieId) { showError('No se especificó película.'); return; }
-    try {
-        const snap = await getDoc(doc(db, 'movies', movieId));
-        if (!snap.exists()) { showError('Película no encontrada.'); return; }
-        const m = { id: snap.id, ...snap.data() };
+/* ── Init ── */
+async function init(){
+  if(!movieId){showError('No se especificó película.');return;}
+  try{
+    const snap=await getDoc(doc(db,'movies',movieId));
+    if(!snap.exists()){showError('Película no encontrada.');return;}
+    const m={id:snap.id,...snap.data()};
+    startPlayback(m);
+  }catch(e){
+    console.error(e);
+    showError('Error al cargar. Verifica tu conexión.');
+  }
+}
 
-        $('movieTitleDisplay').textContent = m.title || 'LLUTID+';
-        document.title = `${m.title || 'Película'} | LLUTID+`;
+function startPlayback(m){
+  document.title=`${m.title||'Película'} | LLUTID+`;
+  $('loadTitle').textContent=m.title||'Cargando…';
+  $('ctrlTitle').textContent=m.title||'LLUTID+';
+  $('ifrTitle').textContent=m.title||'LLUTID+';
 
-        const url = m.movieUrl || m.movie_url || m.url || '';
-        if (!url) { showError('URL de película no disponible.'); return; }
+  const url=m.movieUrl||m.movie_url||m.url||'';
+  if(!url){showError('URL de película no configurada.');return;}
 
-        if (isDrive(url) || isVimeo(url) || isYouTube(url)) {
-            /* ── IFRAME MODE (Drive / Vimeo / YouTube) ── */
-            useNativeVid = false;
-            iframeEl.src = url;
-            iframeEl.style.display = 'block';
-            vid.style.display = 'none';
-            $('centreControls').style.display = 'none'; // no custom controls for iframes
-            $('bottomBar').style.display      = 'none';
-            hideLoadScreen();
+  if(isDrive(url)||isVimeo(url)||isYouTube(url)){
+    // ── IFRAME MODE ──
+    useNative=false;
+    iframeEl.src=url;
+    iframeEl.style.display='block';
+    vid.style.display='none';
+    controls.style.display='none';     // hide native controls
+    $('iframeHeader').classList.add('show'); // show minimal header
+    hideLoadScreen();
+    showPlayer();
+  }else{
+    // ── NATIVE VIDEO MODE ──
+    useNative=true;
+    vid.src=toMp4(url);
+    vid.style.display='block';
+    iframeEl.style.display='none';
+    setupVideoEvents();
+    vid.play().catch(()=>{});
+    showPlayer();
+  }
 
-        } else {
-            /* ── NATIVE VIDEO MODE ── */
-            useNativeVid = true;
-            vid.src = toDirectMp4(url);
-            vid.style.display = 'block';
-            iframeEl.style.display = 'none';
-            setupVideoEvents();
-            vid.play().catch(() => {});
-        }
-
-        showPlayerWrap();
-        autoFullscreen();
-
-    } catch(e) {
-        console.error(e);
-        showError('Error al cargar. Verifica tu conexión.');
-    }
+  // Go fullscreen + landscape
+  autoFullscreen();
 }
 
 /* ── Video events ── */
-function setupVideoEvents() {
-    vid.addEventListener('waiting',        () => bufSpin.style.display = 'block');
-    vid.addEventListener('playing',        () => bufSpin.style.display = 'none');
-    vid.addEventListener('canplay',        () => { bufSpin.style.display = 'none'; hideLoadScreen(); });
-    vid.addEventListener('loadedmetadata', () => $('timeDur').textContent = formatTime(vid.duration));
-    vid.addEventListener('timeupdate',     updateSeekbar);
-    vid.addEventListener('progress',       updateBuffer);
-    vid.addEventListener('ended',          () => { $('playIcon').style.display=''; $('pauseIcon').style.display='none'; });
-    vid.addEventListener('play',  () => { $('playIcon').style.display='none'; $('pauseIcon').style.display=''; });
-    vid.addEventListener('pause', () => { $('playIcon').style.display=''; $('pauseIcon').style.display='none'; });
-    vid.addEventListener('error', () => showError('No se pudo reproducir el video.\nEl archivo puede estar no disponible.'));
+function setupVideoEvents(){
+  vid.addEventListener('waiting',       ()=>bufSpin.style.display='block');
+  vid.addEventListener('playing',       ()=>bufSpin.style.display='none');
+  vid.addEventListener('canplay',       ()=>{bufSpin.style.display='none';hideLoadScreen();});
+  vid.addEventListener('loadedmetadata',()=>$('timeTot').textContent=fmtTime(vid.duration));
+  vid.addEventListener('timeupdate',    updateSeekbar);
+  vid.addEventListener('progress',      updateBuffer);
+  vid.addEventListener('ended',         ()=>{$('iconPlay').style.display='';$('iconPause').style.display='none';});
+  vid.addEventListener('play',          ()=>{$('iconPlay').style.display='none';$('iconPause').style.display='';});
+  vid.addEventListener('pause',         ()=>{$('iconPlay').style.display='';$('iconPause').style.display='none';});
+  vid.addEventListener('error',         ()=>showError('No se pudo reproducir el video.\nEl archivo puede no estar disponible.'));
 }
 
-function updateSeekbar() {
-    if (!vid.duration || isDragging) return;
-    const pct = (vid.currentTime / vid.duration) * 100;
-    seekFill.style.width  = pct + '%';
-    seekThumb.style.left  = pct + '%';
-    $('timeNow').textContent = formatTime(vid.currentTime);
+function updateSeekbar(){
+  if(!vid.duration||isDragging)return;
+  const pct=(vid.currentTime/vid.duration)*100;
+  seekFill.style.width=pct+'%';
+  seekThumb.style.left=pct+'%';
+  $('timeNow').textContent=fmtTime(vid.currentTime);
 }
-function updateBuffer() {
-    if (!vid.duration || !vid.buffered.length) return;
-    const pct = (vid.buffered.end(vid.buffered.length - 1) / vid.duration) * 100;
-    seekBuffered.style.width = pct + '%';
-}
-
-/* ── Seek bar drag ── */
-function getSeekPct(clientX) {
-    const r = seekbarWrap.getBoundingClientRect();
-    return Math.max(0, Math.min(1, (clientX - r.left) / r.width));
-}
-function applyScrub(pct) {
-    if (vid.duration) vid.currentTime = pct * vid.duration;
-    seekFill.style.width = (pct * 100) + '%';
-    seekThumb.style.left = (pct * 100) + '%';
-    $('timeNow').textContent = formatTime(vid.currentTime);
+function updateBuffer(){
+  if(!vid.duration||!vid.buffered.length)return;
+  seekBuf.style.width=((vid.buffered.end(vid.buffered.length-1)/vid.duration)*100)+'%';
 }
 
-seekbarWrap.addEventListener('mousedown', e => {
-    if (!useNativeVid) return;
-    isDragging = true;
-    seekbarWrap.classList.add('dragging');
-    applyScrub(getSeekPct(e.clientX));
-});
-seekbarWrap.addEventListener('touchstart', e => {
-    if (!useNativeVid) return;
-    isDragging = true;
-    seekbarWrap.classList.add('dragging');
-    applyScrub(getSeekPct(e.touches[0].clientX));
-}, { passive: true });
-document.addEventListener('mousemove', e => {
-    if (isDragging) applyScrub(getSeekPct(e.clientX));
-});
-document.addEventListener('touchmove', e => {
-    if (isDragging) applyScrub(getSeekPct(e.touches[0].clientX));
-}, { passive: true });
-['mouseup','touchend'].forEach(ev => document.addEventListener(ev, () => {
-    if (isDragging) { isDragging = false; seekbarWrap.classList.remove('dragging'); }
-}));
+/* ── Seek drag ── */
+function pctFromX(clientX){
+  const r=seekWrap.getBoundingClientRect();
+  return Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+}
+function applyScrub(pct){
+  if(vid.duration)vid.currentTime=pct*vid.duration;
+  seekFill.style.width=(pct*100)+'%';
+  seekThumb.style.left=(pct*100)+'%';
+  $('timeNow').textContent=fmtTime(vid.currentTime);
+}
+
+seekWrap.addEventListener('mousedown', e=>{if(!useNative)return;isDragging=true;seekWrap.classList.add('drag');applyScrub(pctFromX(e.clientX));});
+seekWrap.addEventListener('touchstart',e=>{if(!useNative)return;isDragging=true;seekWrap.classList.add('drag');applyScrub(pctFromX(e.touches[0].clientX));},{passive:true});
+document.addEventListener('mousemove', e=>{if(isDragging)applyScrub(pctFromX(e.clientX));});
+document.addEventListener('touchmove', e=>{if(isDragging)applyScrub(pctFromX(e.touches[0].clientX));},{passive:true});
+['mouseup','touchend'].forEach(ev=>document.addEventListener(ev,()=>{if(isDragging){isDragging=false;seekWrap.classList.remove('drag');}}));
 
 /* ── Controls visibility ── */
-function showControls(autohide = true) {
-    controls.classList.add('visible');
-    clearTimeout(controlsTimer);
-    if (autohide) controlsTimer = setTimeout(() => controls.classList.remove('visible'), 3500);
+function showControls(autohide=true){
+  controls.classList.add('visible');
+  clearTimeout(ctrlTimer);
+  if(autohide)ctrlTimer=setTimeout(()=>controls.classList.remove('visible'),4000);
 }
-function toggleControls() {
-    if (controls.classList.contains('visible')) controls.classList.remove('visible');
-    else showControls();
+function toggleControls(){
+  if(controls.classList.contains('visible'))controls.classList.remove('visible');
+  else showControls();
 }
 
-/* ── Double-tap seek ── */
-function handleTap(side, e) {
-    e.stopPropagation();
-    const now  = Date.now();
-    const same = lastTap.side === side && (now - lastTap.time) < 300;
-    lastTap = { side, time: now };
-    if (same && useNativeVid) {
-        /* Double-tap! */
-        const flash = $(side === 'left' ? 'tapLeft' : 'tapRight');
-        flash.classList.remove('show');
-        void flash.offsetWidth; // reflow
-        flash.classList.add('show');
-        const skip = 10;
-        if (side === 'left')  vid.currentTime = Math.max(0, vid.currentTime - skip);
-        else                  vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + skip);
-    } else {
-        toggleControls();
-    }
+/* ── Double-tap ── */
+function handleTap(side,e){
+  e.stopPropagation();
+  const now=Date.now();
+  const isDouble=(lastTap.side===side)&&(now-lastTap.time<320);
+  lastTap={side,time:now};
+  if(isDouble&&useNative){
+    const el=$(side==='left'?'tapLeft':'tapRight');
+    el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
+    if(side==='left')vid.currentTime=Math.max(0,vid.currentTime-10);
+    else             vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);
+  }else{
+    toggleControls();
+  }
 }
+
+/* ── Player wrap tap ── */
+$('playerWrap').addEventListener('click',e=>{
+  if(e.target.closest('.ctrl-icon,.ctrl-skip,.ctrl-playpause,.ctrl-back,.seekbar-wrap,.ifr-back,.iframeHeader'))return;
+  const r=$('playerWrap').getBoundingClientRect();
+  const side=(e.clientX-r.left)<r.width/2?'left':'right';
+  handleTap(side,e);
+});
 
 /* ── Play/Pause ── */
-$('playPauseBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    if (!useNativeVid) return;
-    if (vid.paused) vid.play();
-    else vid.pause();
-    showControls();
+$('playPauseBtn').addEventListener('click',e=>{
+  e.stopPropagation();
+  if(!useNative)return;
+  vid.paused?vid.play():vid.pause();
+  showControls();
 });
 
 /* ── Skip ── */
-$('rewindBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    if (!useNativeVid) return;
-    vid.currentTime = Math.max(0, vid.currentTime - 10);
-    showControls();
-});
-$('forwardBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    if (!useNativeVid) return;
-    vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 10);
-    showControls();
-});
+$('rewindBtn').addEventListener('click',e=>{e.stopPropagation();if(useNative){vid.currentTime=Math.max(0,vid.currentTime-10);showControls();}});
+$('forwardBtn').addEventListener('click',e=>{e.stopPropagation();if(useNative){vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);showControls();}});
 
 /* ── Mute ── */
-$('muteBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    vid.muted = !vid.muted;
-    $('volIcon').style.display  = vid.muted ? 'none' : '';
-    $('muteIcon').style.display = vid.muted ? ''     : 'none';
-    showControls();
+$('muteBtn').addEventListener('click',e=>{
+  e.stopPropagation();
+  vid.muted=!vid.muted;
+  $('volOn').style.display=vid.muted?'none':'';
+  $('volOff').style.display=vid.muted?'':'none';
+  showControls();
 });
 
 /* ── Fullscreen ── */
-$('fullscreenBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    const wrap = $('playerWrap');
-    if (!document.fullscreenElement) {
-        (wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.mozRequestFullScreen || (() => {})).call(wrap);
-        lockLandscape();
-    } else {
-        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || (() => {})).call(document);
-    }
-    showControls();
+$('fsBtn').addEventListener('click',e=>{
+  e.stopPropagation();
+  const wrap=$('playerWrap');
+  if(!document.fullscreenElement)(wrap.requestFullscreen||wrap.webkitRequestFullscreen||wrap.mozRequestFullScreen||wrap.msRequestFullscreen||function(){}).call(wrap);
+  else(document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||function(){}).call(document);
+  showControls();
 });
-document.addEventListener('fullscreenchange', () => {
-    const isFs = !!document.fullscreenElement;
-    $('fsExpandIcon').style.display   = isFs ? 'none' : '';
-    $('fsCollapseIcon').style.display = isFs ? ''     : 'none';
+document.addEventListener('fullscreenchange',()=>{
+  const fs=!!document.fullscreenElement;
+  $('fsExpand').style.display=fs?'none':'';
+  $('fsCollapse').style.display=fs?'':'none';
 });
 
-/* ── Back ── */
-$('backBtn').addEventListener('click', e => {
-    e.stopPropagation();
-    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    history.back();
-});
-
-/* ── Player wrap click (show/hide controls + double-tap) ── */
-$('playerWrap').addEventListener('click', e => {
-    // Ignore if clicking a button inside controls
-    if (e.target.closest('.ctrl-icon-btn, .ctrl-big-btn, .ctrl-back-btn, .seekbar-wrap')) return;
-    const rect  = $('playerWrap').getBoundingClientRect();
-    const side  = (e.clientX - rect.left) < rect.width / 2 ? 'left' : 'right';
-    handleTap(side, e);
-});
+/* ── Back buttons ── */
+function goBack(){
+  if(document.fullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document).catch(()=>{});
+  history.back();
+}
+$('ctrlBack').addEventListener('click',e=>{e.stopPropagation();goBack();});
+$('ifrBackBtn').addEventListener('click',e=>{e.stopPropagation();goBack();});
 
 /* ── Keyboard shortcuts ── */
-document.addEventListener('keydown', e => {
-    if (!useNativeVid) return;
-    showControls();
-    if (e.code === 'Space')       { e.preventDefault(); vid.paused ? vid.play() : vid.pause(); }
-    if (e.code === 'ArrowRight')  vid.currentTime = Math.min(vid.duration || 0, vid.currentTime + 10);
-    if (e.code === 'ArrowLeft')   vid.currentTime = Math.max(0, vid.currentTime - 10);
-    if (e.code === 'KeyM')        { vid.muted = !vid.muted; }
-    if (e.code === 'KeyF')        $('fullscreenBtn').click();
-    if (e.code === 'Escape')      { if (document.fullscreenElement) document.exitFullscreen(); }
+document.addEventListener('keydown',e=>{
+  if(!useNative)return;
+  showControls();
+  if(e.code==='Space'){e.preventDefault();vid.paused?vid.play():vid.pause();}
+  if(e.code==='ArrowRight')vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);
+  if(e.code==='ArrowLeft')vid.currentTime=Math.max(0,vid.currentTime-10);
+  if(e.code==='KeyM'){vid.muted=!vid.muted;$('volOn').style.display=vid.muted?'none':'';$('volOff').style.display=vid.muted?'':'none';}
+  if(e.code==='KeyF')$('fsBtn').click();
+  if(e.code==='Escape'&&document.fullscreenElement)document.exitFullscreen();
 });
 
-/* ── Auto fullscreen ── */
-function autoFullscreen() {
-    const wrap = $('playerWrap');
-    (wrap.requestFullscreen || wrap.webkitRequestFullscreen || wrap.mozRequestFullScreen || (() => {})).call(wrap).catch(() => {});
-    lockLandscape();
+/* ── Auto fullscreen & orientation ── */
+function autoFullscreen(){
+  const wrap=$('playerWrap');
+  try{(wrap.requestFullscreen||wrap.webkitRequestFullscreen||wrap.mozRequestFullScreen||function(){}).call(wrap).catch(()=>{});}catch(e){}
+  lockLandscape();
 }
-function lockLandscape() {
-    try { screen.orientation?.lock('landscape').catch(() => {}); } catch(e) {}
+function lockLandscape(){
+  try{screen.orientation?.lock('landscape').catch(()=>{});}catch(e){}
 }
+try{
+  screen.orientation?.addEventListener('change',()=>{
+    if(document.fullscreenElement&&screen.orientation.type.startsWith('portrait')){
+      (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document).catch(()=>{});
+    }
+  });
+}catch(e){}
 
 /* ── UI helpers ── */
-function hideLoadScreen() {
-    const ls = $('loadScreen');
-    ls.classList.add('hiding');
-    setTimeout(() => ls.style.display = 'none', 550);
+function showPlayer(){
+  $('playerWrap').style.display='block';
+  if(useNative)showControls();
 }
-function showPlayerWrap() {
-    $('playerWrap').style.display = 'block';
-    showControls();
-    hideLoadScreen();
+function hideLoadScreen(){
+  const ls=$('loadScreen');
+  ls.classList.add('hiding');
+  setTimeout(()=>ls.style.display='none',560);
 }
-function showError(msg) {
-    hideLoadScreen();
-    $('playerWrap').style.display = 'block';
-    $('errorMsg').textContent = msg;
-    $('errorView').classList.add('show');
-    $('controls').style.display = 'none';
+function showError(msg){
+  hideLoadScreen();
+  $('playerWrap').style.display='block';
+  $('errMsg').textContent=msg;
+  $('errorView').classList.add('show');
+  $('controls').style.display='none';
+  $('bufferSpinner').style.display='none';
 }
 
 init();
 </script>
-
 </body>
 </html>
