@@ -1,583 +1,782 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
-<title>LLUTID+ | Reproductor</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LLUTID+ Player</title>
 <style>
-:root{
-  --bg:#000;--blue:#3B6EE8;--blue-light:#5E8FFF;
-  --font-display:'Bebas Neue',cursive;--font-body:'DM Sans',sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;background:#000;overflow:hidden}
-body{font-family:'DM Sans',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+  @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@700;900&family=Barlow+Condensed:wght@700&display=swap');
 
-/* ── LOADING ── */
-#loadScreen{
-  position:fixed;inset:0;background:#000;z-index:9999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
-  transition:opacity .5s ease;
-}
-#loadScreen.hiding{opacity:0;pointer-events:none}
-.load-logo{font-family:'Bebas Neue',cursive;font-size:2.4rem;letter-spacing:4px;color:#fff}
-.load-logo span{color:#5E8FFF}
-.load-bar{width:140px;height:3px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
-.load-bar-fill{height:100%;background:linear-gradient(90deg,#3B6EE8,#5E8FFF);border-radius:2px;animation:loadAnim 1.4s ease-in-out infinite}
-@keyframes loadAnim{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
-.load-title{font-size:14px;color:rgba(255,255,255,.5);font-weight:500;max-width:260px;text-align:center;line-height:1.4}
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  * {
+    -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
+  }
 
-/* ── PLAYER WRAP ── */
-#playerWrap{position:fixed;inset:0;background:#000;display:none}
+  html, body {
+    width:100%; height:100%; background:#000;
+    overflow:hidden; font-family:'Barlow',sans-serif;
+  }
 
-/* ── NATIVE VIDEO ── */
-#movieVideo{
-  position:absolute;inset:0;width:100%;height:100%;
-  object-fit:contain;display:block;background:#000;
-}
+  #player-wrap {
+    position:fixed; top:0; left:0;
+    width:100vw; height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    background:#000;
+  }
 
-/* ── IFRAME (Drive / Vimeo / YouTube) ── */
-#movieIframe{
-  position:absolute;inset:0;width:100%;height:100%;
-  border:none;display:none;
-}
+  video {
+    width:100%; height:100%; object-fit:contain;
+    display:block; pointer-events:none;
+  }
 
-/* ── BUFFER SPINNER ── */
-#bufferSpinner{
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:52px;height:52px;
-  border:3.5px solid rgba(255,255,255,.1);
-  border-top-color:#3B6EE8;
-  border-radius:50%;
-  animation:spin .7s linear infinite;
-  display:none;z-index:20;pointer-events:none;
-}
-@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  /* ── OVERLAY gradiente ── */
+  #overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(to bottom,
+      rgba(0,0,0,0.65) 0%, transparent 22%,
+      transparent 60%, rgba(0,0,0,0.85) 100%);
+    opacity:0; transition:opacity 0.3s;
+    pointer-events:none; z-index:10;
+  }
+  #player-wrap.show-ui #overlay { opacity:1; }
 
-/* ── CONTROLS OVERLAY ── */
-#controls{
-  position:absolute;inset:0;z-index:30;
-  display:flex;flex-direction:column;justify-content:space-between;
-  opacity:0;transition:opacity .3s ease;pointer-events:none;
-}
-#controls.visible{opacity:1;pointer-events:all}
+  /* ── TOP BAR ── */
+  #top-bar {
+    position:absolute; top:0; left:0; right:0;
+    padding:14px 20px;
+    display:flex; align-items:center;
+    z-index:20; opacity:0; transform:translateY(-12px);
+    transition:opacity 0.3s, transform 0.3s; pointer-events:none;
+  }
+  #player-wrap.show-ui #top-bar {
+    opacity:1; transform:translateY(0); pointer-events:auto;
+  }
 
-/* gradient tops/bottoms */
-.ctrl-top-grad{
-  background:linear-gradient(to bottom,rgba(0,0,0,.85) 0%,transparent 100%);
-  padding:16px 16px 34px;
-  display:flex;align-items:center;gap:13px;
-}
-.ctrl-bot-grad{
-  background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 100%);
-  padding:22px 16px 24px;
-}
+  #logo {
+    display:flex; align-items:center;
+    filter:drop-shadow(0 0 10px #0055ffaa);
+    cursor:pointer; border-radius:6px;
+    padding:4px 8px;
+    transition:background 0.2s;
+  }
+  #logo:hover { background:rgba(0,100,255,0.18); }
+  #logo .txt {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:clamp(18px,3.5vw,30px); letter-spacing:-0.5px;
+    background:linear-gradient(90deg,#1a80ff,#0055dd,#3399ff,#0077ff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1;
+  }
+  #logo .plus {
+    font-family:'Barlow',sans-serif; font-weight:900;
+    font-size:clamp(14px,2.5vw,22px); color:#ccd6ee;
+    -webkit-text-fill-color:#ccd6ee; margin-left:2px; line-height:1;
+  }
 
-/* back button + title */
-.ctrl-back{
-  width:42px;height:42px;border-radius:50%;flex-shrink:0;
-  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .2s,transform .15s;
-}
-.ctrl-back:active{transform:scale(.9)}
-.ctrl-back svg{width:20px;height:20px}
-.ctrl-title{
-  font-size:15px;font-weight:700;color:#fff;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;
-}
+  /* Movie title in top bar */
+  #top-title {
+    color:rgba(255,255,255,0.85); font-size:clamp(13px,2vw,16px);
+    font-weight:700; margin-left:14px; letter-spacing:0.2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:60vw; text-shadow:0 1px 6px rgba(0,0,0,0.7);
+  }
 
-/* centre play area */
-.ctrl-centre{
-  display:flex;align-items:center;justify-content:center;gap:38px;
-  flex:1;
-  /* hide centre for iframe mode */
-}
-.ctrl-centre.hidden{display:none}
+  /* ── CENTER PLAY ── */
+  #center-play {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:70px; height:70px; border-radius:50%;
+    background:rgba(0,80,255,0.16); border:2.5px solid rgba(0,140,255,0.65);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:20; opacity:0;
+    transition:opacity 0.3s, transform 0.18s, background 0.2s;
+    backdrop-filter:blur(4px);
+    box-shadow:0 0 28px #0066ff44, inset 0 0 18px #0066ff18;
+  }
+  #player-wrap.show-ui #center-play { opacity:1; }
+  #center-play:hover { background:rgba(0,100,255,0.3); transform:translate(-50%,-50%) scale(1.12); }
+  #center-play svg { width:28px; height:28px; fill:#fff; margin-left:4px; pointer-events:none; }
 
-.ctrl-skip{
-  width:54px;height:54px;border-radius:50%;position:relative;
-  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.18);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .2s,transform .15s;
-}
-.ctrl-skip:active{transform:scale(.9)}
-.ctrl-skip svg{width:22px;height:22px}
-.ctrl-skip .skip-lbl{
-  position:absolute;bottom:-19px;
-  font-size:10.5px;font-weight:700;color:rgba(255,255,255,.65);white-space:nowrap;
-}
+  /* ── SKIP ZONES ── */
+  .skip-zone { position:absolute; top:0; bottom:0; width:35%; z-index:15; cursor:pointer; }
+  #skip-left  { left:0; }
+  #skip-right { right:0; }
 
-.ctrl-playpause{
-  width:70px;height:70px;border-radius:50%;
-  background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.4);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:background .2s,transform .15s;
-}
-.ctrl-playpause:active{transform:scale(.93)}
-.ctrl-playpause svg{width:32px;height:32px}
+  /* ── BOTTOM CONTROLS ── */
+  #controls {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:10px 18px 14px; z-index:20;
+    opacity:0; transform:translateY(12px);
+    transition:opacity 0.3s, transform 0.3s; pointer-events:none;
+  }
+  #player-wrap.show-ui #controls {
+    opacity:1; transform:translateY(0); pointer-events:auto;
+  }
 
-/* seek bar */
-.seekbar-wrap{
-  position:relative;height:26px;display:flex;align-items:center;
-  cursor:pointer;user-select:none;margin-bottom:6px;
-}
-.seekbar-track{
-  width:100%;height:3.5px;background:rgba(255,255,255,.2);
-  border-radius:2px;position:relative;overflow:hidden;
-  transition:height .15s;
-}
-.seekbar-wrap:hover .seekbar-track,.seekbar-wrap.drag .seekbar-track{height:6px}
-.seekbar-buf{position:absolute;top:0;left:0;height:100%;background:rgba(255,255,255,.25);border-radius:2px}
-.seekbar-fill{position:absolute;top:0;left:0;height:100%;background:#5E8FFF;border-radius:2px;transition:width .1s linear}
-.seekbar-thumb{
-  position:absolute;top:50%;left:0;
-  transform:translate(-50%,-50%);
-  width:14px;height:14px;border-radius:50%;
-  background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.7);
-  opacity:0;transition:opacity .15s;pointer-events:none;
-}
-.seekbar-wrap:hover .seekbar-thumb,.seekbar-wrap.drag .seekbar-thumb{opacity:1}
+  /* ── PROGRESS ── */
+  #progress-wrap {
+    position:relative; height:5px; border-radius:999px;
+    background:rgba(255,255,255,0.13); cursor:pointer;
+    margin-bottom:10px; transition:height 0.18s; touch-action:none;
+  }
+  #progress-wrap:hover, #progress-wrap.drag { height:7px; }
+  #progress-buf {
+    position:absolute; left:0; top:0; bottom:0;
+    background:rgba(255,255,255,0.18); border-radius:999px; pointer-events:none;
+  }
+  #progress-fill {
+    position:absolute; left:0; top:0; bottom:0; border-radius:999px; pointer-events:none;
+    background:linear-gradient(90deg,
+      #0033ff 0%,#0066ff 20%,#0099ff 40%,
+      #00bbff 55%,#0099ff 70%,#0066ff 85%,#0044cc 100%);
+    background-size:200% 100%;
+    animation:blueShift 3s linear infinite;
+    box-shadow:0 0 10px #0088ffaa, 0 0 4px #00ccff99;
+  }
+  @keyframes blueShift { 0%{background-position:0% 0%;} 100%{background-position:200% 0%;} }
+  #progress-thumb {
+    position:absolute; top:50%; right:-6px;
+    width:13px; height:13px; border-radius:50%; background:#fff;
+    transform:translateY(-50%) scale(0); box-shadow:0 0 8px #0099ff;
+    transition:transform 0.15s; pointer-events:none;
+  }
+  #progress-wrap:hover #progress-thumb,
+  #progress-wrap.drag  #progress-thumb { transform:translateY(-50%) scale(1); }
 
-/* bottom row */
-.ctrl-bottom-row{display:flex;align-items:center;gap:2px}
-.ctrl-icon{
-  width:46px;height:46px;border-radius:50%;border:none;
-  background:none;color:#fff;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .2s,transform .15s;flex-shrink:0;
-}
-.ctrl-icon:hover{background:rgba(255,255,255,.1)}
-.ctrl-icon:active{transform:scale(.9)}
-.ctrl-icon svg{width:22px;height:22px}
-.ctrl-spacer{flex:1}
-.ctrl-time{
-  font-size:12.5px;font-weight:600;color:rgba(255,255,255,.75);
-  white-space:nowrap;padding:0 6px;
-}
+  #time-tooltip {
+    position:absolute; bottom:14px;
+    background:rgba(0,0,0,0.8); color:#fff; font-size:11px; font-weight:700;
+    padding:3px 8px; border-radius:5px; pointer-events:none; opacity:0;
+    white-space:nowrap; transform:translateX(-50%);
+    border:1px solid rgba(0,120,255,0.35); transition:opacity 0.15s;
+  }
 
-/* double-tap flash rings */
-.tap-flash{
-  position:absolute;top:50%;width:84px;height:84px;border-radius:50%;
-  background:rgba(255,255,255,.16);pointer-events:none;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;z-index:40;
-}
-.tap-flash svg{width:34px;height:34px;color:#fff}
-.tap-flash.pop{animation:tapPop .55s ease forwards}
-@keyframes tapPop{
-  0%{opacity:0;transform:translateY(-50%) scale(.55)}
-  30%{opacity:1;transform:translateY(-50%) scale(1.08)}
-  70%{opacity:1;transform:translateY(-50%) scale(1)}
-  100%{opacity:0;transform:translateY(-50%) scale(.8)}
-}
-#tapLeft{left:10%;transform:translateY(-50%)}
-#tapRight{right:10%;transform:translateY(-50%)}
+  /* ── BUTTONS ROW ── */
+  #btn-row { display:flex; align-items:center; gap:3px; }
+  .ctrl-btn {
+    background:none; border:none; color:#fff;
+    width:38px; height:38px; border-radius:8px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.18s, transform 0.15s; flex-shrink:0;
+    touch-action:manipulation;
+  }
+  .ctrl-btn:hover  { background:rgba(0,120,255,0.22); transform:scale(1.1); }
+  .ctrl-btn:active { transform:scale(0.9); }
+  .ctrl-btn svg { width:20px; height:20px; fill:#fff; pointer-events:none; }
 
-/* iframe header bar (shown when playing Drive/Vimeo/YT) */
-#iframeHeader{
-  position:absolute;top:0;left:0;right:0;z-index:50;
-  height:60px;display:none;align-items:center;gap:13px;padding:0 16px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.88),transparent);
-}
-#iframeHeader.show{display:flex}
-.ifr-back{
-  width:40px;height:40px;border-radius:50%;
-  background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:transform .15s;flex-shrink:0;
-}
-.ifr-back:active{transform:scale(.9)}
-.ifr-back svg{width:20px;height:20px}
-.ifr-title{font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+  #time-display {
+    color:rgba(255,255,255,0.82); font-size:12px; font-weight:600;
+    letter-spacing:0.3px; margin-left:4px; flex-shrink:0; min-width:90px;
+  }
+  #spacer { flex:1; }
 
-/* error view */
-#errorView{
-  display:none;position:absolute;inset:0;z-index:60;
-  flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;
-}
-#errorView.show{display:flex}
-.err-ico{font-size:52px;opacity:.35}
-.err-msg{font-size:15px;color:rgba(255,255,255,.65);text-align:center;max-width:280px;line-height:1.5}
-.err-back{background:#3B6EE8;color:#fff;border:none;border-radius:10px;padding:14px 30px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s}
-.err-back:hover{background:#5E8FFF}
+  #vol-wrap { display:flex; align-items:center; gap:6px; }
+  #vol-slider {
+    -webkit-appearance:none; width:62px; height:4px;
+    border-radius:999px; background:rgba(60,130,255,0.28);
+    outline:none; cursor:pointer; flex-shrink:0;
+  }
+  #vol-slider::-webkit-slider-thumb {
+    -webkit-appearance:none; width:12px; height:12px;
+    border-radius:50%; background:#7ab0ff; box-shadow:0 0 5px #0077cc66; cursor:pointer;
+  }
+  #vol-slider::-moz-range-thumb {
+    width:12px; height:12px; border:none; border-radius:50%; background:#7ab0ff;
+  }
+
+  #quality-badge {
+    background:rgba(0,80,255,0.18); border:1px solid rgba(0,140,255,0.4);
+    color:#88bbff; font-size:10px; font-weight:700;
+    letter-spacing:1px; padding:3px 7px; border-radius:4px; flex-shrink:0;
+  }
+
+  /* ── LOADER ── */
+  #loader {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    z-index:30; opacity:0; transition:opacity 0.25s; pointer-events:none;
+  }
+  #loader.on { opacity:1; }
+  .spinner {
+    width:42px; height:42px;
+    border:3px solid rgba(255,255,255,0.07);
+    border-top-color:#0088ff; border-right-color:#0044cc;
+    border-radius:50%; animation:spin 0.7s linear infinite;
+    box-shadow:0 0 18px #0066ff55;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── RIPPLE ── */
+  .ripple {
+    position:absolute; border-radius:50%;
+    background:rgba(0,130,255,0.2);
+    width:80px; height:80px; margin-left:-40px; margin-top:-40px;
+    animation:ripOut 0.55s ease-out forwards;
+    pointer-events:none; z-index:14;
+  }
+  @keyframes ripOut { 0%{transform:scale(0);opacity:1;} 100%{transform:scale(3.5);opacity:0;} }
+
+  /* ── SEEK FLASH ── */
+  .seek-flash {
+    position:absolute; top:0; bottom:0; width:35%;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at center,rgba(0,100,255,0.15) 0%,transparent 70%);
+    pointer-events:none; animation:sfOut 0.45s ease-out forwards; z-index:16;
+  }
+  .seek-flash.left { left:0; } .seek-flash.right { right:0; }
+  @keyframes sfOut { 0%{opacity:1;} 100%{opacity:0;} }
+  .seek-flash-inner {
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    color:#fff; font-size:13px; font-weight:700;
+    text-shadow:0 0 12px #0088ff; letter-spacing:1px;
+  }
+  .seek-flash-inner svg { fill:#fff; width:22px; height:22px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%) scale(0.85);
+    background:rgba(0,0,0,0.72); border:1px solid rgba(0,140,255,0.45);
+    color:#fff; font-size:13px; font-weight:700;
+    padding:9px 20px; border-radius:40px; letter-spacing:0.4px;
+    opacity:0; pointer-events:none; z-index:40;
+    backdrop-filter:blur(8px); box-shadow:0 0 22px #0066ff33;
+    transition:opacity 0.2s, transform 0.2s;
+  }
+  #toast.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+  /* ── ERROR SCREEN ── */
+  #error-screen {
+    position:absolute; inset:0; z-index:50;
+    display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+    background:#000; color:#fff; text-align:center; padding:30px;
+  }
+  #error-screen.on { display:flex; }
+  #error-screen .err-icon { font-size:48px; }
+  #error-screen h2 { font-size:1.4rem; font-weight:700; }
+  #error-screen p  { color:rgba(255,255,255,0.55); font-size:0.95rem; max-width:300px; line-height:1.5; }
+  #error-screen button {
+    margin-top:8px; padding:12px 28px; border-radius:30px;
+    background:rgba(0,80,255,0.25); border:1.5px solid rgba(0,140,255,0.5);
+    color:#fff; font-size:1rem; font-weight:700; cursor:pointer;
+    transition:background 0.2s;
+  }
+  #error-screen button:hover { background:rgba(0,100,255,0.4); }
+
+  /* ── SPLASH ── */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:#000;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:opacity 0.55s ease, transform 0.55s ease;
+  }
+  #splash.hide {
+    opacity:0; transform:scale(1.03);
+    pointer-events:none;
+  }
+
+  /* Loading state in splash */
+  #splash-loading {
+    display:flex; flex-direction:column; align-items:center; gap:20px;
+  }
+  #splash-logo {
+    display:flex; align-items:center;
+    animation:logoIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes logoIn {
+    0%   { opacity:0; transform:translateY(-12px); }
+    100% { opacity:1; transform:translateY(0); }
+  }
+  #splash-logo .stxt {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:clamp(52px,13vw,96px); letter-spacing:-2px;
+    background:linear-gradient(135deg,#1a80ff 0%,#0055dd 40%,#44aaff 80%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  #splash-logo .splus {
+    font-family:'Barlow',sans-serif; font-weight:900;
+    font-size:clamp(36px,9vw,68px); color:#c8d4ee;
+    -webkit-text-fill-color:#c8d4ee; margin-left:4px;
+  }
+
+  #splash-spinner {
+    width:36px; height:36px;
+    border:3px solid rgba(255,255,255,0.08);
+    border-top-color:#0088ff; border-right-color:#0044cc;
+    border-radius:50%; animation:spin 0.7s linear infinite;
+    opacity:0.7;
+  }
+  #splash-status {
+    color:rgba(255,255,255,0.4); font-size:13px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase;
+    animation:logoIn 0.8s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  /* Ready state: show play button */
+  #splash-ready {
+    display:none; flex-direction:column; align-items:center; gap:0;
+  }
+  #splash.ready #splash-loading { display:none; }
+  #splash.ready #splash-ready   { display:flex; }
+
+  #splash-ready-logo { display:flex; align-items:center; margin-bottom:44px; }
+  #splash-ready-logo .stxt {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:clamp(52px,13vw,96px); letter-spacing:-2px;
+    background:linear-gradient(135deg,#1a80ff 0%,#0055dd 40%,#44aaff 80%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  #splash-ready-logo .splus {
+    font-family:'Barlow',sans-serif; font-weight:900;
+    font-size:clamp(36px,9vw,68px); color:#c8d4ee;
+    -webkit-text-fill-color:#c8d4ee; margin-left:4px;
+  }
+
+  #splash-movie-title {
+    color:rgba(255,255,255,0.75); font-size:clamp(14px,3vw,20px);
+    font-weight:700; letter-spacing:0.3px;
+    max-width:80vw; text-align:center;
+    margin-bottom:32px; margin-top:-20px;
+    text-shadow:0 1px 10px rgba(0,80,255,0.3);
+    animation:logoIn 0.6s 0.1s both;
+  }
+
+  #splash-play-btn {
+    width:72px; height:72px; border-radius:50%;
+    background:#fff;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 32px rgba(0,0,0,0.55);
+    transition:transform 0.15s, box-shadow 0.15s;
+    animation:btnIn 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  @keyframes btnIn {
+    0%   { opacity:0; transform:scale(0.8); }
+    100% { opacity:1; transform:scale(1); }
+  }
+  #splash-play-btn:hover { transform:scale(1.09); box-shadow:0 8px 40px rgba(0,0,0,0.7); }
+  #splash-play-btn svg { width:30px; height:30px; fill:#08082a; margin-left:4px; }
+
+  #splash-label {
+    margin-top:18px; color:rgba(255,255,255,0.38);
+    font-size:clamp(10px,1.8vw,13px);
+    font-weight:600; letter-spacing:3px; text-transform:uppercase;
+    animation:btnIn 0.7s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- LOADING -->
-<div id="loadScreen">
-  <div class="load-logo">LLUTID<span>+</span></div>
-  <div class="load-bar"><div class="load-bar-fill"></div></div>
-  <div class="load-title" id="loadTitle">Cargando película…</div>
+<div id="player-wrap">
+
+  <!-- SPLASH -->
+  <div id="splash">
+    <!-- Loading state -->
+    <div id="splash-loading">
+      <div id="splash-logo">
+        <span class="stxt">LLUTID</span>
+        <span class="splus">+</span>
+      </div>
+      <div id="splash-spinner"></div>
+      <div id="splash-status">Cargando…</div>
+    </div>
+    <!-- Ready state (shown after data loaded) -->
+    <div id="splash-ready">
+      <div id="splash-ready-logo">
+        <span class="stxt">LLUTID</span>
+        <span class="splus">+</span>
+      </div>
+      <div id="splash-movie-title"></div>
+      <div id="splash-play-btn">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div id="splash-label">Reproducir</div>
+    </div>
+  </div>
+
+  <!-- VIDEO (src se asigna dinámicamente) -->
+  <video id="vid" preload="auto" playsinline></video>
+
+  <div id="overlay"></div>
+  <div id="loader"><div class="spinner"></div></div>
+
+  <!-- ERROR SCREEN -->
+  <div id="error-screen">
+    <div class="err-icon">⚠️</div>
+    <h2 id="err-title">Error</h2>
+    <p  id="err-msg">No se pudo cargar el contenido.</p>
+    <button onclick="history.back()">← Volver</button>
+  </div>
+
+  <!-- TOP BAR -->
+  <div id="top-bar">
+    <div id="logo" role="button" tabindex="0" title="Volver">
+      <span class="txt">LLUTID</span>
+      <span class="plus">+</span>
+    </div>
+    <span id="top-title"></span>
+  </div>
+
+  <!-- CENTER PLAY -->
+  <div id="center-play">
+    <svg viewBox="0 0 24 24"><path id="center-icon" d="M8 5v14l11-7z"/></svg>
+  </div>
+
+  <!-- SKIP ZONES -->
+  <div class="skip-zone" id="skip-left"></div>
+  <div class="skip-zone" id="skip-right"></div>
+
+  <!-- BOTTOM CONTROLS -->
+  <div id="controls">
+    <div id="progress-wrap">
+      <div id="progress-buf"></div>
+      <div id="progress-fill"><div id="progress-thumb"></div></div>
+      <div id="time-tooltip">0:00</div>
+    </div>
+    <div id="btn-row">
+      <button class="ctrl-btn" id="btn-play">
+        <svg viewBox="0 0 24 24"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="ctrl-btn" id="btn-rew">
+        <svg viewBox="0 0 24 24">
+          <path d="M12.5 3a9 9 0 1 0 6.37 2.63L17.5 7A7 7 0 1 1 12.5 5V3z"/>
+          <text x="7.8" y="15.5" font-size="5.5" fill="white" font-family="Barlow,sans-serif" font-weight="700">10</text>
+        </svg>
+      </button>
+      <button class="ctrl-btn" id="btn-fwd">
+        <svg viewBox="0 0 24 24">
+          <path d="M11.5 3a9 9 0 1 1-6.37 2.63L6.5 7A7 7 0 1 0 11.5 5V3z"/>
+          <text x="7.8" y="15.5" font-size="5.5" fill="white" font-family="Barlow,sans-serif" font-weight="700">10</text>
+        </svg>
+      </button>
+      <span id="time-display">0:00 / 0:00</span>
+      <div id="spacer"></div>
+      <div id="vol-wrap">
+        <button class="ctrl-btn" id="btn-mute">
+          <svg viewBox="0 0 24 24"><path id="vol-icon" d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        </button>
+        <input type="range" id="vol-slider" min="0" max="1" step="0.02" value="1">
+      </div>
+      <span id="quality-badge">HD</span>
+      <button class="ctrl-btn" id="btn-fs" title="Pantalla completa">
+        <svg viewBox="0 0 24 24"><path id="fs-icon" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
 </div>
 
-<!-- PLAYER -->
-<div id="playerWrap">
-
-  <!-- Native video -->
-  <video id="movieVideo" playsinline></video>
-
-  <!-- Iframe (Drive, Vimeo, YouTube) -->
-  <iframe id="movieIframe" allowfullscreen allow="autoplay; encrypted-media; fullscreen"></iframe>
-
-  <!-- Iframe minimal header (back + title) -->
-  <div id="iframeHeader">
-    <button class="ifr-back" id="ifrBackBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </button>
-    <span class="ifr-title" id="ifrTitle"></span>
-  </div>
-
-  <!-- Buffer spinner -->
-  <div id="bufferSpinner"></div>
-
-  <!-- Double-tap flash -->
-  <div class="tap-flash" id="tapLeft">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3a9.5 9.5 0 1 0 9.5 9.5h-2A7.5 7.5 0 1 1 12.5 5V7l-4-4 4-4v2.5z"/></svg>
-  </div>
-  <div class="tap-flash" id="tapRight">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 3A9.5 9.5 0 1 1 2 12.5h2A7.5 7.5 0 1 0 11.5 5V7l4-4-4-4v2.5z"/></svg>
-  </div>
-
-  <!-- CONTROLS (native video only) -->
-  <div id="controls">
-
-    <!-- TOP -->
-    <div class="ctrl-top-grad">
-      <button class="ctrl-back" id="ctrlBack">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-      </button>
-      <span class="ctrl-title" id="ctrlTitle">LLUTID+</span>
-    </div>
-
-    <!-- CENTRE -->
-    <div class="ctrl-centre" id="ctrlCentre">
-      <button class="ctrl-skip" id="rewindBtn">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3a9.5 9.5 0 1 0 9.5 9.5h-2A7.5 7.5 0 1 1 12.5 5V7l-4-4 4-4v2.5z"/></svg>
-        <span class="skip-lbl">10 s</span>
-      </button>
-      <button class="ctrl-playpause" id="playPauseBtn">
-        <svg id="iconPlay"  viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        <svg id="iconPause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-      </button>
-      <button class="ctrl-skip" id="forwardBtn">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.5 3A9.5 9.5 0 1 1 2 12.5h2A7.5 7.5 0 1 0 11.5 5V7l4-4-4-4v2.5z"/></svg>
-        <span class="skip-lbl">10 s</span>
-      </button>
-    </div>
-
-    <!-- BOTTOM -->
-    <div class="ctrl-bot-grad">
-      <div class="seekbar-wrap" id="seekbarWrap">
-        <div class="seekbar-track">
-          <div class="seekbar-buf"  id="seekBuf"></div>
-          <div class="seekbar-fill" id="seekFill"></div>
-        </div>
-        <div class="seekbar-thumb" id="seekThumb"></div>
-      </div>
-      <div class="ctrl-bottom-row">
-        <!-- Mute -->
-        <button class="ctrl-icon" id="muteBtn">
-          <svg id="volOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          </svg>
-          <svg id="volOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        </button>
-        <!-- Time -->
-        <span class="ctrl-time"><span id="timeNow">0:00</span> / <span id="timeTot">0:00</span></span>
-        <div class="ctrl-spacer"></div>
-        <!-- Fullscreen -->
-        <button class="ctrl-icon" id="fsBtn">
-          <svg id="fsExpand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          <svg id="fsCollapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
-        </button>
-      </div>
-    </div>
-
-  </div><!-- /controls -->
-
-  <!-- Error -->
-  <div id="errorView">
-    <div class="err-ico">⚠️</div>
-    <p class="err-msg" id="errMsg">No se pudo cargar la película.</p>
-    <button class="err-back" onclick="history.back()">← Volver</button>
-  </div>
-
-</div><!-- /playerWrap -->
-
+<!-- ── FIREBASE + PLAYER LOGIC ── -->
 <script type="module">
-import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-const fbConfig = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
+/* ══ Firebase config ══ */
+const fbConfig = {
+  apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
+  authDomain:"peliculas-88668.firebaseapp.com",
+  projectId:"peliculas-88668",
+  storageBucket:"peliculas-88668.firebasestorage.app",
+  messagingSenderId:"475189564333",
+  appId:"1:475189564333:web:7fe74613ca5082d3890724"
+};
 const app = initializeApp(fbConfig);
 const db  = getFirestore(app);
 
-/* ── DOM refs ── */
-const $ = id => document.getElementById(id);
-const vid         = $('movieVideo');
-const iframeEl    = $('movieIframe');
-const controls    = $('controls');
-const bufSpin     = $('bufferSpinner');
-const seekWrap    = $('seekbarWrap');
-const seekFill    = $('seekFill');
-const seekBuf     = $('seekBuf');
-const seekThumb   = $('seekThumb');
+/* ══ DOM refs ══ */
+const vid          = document.getElementById('vid');
+const wrap         = document.getElementById('player-wrap');
+const loader       = document.getElementById('loader');
+const splash       = document.getElementById('splash');
+const splashStatus = document.getElementById('splash-status');
+const splashMovieTitle = document.getElementById('splash-movie-title');
+const errorScreen  = document.getElementById('error-screen');
+const progressWrap = document.getElementById('progress-wrap');
+const progressFill = document.getElementById('progress-fill');
+const progressBuf  = document.getElementById('progress-buf');
+const timeTooltip  = document.getElementById('time-tooltip');
+const timeDisplay  = document.getElementById('time-display');
+const playIcon     = document.getElementById('play-icon');
+const centerIcon   = document.getElementById('center-icon');
+const centerPlay   = document.getElementById('center-play');
+const btnPlay      = document.getElementById('btn-play');
+const btnRew       = document.getElementById('btn-rew');
+const btnFwd       = document.getElementById('btn-fwd');
+const btnMute      = document.getElementById('btn-mute');
+const btnFs        = document.getElementById('btn-fs');
+const btnBack      = document.getElementById('logo');
+const volSlider    = document.getElementById('vol-slider');
+const volIcon      = document.getElementById('vol-icon');
+const fsIcon       = document.getElementById('fs-icon');
+const toast        = document.getElementById('toast');
+const topTitle     = document.getElementById('top-title');
 
-const movieId = new URLSearchParams(location.search).get('id');
+/* ══ SVG paths ══ */
+const P_PLAY  = "M8 5v14l11-7z";
+const P_PAUSE = "M6 19h4V5H6v14zm8-14v14h4V5h-4z";
+const P_VOL   = "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z";
+const P_MUTE  = "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
+const FS_ENTER = "M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z";
+const FS_EXIT  = "M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z";
 
-/* ── State ── */
-let ctrlTimer   = null;
-let isDragging  = false;
-let lastTap     = {side:null, time:0};
-let useNative   = false;
+/* ══ Helpers ══ */
+['contextmenu','selectstart','dragstart'].forEach(ev =>
+  document.addEventListener(ev, e => e.preventDefault(), { passive:false })
+);
 
-/* ── Helpers ── */
-function toMp4(url){
-  if(!url)return'';
-  if(url.includes('archive.org/details/')){
-    const id=url.split('/details/')[1].split('/')[0].split('?')[0];
-    return`https://archive.org/download/${id}/${id}.mp4`;
+function fmt(s) {
+  if (!s || isNaN(s) || !isFinite(s)) return '0:00';
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60);
+  const sec = Math.floor(s%60).toString().padStart(2,'0');
+  return h ? `${h}:${m.toString().padStart(2,'0')}:${sec}` : `${m}:${sec}`;
+}
+function showToast(msg, dur=1300) {
+  toast.textContent = msg; toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), dur);
+}
+function showError(title, msg) {
+  document.getElementById('err-title').textContent = title;
+  document.getElementById('err-msg').textContent   = msg;
+  splash.style.display   = 'none';
+  errorScreen.classList.add('on');
+}
+
+/* Convierte archive.org/details → direct MP4 */
+function toDirectMp4(url) {
+  if (!url) return '';
+  if (url.includes('archive.org/details/')) {
+    const id = url.split('/details/')[1].split('/')[0].split('?')[0];
+    return `https://archive.org/download/${id}/${id}.mp4`;
   }
   return url;
 }
-function isDrive(u){return u&&u.includes('drive.google.com')}
-function isVimeo(u){return u&&u.includes('vimeo.com')}
-function isYouTube(u){return u&&(u.includes('youtube.com')||u.includes('youtu.be'))}
 
-function fmtTime(s){
-  if(!isFinite(s)||isNaN(s))return'0:00';
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=Math.floor(s%60);
-  return h>0?`${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`:`${m}:${String(sc).padStart(2,'0')}`;
+/* ══ Fullscreen + orientación ══ */
+function lockLandscape() {
+  try {
+    if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(()=>{});
+    if (screen.lockOrientation)    screen.lockOrientation('landscape');
+  } catch(e) {}
 }
+function isFS() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+}
+function enterFS() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (req) return req.call(el).then(lockLandscape).catch(lockLandscape);
+  lockLandscape(); return Promise.resolve();
+}
+function exitFS() {
+  const ex = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+  if (ex) ex.call(document).catch(()=>{});
+}
+function onFSChange() {
+  fsIcon.setAttribute('d', isFS() ? FS_EXIT : FS_ENTER);
+  if (isFS()) lockLandscape();
+}
+document.addEventListener('fullscreenchange',       onFSChange);
+document.addEventListener('webkitfullscreenchange', onFSChange);
+document.addEventListener('mozfullscreenchange',    onFSChange);
 
-/* ── Init ── */
-async function init(){
-  if(!movieId){showError('No se especificó película.');return;}
-  try{
-    const snap=await getDoc(doc(db,'movies',movieId));
-    if(!snap.exists()){showError('Película no encontrada.');return;}
-    const m={id:snap.id,...snap.data()};
-    startPlayback(m);
-  }catch(e){
-    console.error(e);
-    showError('Error al cargar. Verifica tu conexión.');
+/* ══ Auto-hide UI ══ */
+let uiTimer = null;
+function showUI(ms=3200) {
+  wrap.classList.add('show-ui'); clearTimeout(uiTimer);
+  if (!vid.paused) uiTimer = setTimeout(() => wrap.classList.remove('show-ui'), ms);
+}
+wrap.addEventListener('pointermove', () => showUI(), { passive:true });
+wrap.addEventListener('pointerdown', () => showUI(), { passive:true });
+vid.addEventListener('pause', () => { clearTimeout(uiTimer); wrap.classList.add('show-ui'); });
+vid.addEventListener('play',  () => showUI());
+
+/* ══ Play / Pause ══ */
+let playBusy = false;
+function syncIcons() {
+  const d = vid.paused ? P_PLAY : P_PAUSE;
+  playIcon.setAttribute('d', d); centerIcon.setAttribute('d', d);
+}
+async function togglePlay() {
+  if (playBusy) return; playBusy = true;
+  try { vid.paused ? await vid.play() : vid.pause(); }
+  catch(e){} finally { playBusy = false; }
+}
+vid.addEventListener('play',  syncIcons);
+vid.addEventListener('pause', syncIcons);
+centerPlay.addEventListener('pointerup', e => { e.stopPropagation(); togglePlay(); showUI(); });
+btnPlay.addEventListener('pointerup',    e => { e.stopPropagation(); togglePlay(); showUI(); });
+
+/* ══ Progress bar ══ */
+let isDragging = false;
+function getPct(cx) {
+  const r = progressWrap.getBoundingClientRect();
+  return Math.max(0, Math.min(1, (cx - r.left) / r.width));
+}
+function applySeek(pct) {
+  if (vid.duration && isFinite(vid.duration)) vid.currentTime = pct * vid.duration;
+}
+progressWrap.addEventListener('pointerdown', e => {
+  e.preventDefault(); isDragging = true;
+  progressWrap.classList.add('drag');
+  progressWrap.setPointerCapture(e.pointerId);
+  applySeek(getPct(e.clientX)); showUI(6000);
+});
+progressWrap.addEventListener('pointermove', e => {
+  if (!vid.duration) return;
+  const pct = getPct(e.clientX);
+  if (isDragging) applySeek(pct);
+  const r = progressWrap.getBoundingClientRect();
+  timeTooltip.style.left = (e.clientX - r.left) + 'px';
+  timeTooltip.textContent = fmt(pct * vid.duration);
+  timeTooltip.style.opacity = '1';
+});
+progressWrap.addEventListener('pointerup', e => {
+  isDragging = false; progressWrap.classList.remove('drag'); applySeek(getPct(e.clientX));
+});
+progressWrap.addEventListener('pointerleave', () => { if (!isDragging) timeTooltip.style.opacity = '0'; });
+vid.addEventListener('timeupdate', () => {
+  if (!vid.duration || isDragging) return;
+  progressFill.style.width = ((vid.currentTime/vid.duration)*100) + '%';
+  timeDisplay.textContent = fmt(vid.currentTime) + ' / ' + fmt(vid.duration);
+});
+vid.addEventListener('progress', () => {
+  if (!vid.duration || !vid.buffered.length) return;
+  progressBuf.style.width = ((vid.buffered.end(vid.buffered.length-1)/vid.duration)*100) + '%';
+});
+
+/* ══ Seek ±10s ══ */
+btnRew.addEventListener('pointerup', e => { e.stopPropagation(); vid.currentTime=Math.max(0,vid.currentTime-10); showToast('⏪ -10s'); showUI(); });
+btnFwd.addEventListener('pointerup', e => { e.stopPropagation(); vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10); showToast('⏩ +10s'); showUI(); });
+
+/* ══ Volumen ══ */
+function syncVolIcon() { volIcon.setAttribute('d', (vid.muted||vid.volume===0) ? P_MUTE : P_VOL); }
+volSlider.addEventListener('input', () => { vid.volume=parseFloat(volSlider.value); vid.muted=vid.volume===0; syncVolIcon(); });
+btnMute.addEventListener('pointerup', e => { e.stopPropagation(); vid.muted=!vid.muted; syncVolIcon(); });
+
+/* ══ Doble toque skip ══ */
+const tapTimers = { left:null, right:null };
+function zoneTap(side, e) {
+  e.preventDefault();
+  const cx = e.clientX ?? e.changedTouches?.[0]?.clientX ?? 0;
+  const cy = e.clientY ?? e.changedTouches?.[0]?.clientY ?? 0;
+  addRipple(cx, cy, e.currentTarget);
+  if (tapTimers[side]) {
+    clearTimeout(tapTimers[side]); tapTimers[side]=null;
+    if (side==='left') { vid.currentTime=Math.max(0,vid.currentTime-10); flashSeek('left'); }
+    else               { vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10); flashSeek('right'); }
+  } else {
+    tapTimers[side] = setTimeout(() => { tapTimers[side]=null; togglePlay(); }, 240);
   }
+  showUI();
+}
+document.getElementById('skip-left').addEventListener('pointerup',  e => zoneTap('left',  e));
+document.getElementById('skip-right').addEventListener('pointerup', e => zoneTap('right', e));
+
+function flashSeek(side) {
+  const el = document.createElement('div');
+  el.className = `seek-flash ${side}`;
+  const arrow = side==='left' ? '<path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/>' : '<path d="M18 6h-2v12h2zm-3.5 6L6 6v12z"/>';
+  el.innerHTML = `<div class="seek-flash-inner"><svg viewBox="0 0 24 24">${arrow}</svg>${side==='left'?'-10s':'+10s'}</div>`;
+  wrap.appendChild(el); setTimeout(() => el.remove(), 500);
+}
+function addRipple(x, y, parent) {
+  const r = document.createElement('div'); r.className = 'ripple';
+  const rect = parent.getBoundingClientRect();
+  r.style.left = (x-rect.left)+'px'; r.style.top = (y-rect.top)+'px';
+  parent.appendChild(r); setTimeout(() => r.remove(), 650);
 }
 
-function startPlayback(m){
-  document.title=`${m.title||'Película'} | LLUTID+`;
-  $('loadTitle').textContent=m.title||'Cargando…';
-  $('ctrlTitle').textContent=m.title||'LLUTID+';
-  $('ifrTitle').textContent=m.title||'LLUTID+';
+/* ══ Loader ══ */
+vid.addEventListener('waiting', () => loader.classList.add('on'));
+vid.addEventListener('playing', () => loader.classList.remove('on'));
+vid.addEventListener('canplay', () => loader.classList.remove('on'));
 
-  const url=m.movieUrl||m.movie_url||m.url||'';
-  if(!url){showError('URL de película no configurada.');return;}
+/* ══ Teclado ══ */
+document.addEventListener('keydown', e => {
+  if (e.code==='Space')      { e.preventDefault(); togglePlay(); }
+  if (e.code==='ArrowLeft')  { e.preventDefault(); vid.currentTime=Math.max(0,vid.currentTime-10); showToast('⏪ -10s'); showUI(); }
+  if (e.code==='ArrowRight') { e.preventDefault(); vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10); showToast('⏩ +10s'); showUI(); }
+  if (e.code==='KeyM')       { vid.muted=!vid.muted; syncVolIcon(); }
+  if (e.code==='KeyF')       { isFS() ? exitFS() : enterFS(); }
+});
 
-  if(isDrive(url)||isVimeo(url)||isYouTube(url)){
-    // ── IFRAME MODE ──
-    useNative=false;
-    iframeEl.src=url;
-    iframeEl.style.display='block';
-    vid.style.display='none';
-    controls.style.display='none';     // hide native controls
-    $('iframeHeader').classList.add('show'); // show minimal header
-    hideLoadScreen();
-    showPlayer();
-  }else{
-    // ── NATIVE VIDEO MODE ──
-    useNative=true;
-    vid.src=toMp4(url);
-    vid.style.display='block';
-    iframeEl.style.display='none';
-    setupVideoEvents();
-    vid.play().catch(()=>{});
-    showPlayer();
+/* ══ Fullscreen button ══ */
+btnFs.addEventListener('pointerup', e => { e.stopPropagation(); isFS() ? exitFS() : enterFS(); });
+
+/* ══ Volver atrás ══ */
+history.pushState({ player:true }, '');
+window.addEventListener('popstate', goBack);
+function goBack() {
+  exitFS();
+  setTimeout(() => { if (history.length > 1) history.back(); else window.close(); }, 180);
+}
+btnBack.addEventListener('pointerup', e => { e.stopPropagation(); goBack(); });
+
+/* ══════════════════════════════════════════
+   FIREBASE LOAD + SPLASH LOGIC
+   ══════════════════════════════════════════ */
+const params   = new URLSearchParams(location.search);
+const movieId  = params.get('id');
+/* autoplay=1 means: opened from info page — fullscreen immediately on splash click */
+const autoplay = params.get('autoplay') === '1';
+
+vid.pause();
+
+async function loadAndInit() {
+  if (!movieId) {
+    showError('Sin película', 'No se especificó un ID de película en la URL.');
+    return;
   }
 
-  // Go fullscreen + landscape
-  autoFullscreen();
-}
+  splashStatus.textContent = 'Cargando…';
 
-/* ── Video events ── */
-function setupVideoEvents(){
-  vid.addEventListener('waiting',       ()=>bufSpin.style.display='block');
-  vid.addEventListener('playing',       ()=>bufSpin.style.display='none');
-  vid.addEventListener('canplay',       ()=>{bufSpin.style.display='none';hideLoadScreen();});
-  vid.addEventListener('loadedmetadata',()=>$('timeTot').textContent=fmtTime(vid.duration));
-  vid.addEventListener('timeupdate',    updateSeekbar);
-  vid.addEventListener('progress',      updateBuffer);
-  vid.addEventListener('ended',         ()=>{$('iconPlay').style.display='';$('iconPause').style.display='none';});
-  vid.addEventListener('play',          ()=>{$('iconPlay').style.display='none';$('iconPause').style.display='';});
-  vid.addEventListener('pause',         ()=>{$('iconPlay').style.display='';$('iconPause').style.display='none';});
-  vid.addEventListener('error',         ()=>showError('No se pudo reproducir el video.\nEl archivo puede no estar disponible.'));
-}
-
-function updateSeekbar(){
-  if(!vid.duration||isDragging)return;
-  const pct=(vid.currentTime/vid.duration)*100;
-  seekFill.style.width=pct+'%';
-  seekThumb.style.left=pct+'%';
-  $('timeNow').textContent=fmtTime(vid.currentTime);
-}
-function updateBuffer(){
-  if(!vid.duration||!vid.buffered.length)return;
-  seekBuf.style.width=((vid.buffered.end(vid.buffered.length-1)/vid.duration)*100)+'%';
-}
-
-/* ── Seek drag ── */
-function pctFromX(clientX){
-  const r=seekWrap.getBoundingClientRect();
-  return Math.max(0,Math.min(1,(clientX-r.left)/r.width));
-}
-function applyScrub(pct){
-  if(vid.duration)vid.currentTime=pct*vid.duration;
-  seekFill.style.width=(pct*100)+'%';
-  seekThumb.style.left=(pct*100)+'%';
-  $('timeNow').textContent=fmtTime(vid.currentTime);
-}
-
-seekWrap.addEventListener('mousedown', e=>{if(!useNative)return;isDragging=true;seekWrap.classList.add('drag');applyScrub(pctFromX(e.clientX));});
-seekWrap.addEventListener('touchstart',e=>{if(!useNative)return;isDragging=true;seekWrap.classList.add('drag');applyScrub(pctFromX(e.touches[0].clientX));},{passive:true});
-document.addEventListener('mousemove', e=>{if(isDragging)applyScrub(pctFromX(e.clientX));});
-document.addEventListener('touchmove', e=>{if(isDragging)applyScrub(pctFromX(e.touches[0].clientX));},{passive:true});
-['mouseup','touchend'].forEach(ev=>document.addEventListener(ev,()=>{if(isDragging){isDragging=false;seekWrap.classList.remove('drag');}}));
-
-/* ── Controls visibility ── */
-function showControls(autohide=true){
-  controls.classList.add('visible');
-  clearTimeout(ctrlTimer);
-  if(autohide)ctrlTimer=setTimeout(()=>controls.classList.remove('visible'),4000);
-}
-function toggleControls(){
-  if(controls.classList.contains('visible'))controls.classList.remove('visible');
-  else showControls();
-}
-
-/* ── Double-tap ── */
-function handleTap(side,e){
-  e.stopPropagation();
-  const now=Date.now();
-  const isDouble=(lastTap.side===side)&&(now-lastTap.time<320);
-  lastTap={side,time:now};
-  if(isDouble&&useNative){
-    const el=$(side==='left'?'tapLeft':'tapRight');
-    el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
-    if(side==='left')vid.currentTime=Math.max(0,vid.currentTime-10);
-    else             vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);
-  }else{
-    toggleControls();
+  let movieData;
+  try {
+    const snap = await getDoc(doc(db, 'movies', movieId));
+    if (!snap.exists()) { showError('No encontrado', 'La película no existe en la base de datos.'); return; }
+    movieData = { id: snap.id, ...snap.data() };
+  } catch(e) {
+    showError('Error de conexión', 'Verifica tu conexión e intenta de nuevo.');
+    return;
   }
+
+  /* Resolve video URL */
+  const rawUrl = movieData.movieUrl || movieData.movie_url || movieData.url || '';
+  if (!rawUrl) {
+    showError('Sin URL', 'Esta película no tiene URL de video configurada.');
+    return;
+  }
+  const videoUrl = toDirectMp4(rawUrl);
+
+  /* Show movie title in top bar */
+  if (movieData.title) topTitle.textContent = movieData.title;
+
+  /* Preload video src */
+  vid.src = videoUrl;
+  vid.load();
+
+  /* Transition splash to "ready" state */
+  splashMovieTitle.textContent = movieData.title || '';
+  splash.classList.add('ready');
+
+  /* ── Splash click: fullscreen → play ── */
+  function onSplashClick() {
+    enterFS().finally(() => {
+      splash.classList.add('hide');
+      setTimeout(() => { if (splash.parentNode) splash.remove(); }, 650);
+      vid.play().catch(()=>{});
+      showUI(3200);
+    });
+  }
+
+  splash.addEventListener('pointerup', onSplashClick, { once:true });
 }
 
-/* ── Player wrap tap ── */
-$('playerWrap').addEventListener('click',e=>{
-  if(e.target.closest('.ctrl-icon,.ctrl-skip,.ctrl-playpause,.ctrl-back,.seekbar-wrap,.ifr-back,.iframeHeader'))return;
-  const r=$('playerWrap').getBoundingClientRect();
-  const side=(e.clientX-r.left)<r.width/2?'left':'right';
-  handleTap(side,e);
-});
-
-/* ── Play/Pause ── */
-$('playPauseBtn').addEventListener('click',e=>{
-  e.stopPropagation();
-  if(!useNative)return;
-  vid.paused?vid.play():vid.pause();
-  showControls();
-});
-
-/* ── Skip ── */
-$('rewindBtn').addEventListener('click',e=>{e.stopPropagation();if(useNative){vid.currentTime=Math.max(0,vid.currentTime-10);showControls();}});
-$('forwardBtn').addEventListener('click',e=>{e.stopPropagation();if(useNative){vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);showControls();}});
-
-/* ── Mute ── */
-$('muteBtn').addEventListener('click',e=>{
-  e.stopPropagation();
-  vid.muted=!vid.muted;
-  $('volOn').style.display=vid.muted?'none':'';
-  $('volOff').style.display=vid.muted?'':'none';
-  showControls();
-});
-
-/* ── Fullscreen ── */
-$('fsBtn').addEventListener('click',e=>{
-  e.stopPropagation();
-  const wrap=$('playerWrap');
-  if(!document.fullscreenElement)(wrap.requestFullscreen||wrap.webkitRequestFullscreen||wrap.mozRequestFullScreen||wrap.msRequestFullscreen||function(){}).call(wrap);
-  else(document.exitFullscreen||document.webkitExitFullscreen||document.mozCancelFullScreen||function(){}).call(document);
-  showControls();
-});
-document.addEventListener('fullscreenchange',()=>{
-  const fs=!!document.fullscreenElement;
-  $('fsExpand').style.display=fs?'none':'';
-  $('fsCollapse').style.display=fs?'':'none';
-});
-
-/* ── Back buttons ── */
-function goBack(){
-  if(document.fullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document).catch(()=>{});
-  history.back();
-}
-$('ctrlBack').addEventListener('click',e=>{e.stopPropagation();goBack();});
-$('ifrBackBtn').addEventListener('click',e=>{e.stopPropagation();goBack();});
-
-/* ── Keyboard shortcuts ── */
-document.addEventListener('keydown',e=>{
-  if(!useNative)return;
-  showControls();
-  if(e.code==='Space'){e.preventDefault();vid.paused?vid.play():vid.pause();}
-  if(e.code==='ArrowRight')vid.currentTime=Math.min(vid.duration||0,vid.currentTime+10);
-  if(e.code==='ArrowLeft')vid.currentTime=Math.max(0,vid.currentTime-10);
-  if(e.code==='KeyM'){vid.muted=!vid.muted;$('volOn').style.display=vid.muted?'none':'';$('volOff').style.display=vid.muted?'':'none';}
-  if(e.code==='KeyF')$('fsBtn').click();
-  if(e.code==='Escape'&&document.fullscreenElement)document.exitFullscreen();
-});
-
-/* ── Auto fullscreen & orientation ── */
-function autoFullscreen(){
-  const wrap=$('playerWrap');
-  try{(wrap.requestFullscreen||wrap.webkitRequestFullscreen||wrap.mozRequestFullScreen||function(){}).call(wrap).catch(()=>{});}catch(e){}
-  lockLandscape();
-}
-function lockLandscape(){
-  try{screen.orientation?.lock('landscape').catch(()=>{});}catch(e){}
-}
-try{
-  screen.orientation?.addEventListener('change',()=>{
-    if(document.fullscreenElement&&screen.orientation.type.startsWith('portrait')){
-      (document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document).catch(()=>{});
-    }
-  });
-}catch(e){}
-
-/* ── UI helpers ── */
-function showPlayer(){
-  $('playerWrap').style.display='block';
-  if(useNative)showControls();
-}
-function hideLoadScreen(){
-  const ls=$('loadScreen');
-  ls.classList.add('hiding');
-  setTimeout(()=>ls.style.display='none',560);
-}
-function showError(msg){
-  hideLoadScreen();
-  $('playerWrap').style.display='block';
-  $('errMsg').textContent=msg;
-  $('errorView').classList.add('show');
-  $('controls').style.display='none';
-  $('bufferSpinner').style.display='none';
-}
-
-init();
+loadAndInit();
 </script>
 </body>
 </html>
