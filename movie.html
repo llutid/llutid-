@@ -1,716 +1,515 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>LLUTID+</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
-            font-weight: 400; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2');
-            font-weight: 700; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2');
-            font-weight: 800; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2');
-            font-weight: 900; font-display: swap;
-        }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no"/>
+<title>LLUTID+</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04040A;--surface:#0C0C16;--surface2:#141425;
+  --blue:#3B6EE8;--blue-glow:rgba(59,110,232,0.35);--blue-light:#5E8FFF;
+  --white:#F2F2F8;--muted:rgba(242,242,248,0.45);--border:rgba(255,255,255,0.07);
+  --card-radius:14px;--font-display:'Bebas Neue',cursive;--font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%;background:var(--bg);overflow-x:hidden}
+body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:antialiased}
 
-        body {
-            font-family: 'Netflix Sans', 'Roboto', sans-serif;
-            background-color: #000;
-            color: #fff;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+/* ── LOADING ── */
+#loadScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .5s ease}
+#loadScreen.hide{opacity:0;pointer-events:none}
+.load-logo{font-family:var(--font-display);font-size:42px;letter-spacing:4px;color:var(--white)}
+.load-logo span{color:var(--blue-light)}
+.load-bar{width:160px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.load-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-light));border-radius:2px;animation:loadAnim 1.4s ease-in-out infinite}
+@keyframes loadAnim{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
 
-        /* ── INTRO SCREEN ── */
-        .intro-screen {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000000, #0a0a0a);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-        .logo-container-intro {
-            font-size: 4rem; font-weight: 800; color: white;
-            opacity: 0; letter-spacing: 4px;
-            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
-            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-            font-family: 'Montserrat', sans-serif;
-        }
-        @keyframes fadeInZoom {
-            0%   { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fadeOut {
-            to   { opacity: 0; transform: scale(1.05); }
-        }
+/* ── HEADER — gradient, clean, no solid bar ── */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:62px;
+  display:flex;align-items:center;padding:0 16px;gap:14px;
+  background:linear-gradient(to bottom,rgba(4,4,10,.9) 0%,transparent 100%);
+  pointer-events:all;
+}
+.back-btn{
+  width:40px;height:40px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .2s,transform .15s;
+}
+.back-btn:active{transform:scale(.9)}
+.back-btn svg{width:20px;height:20px}
+.header-logo{font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--white);text-decoration:none}
+.header-logo span{color:var(--blue-light)}
 
-        .main-content { display: none; flex-grow: 1; }
+/* ── HERO ── */
+.movie-hero{position:relative;width:100%;padding-top:62%;background:#000;overflow:hidden}
+@media(max-width:480px){.movie-hero{padding-top:82%}}
 
-        /* ── HEADER ── */
-        header {
-            background-color: rgba(0,0,0,0.7);
-            padding: 15px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; z-index: 10;
-        }
-        .header-left  { display: flex; align-items: center; }
-        .header-back  { color: #fff; font-size: 28px; margin-right: 15px; cursor: pointer; }
-        .header-logo  {
-            font-size: 1.8rem; font-weight: 800; color: #1e90ff;
-            text-shadow: 0 0 8px rgba(30,144,255,0.4); text-decoration: none;
-        }
-        .header-logo:hover { opacity: 0.8; }
-        .header-logo span { color: white; }
-        .header-title { font-size: 1.2rem; font-weight: 700; margin-left: 20px; }
-        .header-right { display: flex; align-items: center; }
-        .header-right i { color: #fff; font-size: 24px; margin-left: 20px; cursor: pointer; }
+.hero-skeleton{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(110deg,#0c0c16 30%,#1a1a2e 50%,#0c0c16 70%);
+  background-size:300% 100%;animation:sk 1.6s linear infinite;
+}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        /* ── HERO / TRAILER ── */
-        .movie-hero {
-            position: relative; width: 100%; padding-top: 65%;
-            background-color: #000; margin-bottom: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden;
-        }
-        /* skeleton shimmer while loading */
-        .hero-skeleton {
-            position: absolute; inset: 0;
-            background: linear-gradient(110deg, #0a0a0a 30%, #1c1c1c 50%, #0a0a0a 70%);
-            background-size: 300% 100%;
-            animation: skAnim 1.6s linear infinite;
-        }
-        @keyframes skAnim {
-            0%   { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .movie-hero .video-background {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
-        }
-        .movie-hero .video-background iframe,
-        .movie-hero .video-background video {
-            width: 100%; height: 100%; border: none; display: block;
-            position: absolute; top: 0; left: 0; object-fit: cover;
-        }
-        .movie-hero .video-background img {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; object-fit: cover;
-        }
-        .movie-hero::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
-            z-index: 2;
-        }
-        .movie-overlay-content {
-            position: absolute; bottom: 0; left: 20px; right: 20px; z-index: 3; color: #fff;
-        }
-        .movie-badge {
-            background-color: #1e90ff; color: #fff; padding: 4px 8px;
-            border-radius: 4px; font-size: 0.8rem; font-weight: 700;
-            display: inline-block; margin-bottom: 10px;
-        }
-        .movie-title-main {
-            font-size: 2rem; font-weight: 900;
-            margin-top: 20px; margin-bottom: 5px; line-height: 1.1;
-        }
-        .movie-info-line {
-            display: flex; align-items: center; font-size: 1rem;
-            color: #a3a3a3; margin-bottom: 15px;
-        }
-        .movie-info-line span { margin-right: 15px; }
-        .movie-info-line .rating {
-            border: 1px solid #a3a3a3; padding: 2px 6px; border-radius: 3px; font-size: 0.9rem;
-        }
+.video-bg{position:absolute;inset:0;z-index:2}
+.video-bg iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.video-bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.video-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 
-        /* Mute button for native video trailers */
-        .hero-mute-btn {
-            position: absolute; bottom: 70px; right: 15px; z-index: 4;
-            width: 36px; height: 36px; border-radius: 50%;
-            background: rgba(0,0,0,0.65); border: 1.5px solid rgba(255,255,255,0.3);
-            color: #fff; display: none; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
-        }
-        .hero-mute-btn:hover { background: rgba(255,255,255,0.2); }
-        .hero-mute-btn svg { width: 16px; height: 16px; }
+/* vignettes */
+.hero-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to bottom,rgba(4,4,10,.2) 0%,transparent 30%,transparent 40%,rgba(4,4,10,.7) 68%,rgba(4,4,10,1) 92%)}
+.hero-side-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to right,rgba(4,4,10,.35) 0%,transparent 40%,transparent 60%,rgba(4,4,10,.25) 100%)}
 
-        /* ── ACTION BUTTONS ── */
-        .actions {
-            display: flex; flex-direction: column; gap: 15px;
-            padding: 0 20px; margin-bottom: 30px;
-        }
-        .btn {
-            display: flex; align-items: center; justify-content: center;
-            padding: 15px 20px; border-radius: 8px;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-            text-decoration: none; border: none;
-            transition: background-color 0.3s ease;
-            position: relative; overflow: hidden;
-        }
-        .btn i, .btn-text { position: relative; z-index: 1; }
-        .btn i { margin-right: 10px; font-size: 20px; }
+/* mute toggle button */
+.hero-mute-btn{
+  position:absolute;bottom:72px;right:16px;z-index:5;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(4,4,10,.75);border:1.5px solid rgba(255,255,255,.25);
+  color:#fff;display:none;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(10px);transition:background .2s,transform .15s;
+}
+.hero-mute-btn.show{display:flex}
+.hero-mute-btn:active{transform:scale(.9)}
+.hero-mute-btn svg{width:16px;height:16px}
 
-        /* Play button states */
-        .btn-play { background-color: #282828; color: #fff; }
-        .btn-play.loaded-state { background-color: #fff; color: #000; }
-        .btn-play:hover { background-color: #404040; }
+/* unmute hint pill */
+.unmute-hint{
+  position:absolute;bottom:72px;left:50%;transform:translateX(-50%);z-index:6;
+  background:rgba(4,4,10,.85);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.18);border-radius:50px;
+  padding:10px 20px;display:flex;align-items:center;gap:9px;
+  font-family:var(--font-body);font-size:13px;font-weight:600;color:rgba(255,255,255,.92);
+  cursor:pointer;white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.unmute-hint.show{opacity:1;pointer-events:all}
+.unmute-hint svg{width:16px;height:16px;flex-shrink:0;color:var(--blue-light)}
 
-        .progress-bar-fill {
-            position: absolute; top: 0; left: 0;
-            height: 100%; width: 0;
-            background-color: #fff; z-index: 0;
-        }
-        @keyframes fillProgressBar {
-            from { width: 0; }
-            to   { width: 100%; }
-        }
-        .btn-play.loading .progress-bar-fill {
-            animation: fillProgressBar 22s linear forwards;
-        }
-        .btn-play.loading .btn-text,
-        .btn-play.loading .fa-play,
-        .btn-play.loading .fa-spinner { color: #000; transition: color 0.1s linear; }
-        .btn-play.loading .fa-spinner  { display: inline-block; }
-        .btn-play          .fa-spinner  { display: none; }
+/* ── CONTENT ── */
+.content{position:relative;z-index:3;padding:0 20px 120px;margin-top:-28px}
 
-        .btn-share { background-color: #282828; color: #fff; }
-        .btn-share:hover { background-color: #404040; }
+.badge-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.badge{background:var(--blue);color:#fff;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:4px 10px;border-radius:4px}
+.badge.genre{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
 
-        /* Watched progress strip */
-        .watched-progress-container {
-            width: 100%; height: 6px; background-color: #404040;
-            border-radius: 3px; overflow: hidden; margin-top: 5px; display: none;
-        }
-        .watched-progress-bar {
-            height: 100%; width: 0%; background-color: #1e90ff;
-            border-radius: 3px; transition: width 0.5s ease-out;
-        }
+.movie-title{font-family:var(--font-display);font-size:clamp(28px,8vw,48px);letter-spacing:1px;line-height:1.05;margin-bottom:10px;color:var(--white);text-shadow:0 2px 20px rgba(0,0,0,.8)}
 
-        /* ── DETAILS ── */
-        .details-section { padding: 0 20px; margin-bottom: 30px; }
-        .summary    { font-size: 1rem; line-height: 1.5; color: #ccc; margin-bottom: 20px; }
-        .info-details { font-size: 0.95rem; line-height: 1.6; color: #a3a3a3; }
-        .info-details strong { color: #fff; }
+.meta-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.meta-item{font-size:13px;color:var(--muted);font-weight:500}
+.meta-sep{width:3px;height:3px;border-radius:50%;background:var(--muted)}
+.rating-pill{border:1px solid rgba(255,255,255,.25);padding:2px 8px;border-radius:4px;font-size:12px;color:rgba(255,255,255,.7);font-weight:600}
 
-        /* ── FULLSCREEN PLAYER ── */
-        .player-fullscreen-container {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background-color: #000; z-index: 9999;
-        }
-        .player-fullscreen-container iframe,
-        .player-fullscreen-container video {
-            width: 100%; height: 100%; border: none; display: block; object-fit: contain;
-        }
+/* ── BUTTONS ── */
+.btn-row{display:flex;flex-direction:column;gap:12px;margin-bottom:26px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px;border-radius:12px;font-family:var(--font-body);font-size:16px;font-weight:700;cursor:pointer;border:none;transition:transform .15s,opacity .2s;letter-spacing:.2px}
+.btn:active{transform:scale(.97)}
+.btn svg{width:20px;height:20px;flex-shrink:0}
+.btn-play{background:#fff;color:#000;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.btn-share{background:rgba(59,110,232,.15);color:var(--blue-light);border:1px solid rgba(59,110,232,.3)}
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .header-title { display: none; }
-            .movie-hero { padding-top: 85%; }
-            .movie-title-main { font-size: 1.8rem; margin-top: 15px; }
-            .movie-info-line  { font-size: 0.9rem; }
-            .summary, .info-details { font-size: 0.9rem; }
-            .btn { font-size: 1rem; padding: 12px 15px; }
-        }
-    </style>
+/* ── DESCRIPTION ── */
+.section-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.description{font-size:15px;line-height:1.65;color:rgba(242,242,248,.8);margin-bottom:26px}
+
+/* ── DETAILS ── */
+.details-grid{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:var(--surface);border:1px solid var(--border);margin-bottom:32px}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-key{font-size:13px;color:var(--muted);font-weight:500}
+.detail-val{font-size:13px;color:var(--white);font-weight:600;text-align:right;max-width:60%}
+
+/* ── RELATED MOVIES ── */
+.related-section{margin-bottom:32px}
+.related-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.related-title{font-family:var(--font-display);font-size:22px;letter-spacing:1.5px;color:var(--white)}
+.cards-row{display:flex;gap:12px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cards-row::-webkit-scrollbar{display:none}
+.movie-card{flex-shrink:0;width:116px;height:174px;border-radius:var(--card-radius);overflow:hidden;background:var(--surface2);position:relative;cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1);text-decoration:none;display:block}
+.movie-card:active{transform:scale(.93)}
+.movie-card img{width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--card-radius)}
+.card-shine{position:absolute;inset:0;border-radius:var(--card-radius);background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 60%);pointer-events:none}
+.card-label{position:absolute;bottom:0;left:0;right:0;padding:20px 8px 7px;background:linear-gradient(to top,rgba(4,4,10,.88) 0%,transparent 100%);font-size:11px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:0 0 var(--card-radius) var(--card-radius)}
+.card-skel{width:116px;height:174px;border-radius:var(--card-radius);flex-shrink:0;background:linear-gradient(110deg,#0c0c16 30%,#1a1a2e 50%,#0c0c16 70%);background-size:300% 100%;animation:sk 1.6s linear infinite}
+</style>
 </head>
 <body>
 
-<!-- ── INTRO ── -->
-<div class="intro-screen" id="introScreen">
-    <div class="logo-container-intro">LLUTID</div>
+<!-- LOADING -->
+<div id="loadScreen">
+  <div class="load-logo">LLUTID<span>+</span></div>
+  <div class="load-bar"><div class="load-bar-fill"></div></div>
 </div>
 
-<!-- ── MAIN ── -->
-<div class="main-content" id="mainContent">
+<div id="mainContent" style="display:none">
 
-    <header>
-        <div class="header-left">
-            <i class="fas fa-arrow-left header-back" onclick="history.back()"></i>
-            <a href="home.html" class="header-logo">Llutid<span>+</span></a>
-            <div class="header-title" id="headerTitle"></div>
-        </div>
-        <div class="header-right">
-            <i class="fas fa-cast"></i>
-            <i class="fas fa-user-circle"></i>
-        </div>
-    </header>
+  <!-- HEADER -->
+  <div class="header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <a href="home.html" class="header-logo">LLUTID<span>+</span></a>
+  </div>
 
-    <section class="movie-hero">
-        <div class="hero-skeleton" id="heroSkeleton"></div>
-        <div class="video-background" id="videoBackground"></div>
+  <!-- HERO / TRAILER -->
+  <div class="movie-hero" id="movieHero">
+    <div class="hero-skeleton" id="heroSkeleton"></div>
+    <div class="video-bg" id="videoBg"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-side-vignette"></div>
 
-        <div class="movie-overlay-content">
-            <div class="movie-badge" id="typeBadge">PELÍCULA</div>
-            <h1 class="movie-title-main" id="movieTitle">Cargando…</h1>
-            <div class="movie-info-line">
-                <span id="metaYear"></span>
-                <span class="rating" id="metaRating" style="display:none"></span>
-                <span id="metaDuration"></span>
-                <span id="metaLang"></span>
-            </div>
-        </div>
+    <!-- Unmute pill — appears after autoplay starts muted -->
+    <div class="unmute-hint" id="unmuteHint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      Toca para activar sonido
+    </div>
 
-        <!-- Mute toggle (shown only for native video trailers) -->
-        <button class="hero-mute-btn" id="heroMuteBtn" title="Silencio / Sonido">
-            <svg id="muteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-            </svg>
-            <svg id="unmuteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
-        </button>
-    </section>
+    <!-- Mute toggle -->
+    <button class="hero-mute-btn" id="heroMuteBtn">
+      <svg id="iconSoundOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+      <svg id="iconSoundOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+    </button>
+  </div>
 
-    <section class="actions">
-        <button class="btn btn-play" id="playButton">
-            <span class="progress-bar-fill"></span>
-            <i class="fas fa-spinner fa-spin"></i>
-            <i class="fas fa-play"></i>
-            <span class="btn-text">Ver</span>
-        </button>
-        <button class="btn btn-share" id="shareButton">
-            <i class="fas fa-share-alt"></i> Compartir
-        </button>
-        <div class="watched-progress-container" id="watchedProgressBarContainer">
-            <div class="watched-progress-bar" id="watchedProgressBar"></div>
-        </div>
-    </section>
+  <!-- CONTENT -->
+  <div class="content">
 
-    <section class="details-section">
-        <p class="summary" id="movieDesc">Cargando descripción…</p>
-        <div class="info-details" id="movieDetails"></div>
-    </section>
+    <div class="badge-row">
+      <span class="badge" id="typeBadge">PELÍCULA</span>
+      <span class="badge genre" id="genreBadge" style="display:none"></span>
+    </div>
 
+    <h1 class="movie-title" id="movieTitle">Cargando…</h1>
+
+    <div class="meta-row">
+      <span class="meta-item" id="metaYear"></span>
+      <div class="meta-sep" id="sep1" style="display:none"></div>
+      <span class="rating-pill" id="metaRating" style="display:none"></span>
+      <div class="meta-sep" id="sep2" style="display:none"></div>
+      <span class="meta-item" id="metaDuration"></span>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-play" id="playBtn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Ver película
+      </button>
+      <button class="btn btn-share" id="shareBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Compartir en WhatsApp
+      </button>
+    </div>
+
+    <p class="section-label">Sinopsis</p>
+    <p class="description" id="movieDesc">Cargando descripción…</p>
+
+    <p class="section-label">Detalles</p>
+    <div class="details-grid">
+      <div class="detail-row"><span class="detail-key">Año</span><span class="detail-val" id="detailYear">—</span></div>
+      <div class="detail-row"><span class="detail-key">Género</span><span class="detail-val" id="detailGenre">—</span></div>
+      <div class="detail-row"><span class="detail-key">Duración</span><span class="detail-val" id="detailDuration">—</span></div>
+      <div class="detail-row"><span class="detail-key">Clasificación</span><span class="detail-val" id="detailRating">—</span></div>
+      <div class="detail-row"><span class="detail-key">Idioma</span><span class="detail-val" id="detailLang">Español</span></div>
+    </div>
+
+    <!-- RELATED MOVIES -->
+    <div class="related-section" id="relatedSection" style="display:none">
+      <div class="related-head">
+        <span class="related-title" id="relatedTitle">También te puede gustar</span>
+      </div>
+      <div class="cards-row" id="relatedRow">
+        <div class="card-skel"></div><div class="card-skel"></div><div class="card-skel"></div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- ── INLINE FULLSCREEN PLAYER ── -->
-<div id="playerFullscreenContainer" class="player-fullscreen-container"></div>
+<!-- Vimeo SDK — must be before module script -->
+<script src="https://player.vimeo.com/api/player.js"></script>
 
-<!-- ── FIREBASE + LOGIC ── -->
 <script type="module">
-import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, getDoc,
-         updateDoc, increment,
-         collection, addDoc, serverTimestamp }   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc, increment,
+         collection, addDoc, query, where, orderBy,
+         getDocs, serverTimestamp }               from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged }           from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* ── Firebase configs ── */
-const fbConfig  = {
-    apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
-    authDomain:"peliculas-88668.firebaseapp.com",
-    projectId:"peliculas-88668",
-    storageBucket:"peliculas-88668.firebasestorage.app",
-    messagingSenderId:"475189564333",
-    appId:"1:475189564333:web:7fe74613ca5082d3890724"
-};
-const fbConfigU = {
-    apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
-    authDomain:"llutid-18d26.firebaseapp.com",
-    projectId:"llutid-18d26",
-    storageBucket:"llutid-18d26.firebasestorage.app",
-    messagingSenderId:"900505351564",
-    appId:"1:900505351564:web:e71805939e3488170652a9"
-};
-
+/* ── Firebase ── */
+const fbConfig  = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
+const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
 const app  = initializeApp(fbConfig);
 const db   = getFirestore(app);
-const appU = initializeApp(fbConfigU, "usersM");
+const appU = initializeApp(fbConfigU,"usersM");
 const auth = getAuth(appU);
 
-/* ── Params ── */
+const $       = id => document.getElementById(id);
 const movieId = new URLSearchParams(location.search).get('id');
 
-/* ── State ── */
-let movieData              = null;
-let hasOpened              = false;
-let progressBarTimeout     = null;
-let progressTrackingInterval = null;
-let startTimeFullScreen    = 0;
-let heroMuted              = true;
-let MOVIE_DURATION_MINUTES = 120;
-
-const MOVIE_WATCHED_KEY  = movieId ? `movieWatched_${movieId}`  : 'movieWatched';
-const MOVIE_PROGRESS_KEY = movieId ? `movieProgress_${movieId}` : 'movieProgress';
-const PROGRESS_UPDATE_MS = 5000;
+let movieData   = null;
+let vimeoPlayer = null;
+let nativeVid   = null;
+let heroMuted   = true; // always start muted (browser autoplay policy)
 
 /* ── Helpers ── */
-const $  = id => document.getElementById(id);
-const qs = sel => document.querySelector(sel);
-
-function toDirectMp4(url) {
-    if (!url) return '';
-    if (url.includes('archive.org/details/')) {
-        const id = url.split('/details/')[1].split('/')[0].split('?')[0];
-        return `https://archive.org/download/${id}/${id}.mp4`;
-    }
-    return url;
+function toMp4(url){
+  if(!url)return'';
+  if(url.includes('archive.org/details/')){
+    const id=url.split('/details/')[1].split('/')[0].split('?')[0];
+    return`https://archive.org/download/${id}/${id}.mp4`;
+  }
+  return url;
 }
-function isVimeo(u)   { return u && (u.includes('vimeo.com') || u.includes('player.vimeo.com')); }
-function isYouTube(u) { return u && (u.includes('youtube.com') || u.includes('youtu.be')); }
-function isDrive(u)   { return u && u.includes('drive.google.com'); }
+function isVimeo(u){return u&&u.includes('vimeo.com')}
+function isYouTube(u){return u&&(u.includes('youtube.com')||u.includes('youtu.be'))}
 
-function parseDurationMin(dur) {
-    if (!dur) return 120;
-    const m = dur.match(/(\d+)/);
-    return m ? parseInt(m[1]) : 120;
+function sectionLabel(sec){
+  const m={terror:'Terror / Suspenso',drama:'Drama',accion:'Acción / Crimen',animada:'Animada / Familiar',comedia:'Comedia',netflix:'Contenido de Netflix',populares:'Populares',destacadas:'Destacadas',top10:'Top 10'};
+  return m[sec]||sec||'';
 }
 
-/* ── Load movie from Firestore ── */
-async function loadMovie() {
-    if (!movieId) { showError('No se especificó una película.'); return; }
-    try {
-        const snap = await getDoc(doc(db, 'movies', movieId));
-        if (!snap.exists()) { showError('Película no encontrada.'); return; }
-        movieData = { id: snap.id, ...snap.data() };
-        renderMovie(movieData);
-        registerView(movieData);
-    } catch(e) {
-        console.error(e);
-        showError('Error al cargar. Verifica tu conexión.');
-    }
+/* ── Boot ── */
+async function loadMovie(){
+  if(!movieId){showError('No se especificó película.');return;}
+  try{
+    const snap=await getDoc(doc(db,'movies',movieId));
+    if(!snap.exists()){showError('Película no encontrada.');return;}
+    movieData={id:snap.id,...snap.data()};
+    renderMovie(movieData);
+    registerView(movieData);
+    loadRelated(movieData);
+  }catch(e){
+    console.error(e);
+    showError('Error al cargar. Revisa tu conexión.');
+  }
 }
 
-/* ── Render all UI from movie data ── */
-function renderMovie(m) {
-    document.title = `LLUTID+ | ${m.title || 'Película'}`;
-    MOVIE_DURATION_MINUTES = parseDurationMin(m.duration);
+/* ── Render ── */
+function renderMovie(m){
+  document.title=`${m.title||'Película'} | LLUTID+`;
 
-    /* Header */
-    $('headerTitle').textContent = m.title || '';
+  // badges
+  $('typeBadge').textContent=(m.type||'').toLowerCase()==='serie'?'SERIE':'PELÍCULA';
+  if(m.genre||m.section){$('genreBadge').textContent=m.genre||sectionLabel(m.section);$('genreBadge').style.display='';}
 
-    /* Badge */
-    const type = (m.type || 'pelicula').toLowerCase();
-    $('typeBadge').textContent = type === 'serie' ? 'SERIE' : 'PELÍCULA';
+  // title & meta
+  $('movieTitle').textContent=m.title||'Sin título';
+  if(m.year){$('metaYear').textContent=m.year;$('sep1').style.display='';}
+  if(m.rating){$('metaRating').textContent=m.rating;$('metaRating').style.display='';$('sep2').style.display='';}
+  if(m.duration)$('metaDuration').textContent=m.duration;
 
-    /* Title */
-    $('movieTitle').textContent = m.title || 'Sin título';
+  // desc & details
+  $('movieDesc').textContent=m.description||m.desc||'Sin descripción disponible.';
+  $('detailYear').textContent=m.year||'—';
+  $('detailGenre').textContent=m.genre||sectionLabel(m.section)||'—';
+  $('detailDuration').textContent=m.duration||'—';
+  $('detailRating').textContent=m.rating||'—';
+  $('detailLang').textContent=m.lang||'Español';
 
-    /* Meta row */
-    if (m.year)     $('metaYear').textContent = m.year;
-    if (m.rating) { $('metaRating').textContent = m.rating; $('metaRating').style.display = ''; }
-    if (m.duration) $('metaDuration').textContent = m.duration;
-    if (m.lang)     $('metaLang').textContent = m.lang;
+  // trailer
+  setupTrailer(m);
 
-    /* Description */
-    $('movieDesc').textContent = m.description || m.desc || 'Sin descripción disponible.';
+  // ── "Ver película" → pause trailer, go to player page ──
+  $('playBtn').onclick=()=>{
+    pauseTrailer();
+    location.href=`player.html?id=${movieId}`;
+  };
 
-    /* Details block */
-    const rows = [
-        m.duration ? `<strong>Duración:</strong> ${m.duration}` : null,
-        m.genre    ? `<strong>Género:</strong> ${m.genre}`      : null,
-        m.lang     ? `<strong>Idioma:</strong> ${m.lang}`       : null,
-        m.rating   ? `<strong>Clasificación:</strong> ${m.rating}` : null,
-    ].filter(Boolean);
-    $('movieDetails').innerHTML = rows.join('<br>');
+  $('shareBtn').onclick=()=>shareMovie(m);
 
-    /* Trailer */
-    setupTrailer(m);
-
-    /* Button initial state */
-    if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
-        setButtonToWatchedState();
-    } else {
-        startPlayButtonAnimation();
-    }
-    updateWatchedProgressBar();
-
-    /* Events */
-    $('playButton').addEventListener('click',  () => openMovie(m));
-    $('shareButton').addEventListener('click', () => shareMovie(m));
+  hideLoadScreen();
+  $('mainContent').style.display='block';
 }
 
 /* ── Trailer setup ── */
-function setupTrailer(m) {
-    const rawUrl = m.trailerUrl || m.trailer || '';
-    const bg     = $('videoBackground');
-    const skel   = $('heroSkeleton');
+function setupTrailer(m){
+  const rawUrl=m.trailerUrl||m.trailer||'';
+  const bg=$('videoBg');
+  const hideSkel=()=>{$('heroSkeleton').style.display='none';};
 
-    const hideSkeleton = () => skel.style.display = 'none';
+  if(!rawUrl){
+    // fallback: poster image
+    if(m.image)bg.innerHTML=`<img src="${m.image}" alt="${m.title||''}">`;
+    hideSkel();return;
+  }
 
-    if (!rawUrl) {
-        /* Fallback: show poster image */
-        if (m.image) {
-            bg.innerHTML = `<img src="${m.image}" alt="${m.title}" onerror="this.style.display='none'">`;
-        }
-        hideSkeleton();
-        return;
-    }
-
-    if (isVimeo(rawUrl)) {
-        /* Vimeo iframe – same approach as Superman */
-        let src = rawUrl;
-        if (!rawUrl.includes('player.vimeo.com')) {
-            const vid = rawUrl.match(/vimeo\.com\/(\d+)/);
-            src = vid
-                ? `https://player.vimeo.com/video/${vid[1]}?badge=0&autopause=0&autoplay=1&loop=1&controls=0&api=1`
-                : rawUrl;
-        }
-        bg.innerHTML = `
-            <iframe id="vimeoTrailer"
-                src="${src}"
-                frameborder="0"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowfullscreen>
-            </iframe>`;
-        hideSkeleton();
-
-    } else if (isYouTube(rawUrl)) {
-        /* YouTube embed */
-        const ytm = rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
-        const ytId = ytm ? ytm[1] : '';
-        bg.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}"
-                frameborder="0"
-                allow="autoplay; fullscreen">
-            </iframe>`;
-        hideSkeleton();
-
-    } else {
-        /* Native <video> for archive.org or direct MP4 */
-        const directUrl = toDirectMp4(rawUrl);
-        const vid = document.createElement('video');
-        vid.autoplay  = true;
-        vid.muted     = true;
-        vid.loop      = true;
-        vid.playsInline = true;
-        vid.src       = directUrl;
-        vid.onloadeddata = hideSkeleton;
-        vid.onerror = () => {
-            hideSkeleton();
-            if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}">`;
-        };
-        bg.appendChild(vid);
-        vid.play().catch(() => {});
-
-        /* Show mute toggle only for native video */
-        const muteBtn = $('heroMuteBtn');
-        muteBtn.style.display = 'flex';
-        muteBtn.addEventListener('click', () => {
-            heroMuted = !heroMuted;
-            vid.muted = heroMuted;
-            $('muteIconHero').style.display   = heroMuted ? '' : 'none';
-            $('unmuteIconHero').style.display = heroMuted ? 'none' : '';
-        });
-    }
+  if(isVimeo(rawUrl)){
+    setupVimeoTrailer(rawUrl,hideSkel);
+  }else if(isYouTube(rawUrl)){
+    const yt=rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+    const ytId=yt?yt[1]:'';
+    bg.innerHTML=`<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}&rel=0" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+    hideSkel();
+    showUnmuteHint(); // YouTube iframes can't be unmuted programmatically
+  }else{
+    setupNativeTrailer(toMp4(rawUrl),hideSkel,m.image);
+  }
 }
 
-/* ── Open movie (inline fullscreen) ── */
-function openMovie(m) {
-    if (hasOpened) return;
-    hasOpened = true;
+function setupVimeoTrailer(rawUrl,hideSkel){
+  const match=rawUrl.match(/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/);
+  if(!match){hideSkel();return;}
+  const vimeoId=match[1];
+  const bg=$('videoBg');
 
-    if (progressBarTimeout) { clearTimeout(progressBarTimeout); progressBarTimeout = null; }
-    setButtonToWatchedState();
-    localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
+  const iframe=document.createElement('iframe');
+  iframe.setAttribute('frameborder','0');
+  iframe.setAttribute('allow','autoplay;fullscreen;picture-in-picture');
+  // background=1 hides Vimeo chrome; muted=1 required for autoplay
+  iframe.src=`https://player.vimeo.com/video/${vimeoId}?autoplay=1&background=1&muted=1&loop=1&title=0&byline=0&portrait=0`;
+  bg.appendChild(iframe);
 
-    const url = m.movieUrl || m.movie_url || m.url || '';
-    if (!url) {
-        alert('No hay URL de película configurada.');
-        hasOpened = false;
-        return;
-    }
-
-    const container = $('playerFullscreenContainer');
-    container.innerHTML = '';
-    container.style.display = 'block';
-
-    if (isDrive(url) || isVimeo(url) || isYouTube(url)) {
-        /* iframe for external embeds */
-        const iframe = document.createElement('iframe');
-        iframe.src    = url;
-        iframe.id     = 'movieIframe';
-        iframe.allow  = 'autoplay; encrypted-media; fullscreen';
-        iframe.allowFullscreen = true;
-        iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
-        container.appendChild(iframe);
-    } else {
-        /* Native video for direct MP4 / archive.org */
-        const vid = document.createElement('video');
-        vid.src      = toDirectMp4(url);
-        vid.controls = true;
-        vid.autoplay = true;
-        vid.playsInline = true;
-        vid.style.cssText = 'width:100%;height:100%;background:#000;object-fit:contain;';
-        container.appendChild(vid);
-        vid.play().catch(() => {});
-    }
-
-    /* Pause Vimeo trailer if present */
-    const vimeoIframe = document.getElementById('vimeoTrailer');
-    if (vimeoIframe?.contentWindow) {
-        vimeoIframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
-    }
-
-    startProgressTracking();
-    requestFullscreen(container);
-    lockLandscape();
-}
-
-function requestFullscreen(el) {
-    (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => {})).call(el);
-}
-function lockLandscape() {
-    try { screen.orientation?.lock('landscape').catch(() => {}); } catch(e) {}
-}
-
-/* ── Button states ── */
-function setButtonToWatchedState() {
-    const btn  = $('playButton');
-    const fill = btn.querySelector('.progress-bar-fill');
-    btn.classList.remove('loading');
-    btn.classList.add('loaded-state');
-    fill.style.width = '100%';
-    fill.style.transition = 'none';
-    btn.querySelector('.fa-spinner').style.display = 'none';
-    btn.querySelector('.fa-play').style.display    = 'inline-block';
-    const txt = btn.querySelector('.btn-text');
-    txt.textContent = 'Ver otra vez';
-    txt.style.color = '#000';
-    btn.querySelector('.fa-play').style.color = '#000';
-}
-
-function startPlayButtonAnimation() {
-    const btn  = $('playButton');
-    const fill = btn.querySelector('.progress-bar-fill');
-    btn.classList.add('loading');
-    btn.querySelector('.fa-spinner').style.display = 'inline-block';
-    btn.querySelector('.fa-play').style.display    = 'none';
-    btn.querySelector('.btn-text').textContent     = 'Ver';
-    fill.style.width = '0';
-
-    progressBarTimeout = setTimeout(() => {
-        if (movieData && !hasOpened) openMovie(movieData);
-        setButtonToWatchedState();
-        localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
-    }, 22000);
-}
-
-/* ── Progress tracking (watched %) ── */
-function startProgressTracking() {
-    startTimeFullScreen = Date.now();
-    if (progressTrackingInterval) clearInterval(progressTrackingInterval);
-    const lastProg = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-
-    progressTrackingInterval = setInterval(() => {
-        const elapsed = (Date.now() - startTimeFullScreen) / 60000;
-        const current = Math.min(lastProg + elapsed, MOVIE_DURATION_MINUTES);
-        localStorage.setItem(MOVIE_PROGRESS_KEY, current.toFixed(2));
-        updateWatchedProgressBar();
-        if (current >= MOVIE_DURATION_MINUTES) clearInterval(progressTrackingInterval);
-    }, PROGRESS_UPDATE_MS);
-}
-
-function updateWatchedProgressBar() {
-    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-    const pct  = Math.min(100, Math.max(0, (prog / MOVIE_DURATION_MINUTES) * 100));
-    if (pct > 0) {
-        $('watchedProgressBarContainer').style.display = 'block';
-        $('watchedProgressBar').style.width = pct + '%';
-    } else {
-        $('watchedProgressBarContainer').style.display = 'none';
-    }
-}
-
-/* ── Share (WhatsApp) ── */
-function shareMovie(m) {
-    const title = m.title || 'esta película';
-    const desc  = m.description ? m.description.substring(0, 120) + '…' : '';
-    const msg   = `🎬 ¡Acabo de ver *${title}* en *LLUTID+* y me impactó! 😱\n\n${desc}\n\n📲 *Descarga LLUTID+:*\nhttps://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n🤖 *Chatbot:* https://llutid.github.io/chat-bot-llutid-/\n📞 +57 3181087834\n\n¡No te pierdas LLUTID+! 🔥`;
-    const url   = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    if (navigator.share) {
-        navigator.share({ title: `LLUTID+ - ${title}`, text: msg }).catch(() => window.open(url, '_blank'));
-    } else {
-        window.open(url, '_blank');
-    }
-}
-
-/* ── Register view in Firestore ── */
-async function registerView(m) {
-    try {
-        await updateDoc(doc(db, 'movies', movieId), { views: increment(1) });
-        const today = new Date().toISOString().split('T')[0];
-        onAuthStateChanged(auth, async user => {
-            const userInfo = user ? { uid: user.uid, email: user.email } : { uid: 'anon', email: 'anónimo' };
-            try {
-                await addDoc(collection(db, 'views'), {
-                    movieId, movieTitle: m.title,
-                    date: today, timestamp: serverTimestamp(),
-                    ...userInfo
-                });
-            } catch(e) {}
-        });
-    } catch(e) {}
-}
-
-/* ── Error state ── */
-function showError(msg) {
-    $('movieTitle').textContent = msg;
-    $('movieDesc').textContent  = 'Vuelve al inicio e intenta de nuevo.';
-    $('heroSkeleton').style.display = 'none';
-}
-
-/* ── Fullscreen exit handler ── */
-function onFsChange() {
-    const isFs = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen;
-    if (!isFs) {
-        const container = $('playerFullscreenContainer');
-        container.style.display = 'none';
-        container.innerHTML     = '';
-        hasOpened = false;
-
-        /* Resume trailer */
-        const vimeoIframe = document.getElementById('vimeoTrailer');
-        if (vimeoIframe?.contentWindow) {
-            vimeoIframe.contentWindow.postMessage(JSON.stringify({ method: 'play' }), '*');
-        }
-
-        if (progressTrackingInterval) {
-            clearInterval(progressTrackingInterval);
-            progressTrackingInterval = null;
-        }
-        updateWatchedProgressBar();
-    }
-}
-['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange']
-    .forEach(ev => document.addEventListener(ev, onFsChange));
-
-/* Exit fullscreen when rotated back to portrait */
-try {
-    screen.orientation?.addEventListener('change', () => {
-        const isFs = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen;
-        if (isFs && screen.orientation.type.startsWith('portrait')) {
-            (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || (() => {})).call(document);
-        }
+  if(!window.Vimeo){hideSkel();showUnmuteHint();return;}
+  try{
+    vimeoPlayer=new window.Vimeo.Player(iframe);
+    vimeoPlayer.on('loaded',()=>{
+      hideSkel();
+      $('heroMuteBtn').classList.add('show');
+      // Try to unmute — succeeds only if browser allows (user already interacted)
+      vimeoPlayer.setVolume(1)
+        .then(()=>vimeoPlayer.setMuted(false))
+        .then(()=>{heroMuted=false;syncMuteUI();})
+        .catch(()=>{heroMuted=true;syncMuteUI();showUnmuteHint();});
     });
-} catch(e) {}
+    vimeoPlayer.on('error',()=>hideSkel());
+  }catch(e){hideSkel();}
+}
 
-/* ── Boot: show intro then load ── */
-setTimeout(() => {
-    $('introScreen').style.display  = 'none';
-    $('mainContent').style.display  = 'block';
-    loadMovie();
-}, 5500);
+function setupNativeTrailer(url,hideSkel,fallback){
+  const bg=$('videoBg');
+  nativeVid=document.createElement('video');
+  nativeVid.autoplay=true;
+  nativeVid.muted=true;  // required for autoplay
+  nativeVid.loop=true;
+  nativeVid.playsInline=true;
+  nativeVid.src=url;
+  nativeVid.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+
+  nativeVid.onloadeddata=()=>{
+    hideSkel();
+    $('heroMuteBtn').classList.add('show');
+    // After data loads, try unmuting (browser policy may still block)
+    nativeVid.muted=false;
+    nativeVid.play()
+      .then(()=>{heroMuted=false;syncMuteUI();})
+      .catch(()=>{nativeVid.muted=true;heroMuted=true;syncMuteUI();showUnmuteHint();});
+  };
+  nativeVid.onerror=()=>{
+    hideSkel();
+    if(fallback)bg.innerHTML=`<img src="${fallback}" alt="">`;
+  };
+  bg.appendChild(nativeVid);
+  nativeVid.play().catch(()=>{});
+}
+
+/* pause trailer (called before navigating to player) */
+function pauseTrailer(){
+  if(vimeoPlayer)vimeoPlayer.pause().catch(()=>{});
+  if(nativeVid)nativeVid.pause();
+}
+
+function syncMuteUI(){
+  $('iconSoundOn').style.display=heroMuted?'none':'';
+  $('iconSoundOff').style.display=heroMuted?'':'none';
+}
+
+function showUnmuteHint(){
+  const h=$('unmuteHint');
+  h.classList.add('show');
+  setTimeout(()=>h.classList.remove('show'),5500);
+}
+
+/* user taps hint → unmute (now there IS a user gesture) */
+$('unmuteHint').addEventListener('click',()=>{
+  $('unmuteHint').classList.remove('show');
+  heroMuted=false;
+  if(vimeoPlayer)vimeoPlayer.setMuted(false).then(()=>vimeoPlayer.setVolume(1)).catch(()=>{});
+  if(nativeVid){nativeVid.muted=false;nativeVid.play().catch(()=>{});}
+  syncMuteUI();
+  $('heroMuteBtn').classList.add('show');
+});
+
+/* mute/unmute toggle button */
+$('heroMuteBtn').addEventListener('click',()=>{
+  heroMuted=!heroMuted;
+  if(vimeoPlayer)vimeoPlayer.setMuted(heroMuted).catch(()=>{});
+  if(nativeVid)nativeVid.muted=heroMuted;
+  syncMuteUI();
+});
+
+/* ── Related movies by section ── */
+async function loadRelated(m){
+  const sec=m.section;
+  if(!sec)return;
+  try{
+    const q=query(collection(db,'movies'),where('section','==',sec),orderBy('order'));
+    const snap=await getDocs(q);
+    const list=[];
+    snap.forEach(d=>{if(d.id!==movieId)list.push({id:d.id,...d.data()});});
+    if(!list.length)return;
+
+    $('relatedTitle').textContent=`Más de ${sectionLabel(sec)}`;
+    $('relatedSection').style.display='block';
+    const row=$('relatedRow');
+    row.innerHTML='';
+    list.slice(0,20).forEach(rm=>{
+      const a=document.createElement('a');
+      a.href=rm.link||`movie.html?id=${rm.id}`;
+      a.className='movie-card';
+      a.innerHTML=`<img src="${rm.image||''}" alt="${rm.title||''}" loading="lazy"><div class="card-shine"></div><div class="card-label">${rm.title||''}</div>`;
+      row.appendChild(a);
+    });
+  }catch(e){console.warn('Related error:',e);}
+}
+
+/* ── Register view ── */
+async function registerView(m){
+  try{
+    await updateDoc(doc(db,'movies',movieId),{views:increment(1)});
+    const today=new Date().toISOString().split('T')[0];
+    onAuthStateChanged(auth,async user=>{
+      const info=user?{uid:user.uid,email:user.email}:{uid:'anon',email:'anónimo'};
+      try{await addDoc(collection(db,'views'),{movieId,movieTitle:m.title,date:today,timestamp:serverTimestamp(),...info});}catch(e){}
+    });
+  }catch(e){}
+}
+
+/* ── Share ── */
+function shareMovie(m){
+  const title=m.title||'esta película';
+  const desc=m.description?m.description.substring(0,120)+'…':'';
+  const msg=`🎬 ¡Acabo de ver *${title}* en *LLUTID+* y es increíble! 🔥\n\n${desc}\n\n📲 *Descarga LLUTID+:*\nhttps://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n🤖 *Chatbot:* https://llutid.github.io/chat-bot-llutid-/\n📞 +57 3181087834`;
+  const url=`https://wa.me/?text=${encodeURIComponent(msg)}`;
+  if(navigator.share)navigator.share({title:`LLUTID+ - ${title}`,text:msg}).catch(()=>window.open(url,'_blank'));
+  else window.open(url,'_blank');
+}
+
+function hideLoadScreen(){
+  const ls=$('loadScreen');ls.classList.add('hide');
+  setTimeout(()=>ls.style.display='none',600);
+}
+function showError(msg){
+  hideLoadScreen();
+  $('mainContent').style.display='block';
+  $('movieTitle').textContent=msg;
+  $('movieDesc').textContent='Vuelve al inicio e intenta de nuevo.';
+  $('heroSkeleton').style.display='none';
+}
+
+loadMovie();
 </script>
-
 </body>
 </html>
