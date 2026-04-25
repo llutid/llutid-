@@ -90,7 +90,6 @@
             background-color: #000; margin-bottom: 10px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden;
         }
-        /* skeleton shimmer while loading */
         .hero-skeleton {
             position: absolute; inset: 0;
             background: linear-gradient(110deg, #0a0a0a 30%, #1c1c1c 50%, #0a0a0a 70%);
@@ -140,7 +139,7 @@
             border: 1px solid #a3a3a3; padding: 2px 6px; border-radius: 3px; font-size: 0.9rem;
         }
 
-        /* Mute button for native video trailers */
+        /* Mute button */
         .hero-mute-btn {
             position: absolute; bottom: 70px; right: 15px; z-index: 4;
             width: 36px; height: 36px; border-radius: 50%;
@@ -167,31 +166,20 @@
         .btn i, .btn-text { position: relative; z-index: 1; }
         .btn i { margin-right: 10px; font-size: 20px; }
 
-        /* Play button states */
-        .btn-play { background-color: #282828; color: #fff; }
-        .btn-play.loaded-state { background-color: #fff; color: #000; }
-        .btn-play:hover { background-color: #404040; }
+        /* Play button */
+        .btn-play { background-color: #fff; color: #000; }
+        .btn-play:hover { background-color: #e0e0e0; }
+        .btn-play:active { transform: scale(0.98); }
 
-        .progress-bar-fill {
-            position: absolute; top: 0; left: 0;
-            height: 100%; width: 0;
-            background-color: #fff; z-index: 0;
+        /* Ripple animation on click */
+        .btn-play::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.08);
+            opacity: 0;
+            transition: opacity 0.2s;
         }
-        @keyframes fillProgressBar {
-            from { width: 0; }
-            to   { width: 100%; }
-        }
-        .btn-play.loading .progress-bar-fill {
-            animation: fillProgressBar 22s linear forwards;
-        }
-        .btn-play.loading .btn-text,
-        .btn-play.loading .fa-play,
-        .btn-play.loading .fa-spinner { color: #000; transition: color 0.1s linear; }
-        .btn-play.loading .fa-spinner  { display: inline-block; }
-        .btn-play          .fa-spinner  { display: none; }
-
-        .btn-share { background-color: #282828; color: #fff; }
-        .btn-share:hover { background-color: #404040; }
+        .btn-play:active::after { opacity: 1; }
 
         /* Watched progress strip */
         .watched-progress-container {
@@ -203,21 +191,23 @@
             border-radius: 3px; transition: width 0.5s ease-out;
         }
 
+        /* Resume badge on play button */
+        #resume-badge {
+            display: none;
+            position: absolute; top: -8px; right: 12px;
+            background: #1e90ff; color: #fff;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px;
+            padding: 2px 8px; border-radius: 10px;
+        }
+
+        .btn-share { background-color: #282828; color: #fff; }
+        .btn-share:hover { background-color: #404040; }
+
         /* ── DETAILS ── */
         .details-section { padding: 0 20px; margin-bottom: 30px; }
         .summary    { font-size: 1rem; line-height: 1.5; color: #ccc; margin-bottom: 20px; }
         .info-details { font-size: 0.95rem; line-height: 1.6; color: #a3a3a3; }
         .info-details strong { color: #fff; }
-
-        /* ── FULLSCREEN PLAYER ── */
-        .player-fullscreen-container {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background-color: #000; z-index: 9999;
-        }
-        .player-fullscreen-container iframe,
-        .player-fullscreen-container video {
-            width: 100%; height: 100%; border: none; display: block; object-fit: contain;
-        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
@@ -267,7 +257,6 @@
             </div>
         </div>
 
-        <!-- Mute toggle (shown only for native video trailers) -->
         <button class="hero-mute-btn" id="heroMuteBtn" title="Silencio / Sonido">
             <svg id="muteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
@@ -282,15 +271,21 @@
     </section>
 
     <section class="actions">
+        <!--
+          ══ BOTÓN VER ══
+          Al hacer clic navega a player.html?id=MOVIE_ID&autoplay=1
+          El clic del usuario = gesto de confianza → el player puede pedir fullscreen
+        -->
         <button class="btn btn-play" id="playButton">
-            <span class="progress-bar-fill"></span>
-            <i class="fas fa-spinner fa-spin"></i>
+            <span id="resume-badge">CONTINUAR</span>
             <i class="fas fa-play"></i>
-            <span class="btn-text">Ver</span>
+            <span class="btn-text" id="playBtnText">Ver</span>
         </button>
+
         <button class="btn btn-share" id="shareButton">
             <i class="fas fa-share-alt"></i> Compartir
         </button>
+
         <div class="watched-progress-container" id="watchedProgressBarContainer">
             <div class="watched-progress-bar" id="watchedProgressBar"></div>
         </div>
@@ -302,9 +297,6 @@
     </section>
 
 </div>
-
-<!-- ── INLINE FULLSCREEN PLAYER ── -->
-<div id="playerFullscreenContainer" class="player-fullscreen-container"></div>
 
 <!-- ── FIREBASE + LOGIC ── -->
 <script type="module">
@@ -342,20 +334,14 @@ const movieId = new URLSearchParams(location.search).get('id');
 
 /* ── State ── */
 let movieData              = null;
-let hasOpened              = false;
-let progressBarTimeout     = null;
-let progressTrackingInterval = null;
-let startTimeFullScreen    = 0;
 let heroMuted              = true;
 let MOVIE_DURATION_MINUTES = 120;
 
 const MOVIE_WATCHED_KEY  = movieId ? `movieWatched_${movieId}`  : 'movieWatched';
 const MOVIE_PROGRESS_KEY = movieId ? `movieProgress_${movieId}` : 'movieProgress';
-const PROGRESS_UPDATE_MS = 5000;
 
 /* ── Helpers ── */
-const $  = id => document.getElementById(id);
-const qs = sel => document.querySelector(sel);
+const $ = id => document.getElementById(id);
 
 function toDirectMp4(url) {
     if (!url) return '';
@@ -367,7 +353,6 @@ function toDirectMp4(url) {
 }
 function isVimeo(u)   { return u && (u.includes('vimeo.com') || u.includes('player.vimeo.com')); }
 function isYouTube(u) { return u && (u.includes('youtube.com') || u.includes('youtu.be')); }
-function isDrive(u)   { return u && u.includes('drive.google.com'); }
 
 function parseDurationMin(dur) {
     if (!dur) return 120;
@@ -375,7 +360,7 @@ function parseDurationMin(dur) {
     return m ? parseInt(m[1]) : 120;
 }
 
-/* ── Load movie from Firestore ── */
+/* ── Load movie ── */
 async function loadMovie() {
     if (!movieId) { showError('No se especificó una película.'); return; }
     try {
@@ -390,31 +375,23 @@ async function loadMovie() {
     }
 }
 
-/* ── Render all UI from movie data ── */
+/* ── Render UI ── */
 function renderMovie(m) {
     document.title = `LLUTID+ | ${m.title || 'Película'}`;
     MOVIE_DURATION_MINUTES = parseDurationMin(m.duration);
 
-    /* Header */
     $('headerTitle').textContent = m.title || '';
-
-    /* Badge */
     const type = (m.type || 'pelicula').toLowerCase();
     $('typeBadge').textContent = type === 'serie' ? 'SERIE' : 'PELÍCULA';
-
-    /* Title */
     $('movieTitle').textContent = m.title || 'Sin título';
 
-    /* Meta row */
     if (m.year)     $('metaYear').textContent = m.year;
     if (m.rating) { $('metaRating').textContent = m.rating; $('metaRating').style.display = ''; }
     if (m.duration) $('metaDuration').textContent = m.duration;
     if (m.lang)     $('metaLang').textContent = m.lang;
 
-    /* Description */
     $('movieDesc').textContent = m.description || m.desc || 'Sin descripción disponible.';
 
-    /* Details block */
     const rows = [
         m.duration ? `<strong>Duración:</strong> ${m.duration}` : null,
         m.genre    ? `<strong>Género:</strong> ${m.genre}`      : null,
@@ -423,20 +400,38 @@ function renderMovie(m) {
     ].filter(Boolean);
     $('movieDetails').innerHTML = rows.join('<br>');
 
-    /* Trailer */
     setupTrailer(m);
-
-    /* Button initial state */
-    if (localStorage.getItem(MOVIE_WATCHED_KEY) === 'true') {
-        setButtonToWatchedState();
-    } else {
-        startPlayButtonAnimation();
-    }
     updateWatchedProgressBar();
+    checkResumeBadge();
 
-    /* Events */
-    $('playButton').addEventListener('click',  () => openMovie(m));
+    /* ═══════════════════════════════════════════════════
+       BOTÓN VER → navega a player.html
+       El clic del usuario actúa como el gesto necesario
+       para que player.html pueda pedir fullscreen.
+       ═══════════════════════════════════════════════════ */
+    $('playButton').addEventListener('click', () => {
+        if (!movieId) return;
+        window.location.href = `player.html?id=${encodeURIComponent(movieId)}&autoplay=1`;
+    });
+
     $('shareButton').addEventListener('click', () => shareMovie(m));
+}
+
+/* ── Watched progress / resume badge ── */
+function updateWatchedProgressBar() {
+    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+    const pct  = Math.min(100, Math.max(0, (prog / MOVIE_DURATION_MINUTES) * 100));
+    if (pct > 0) {
+        $('watchedProgressBarContainer').style.display = 'block';
+        $('watchedProgressBar').style.width = pct + '%';
+    }
+}
+function checkResumeBadge() {
+    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
+    if (prog > 1) {
+        $('resume-badge').style.display = 'block';
+        $('playBtnText').textContent = 'Continuar';
+    }
 }
 
 /* ── Trailer setup ── */
@@ -444,194 +439,50 @@ function setupTrailer(m) {
     const rawUrl = m.trailerUrl || m.trailer || '';
     const bg     = $('videoBackground');
     const skel   = $('heroSkeleton');
-
     const hideSkeleton = () => skel.style.display = 'none';
 
     if (!rawUrl) {
-        /* Fallback: show poster image */
-        if (m.image) {
-            bg.innerHTML = `<img src="${m.image}" alt="${m.title}" onerror="this.style.display='none'">`;
-        }
-        hideSkeleton();
-        return;
+        if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}" onerror="this.style.display='none'">`;
+        hideSkeleton(); return;
     }
 
     if (isVimeo(rawUrl)) {
-        /* Vimeo iframe – same approach as Superman */
         let src = rawUrl;
         if (!rawUrl.includes('player.vimeo.com')) {
             const vid = rawUrl.match(/vimeo\.com\/(\d+)/);
-            src = vid
-                ? `https://player.vimeo.com/video/${vid[1]}?badge=0&autopause=0&autoplay=1&loop=1&controls=0&api=1`
-                : rawUrl;
+            src = vid ? `https://player.vimeo.com/video/${vid[1]}?badge=0&autopause=0&autoplay=1&loop=1&controls=0&api=1` : rawUrl;
         }
-        bg.innerHTML = `
-            <iframe id="vimeoTrailer"
-                src="${src}"
-                frameborder="0"
-                allow="autoplay; fullscreen; picture-in-picture"
-                allowfullscreen>
-            </iframe>`;
+        bg.innerHTML = `<iframe id="vimeoTrailer" src="${src}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
         hideSkeleton();
 
     } else if (isYouTube(rawUrl)) {
-        /* YouTube embed */
         const ytm = rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
         const ytId = ytm ? ytm[1] : '';
-        bg.innerHTML = `
-            <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}"
-                frameborder="0"
-                allow="autoplay; fullscreen">
-            </iframe>`;
+        bg.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
         hideSkeleton();
 
     } else {
-        /* Native <video> for archive.org or direct MP4 */
+        /* Native video (archive.org / MP4 directo) */
         const directUrl = toDirectMp4(rawUrl);
         const vid = document.createElement('video');
-        vid.autoplay  = true;
-        vid.muted     = true;
-        vid.loop      = true;
-        vid.playsInline = true;
-        vid.src       = directUrl;
+        vid.autoplay = true; vid.muted = true; vid.loop = true; vid.playsInline = true;
+        vid.src = directUrl;
         vid.onloadeddata = hideSkeleton;
-        vid.onerror = () => {
-            hideSkeleton();
-            if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}">`;
-        };
+        vid.onerror = () => { hideSkeleton(); if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}">`; };
         bg.appendChild(vid);
         vid.play().catch(() => {});
 
-        /* Show mute toggle only for native video */
         const muteBtn = $('heroMuteBtn');
         muteBtn.style.display = 'flex';
         muteBtn.addEventListener('click', () => {
-            heroMuted = !heroMuted;
-            vid.muted = heroMuted;
+            heroMuted = !heroMuted; vid.muted = heroMuted;
             $('muteIconHero').style.display   = heroMuted ? '' : 'none';
             $('unmuteIconHero').style.display = heroMuted ? 'none' : '';
         });
     }
 }
 
-/* ── Open movie (inline fullscreen) ── */
-function openMovie(m) {
-    if (hasOpened) return;
-    hasOpened = true;
-
-    if (progressBarTimeout) { clearTimeout(progressBarTimeout); progressBarTimeout = null; }
-    setButtonToWatchedState();
-    localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
-
-    const url = m.movieUrl || m.movie_url || m.url || '';
-    if (!url) {
-        alert('No hay URL de película configurada.');
-        hasOpened = false;
-        return;
-    }
-
-    const container = $('playerFullscreenContainer');
-    container.innerHTML = '';
-    container.style.display = 'block';
-
-    if (isDrive(url) || isVimeo(url) || isYouTube(url)) {
-        /* iframe for external embeds */
-        const iframe = document.createElement('iframe');
-        iframe.src    = url;
-        iframe.id     = 'movieIframe';
-        iframe.allow  = 'autoplay; encrypted-media; fullscreen';
-        iframe.allowFullscreen = true;
-        iframe.style.cssText = 'width:100%;height:100%;border:none;display:block;';
-        container.appendChild(iframe);
-    } else {
-        /* Native video for direct MP4 / archive.org */
-        const vid = document.createElement('video');
-        vid.src      = toDirectMp4(url);
-        vid.controls = true;
-        vid.autoplay = true;
-        vid.playsInline = true;
-        vid.style.cssText = 'width:100%;height:100%;background:#000;object-fit:contain;';
-        container.appendChild(vid);
-        vid.play().catch(() => {});
-    }
-
-    /* Pause Vimeo trailer if present */
-    const vimeoIframe = document.getElementById('vimeoTrailer');
-    if (vimeoIframe?.contentWindow) {
-        vimeoIframe.contentWindow.postMessage(JSON.stringify({ method: 'pause' }), '*');
-    }
-
-    startProgressTracking();
-    requestFullscreen(container);
-    lockLandscape();
-}
-
-function requestFullscreen(el) {
-    (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen || (() => {})).call(el);
-}
-function lockLandscape() {
-    try { screen.orientation?.lock('landscape').catch(() => {}); } catch(e) {}
-}
-
-/* ── Button states ── */
-function setButtonToWatchedState() {
-    const btn  = $('playButton');
-    const fill = btn.querySelector('.progress-bar-fill');
-    btn.classList.remove('loading');
-    btn.classList.add('loaded-state');
-    fill.style.width = '100%';
-    fill.style.transition = 'none';
-    btn.querySelector('.fa-spinner').style.display = 'none';
-    btn.querySelector('.fa-play').style.display    = 'inline-block';
-    const txt = btn.querySelector('.btn-text');
-    txt.textContent = 'Ver otra vez';
-    txt.style.color = '#000';
-    btn.querySelector('.fa-play').style.color = '#000';
-}
-
-function startPlayButtonAnimation() {
-    const btn  = $('playButton');
-    const fill = btn.querySelector('.progress-bar-fill');
-    btn.classList.add('loading');
-    btn.querySelector('.fa-spinner').style.display = 'inline-block';
-    btn.querySelector('.fa-play').style.display    = 'none';
-    btn.querySelector('.btn-text').textContent     = 'Ver';
-    fill.style.width = '0';
-
-    progressBarTimeout = setTimeout(() => {
-        if (movieData && !hasOpened) openMovie(movieData);
-        setButtonToWatchedState();
-        localStorage.setItem(MOVIE_WATCHED_KEY, 'true');
-    }, 22000);
-}
-
-/* ── Progress tracking (watched %) ── */
-function startProgressTracking() {
-    startTimeFullScreen = Date.now();
-    if (progressTrackingInterval) clearInterval(progressTrackingInterval);
-    const lastProg = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-
-    progressTrackingInterval = setInterval(() => {
-        const elapsed = (Date.now() - startTimeFullScreen) / 60000;
-        const current = Math.min(lastProg + elapsed, MOVIE_DURATION_MINUTES);
-        localStorage.setItem(MOVIE_PROGRESS_KEY, current.toFixed(2));
-        updateWatchedProgressBar();
-        if (current >= MOVIE_DURATION_MINUTES) clearInterval(progressTrackingInterval);
-    }, PROGRESS_UPDATE_MS);
-}
-
-function updateWatchedProgressBar() {
-    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-    const pct  = Math.min(100, Math.max(0, (prog / MOVIE_DURATION_MINUTES) * 100));
-    if (pct > 0) {
-        $('watchedProgressBarContainer').style.display = 'block';
-        $('watchedProgressBar').style.width = pct + '%';
-    } else {
-        $('watchedProgressBarContainer').style.display = 'none';
-    }
-}
-
-/* ── Share (WhatsApp) ── */
+/* ── Share ── */
 function shareMovie(m) {
     const title = m.title || 'esta película';
     const desc  = m.description ? m.description.substring(0, 120) + '…' : '';
@@ -644,7 +495,7 @@ function shareMovie(m) {
     }
 }
 
-/* ── Register view in Firestore ── */
+/* ── Register view ── */
 async function registerView(m) {
     try {
         await updateDoc(doc(db, 'movies', movieId), { views: increment(1) });
@@ -654,60 +505,23 @@ async function registerView(m) {
             try {
                 await addDoc(collection(db, 'views'), {
                     movieId, movieTitle: m.title,
-                    date: today, timestamp: serverTimestamp(),
-                    ...userInfo
+                    date: today, timestamp: serverTimestamp(), ...userInfo
                 });
             } catch(e) {}
         });
     } catch(e) {}
 }
 
-/* ── Error state ── */
 function showError(msg) {
     $('movieTitle').textContent = msg;
     $('movieDesc').textContent  = 'Vuelve al inicio e intenta de nuevo.';
     $('heroSkeleton').style.display = 'none';
 }
 
-/* ── Fullscreen exit handler ── */
-function onFsChange() {
-    const isFs = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen;
-    if (!isFs) {
-        const container = $('playerFullscreenContainer');
-        container.style.display = 'none';
-        container.innerHTML     = '';
-        hasOpened = false;
-
-        /* Resume trailer */
-        const vimeoIframe = document.getElementById('vimeoTrailer');
-        if (vimeoIframe?.contentWindow) {
-            vimeoIframe.contentWindow.postMessage(JSON.stringify({ method: 'play' }), '*');
-        }
-
-        if (progressTrackingInterval) {
-            clearInterval(progressTrackingInterval);
-            progressTrackingInterval = null;
-        }
-        updateWatchedProgressBar();
-    }
-}
-['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange']
-    .forEach(ev => document.addEventListener(ev, onFsChange));
-
-/* Exit fullscreen when rotated back to portrait */
-try {
-    screen.orientation?.addEventListener('change', () => {
-        const isFs = document.fullscreenElement || document.webkitIsFullScreen || document.mozFullScreen;
-        if (isFs && screen.orientation.type.startsWith('portrait')) {
-            (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || (() => {})).call(document);
-        }
-    });
-} catch(e) {}
-
-/* ── Boot: show intro then load ── */
+/* ── Boot ── */
 setTimeout(() => {
-    $('introScreen').style.display  = 'none';
-    $('mainContent').style.display  = 'block';
+    $('introScreen').style.display = 'none';
+    $('mainContent').style.display = 'block';
     loadMovie();
 }, 5500);
 </script>
