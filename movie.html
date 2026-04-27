@@ -60,13 +60,11 @@
         .header-right { display:flex; align-items:center; }
         .header-right i { color:#fff; font-size:24px; margin-left:20px; cursor:pointer; }
 
-        /* ── HERO ──
-           Se redujo padding-top de 65% → 52% (escritorio) y de 85% → 68% (móvil)
-           para que el título quede por debajo del video sin tocarlo. */
+        /* ── HERO ── trailer puro, sin overlay de texto */
         .movie-hero {
-            position:relative; width:100%; padding-top:52%;
-            background-color:#000; margin-bottom:10px;
-            box-shadow:0 8px 20px rgba(0,0,0,0.5); overflow:hidden;
+            position:relative; width:100%; padding-top:56%;
+            background-color:#000;
+            box-shadow:0 4px 16px rgba(0,0,0,0.6); overflow:hidden;
         }
         .hero-skeleton {
             position:absolute; inset:0;
@@ -88,21 +86,23 @@
         .video-background img {
             position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;
         }
-        .movie-hero::before {
-            content:''; position:absolute; inset:0;
-            background:linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,0.5) 40%,rgba(0,0,0,0) 100%);
-            z-index:2;
-        }
-        .movie-overlay-content {
-            position:absolute; bottom:0; left:20px; right:20px; z-index:3; color:#fff;
+
+        /* ── INFO SECTION — debajo del trailer, completamente separada ── */
+        .movie-info-section {
+            padding:18px 20px 10px; background:#000;
         }
         .movie-badge {
             background-color:#1e90ff; color:#fff; padding:4px 8px;
             border-radius:4px; font-size:0.8rem; font-weight:700;
             display:inline-block; margin-bottom:10px;
         }
-        .movie-title-main { font-size:2rem; font-weight:900; margin-top:20px; margin-bottom:5px; line-height:1.1; }
-        .movie-info-line { display:flex; align-items:center; font-size:1rem; color:#a3a3a3; margin-bottom:15px; }
+        .movie-title-main {
+            font-size:2rem; font-weight:900; margin:0 0 8px; line-height:1.1;
+        }
+        .movie-info-line {
+            display:flex; align-items:center; flex-wrap:wrap;
+            font-size:1rem; color:#a3a3a3; margin-bottom:6px;
+        }
         .movie-info-line span { margin-right:15px; }
         .movie-info-line .rating { border:1px solid #a3a3a3; padding:2px 6px; border-radius:3px; font-size:0.9rem; }
 
