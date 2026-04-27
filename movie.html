@@ -9,8 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Vimeo Player API (cargado desde el inicio) -->
-    <script src="https://player.vimeo.com/api/player.js"></script>
+    <!-- ✅ Vimeo Player API eliminado: ya no se usa new Vimeo.Player()
+         porque envolvía el iframe en un <div> y rompía el layout.
+         El control pause/play ahora va por postMessage. -->
 
     <style>
         @font-face { font-family:'Netflix Sans'; src:url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2'); font-weight:400; font-display:swap; }
@@ -75,17 +76,36 @@
         .hero-skeleton.hidden { opacity:0; pointer-events:none; }
         @keyframes skAnim { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 
+        /* ── VIDEO BACKGROUND ──
+           overflow:hidden es clave para que el cover de Vimeo
+           (background=1) recorte bien los bordes                */
         .video-background {
-            position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;
+            position:absolute; top:0; left:0;
+            width:100%; height:100%;
+            z-index:1; overflow:hidden;
         }
-        .video-background iframe,
+
+        /* ✅ MP4 / <video>: object-fit:cover para llenado perfecto */
         .video-background video {
-            width:100%; height:100%; border:none; display:block;
-            position:absolute; top:0; left:0; object-fit:cover;
+            position:absolute; top:0; left:0;
+            width:100%; height:100%;
+            border:none; display:block;
+            object-fit:cover;
         }
+
+        /* ✅ VIMEO con background=1: el player ya maneja el cover
+           internamente; solo necesitamos que el iframe llene el div */
+        .video-background iframe {
+            position:absolute; top:0; left:0;
+            width:100%; height:100%;
+            border:none; display:block;
+        }
+
         .video-background img {
-            position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;
+            position:absolute; top:0; left:0;
+            width:100%; height:100%; object-fit:cover;
         }
+
         .movie-hero::before {
             content:''; position:absolute; inset:0;
             background:linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,0.5) 40%,rgba(0,0,0,0) 100%);
@@ -104,7 +124,7 @@
         .movie-info-line span { margin-right:15px; }
         .movie-info-line .rating { border:1px solid #a3a3a3; padding:2px 6px; border-radius:3px; font-size:0.9rem; }
 
-        /* Mute button — solo para vídeo nativo */
+        /* Mute button — solo para vídeo nativo MP4 */
         .hero-mute-btn {
             position:absolute; bottom:70px; right:15px; z-index:4;
             width:36px; height:36px; border-radius:50%;
@@ -127,7 +147,6 @@
         .btn i { margin-right:10px; font-size:20px; position:relative; z-index:1; }
         .btn-text { position:relative; z-index:1; }
 
-        /* botón Ver — fondo blanco, texto negro, SIN ::after azul */
         .btn-play { background-color:#fff; color:#000; }
         .btn-play:hover  { background-color:#e8e8e8; }
         .btn-play:active { transform:scale(0.98); background-color:#d0d0d0; }
@@ -203,7 +222,7 @@
                 <span id="metaLang"></span>
             </div>
         </div>
-        <!-- Mute solo para vídeo nativo -->
+        <!-- Mute solo para vídeo nativo MP4 -->
         <button class="hero-mute-btn" id="heroMuteBtn">
             <svg id="muteIconHero"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
             <svg id="unmuteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
@@ -262,9 +281,12 @@ const movieId = new URLSearchParams(location.search).get('id');
 const $ = id => document.getElementById(id);
 
 let movieData = null;
-let vimeoPlayer = null;       // instancia Vimeo.Player
-let nativeTrailerVid = null;  // instancia <video> nativo
-let heroMuted = false;        // trailer con sonido por defecto
+
+// ✅ vimeoIframe: referencia directa al iframe de Vimeo (sin Vimeo.Player wrapper)
+// ✅ nativeTrailerVid: elemento <video> para MP4
+let vimeoIframe      = null;
+let nativeTrailerVid = null;
+let heroMuted        = false;
 let MOVIE_DURATION_MINUTES = 120;
 
 const MOVIE_PROGRESS_KEY = movieId ? `movieProgress_${movieId}` : 'movieProgress';
@@ -281,7 +303,6 @@ function toDirectMp4(url) {
     return url;
 }
 function extractVimeoId(url) {
-    // Acepta: vimeo.com/123456789  o  vimeo.com/123456789?share=copy&...
     const m = url.match(/vimeo\.com\/(\d+)/);
     return m ? m[1] : null;
 }
@@ -290,15 +311,28 @@ function isYouTube(u) { return u && (u.includes('youtube.com') || u.includes('yo
 function parseDurationMin(dur) { if(!dur)return 120; const m=dur.match(/(\d+)/); return m?parseInt(m[1]):120; }
 
 /* ══════════════════════════════════════
+   VIMEO — control por postMessage
+   (evita el wrapping de new Vimeo.Player)
+══════════════════════════════════════ */
+function vimeoCmd(method, value) {
+    if (!vimeoIframe) return;
+    try {
+        const msg = value !== undefined
+            ? JSON.stringify({ method, value })
+            : JSON.stringify({ method });
+        vimeoIframe.contentWindow.postMessage(msg, '*');
+    } catch(e) {}
+}
+
+/* ══════════════════════════════════════
    TRAILER — pausa / reanuda
-   (llamado desde botón Ver y al volver)
 ══════════════════════════════════════ */
 function pauseTrailer() {
-    if (vimeoPlayer)    vimeoPlayer.pause().catch(()=>{});
+    vimeoCmd('pause');
     if (nativeTrailerVid) nativeTrailerVid.pause();
 }
 function resumeTrailer() {
-    if (vimeoPlayer)    vimeoPlayer.play().catch(()=>{});
+    vimeoCmd('play');
     if (nativeTrailerVid) nativeTrailerVid.play().catch(()=>{});
 }
 
@@ -308,7 +342,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ══════════════════════════════════════
-   LOAD MOVIE — inicia YA (sin esperar intro)
+   LOAD MOVIE
 ══════════════════════════════════════ */
 async function loadMovie() {
     if (!movieId) { showError('No se especificó una película.'); return; }
@@ -323,7 +357,6 @@ async function loadMovie() {
         showError('Error al cargar. Verifica tu conexión.');
     }
 }
-// ¡Carga inmediatamente, en paralelo con la animación intro!
 loadMovie();
 
 /* ══════════════════════════════════════
@@ -358,7 +391,7 @@ function renderMovie(m) {
 
     $('playButton').addEventListener('click', () => {
         if (!movieId) return;
-        pauseTrailer();   // pausa el trailer antes de navegar
+        pauseTrailer();
         window.location.href = `player.html?id=${encodeURIComponent(movieId)}&autoplay=1`;
     });
     $('shareButton').addEventListener('click', () => shareMovie(m));
@@ -378,42 +411,46 @@ function setupTrailer(m) {
         hideSkel(); return;
     }
 
-    /* ── VIMEO ── */
+    /* ────────────────────────────────
+       ✅ VIMEO — background=1 garantiza
+       que el video llene el contenedor
+       (igual que object-fit:cover en MP4)
+       sin barras negras ni tamaño reducido.
+
+       El control pause/play va por
+       postMessage → sin new Vimeo.Player()
+       → sin el <div> wrapper que arruinaba
+       el layout anterior.
+    ──────────────────────────────── */
     if (isVimeo(rawUrl)) {
         const vid = extractVimeoId(rawUrl);
         if (!vid) { hideSkel(); return; }
 
-        // Creamos el iframe con controles ocultos, autoplay, sonido activado
-        const iframeSrc = `https://player.vimeo.com/video/${vid}?badge=0&autopause=0&player_id=vimeoTrailer&app_id=58479&autoplay=1&loop=1&controls=0&muted=0&background=0`;
         const iframe = document.createElement('iframe');
-        iframe.id          = 'vimeoTrailer';
-        iframe.src         = iframeSrc;
-        iframe.frameBorder = '0';
-        iframe.allow       = 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share';
+        iframe.id    = 'vimeoTrailer';
+        // background=1 → Vimeo maneja el cover internamente (recorta y llena)
+        iframe.src   = `https://player.vimeo.com/video/${vid}?badge=0&autopause=0&player_id=vimeoTrailer&app_id=58479&autoplay=1&loop=1&controls=0&background=1`;
+        iframe.frameBorder    = '0';
+        iframe.allow          = 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share';
         iframe.referrerPolicy = 'strict-origin-when-cross-origin';
-        iframe.style.cssText   = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+        // El CSS del iframe ya está en la hoja de estilos (.video-background iframe)
         bg.appendChild(iframe);
 
-        // Instancia Vimeo.Player para control programático
-        // (la API de Vimeo puede tardar un momento en estar lista)
-        const initVimeo = () => {
-            if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
-                setTimeout(initVimeo, 200); return;
-            }
-            vimeoPlayer = new Vimeo.Player(iframe);
-            vimeoPlayer.setVolume(1).catch(()=>{});
-            vimeoPlayer.setMuted(false).catch(()=>{});
-            vimeoPlayer.on('loaded', () => {
-                hideSkel();
-                vimeoPlayer.play().catch(()=>{});
-            });
-            vimeoPlayer.on('play', hideSkel);
-        };
-        initVimeo();
+        vimeoIframe = iframe;
+
+        // Ocultar skeleton cuando el iframe cargue
+        iframe.addEventListener('load', () => {
+            hideSkel();
+            // Aseguramos que empiece a reproducir
+            vimeoCmd('play');
+        });
+
         return;
     }
 
-    /* ── YOUTUBE ── */
+    /* ────────────────────────────────
+       ✅ YOUTUBE
+    ──────────────────────────────── */
     if (isYouTube(rawUrl)) {
         const ytm  = rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
         const ytId = ytm ? ytm[1] : '';
@@ -422,14 +459,17 @@ function setupTrailer(m) {
         return;
     }
 
-    /* ── MP4 / archive.org directo ── */
+    /* ────────────────────────────────
+       ✅ MP4 / archive.org directo
+       (object-fit:cover vía CSS)
+    ──────────────────────────────── */
     const directUrl = toDirectMp4(rawUrl);
     const v = document.createElement('video');
-    v.autoplay   = true;
-    v.muted      = false;   // con sonido
-    v.loop       = true;
+    v.autoplay    = true;
+    v.muted       = false;
+    v.loop        = true;
     v.playsInline = true;
-    v.src        = directUrl;
+    v.src         = directUrl;
     v.onloadeddata = hideSkel;
     v.onerror = () => {
         hideSkel();
@@ -437,14 +477,16 @@ function setupTrailer(m) {
     };
     bg.appendChild(v);
     nativeTrailerVid = v;
+
     v.play().catch(() => {
         // Autoplay con sonido bloqueado → intentar silenciado
-        v.muted = true; heroMuted = true;
+        v.muted = true;
+        heroMuted = true;
         v.play().catch(()=>{});
         updateMuteIcon();
     });
 
-    // Botón mute solo para video nativo
+    // Botón mute — solo para video nativo MP4
     const muteBtn = $('heroMuteBtn');
     muteBtn.style.display = 'flex';
     muteBtn.addEventListener('click', () => {
@@ -510,8 +552,7 @@ function showError(msg) {
 }
 
 /* ══════════════════════════════════════
-   BOOT — intro dura ~4.8s, pero la carga
-   ya empezó arriba. Solo ocultamos la intro.
+   BOOT
 ══════════════════════════════════════ */
 setTimeout(() => {
     $('introScreen').classList.add('done');
