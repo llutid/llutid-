@@ -8,228 +8,176 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Vimeo Player API (cargado desde el inicio) -->
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
     <style>
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2');
-            font-weight: 400; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2');
-            font-weight: 700; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2');
-            font-weight: 800; font-display: swap;
-        }
-        @font-face {
-            font-family: 'Netflix Sans';
-            src: url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2');
-            font-weight: 900; font-display: swap;
-        }
+        @font-face { font-family:'Netflix Sans'; src:url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Rg.woff2') format('woff2'); font-weight:400; font-display:swap; }
+        @font-face { font-family:'Netflix Sans'; src:url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Md.woff2') format('woff2'); font-weight:700; font-display:swap; }
+        @font-face { font-family:'Netflix Sans'; src:url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bd.woff2') format('woff2'); font-weight:800; font-display:swap; }
+        @font-face { font-family:'Netflix Sans'; src:url('https://assets.nflxext.com/ffe/siteui/fonts/netflix-sans/v3/NetflixSans_W_Bl.woff2') format('woff2'); font-weight:900; font-display:swap; }
 
         body {
-            font-family: 'Netflix Sans', 'Roboto', sans-serif;
-            background-color: #000;
-            color: #fff;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family:'Netflix Sans','Roboto',sans-serif;
+            background-color:#000; color:#fff;
+            margin:0; padding:0;
+            display:flex; flex-direction:column;
+            min-height:100vh; overflow-x:hidden;
         }
 
-        /* ── INTRO SCREEN ── */
+        /* ── INTRO ── */
         .intro-screen {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #000000, #0a0a0a);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
+            position:fixed; top:0; left:0; width:100%; height:100%;
+            background:linear-gradient(135deg,#000,#0a0a0a);
+            display:flex; justify-content:center; align-items:center; z-index:1000;
+            pointer-events:none;
         }
+        .intro-screen.done { display:none; }
         .logo-container-intro {
-            font-size: 4rem; font-weight: 800; color: white;
-            opacity: 0; letter-spacing: 4px;
-            animation: fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 4s;
-            text-shadow: 0 0 10px #00bfff88, 0 0 20px #00bfff44;
-            font-family: 'Montserrat', sans-serif;
+            font-size:4rem; font-weight:800; color:white; opacity:0; letter-spacing:4px;
+            animation:fadeInZoom 2s ease-out forwards, fadeOut 1s ease-in forwards 3.8s;
+            text-shadow:0 0 10px #00bfff88,0 0 20px #00bfff44;
+            font-family:'Montserrat',sans-serif;
         }
-        @keyframes fadeInZoom {
-            0%   { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fadeOut {
-            to   { opacity: 0; transform: scale(1.05); }
-        }
+        @keyframes fadeInZoom { 0%{opacity:0;transform:scale(0.5);} 100%{opacity:1;transform:scale(1);} }
+        @keyframes fadeOut    { to{opacity:0;transform:scale(1.05);} }
 
-        .main-content { display: none; flex-grow: 1; }
+        .main-content { display:none; flex-grow:1; }
 
         /* ── HEADER ── */
         header {
-            background-color: rgba(0,0,0,0.7);
-            padding: 15px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            position: sticky; top: 0; z-index: 10;
+            background-color:rgba(0,0,0,0.7); padding:15px 20px;
+            display:flex; align-items:center; justify-content:space-between;
+            position:sticky; top:0; z-index:10;
         }
-        .header-left  { display: flex; align-items: center; }
-        .header-back  { color: #fff; font-size: 28px; margin-right: 15px; cursor: pointer; }
-        .header-logo  {
-            font-size: 1.8rem; font-weight: 800; color: #1e90ff;
-            text-shadow: 0 0 8px rgba(30,144,255,0.4); text-decoration: none;
-        }
-        .header-logo:hover { opacity: 0.8; }
-        .header-logo span { color: white; }
-        .header-title { font-size: 1.2rem; font-weight: 700; margin-left: 20px; }
-        .header-right { display: flex; align-items: center; }
-        .header-right i { color: #fff; font-size: 24px; margin-left: 20px; cursor: pointer; }
+        .header-left  { display:flex; align-items:center; }
+        .header-back  { color:#fff; font-size:28px; margin-right:15px; cursor:pointer; }
+        .header-logo  { font-size:1.8rem; font-weight:800; color:#1e90ff; text-shadow:0 0 8px rgba(30,144,255,0.4); text-decoration:none; }
+        .header-logo:hover { opacity:0.8; }
+        .header-logo span { color:white; }
+        .header-title { font-size:1.2rem; font-weight:700; margin-left:20px; }
+        .header-right { display:flex; align-items:center; }
+        .header-right i { color:#fff; font-size:24px; margin-left:20px; cursor:pointer; }
 
-        /* ── HERO / TRAILER ── */
+        /* ── HERO ── */
         .movie-hero {
-            position: relative; width: 100%; padding-top: 65%;
-            background-color: #000; margin-bottom: 10px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5); overflow: hidden;
+            position:relative; width:100%; padding-top:65%;
+            background-color:#000; margin-bottom:10px;
+            box-shadow:0 8px 20px rgba(0,0,0,0.5); overflow:hidden;
         }
         .hero-skeleton {
-            position: absolute; inset: 0;
-            background: linear-gradient(110deg, #0a0a0a 30%, #1c1c1c 50%, #0a0a0a 70%);
-            background-size: 300% 100%;
-            animation: skAnim 1.6s linear infinite;
+            position:absolute; inset:0;
+            background:linear-gradient(110deg,#0a0a0a 30%,#1c1c1c 50%,#0a0a0a 70%);
+            background-size:300% 100%; animation:skAnim 1.6s linear infinite;
+            transition:opacity 0.4s;
         }
-        @keyframes skAnim {
-            0%   { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .hero-skeleton.hidden { opacity:0; pointer-events:none; }
+        @keyframes skAnim { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+
+        .video-background {
+            position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;
         }
-        .movie-hero .video-background {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+        .video-background iframe,
+        .video-background video {
+            width:100%; height:100%; border:none; display:block;
+            position:absolute; top:0; left:0; object-fit:cover;
         }
-        .movie-hero .video-background iframe,
-        .movie-hero .video-background video {
-            width: 100%; height: 100%; border: none; display: block;
-            position: absolute; top: 0; left: 0; object-fit: cover;
-        }
-        .movie-hero .video-background img {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; object-fit: cover;
+        .video-background img {
+            position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover;
         }
         .movie-hero::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);
-            z-index: 2;
+            content:''; position:absolute; inset:0;
+            background:linear-gradient(to top,rgba(0,0,0,1) 0%,rgba(0,0,0,0.5) 40%,rgba(0,0,0,0) 100%);
+            z-index:2;
         }
         .movie-overlay-content {
-            position: absolute; bottom: 0; left: 20px; right: 20px; z-index: 3; color: #fff;
+            position:absolute; bottom:0; left:20px; right:20px; z-index:3; color:#fff;
         }
         .movie-badge {
-            background-color: #1e90ff; color: #fff; padding: 4px 8px;
-            border-radius: 4px; font-size: 0.8rem; font-weight: 700;
-            display: inline-block; margin-bottom: 10px;
+            background-color:#1e90ff; color:#fff; padding:4px 8px;
+            border-radius:4px; font-size:0.8rem; font-weight:700;
+            display:inline-block; margin-bottom:10px;
         }
-        .movie-title-main {
-            font-size: 2rem; font-weight: 900;
-            margin-top: 20px; margin-bottom: 5px; line-height: 1.1;
-        }
-        .movie-info-line {
-            display: flex; align-items: center; font-size: 1rem;
-            color: #a3a3a3; margin-bottom: 15px;
-        }
-        .movie-info-line span { margin-right: 15px; }
-        .movie-info-line .rating {
-            border: 1px solid #a3a3a3; padding: 2px 6px; border-radius: 3px; font-size: 0.9rem;
-        }
+        .movie-title-main { font-size:2rem; font-weight:900; margin-top:20px; margin-bottom:5px; line-height:1.1; }
+        .movie-info-line { display:flex; align-items:center; font-size:1rem; color:#a3a3a3; margin-bottom:15px; }
+        .movie-info-line span { margin-right:15px; }
+        .movie-info-line .rating { border:1px solid #a3a3a3; padding:2px 6px; border-radius:3px; font-size:0.9rem; }
 
-        /* Mute button */
+        /* Mute button — solo para vídeo nativo */
         .hero-mute-btn {
-            position: absolute; bottom: 70px; right: 15px; z-index: 4;
-            width: 36px; height: 36px; border-radius: 50%;
-            background: rgba(0,0,0,0.65); border: 1.5px solid rgba(255,255,255,0.3);
-            color: #fff; display: none; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+            position:absolute; bottom:70px; right:15px; z-index:4;
+            width:36px; height:36px; border-radius:50%;
+            background:rgba(0,0,0,0.65); border:1.5px solid rgba(255,255,255,0.3);
+            color:#fff; display:none; align-items:center; justify-content:center;
+            cursor:pointer; transition:background 0.2s;
         }
-        .hero-mute-btn:hover { background: rgba(255,255,255,0.2); }
-        .hero-mute-btn svg { width: 16px; height: 16px; }
+        .hero-mute-btn:hover { background:rgba(255,255,255,0.2); }
+        .hero-mute-btn svg { width:16px; height:16px; }
 
-        /* ── ACTION BUTTONS ── */
-        .actions {
-            display: flex; flex-direction: column; gap: 15px;
-            padding: 0 20px; margin-bottom: 30px;
-        }
+        /* ── ACTIONS ── */
+        .actions { display:flex; flex-direction:column; gap:15px; padding:0 20px; margin-bottom:30px; }
         .btn {
-            display: flex; align-items: center; justify-content: center;
-            padding: 15px 20px; border-radius: 8px;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-            text-decoration: none; border: none;
-            transition: background-color 0.3s ease;
-            position: relative; overflow: hidden;
+            display:flex; align-items:center; justify-content:center;
+            padding:15px 20px; border-radius:8px;
+            font-size:1.1rem; font-weight:700; cursor:pointer;
+            text-decoration:none; border:none;
+            transition:background-color 0.3s; position:relative; overflow:hidden;
         }
-        .btn i, .btn-text { position: relative; z-index: 1; }
-        .btn i { margin-right: 10px; font-size: 20px; }
+        .btn i { margin-right:10px; font-size:20px; position:relative; z-index:1; }
+        .btn-text { position:relative; z-index:1; }
 
-        /* Play button */
-        .btn-play { background-color: #fff; color: #000; }
-        .btn-play:hover { background-color: #e0e0e0; }
-        .btn-play:active { transform: scale(0.98); }
+        /* botón Ver — fondo blanco, texto negro, SIN ::after azul */
+        .btn-play { background-color:#fff; color:#000; }
+        .btn-play:hover  { background-color:#e8e8e8; }
+        .btn-play:active { transform:scale(0.98); background-color:#d0d0d0; }
 
-        /* Ripple animation on click */
-        .btn-play::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(0,0,0,0.08);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .btn-play:active::after { opacity: 1; }
-
-        /* Watched progress strip */
+        /* Watched progress */
         .watched-progress-container {
-            width: 100%; height: 6px; background-color: #404040;
-            border-radius: 3px; overflow: hidden; margin-top: 5px; display: none;
+            width:100%; height:6px; background-color:#404040;
+            border-radius:3px; overflow:hidden; margin-top:5px; display:none;
         }
         .watched-progress-bar {
-            height: 100%; width: 0%; background-color: #1e90ff;
-            border-radius: 3px; transition: width 0.5s ease-out;
+            height:100%; width:0%; background-color:#1e90ff;
+            border-radius:3px; transition:width 0.5s ease-out;
         }
 
-        /* Resume badge on play button */
+        /* Resume badge */
         #resume-badge {
-            display: none;
-            position: absolute; top: -8px; right: 12px;
-            background: #1e90ff; color: #fff;
-            font-size: 10px; font-weight: 700; letter-spacing: 1px;
-            padding: 2px 8px; border-radius: 10px;
+            display:none; position:absolute; top:-8px; right:12px;
+            background:#1e90ff; color:#fff;
+            font-size:10px; font-weight:700; letter-spacing:1px;
+            padding:2px 8px; border-radius:10px;
         }
 
-        .btn-share { background-color: #282828; color: #fff; }
-        .btn-share:hover { background-color: #404040; }
+        .btn-share { background-color:#282828; color:#fff; }
+        .btn-share:hover { background-color:#404040; }
 
         /* ── DETAILS ── */
-        .details-section { padding: 0 20px; margin-bottom: 30px; }
-        .summary    { font-size: 1rem; line-height: 1.5; color: #ccc; margin-bottom: 20px; }
-        .info-details { font-size: 0.95rem; line-height: 1.6; color: #a3a3a3; }
-        .info-details strong { color: #fff; }
+        .details-section { padding:0 20px; margin-bottom:30px; }
+        .summary    { font-size:1rem; line-height:1.5; color:#ccc; margin-bottom:20px; }
+        .info-details { font-size:0.95rem; line-height:1.6; color:#a3a3a3; }
+        .info-details strong { color:#fff; }
 
-        /* ── RESPONSIVE ── */
-        @media (max-width: 768px) {
-            .header-title { display: none; }
-            .movie-hero { padding-top: 85%; }
-            .movie-title-main { font-size: 1.8rem; margin-top: 15px; }
-            .movie-info-line  { font-size: 0.9rem; }
-            .summary, .info-details { font-size: 0.9rem; }
-            .btn { font-size: 1rem; padding: 12px 15px; }
+        @media (max-width:768px) {
+            .header-title { display:none; }
+            .movie-hero { padding-top:85%; }
+            .movie-title-main { font-size:1.8rem; margin-top:15px; }
+            .movie-info-line  { font-size:0.9rem; }
+            .summary,.info-details { font-size:0.9rem; }
+            .btn { font-size:1rem; padding:12px 15px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ── INTRO ── -->
+<!-- INTRO -->
 <div class="intro-screen" id="introScreen">
     <div class="logo-container-intro">LLUTID</div>
 </div>
 
-<!-- ── MAIN ── -->
+<!-- MAIN -->
 <div class="main-content" id="mainContent">
-
     <header>
         <div class="header-left">
             <i class="fas fa-arrow-left header-back" onclick="history.back()"></i>
@@ -245,7 +193,6 @@
     <section class="movie-hero">
         <div class="hero-skeleton" id="heroSkeleton"></div>
         <div class="video-background" id="videoBackground"></div>
-
         <div class="movie-overlay-content">
             <div class="movie-badge" id="typeBadge">PELÍCULA</div>
             <h1 class="movie-title-main" id="movieTitle">Cargando…</h1>
@@ -256,36 +203,22 @@
                 <span id="metaLang"></span>
             </div>
         </div>
-
-        <button class="hero-mute-btn" id="heroMuteBtn" title="Silencio / Sonido">
-            <svg id="muteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-            </svg>
-            <svg id="unmuteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            </svg>
+        <!-- Mute solo para vídeo nativo -->
+        <button class="hero-mute-btn" id="heroMuteBtn">
+            <svg id="muteIconHero"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            <svg id="unmuteIconHero" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
         </button>
     </section>
 
     <section class="actions">
-        <!--
-          ══ BOTÓN VER ══
-          Al hacer clic navega a player.html?id=MOVIE_ID&autoplay=1
-          El clic del usuario = gesto de confianza → el player puede pedir fullscreen
-        -->
         <button class="btn btn-play" id="playButton">
             <span id="resume-badge">CONTINUAR</span>
             <i class="fas fa-play"></i>
             <span class="btn-text" id="playBtnText">Ver</span>
         </button>
-
         <button class="btn btn-share" id="shareButton">
             <i class="fas fa-share-alt"></i> Compartir
         </button>
-
         <div class="watched-progress-container" id="watchedProgressBarContainer">
             <div class="watched-progress-bar" id="watchedProgressBar"></div>
         </div>
@@ -295,19 +228,16 @@
         <p class="summary" id="movieDesc">Cargando descripción…</p>
         <div class="info-details" id="movieDetails"></div>
     </section>
-
 </div>
 
-<!-- ── FIREBASE + LOGIC ── -->
 <script type="module">
-import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { initializeApp }                       from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, getDoc,
          updateDoc, increment,
-         collection, addDoc, serverTimestamp }   from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged }           from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+         collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged }         from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* ── Firebase configs ── */
-const fbConfig  = {
+const fbConfig = {
     apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",
     authDomain:"peliculas-88668.firebaseapp.com",
     projectId:"peliculas-88668",
@@ -323,26 +253,25 @@ const fbConfigU = {
     messagingSenderId:"900505351564",
     appId:"1:900505351564:web:e71805939e3488170652a9"
 };
-
 const app  = initializeApp(fbConfig);
 const db   = getFirestore(app);
-const appU = initializeApp(fbConfigU, "usersM");
+const appU = initializeApp(fbConfigU,"usersM");
 const auth = getAuth(appU);
 
-/* ── Params ── */
 const movieId = new URLSearchParams(location.search).get('id');
-
-/* ── State ── */
-let movieData              = null;
-let heroMuted              = true;
-let MOVIE_DURATION_MINUTES = 120;
-
-const MOVIE_WATCHED_KEY  = movieId ? `movieWatched_${movieId}`  : 'movieWatched';
-const MOVIE_PROGRESS_KEY = movieId ? `movieProgress_${movieId}` : 'movieProgress';
-
-/* ── Helpers ── */
 const $ = id => document.getElementById(id);
 
+let movieData = null;
+let vimeoPlayer = null;       // instancia Vimeo.Player
+let nativeTrailerVid = null;  // instancia <video> nativo
+let heroMuted = false;        // trailer con sonido por defecto
+let MOVIE_DURATION_MINUTES = 120;
+
+const MOVIE_PROGRESS_KEY = movieId ? `movieProgress_${movieId}` : 'movieProgress';
+
+/* ══════════════════════════════════════
+   HELPERS
+══════════════════════════════════════ */
 function toDirectMp4(url) {
     if (!url) return '';
     if (url.includes('archive.org/details/')) {
@@ -351,22 +280,42 @@ function toDirectMp4(url) {
     }
     return url;
 }
-function isVimeo(u)   { return u && (u.includes('vimeo.com') || u.includes('player.vimeo.com')); }
+function extractVimeoId(url) {
+    // Acepta: vimeo.com/123456789  o  vimeo.com/123456789?share=copy&...
+    const m = url.match(/vimeo\.com\/(\d+)/);
+    return m ? m[1] : null;
+}
+function isVimeo(u)   { return u && u.includes('vimeo.com'); }
 function isYouTube(u) { return u && (u.includes('youtube.com') || u.includes('youtu.be')); }
+function parseDurationMin(dur) { if(!dur)return 120; const m=dur.match(/(\d+)/); return m?parseInt(m[1]):120; }
 
-function parseDurationMin(dur) {
-    if (!dur) return 120;
-    const m = dur.match(/(\d+)/);
-    return m ? parseInt(m[1]) : 120;
+/* ══════════════════════════════════════
+   TRAILER — pausa / reanuda
+   (llamado desde botón Ver y al volver)
+══════════════════════════════════════ */
+function pauseTrailer() {
+    if (vimeoPlayer)    vimeoPlayer.pause().catch(()=>{});
+    if (nativeTrailerVid) nativeTrailerVid.pause();
+}
+function resumeTrailer() {
+    if (vimeoPlayer)    vimeoPlayer.play().catch(()=>{});
+    if (nativeTrailerVid) nativeTrailerVid.play().catch(()=>{});
 }
 
-/* ── Load movie ── */
+/* Al volver del player, reanudar trailer */
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') resumeTrailer();
+});
+
+/* ══════════════════════════════════════
+   LOAD MOVIE — inicia YA (sin esperar intro)
+══════════════════════════════════════ */
 async function loadMovie() {
     if (!movieId) { showError('No se especificó una película.'); return; }
     try {
-        const snap = await getDoc(doc(db, 'movies', movieId));
+        const snap = await getDoc(doc(db,'movies',movieId));
         if (!snap.exists()) { showError('Película no encontrada.'); return; }
-        movieData = { id: snap.id, ...snap.data() };
+        movieData = { id:snap.id, ...snap.data() };
         renderMovie(movieData);
         registerView(movieData);
     } catch(e) {
@@ -374,23 +323,26 @@ async function loadMovie() {
         showError('Error al cargar. Verifica tu conexión.');
     }
 }
+// ¡Carga inmediatamente, en paralelo con la animación intro!
+loadMovie();
 
-/* ── Render UI ── */
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
 function renderMovie(m) {
-    document.title = `LLUTID+ | ${m.title || 'Película'}`;
+    document.title = `LLUTID+ | ${m.title||'Película'}`;
     MOVIE_DURATION_MINUTES = parseDurationMin(m.duration);
 
-    $('headerTitle').textContent = m.title || '';
-    const type = (m.type || 'pelicula').toLowerCase();
-    $('typeBadge').textContent = type === 'serie' ? 'SERIE' : 'PELÍCULA';
-    $('movieTitle').textContent = m.title || 'Sin título';
+    $('headerTitle').textContent = m.title||'';
+    $('typeBadge').textContent   = (m.type||'').toLowerCase()==='serie' ? 'SERIE' : 'PELÍCULA';
+    $('movieTitle').textContent  = m.title||'Sin título';
 
-    if (m.year)     $('metaYear').textContent = m.year;
-    if (m.rating) { $('metaRating').textContent = m.rating; $('metaRating').style.display = ''; }
+    if (m.year)   $('metaYear').textContent = m.year;
+    if (m.rating){ $('metaRating').textContent=m.rating; $('metaRating').style.display=''; }
     if (m.duration) $('metaDuration').textContent = m.duration;
     if (m.lang)     $('metaLang').textContent = m.lang;
 
-    $('movieDesc').textContent = m.description || m.desc || 'Sin descripción disponible.';
+    $('movieDesc').textContent = m.description||m.desc||'Sin descripción disponible.';
 
     const rows = [
         m.duration ? `<strong>Duración:</strong> ${m.duration}` : null,
@@ -404,127 +356,167 @@ function renderMovie(m) {
     updateWatchedProgressBar();
     checkResumeBadge();
 
-    /* ═══════════════════════════════════════════════════
-       BOTÓN VER → navega a player.html
-       El clic del usuario actúa como el gesto necesario
-       para que player.html pueda pedir fullscreen.
-       ═══════════════════════════════════════════════════ */
     $('playButton').addEventListener('click', () => {
         if (!movieId) return;
+        pauseTrailer();   // pausa el trailer antes de navegar
         window.location.href = `player.html?id=${encodeURIComponent(movieId)}&autoplay=1`;
     });
-
     $('shareButton').addEventListener('click', () => shareMovie(m));
 }
 
-/* ── Watched progress / resume badge ── */
-function updateWatchedProgressBar() {
-    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-    const pct  = Math.min(100, Math.max(0, (prog / MOVIE_DURATION_MINUTES) * 100));
-    if (pct > 0) {
-        $('watchedProgressBarContainer').style.display = 'block';
-        $('watchedProgressBar').style.width = pct + '%';
-    }
-}
-function checkResumeBadge() {
-    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY) || '0');
-    if (prog > 1) {
-        $('resume-badge').style.display = 'block';
-        $('playBtnText').textContent = 'Continuar';
-    }
-}
-
-/* ── Trailer setup ── */
+/* ══════════════════════════════════════
+   SETUP TRAILER
+══════════════════════════════════════ */
 function setupTrailer(m) {
     const rawUrl = m.trailerUrl || m.trailer || '';
     const bg     = $('videoBackground');
     const skel   = $('heroSkeleton');
-    const hideSkeleton = () => skel.style.display = 'none';
+    const hideSkel = () => skel.classList.add('hidden');
 
     if (!rawUrl) {
         if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}" onerror="this.style.display='none'">`;
-        hideSkeleton(); return;
+        hideSkel(); return;
     }
 
+    /* ── VIMEO ── */
     if (isVimeo(rawUrl)) {
-        let src = rawUrl;
-        if (!rawUrl.includes('player.vimeo.com')) {
-            const vid = rawUrl.match(/vimeo\.com\/(\d+)/);
-            src = vid ? `https://player.vimeo.com/video/${vid[1]}?badge=0&autopause=0&autoplay=1&loop=1&controls=0&api=1` : rawUrl;
-        }
-        bg.innerHTML = `<iframe id="vimeoTrailer" src="${src}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-        hideSkeleton();
+        const vid = extractVimeoId(rawUrl);
+        if (!vid) { hideSkel(); return; }
 
-    } else if (isYouTube(rawUrl)) {
-        const ytm = rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+        // Creamos el iframe con controles ocultos, autoplay, sonido activado
+        const iframeSrc = `https://player.vimeo.com/video/${vid}?badge=0&autopause=0&player_id=vimeoTrailer&app_id=58479&autoplay=1&loop=1&controls=0&muted=0&background=0`;
+        const iframe = document.createElement('iframe');
+        iframe.id          = 'vimeoTrailer';
+        iframe.src         = iframeSrc;
+        iframe.frameBorder = '0';
+        iframe.allow       = 'autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.style.cssText   = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+        bg.appendChild(iframe);
+
+        // Instancia Vimeo.Player para control programático
+        // (la API de Vimeo puede tardar un momento en estar lista)
+        const initVimeo = () => {
+            if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
+                setTimeout(initVimeo, 200); return;
+            }
+            vimeoPlayer = new Vimeo.Player(iframe);
+            vimeoPlayer.setVolume(1).catch(()=>{});
+            vimeoPlayer.setMuted(false).catch(()=>{});
+            vimeoPlayer.on('loaded', () => {
+                hideSkel();
+                vimeoPlayer.play().catch(()=>{});
+            });
+            vimeoPlayer.on('play', hideSkel);
+        };
+        initVimeo();
+        return;
+    }
+
+    /* ── YOUTUBE ── */
+    if (isYouTube(rawUrl)) {
+        const ytm  = rawUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
         const ytId = ytm ? ytm[1] : '';
         bg.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&loop=1&controls=0&playlist=${ytId}" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
-        hideSkeleton();
+        hideSkel();
+        return;
+    }
 
-    } else {
-        /* Native video (archive.org / MP4 directo) */
-        const directUrl = toDirectMp4(rawUrl);
-        const vid = document.createElement('video');
-        vid.autoplay = true; vid.muted = true; vid.loop = true; vid.playsInline = true;
-        vid.src = directUrl;
-        vid.onloadeddata = hideSkeleton;
-        vid.onerror = () => { hideSkeleton(); if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}">`; };
-        bg.appendChild(vid);
-        vid.play().catch(() => {});
+    /* ── MP4 / archive.org directo ── */
+    const directUrl = toDirectMp4(rawUrl);
+    const v = document.createElement('video');
+    v.autoplay   = true;
+    v.muted      = false;   // con sonido
+    v.loop       = true;
+    v.playsInline = true;
+    v.src        = directUrl;
+    v.onloadeddata = hideSkel;
+    v.onerror = () => {
+        hideSkel();
+        if (m.image) bg.innerHTML = `<img src="${m.image}" alt="${m.title}">`;
+    };
+    bg.appendChild(v);
+    nativeTrailerVid = v;
+    v.play().catch(() => {
+        // Autoplay con sonido bloqueado → intentar silenciado
+        v.muted = true; heroMuted = true;
+        v.play().catch(()=>{});
+        updateMuteIcon();
+    });
 
-        const muteBtn = $('heroMuteBtn');
-        muteBtn.style.display = 'flex';
-        muteBtn.addEventListener('click', () => {
-            heroMuted = !heroMuted; vid.muted = heroMuted;
-            $('muteIconHero').style.display   = heroMuted ? '' : 'none';
-            $('unmuteIconHero').style.display = heroMuted ? 'none' : '';
-        });
+    // Botón mute solo para video nativo
+    const muteBtn = $('heroMuteBtn');
+    muteBtn.style.display = 'flex';
+    muteBtn.addEventListener('click', () => {
+        heroMuted = !heroMuted;
+        v.muted = heroMuted;
+        updateMuteIcon();
+    });
+    function updateMuteIcon() {
+        $('muteIconHero').style.display   = heroMuted ? '' : 'none';
+        $('unmuteIconHero').style.display = heroMuted ? 'none' : '';
     }
 }
 
-/* ── Share ── */
+/* ══════════════════════════════════════
+   PROGRESS BAR / RESUME BADGE
+══════════════════════════════════════ */
+function updateWatchedProgressBar() {
+    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY)||'0');
+    const pct  = Math.min(100, Math.max(0, (prog/MOVIE_DURATION_MINUTES)*100));
+    if (pct > 0) {
+        $('watchedProgressBarContainer').style.display = 'block';
+        $('watchedProgressBar').style.width = pct+'%';
+    }
+}
+function checkResumeBadge() {
+    const prog = parseFloat(localStorage.getItem(MOVIE_PROGRESS_KEY)||'0');
+    if (prog > 1) {
+        $('resume-badge').style.display = 'block';
+        $('playBtnText').textContent    = 'Continuar';
+    }
+}
+
+/* ══════════════════════════════════════
+   SHARE
+══════════════════════════════════════ */
 function shareMovie(m) {
-    const title = m.title || 'esta película';
-    const desc  = m.description ? m.description.substring(0, 120) + '…' : '';
+    const title = m.title||'esta película';
+    const desc  = m.description ? m.description.substring(0,120)+'…' : '';
     const msg   = `🎬 ¡Acabo de ver *${title}* en *LLUTID+* y me impactó! 😱\n\n${desc}\n\n📲 *Descarga LLUTID+:*\nhttps://apk.e-droid.net/apk/app3603927-me107o.apk?v=3\n\n🤖 *Chatbot:* https://llutid.github.io/chat-bot-llutid-/\n📞 +57 3181087834\n\n¡No te pierdas LLUTID+! 🔥`;
     const url   = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    if (navigator.share) {
-        navigator.share({ title: `LLUTID+ - ${title}`, text: msg }).catch(() => window.open(url, '_blank'));
-    } else {
-        window.open(url, '_blank');
-    }
+    if (navigator.share) navigator.share({title:`LLUTID+ - ${title}`,text:msg}).catch(()=>window.open(url,'_blank'));
+    else window.open(url,'_blank');
 }
 
-/* ── Register view ── */
+/* ══════════════════════════════════════
+   REGISTER VIEW
+══════════════════════════════════════ */
 async function registerView(m) {
     try {
-        await updateDoc(doc(db, 'movies', movieId), { views: increment(1) });
+        await updateDoc(doc(db,'movies',movieId),{views:increment(1)});
         const today = new Date().toISOString().split('T')[0];
         onAuthStateChanged(auth, async user => {
-            const userInfo = user ? { uid: user.uid, email: user.email } : { uid: 'anon', email: 'anónimo' };
-            try {
-                await addDoc(collection(db, 'views'), {
-                    movieId, movieTitle: m.title,
-                    date: today, timestamp: serverTimestamp(), ...userInfo
-                });
-            } catch(e) {}
+            const ui = user ? {uid:user.uid,email:user.email} : {uid:'anon',email:'anónimo'};
+            try { await addDoc(collection(db,'views'),{movieId,movieTitle:m.title,date:today,timestamp:serverTimestamp(),...ui}); } catch(e){}
         });
-    } catch(e) {}
+    } catch(e){}
 }
 
 function showError(msg) {
     $('movieTitle').textContent = msg;
     $('movieDesc').textContent  = 'Vuelve al inicio e intenta de nuevo.';
-    $('heroSkeleton').style.display = 'none';
+    $('heroSkeleton').classList.add('hidden');
 }
 
-/* ── Boot ── */
+/* ══════════════════════════════════════
+   BOOT — intro dura ~4.8s, pero la carga
+   ya empezó arriba. Solo ocultamos la intro.
+══════════════════════════════════════ */
 setTimeout(() => {
-    $('introScreen').style.display = 'none';
+    $('introScreen').classList.add('done');
     $('mainContent').style.display = 'block';
-    loadMovie();
-}, 5500);
+}, 4800);
 </script>
-
 </body>
 </html>
