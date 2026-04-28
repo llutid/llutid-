@@ -619,6 +619,8 @@ function closePlayer(){
   $('view-info').style.display='flex';
   document.body.style.overflow='';
   refreshInfoProgress();
+  // Retomar el trailer con un pequeño delay para que el DOM ya esté visible
+  setTimeout(()=>resumeTrailer(), 80);
 }
 
 /* ══════════════════════════════════════
