@@ -18,13 +18,159 @@
             flex-direction: column;
         }
 
-        /* ── GRID DE PORTADAS (top) ── */
+        /* ── BOTÓN CHATBOT (esquina superior derecha) ── */
+        .chatbot-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 150;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+            border: 1.5px solid rgba(255,255,255,0.22);
+            color: #fff;
+            font-family: 'Barlow', Arial, sans-serif;
+            font-weight: 900;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: background 0.2s, transform 0.15s, border-color 0.2s;
+            user-select: none;
+        }
+        .chatbot-btn:hover {
+            background: rgba(255,255,255,0.20);
+            border-color: rgba(255,255,255,0.38);
+            transform: scale(1.08);
+        }
+        .chatbot-btn:active { transform: scale(0.95); }
+        .chatbot-pulse {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 8px; height: 8px;
+            background: #007bff;
+            border-radius: 50%;
+            border: 1.5px solid #0d0d0d;
+        }
+
+        /* ── PANEL CHATBOT ── */
+        .chatbot-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .chatbot-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .chatbot-panel {
+            background: #111118;
+            border-radius: 22px 22px 0 0;
+            height: 84vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            overflow: hidden;
+        }
+        .chatbot-overlay.open .chatbot-panel { transform: translateY(0); }
+
+        .chatbot-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        .chatbot-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chatbot-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #007bff, #0055bb);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 900;
+        }
+        .chatbot-title { font-weight: 700; font-size: 0.95rem; }
+        .chatbot-subtitle { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .chatbot-close {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: #fff;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .chatbot-close:hover { background: rgba(255,255,255,0.16); }
+
+        .chatbot-panel iframe {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+
+        /* ── SPINNER DE VERIFICACIÓN ── */
+        .checking-screen {
+            position: fixed;
+            inset: 0;
+            background: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }
+        .checking-screen.hide { opacity: 0; pointer-events: none; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(255,255,255,0.12);
+            border-top-color: #007bff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .checking-screen p { color: rgba(255,255,255,0.45); font-size: 0.9rem; }
+
+        /* ── BANNER DE ESTADO ── */
+        .status-banner {
+            display: none;
+            text-align: center;
+            padding: 11px 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+        .status-banner.show { display: block; }
+        .status-banner.expired  { background: linear-gradient(90deg, #7b4a1e, #9b6025); color: #fff; }
+        .status-banner.cancelled { background: linear-gradient(90deg, #1e237b, #252ba0); color: #fff; }
+
+        /* ── GRID DE PORTADAS ── */
         .cover-grid {
             position: relative;
             flex: 1;
             overflow: hidden;
         }
-
         .grid-inner {
             position: absolute;
             inset: -20% -10%;
@@ -35,7 +181,6 @@
             transform: rotate(-12deg) scale(1.25);
             transform-origin: center center;
         }
-
         .grid-inner img {
             width: 100%;
             height: 100%;
@@ -43,92 +188,116 @@
             border-radius: 6px;
             display: block;
         }
-
         .cover-fade {
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                180deg,
-                rgba(13,13,13,0.10) 0%,
-                rgba(13,13,13,0.55) 55%,
-                rgba(13,13,13,1) 100%
-            );
+            background: linear-gradient(180deg,
+                rgba(13,13,13,0.08) 0%,
+                rgba(13,13,13,0.50) 52%,
+                rgba(13,13,13,1.00) 100%);
             pointer-events: none;
         }
-
-        /* ── BANNER DE ESTADO (membresía vencida/cancelada) ── */
-        .status-banner {
-            display: none;
-            background: linear-gradient(90deg, #7b1e1e, #9b2525);
-            color: #fff;
-            text-align: center;
-            padding: 10px 20px;
-            font-size: 0.88rem;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-            flex-shrink: 0;
-        }
-        .status-banner.show { display: block; }
-        .status-banner.expired { background: linear-gradient(90deg, #7b4a1e, #9b6025); }
-        .status-banner.cancelled { background: linear-gradient(90deg, #1e2a7b, #253099); }
 
         /* ── PANEL INFERIOR ── */
         .bottom-panel {
             flex-shrink: 0;
-            padding: 0 28px 40px;
+            padding: 0 28px 36px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             background: #0d0d0d;
         }
-
         .llutid-logo {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 22px;
+            margin-bottom: 16px;
             line-height: 1;
         }
-
         .llutid-logo .word {
-            font-family: 'Barlow', Arial, sans-serif;
             font-weight: 900;
-            font-size: clamp(2.8rem, 13vw, 3.6rem);
+            font-size: clamp(2.6rem, 12vw, 3.4rem);
             letter-spacing: 0.04em;
-            color: #ffffff;
+            color: #fff;
         }
-
         .llutid-logo .plus {
-            font-family: 'Barlow', Arial, sans-serif;
             font-weight: 900;
-            font-size: clamp(2.2rem, 10vw, 2.8rem);
+            font-size: clamp(2rem, 9vw, 2.6rem);
             color: #007bff;
             margin-left: 3px;
             position: relative;
             top: -4px;
         }
-
         .headline {
-            font-size: clamp(1.45rem, 5.5vw, 1.75rem);
+            font-size: clamp(1.3rem, 5.2vw, 1.6rem);
             font-weight: 700;
             line-height: 1.25;
-            color: #ffffff;
-            margin-bottom: 10px;
+            color: #fff;
+            margin-bottom: 8px;
             max-width: 320px;
         }
-
         .subline {
-            font-size: clamp(0.9rem, 3.5vw, 1rem);
-            font-weight: 400;
-            color: rgba(255,255,255,0.72);
-            margin-bottom: 30px;
+            font-size: clamp(0.85rem, 3.2vw, 0.95rem);
+            color: rgba(255,255,255,0.58);
+            margin-bottom: 18px;
         }
 
+        /* ── TARJETA DE INFO (vencido / cancelado) ── */
+        .info-card {
+            width: 100%;
+            max-width: 360px;
+            border-radius: 14px;
+            padding: 15px 18px;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .info-card.expired-card {
+            background: rgba(224,138,48,0.08);
+            border: 1px solid rgba(224,138,48,0.30);
+        }
+        .info-card.cancelled-card {
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.30);
+        }
+        .ic-icon-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 8px;
+        }
+        .ic-icon {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .expired-card  .ic-icon { background: rgba(224,138,48,0.18); }
+        .cancelled-card .ic-icon { background: rgba(99,102,241,0.18); }
+        .ic-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+        .expired-card  .ic-label { color: #e08a30; }
+        .cancelled-card .ic-label { color: #7b7ff0; }
+        .ic-body {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.58);
+            line-height: 1.55;
+            margin-bottom: 6px;
+        }
+        .ic-meta {
+            font-size: 0.76rem;
+            color: rgba(255,255,255,0.36);
+            font-style: italic;
+        }
+
+        /* ── BOTONES ── */
         .btn {
             width: 100%;
             max-width: 360px;
-            padding: 16px;
+            padding: 15px;
             border-radius: 10px;
             border: none;
             font-family: 'Barlow', Arial, sans-serif;
@@ -136,145 +305,88 @@
             font-size: 1rem;
             cursor: pointer;
             letter-spacing: 0.03em;
-            transition: transform 0.15s, box-shadow 0.15s;
+            transition: transform 0.15s, background 0.2s, opacity 0.2s;
+            margin-bottom: 11px;
         }
         .btn:active { transform: scale(0.98); }
 
-        .btn-primary {
-            background: #ffffff;
-            color: #0d0d0d;
-            margin-bottom: 14px;
-        }
+        .btn-primary { background: #fff; color: #0d0d0d; }
         .btn-primary:hover { background: #e8e8e8; }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.12);
-            color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.18);
-            margin-bottom: 22px;
+            background: rgba(255,255,255,0.09);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.20); }
+        .btn-secondary:hover { background: rgba(255,255,255,0.16); }
+
+        .btn-expired {
+            background: linear-gradient(135deg, #e08a30 0%, #c56e1a 100%);
+            color: #fff;
+        }
+        .btn-expired:hover { opacity: 0.88; }
+
+        .btn-new-account {
+            background: rgba(255,255,255,0.09);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+        .btn-new-account:hover { background: rgba(255,255,255,0.16); }
+
+        .link-login {
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.48);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-family: 'Barlow', Arial, sans-serif;
+            text-decoration: underline;
+            margin-bottom: 16px;
+            padding: 0;
+        }
+        .link-login:hover { color: rgba(255,255,255,0.75); }
 
         .privacy-link {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #007bff;
             font-weight: 700;
             text-decoration: none;
         }
-        .privacy-link:hover { color: #4da8ff; text-decoration: underline; }
-
-        /* ── MODAL LOGIN ── */
-        .modal-backdrop {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.72);
-            z-index: 80;
-            display: flex; align-items: flex-end; justify-content: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-        .modal-backdrop.open { opacity: 1; pointer-events: auto; }
-
-        .modal {
-            background: #1a1a1a;
-            border-radius: 20px 20px 0 0;
-            padding: 28px 24px 44px;
-            width: 100%;
-            max-width: 480px;
-            transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-        }
-        .modal-backdrop.open .modal { transform: translateY(0); }
-
-        .modal h2 {
-            font-size: 1.3rem; font-weight: 700;
-            margin-bottom: 22px; text-align: center;
-        }
-
-        .field { margin-bottom: 14px; }
-        .field input {
-            width: 100%;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 10px;
-            padding: 14px 16px;
-            color: #fff;
-            font-family: 'Barlow', Arial, sans-serif;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .field input:focus { border-color: #007bff; }
-        .field input::placeholder { color: rgba(255,255,255,0.42); }
-
-        .modal .btn-primary { margin-bottom: 14px; }
-
-        .modal-links {
-            display: flex; justify-content: space-between;
-            font-size: 0.82rem;
-        }
-        .modal-links a {
-            color: #007bff; text-decoration: none; font-weight: 700;
-        }
-        .modal-links a:hover { color: #4da8ff; }
-
-        .close-bar {
-            width: 42px; height: 4px;
-            background: rgba(255,255,255,0.25);
-            border-radius: 2px;
-            margin: 0 auto 22px;
-            cursor: pointer;
-        }
-
-        /* ── POPUPS ── */
-        .popup {
-            position: fixed; left: 50%; top: 50%;
-            transform: translate(-50%,-50%) scale(0.92);
-            padding: 18px 26px; border-radius: 14px;
-            z-index: 90; color: #fff; font-weight: 700;
-            text-align: center; opacity: 0; pointer-events: none;
-            transition: all 0.25s ease; font-family: 'Barlow', Arial, sans-serif;
-        }
-        .popup.show { opacity: 1; transform: translate(-50%,-50%) scale(1); pointer-events: auto; }
-        .popup.success { background: rgba(0,160,80,0.95); }
-        .popup.error   { background: rgba(200,20,20,0.95); }
-        .popup p { margin-top: 8px; font-size: 0.88rem; font-weight: 700; }
-
-        /* ── SPINNER de verificación ── */
-        .checking-screen {
-            position: fixed; inset: 0;
-            background: #0d0d0d;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 200;
-            opacity: 1;
-            transition: opacity 0.4s ease;
-        }
-        .checking-screen.hide { opacity: 0; pointer-events: none; }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid rgba(255,255,255,0.15);
-            border-top-color: #007bff;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-bottom: 16px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .checking-screen p {
-            color: rgba(255,255,255,0.5);
-            font-size: 0.9rem;
-            font-family: 'Barlow', Arial, sans-serif;
-        }
+        .privacy-link:hover { color: #4da8ff; }
     </style>
 </head>
 <body>
 
-<!-- PANTALLA DE VERIFICACIÓN (se oculta tras comprobar estado) -->
+<!-- PANTALLA DE VERIFICACIÓN -->
 <div class="checking-screen" id="checkingScreen">
     <div class="spinner"></div>
     <p>Verificando...</p>
 </div>
 
-<!-- BANNER DE ESTADO (membresía vencida o cancelada) -->
+<!-- BOTÓN CHATBOT -->
+<button class="chatbot-btn" id="chatbotBtn" title="Chat de soporte" aria-label="Abrir chat de soporte">
+    ?
+    <span class="chatbot-pulse"></span>
+</button>
+
+<!-- PANEL CHATBOT (slide-up) -->
+<div class="chatbot-overlay" id="chatbotOverlay">
+    <div class="chatbot-panel">
+        <div class="chatbot-header">
+            <div class="chatbot-header-left">
+                <div class="chatbot-avatar">L+</div>
+                <div>
+                    <div class="chatbot-title">Soporte LLUTID+</div>
+                    <div class="chatbot-subtitle">Normalmente respondemos de inmediato</div>
+                </div>
+            </div>
+            <button class="chatbot-close" id="chatbotClose" aria-label="Cerrar chat">✕</button>
+        </div>
+        <iframe id="chatbotFrame" src="" title="Chat de soporte LLUTID+" loading="lazy"></iframe>
+    </div>
+</div>
+
+<!-- BANNER DE ESTADO -->
 <div class="status-banner" id="statusBanner"></div>
 
 <!-- REJILLA DE PORTADAS -->
@@ -303,44 +415,21 @@
     </div>
 
     <h1 class="headline" id="mainHeadline">Descubre series y películas emblemáticas</h1>
-    <p class="subline" id="mainSubline">Iniciar sesión o comenzar con LLUTID+</p>
+    <p class="subline" id="mainSubline">Comienza gratis o inicia sesión en tu cuenta</p>
 
-    <button class="btn btn-primary" id="btnComenzar">Comenzar</button>
-    <button class="btn btn-secondary" id="btnIniciar">Iniciar sesión</button>
+    <!-- Tarjeta de información (vencido / cancelado) -->
+    <div class="info-card" id="infoCard" style="display:none;"></div>
+
+    <!-- Botón principal -->
+    <button class="btn btn-primary" id="btnMain">Comenzar</button>
+
+    <!-- Botón secundario (solo en primera vez) -->
+    <button class="btn btn-secondary" id="btnSecondary">Iniciar sesión</button>
+
+    <!-- Link pequeño (para vencido/cancelado) -->
+    <button class="link-login" id="btnLink" style="display:none;">Iniciar sesión</button>
 
     <a href="#" class="privacy-link">Privacidad y Términos</a>
-</div>
-
-<!-- MODAL LOGIN -->
-<div class="modal-backdrop" id="modal">
-    <div class="modal">
-        <div class="close-bar" id="closeBar"></div>
-        <h2>Inicia sesión</h2>
-
-        <div class="field">
-            <input id="correo" type="email" placeholder="Correo electrónico" autocomplete="username">
-        </div>
-        <div class="field">
-            <input id="pin" type="password" placeholder="PIN de acceso (6 dígitos)" maxlength="6" inputmode="numeric" autocomplete="off">
-        </div>
-
-        <button class="btn btn-primary" id="loginBtn" style="max-width:100%;">Ingresar</button>
-
-        <div class="modal-links">
-            <a href="./registro.html">Regístrate ahora</a>
-            <a href="#" id="forgotPin">¿Olvidaste tu PIN?</a>
-        </div>
-    </div>
-</div>
-
-<!-- POPUPS -->
-<div class="popup success" id="popOk">
-    ✓ Acceso exitoso
-    <p id="popOkMsg">Bienvenido a LLUTID+</p>
-</div>
-<div class="popup error" id="popErr">
-    ✕ Acceso denegado
-    <p id="popErrMsg"></p>
 </div>
 
 <!-- Firebase -->
@@ -348,9 +437,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-/* ═══════════════════════════════════════════════
+/* ══════════════════════════════════════════════
    CONFIGURACIÓN FIREBASE
-═══════════════════════════════════════════════ */
+══════════════════════════════════════════════ */
 const firebaseConfig = {
     apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
     authDomain: "llutid-18d26.firebaseapp.com",
@@ -360,189 +449,200 @@ const firebaseConfig = {
     appId: "1:900505351564:web:e71805939e3488170652a9"
 };
 
-/* ═══════════════════════════════════════════════
-   CLAVE DE MEMBRESÍA en localStorage
-   Valores posibles:
-     - (no existe)       → primera vez → mostrar bienvenida
-     - "active"          → registrado → ir a login.html
-     - "expired"         → membresía vencida → mostrar bienvenida + banner
-     - "cancelled"       → cancelada → mostrar bienvenida + banner
-═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   CONSTANTES
+   llutid_membership : null | 'active' | 'expired' | 'cancelled'
+   llutid_expires_at : ISO string (fecha de vencimiento)
+══════════════════════════════════════════════ */
 const MEMBERSHIP_KEY = 'llutid_membership';
+const EXPIRES_KEY    = 'llutid_expires_at';
+const CHATBOT_URL    = 'https://llutid.github.io/chat-bot-llutid-/';
 
-let auth = null;
-let db   = null;
-
-const modal        = document.getElementById('modal');
-const popOk        = document.getElementById('popOk');
-const popErr       = document.getElementById('popErr');
+/* ── Referencias DOM ── */
 const checkScreen  = document.getElementById('checkingScreen');
 const statusBanner = document.getElementById('statusBanner');
+const infoCard     = document.getElementById('infoCard');
+const btnMain      = document.getElementById('btnMain');
+const btnSecondary = document.getElementById('btnSecondary');
+const btnLink      = document.getElementById('btnLink');
 
-/* ─── Helpers de popup ─── */
-function showOk(msg) {
-    document.getElementById('popOkMsg').textContent = msg || '';
-    popOk.classList.add('show');
-    setTimeout(() => popOk.classList.remove('show'), 3500);
+/* ══════════════════════════════════════════════
+   CHATBOT
+══════════════════════════════════════════════ */
+const chatbotBtn     = document.getElementById('chatbotBtn');
+const chatbotOverlay = document.getElementById('chatbotOverlay');
+const chatbotClose   = document.getElementById('chatbotClose');
+const chatbotFrame   = document.getElementById('chatbotFrame');
+let chatbotLoaded    = false;
+
+function openChatbot() {
+    if (!chatbotLoaded) {
+        chatbotFrame.src = CHATBOT_URL;
+        chatbotLoaded = true;
+    }
+    chatbotOverlay.classList.add('open');
 }
-function showErr(msg) {
-    document.getElementById('popErrMsg').textContent = msg || '';
-    popErr.classList.add('show');
-    setTimeout(() => popErr.classList.remove('show'), 2500);
+function closeChatbot() { chatbotOverlay.classList.remove('open'); }
+
+chatbotBtn.addEventListener('click', openChatbot);
+chatbotClose.addEventListener('click', closeChatbot);
+chatbotOverlay.addEventListener('click', (e) => {
+    if (e.target === chatbotOverlay) closeChatbot();
+});
+
+/* ══════════════════════════════════════════════
+   UTILIDADES DE FECHA
+══════════════════════════════════════════════ */
+function formatDate(isoStr) {
+    if (!isoStr) return null;
+    try {
+        return new Date(isoStr).toLocaleDateString('es-CO', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+    } catch(e) { return null; }
 }
 
-/* ─── Modal ─── */
-function openModal()  { modal.classList.add('open'); }
-function closeModal() { modal.classList.remove('open'); }
+function relativeTime(isoStr) {
+    if (!isoStr) return null;
+    try {
+        const diff  = Date.now() - new Date(isoStr).getTime();
+        const days  = Math.round(Math.abs(diff) / 86400000);
+        const past  = diff > 0;
+        if (days === 0) return 'hoy';
+        if (days === 1) return past ? 'hace 1 día' : 'en 1 día';
+        return past ? `hace ${days} días` : `en ${days} días`;
+    } catch(e) { return null; }
+}
 
-/* ─── Ocultar pantalla de verificación ─── */
+/* ══════════════════════════════════════════════
+   OCULTAR PANTALLA DE VERIFICACIÓN
+══════════════════════════════════════════════ */
 function hideCheckScreen() {
     checkScreen.classList.add('hide');
-    setTimeout(() => checkScreen.style.display = 'none', 400);
+    setTimeout(() => checkScreen.style.display = 'none', 420);
 }
 
-/* ═══════════════════════════════════════════════
-   LÓGICA PRINCIPAL DE REDIRECCIÓN
-   Se ejecuta en cuanto carga la página.
-   Si la membresía es "active" → va a login.html
-   Si es "expired" o "cancelled" → muestra bienvenida con banner
-   Si no existe → primera vez, muestra bienvenida limpia
-═══════════════════════════════════════════════ */
-function checkMembershipAndRoute() {
-    const status = localStorage.getItem(MEMBERSHIP_KEY);
+/* ══════════════════════════════════════════════
+   LÓGICA DE ESTADO Y ENRUTAMIENTO
 
-    if (status === 'active') {
-        // Ya se registró y tiene membresía activa → saltar directamente al login externo
-        window.location.href = 'login.html';
-        return; // No ocultamos el spinner, la página navega sola
+   Estados posibles de localStorage:
+   ┌─────────────┬──────────────────────────────────────────────────┐
+   │ null        │ Primera vez: mostrar pantalla de bienvenida      │
+   │ 'active'    │ Ya tiene cuenta: ir a login.html                 │
+   │             │ (pero primero comprueba si la fecha venció)      │
+   │ 'expired'   │ Membresía vencida: info + botón "Reiniciar"      │
+   │ 'cancelled' │ Cancelada: info + botón "Crear nueva cuenta"     │
+   └─────────────┴──────────────────────────────────────────────────┘
+══════════════════════════════════════════════ */
+function checkMembershipAndRoute() {
+    let status    = localStorage.getItem(MEMBERSHIP_KEY);
+    const expires = localStorage.getItem(EXPIRES_KEY);
+
+    /* Verificación automática de vencimiento en el cliente */
+    if (status === 'active' && expires && new Date(expires) < new Date()) {
+        status = 'expired';
+        localStorage.setItem(MEMBERSHIP_KEY, 'expired');
     }
 
-    // Mostrar la pantalla de bienvenida
+    /* ── ACTIVO: redirigir a login.html ── */
+    if (status === 'active') {
+        window.location.href = 'login.html';
+        return; // la navegación se encarga; no ocultamos spinner
+    }
+
     hideCheckScreen();
 
+    /* ── VENCIDO ── */
     if (status === 'expired') {
-        statusBanner.textContent = '⏰ Tu membresía ha vencido. Renuévala para seguir disfrutando LLUTID+';
+        statusBanner.textContent = '⏰  Tu membresía ha vencido — Reactívala para seguir disfrutando LLUTID+';
         statusBanner.classList.add('show', 'expired');
-        document.getElementById('mainHeadline').textContent = 'Renueva tu membresía LLUTID+';
-        document.getElementById('mainSubline').textContent = 'Tu acceso ha expirado. Regístrate de nuevo para continuar.';
-        document.getElementById('btnComenzar').textContent = 'Renovar membresía';
-    } else if (status === 'cancelled') {
-        statusBanner.textContent = '🚫 Tu membresía fue cancelada. Contáctanos si crees que es un error.';
-        statusBanner.classList.add('show', 'cancelled');
-        document.getElementById('mainHeadline').textContent = 'Tu membresía fue cancelada';
-        document.getElementById('mainSubline').textContent = 'Puedes registrarte de nuevo para volver a LLUTID+';
-        document.getElementById('btnComenzar').textContent = 'Registrarme de nuevo';
+
+        document.getElementById('mainHeadline').textContent = 'Tu membresía ha vencido';
+        document.getElementById('mainSubline').textContent  = 'Renueva tu acceso y vuelve a todo el contenido';
+
+        const fechaFmt = formatDate(expires);
+        const cuanto   = relativeTime(expires);
+
+        infoCard.className   = 'info-card expired-card';
+        infoCard.style.display = 'block';
+        infoCard.innerHTML   = `
+            <div class="ic-icon-row">
+                <div class="ic-icon">⏰</div>
+                <span class="ic-label">Membresía vencida</span>
+            </div>
+            <div class="ic-body">
+                Tu acceso a LLUTID+ ha expirado. Para volver a disfrutar de todo el contenido,
+                reactiva tu membresía con un nuevo plan.
+            </div>
+            ${fechaFmt ? `<div class="ic-meta">Venció el ${fechaFmt}${cuanto ? ' · ' + cuanto : ''}</div>` : ''}
+        `;
+
+        btnMain.textContent = 'Reiniciar membresía';
+        btnMain.className   = 'btn btn-expired';
+        btnMain.onclick     = () => window.location.href = 'registro.html';
+
+        btnSecondary.style.display = 'none';
+
+        btnLink.textContent    = 'Ya tengo cuenta activa — Iniciar sesión';
+        btnLink.style.display  = 'block';
+        btnLink.onclick        = () => window.location.href = 'login.html';
+
+        return;
     }
-    // Si status es null → primera vez, textos por defecto ya están en el HTML
+
+    /* ── CANCELADO ── */
+    if (status === 'cancelled') {
+        statusBanner.textContent = '🚫  Tu cuenta fue cancelada — Usa el chat ? si crees que es un error';
+        statusBanner.classList.add('show', 'cancelled');
+
+        document.getElementById('mainHeadline').textContent = 'Tu cuenta fue cancelada';
+        document.getElementById('mainSubline').textContent  = 'Puedes crear una nueva cuenta cuando quieras';
+
+        infoCard.className     = 'info-card cancelled-card';
+        infoCard.style.display = 'block';
+        infoCard.innerHTML     = `
+            <div class="ic-icon-row">
+                <div class="ic-icon">🚫</div>
+                <span class="ic-label">Cuenta desactivada</span>
+            </div>
+            <div class="ic-body">
+                Tu acceso a LLUTID+ fue cancelado por el administrador. Si crees que esto
+                es un error o necesitas más información, contáctanos a través del chat de soporte.
+            </div>
+            <div class="ic-meta">Toca el botón <strong style="color:#fff;">?</strong> en la esquina superior derecha para hablar con soporte.</div>
+        `;
+
+        btnMain.textContent = 'Crear nueva cuenta';
+        btnMain.className   = 'btn btn-new-account';
+        btnMain.onclick     = () => window.location.href = 'registro.html';
+
+        btnSecondary.style.display = 'none';
+
+        btnLink.textContent   = 'Iniciar sesión con otra cuenta';
+        btnLink.style.display = 'block';
+        btnLink.onclick       = () => window.location.href = 'login.html';
+
+        return;
+    }
+
+    /* ── PRIMERA VEZ (null) ── */
+    btnMain.textContent = 'Comenzar';
+    btnMain.className   = 'btn btn-primary';
+    btnMain.onclick     = () => window.location.href = 'registro.html';
+
+    btnSecondary.style.display = 'block';
+    btnSecondary.textContent   = 'Iniciar sesión';
+    btnSecondary.onclick       = () => window.location.href = 'login.html';
+
+    btnLink.style.display = 'none';
 }
 
-/* ─── Botones principales ─── */
-document.getElementById('btnIniciar').addEventListener('click', openModal);
-document.getElementById('btnComenzar').addEventListener('click', () => {
-    window.location.href = './registro.html';
-});
-document.getElementById('closeBar').addEventListener('click', closeModal);
-modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-/* ═══════════════════════════════════════════════
-   INICIALIZACIÓN Y LOGIN
-═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   INICIO
+══════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Iniciar Firebase
-    try {
-        const app = firebase.initializeApp(firebaseConfig);
-        auth = app.auth();
-        db   = app.firestore();
-    } catch(e) { console.warn('Firebase init:', e); }
-
-    // Verificar estado de membresía ANTES de mostrar la UI
+    try { firebase.initializeApp(firebaseConfig); } catch(e) {}
     checkMembershipAndRoute();
-
-    /* ─── Autocompletar campos guardados ─── */
-    const correoEl = document.getElementById('correo');
-    const pinEl    = document.getElementById('pin');
-
-    const savedCorreo = localStorage.getItem('correo');
-    const savedPin    = localStorage.getItem('pin');
-    if (savedCorreo) correoEl.value = savedCorreo;
-    if (savedPin && savedPin.length === 6) {
-        pinEl.value = savedPin;
-        pinEl.type  = 'text';
-        pinEl.addEventListener('focus', () => { pinEl.type = 'password'; pinEl.value = savedPin; }, { once: true });
-    }
-
-    /* ─── Login desde el modal ─── */
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-        if (!auth) { showErr('Error de conexión. Recarga la página.'); return; }
-        const correo = (correoEl.value || '').trim().toLowerCase();
-        const pin    = (pinEl.value || '').trim();
-        if (!correo || pin.length !== 6) { showErr('Ingresa un correo y un PIN de 6 dígitos'); return; }
-
-        try {
-            const cred = await auth.signInWithEmailAndPassword(correo, pin);
-            const uid  = cred.user.uid;
-
-            // Verificar estado de membresía en Firestore antes de redirigir
-            if (db) {
-                const snap = await db.collection('users').doc(uid).get();
-                if (snap.exists) {
-                    const data   = snap.data();
-                    const mStatus = data.membershipStatus || 'active';
-                    if (mStatus === 'expired' || mStatus === 'cancelled') {
-                        // Actualizar localStorage para que al volver aparezca el banner
-                        localStorage.setItem(MEMBERSHIP_KEY, mStatus);
-                        await auth.signOut();
-                        const msgs = {
-                            expired: 'Tu membresía ha vencido. Por favor renuévala.',
-                            cancelled: 'Tu membresía fue cancelada.'
-                        };
-                        showErr(msgs[mStatus]);
-                        return;
-                    }
-                }
-            }
-
-            localStorage.setItem('correo', correo);
-            localStorage.setItem('pin', pin);
-            localStorage.setItem(MEMBERSHIP_KEY, 'active');
-
-            showOk('Bienvenido a LLUTID+');
-            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
-
-        } catch (err) {
-            localStorage.removeItem('pin');
-            pinEl.value = ''; pinEl.type = 'password';
-            if (['auth/wrong-password','auth/user-not-found','auth/invalid-credential'].includes(err.code)) {
-                showErr('Correo o PIN incorrecto');
-            } else if (err.code === 'auth/invalid-email') {
-                showErr('Formato de correo inválido');
-            } else {
-                showErr('Error de acceso. Verifica tu conexión.');
-            }
-        }
-    });
-
-    /* ─── Recuperar PIN ─── */
-    document.getElementById('forgotPin').addEventListener('click', async (e) => {
-        e.preventDefault();
-        if (!auth) { showErr('Error de conexión.'); return; }
-        const correo = (correoEl.value || '').trim().toLowerCase();
-        if (!correo) { showErr('Ingresa tu correo primero'); return; }
-        try {
-            await auth.sendPasswordResetEmail(correo);
-            showOk(`Enviamos instrucciones a ${correo}`);
-        } catch (err) {
-            if (err.code === 'auth/user-not-found') showErr('No existe usuario con ese correo.');
-            else if (err.code === 'auth/invalid-email') showErr('Formato de correo inválido.');
-            else showErr('Error al enviar. Verifica tu conexión.');
-        }
-    });
-
-    /* ─── Enter en inputs ─── */
-    [correoEl, pinEl].forEach(el => {
-        el.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('loginBtn').click(); });
-    });
 });
 </script>
 </body>
