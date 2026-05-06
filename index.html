@@ -6,7 +6,14 @@
     <title>LLUTID+</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
 
         body {
             height: 100vh;
@@ -40,7 +47,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             transition: background 0.2s, transform 0.15s, border-color 0.2s;
-            user-select: none;
+            outline: none;
         }
         .chatbot-btn:hover {
             background: rgba(255,255,255,0.20);
@@ -117,6 +124,7 @@
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: background 0.15s;
+            outline: none;
         }
         .chatbot-close:hover { background: rgba(255,255,255,0.16); }
 
@@ -187,6 +195,7 @@
             object-fit: cover;
             border-radius: 6px;
             display: block;
+            pointer-events: none;
         }
         .cover-fade {
             position: absolute;
@@ -307,8 +316,10 @@
             letter-spacing: 0.03em;
             transition: transform 0.15s, background 0.2s, opacity 0.2s;
             margin-bottom: 11px;
+            outline: none;
         }
         .btn:active { transform: scale(0.98); }
+        .btn:focus  { outline: none; }
 
         .btn-primary { background: #fff; color: #0d0d0d; }
         .btn-primary:hover { background: #e8e8e8; }
@@ -343,6 +354,7 @@
             text-decoration: underline;
             margin-bottom: 16px;
             padding: 0;
+            outline: none;
         }
         .link-login:hover { color: rgba(255,255,255,0.75); }
 
@@ -351,6 +363,7 @@
             color: #007bff;
             font-weight: 700;
             text-decoration: none;
+            outline: none;
         }
         .privacy-link:hover { color: #4da8ff; }
     </style>
@@ -432,30 +445,16 @@
     <a href="#" class="privacy-link">Privacidad y Términos</a>
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
 /* ══════════════════════════════════════════════
-   CONFIGURACIÓN FIREBASE
-══════════════════════════════════════════════ */
-const firebaseConfig = {
-    apiKey: "AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
-    authDomain: "llutid-18d26.firebaseapp.com",
-    projectId: "llutid-18d26",
-    storageBucket: "llutid-18d26.firebasestorage.app",
-    messagingSenderId: "900505351564",
-    appId: "1:900505351564:web:e71805939e3488170652a9"
-};
-
-/* ══════════════════════════════════════════════
-   CONSTANTES
+   CLAVES DE LOCALSTORAGE
    llutid_membership : null | 'active' | 'expired' | 'cancelled'
    llutid_expires_at : ISO string (fecha de vencimiento)
+   llutid_session    : 'true' cuando login o registro completó con éxito
 ══════════════════════════════════════════════ */
 const MEMBERSHIP_KEY = 'llutid_membership';
 const EXPIRES_KEY    = 'llutid_expires_at';
+const SESSION_KEY    = 'llutid_session';       // ← flag de éxito
 const CHATBOT_URL    = 'https://llutid.github.io/chat-bot-llutid-/';
 
 /* ── Referencias DOM ── */
@@ -476,10 +475,7 @@ const chatbotFrame   = document.getElementById('chatbotFrame');
 let chatbotLoaded    = false;
 
 function openChatbot() {
-    if (!chatbotLoaded) {
-        chatbotFrame.src = CHATBOT_URL;
-        chatbotLoaded = true;
-    }
+    if (!chatbotLoaded) { chatbotFrame.src = CHATBOT_URL; chatbotLoaded = true; }
     chatbotOverlay.classList.add('open');
 }
 function closeChatbot() { chatbotOverlay.classList.remove('open'); }
@@ -505,9 +501,9 @@ function formatDate(isoStr) {
 function relativeTime(isoStr) {
     if (!isoStr) return null;
     try {
-        const diff  = Date.now() - new Date(isoStr).getTime();
-        const days  = Math.round(Math.abs(diff) / 86400000);
-        const past  = diff > 0;
+        const diff = Date.now() - new Date(isoStr).getTime();
+        const days = Math.round(Math.abs(diff) / 86400000);
+        const past = diff > 0;
         if (days === 0) return 'hoy';
         if (days === 1) return past ? 'hace 1 día' : 'en 1 día';
         return past ? `hace ${days} días` : `en ${days} días`;
@@ -523,36 +519,39 @@ function hideCheckScreen() {
 }
 
 /* ══════════════════════════════════════════════
-   LÓGICA DE ESTADO Y ENRUTAMIENTO
-
-   Estados posibles de localStorage:
-   ┌─────────────┬──────────────────────────────────────────────────┐
-   │ null        │ Primera vez: mostrar pantalla de bienvenida      │
-   │ 'active'    │ Ya tiene cuenta: ir a login.html                 │
-   │             │ (pero primero comprueba si la fecha venció)      │
-   │ 'expired'   │ Membresía vencida: info + botón "Reiniciar"      │
-   │ 'cancelled' │ Cancelada: info + botón "Crear nueva cuenta"     │
-   └─────────────┴──────────────────────────────────────────────────┘
+   LÓGICA PRINCIPAL
+   Orden de comprobación:
+   1. ¿Hay sesión activa (flag de éxito)?  → login.html
+   2. ¿Membresía activa?                   → login.html
+   3. ¿Vencida?                            → pantalla "vencida"
+   4. ¿Cancelada?                          → pantalla "cancelada"
+   5. Sin dato (primera vez)               → bienvenida normal
 ══════════════════════════════════════════════ */
 function checkMembershipAndRoute() {
+    /* ── 1. Flag de sesión exitosa (login.html / registro.html lo activan) ── */
+    if (localStorage.getItem(SESSION_KEY) === 'true') {
+        window.location.href = 'login.html';
+        return;
+    }
+
     let status    = localStorage.getItem(MEMBERSHIP_KEY);
     const expires = localStorage.getItem(EXPIRES_KEY);
 
-    /* Verificación automática de vencimiento en el cliente */
+    /* ── Verificación automática de vencimiento ── */
     if (status === 'active' && expires && new Date(expires) < new Date()) {
         status = 'expired';
         localStorage.setItem(MEMBERSHIP_KEY, 'expired');
     }
 
-    /* ── ACTIVO: redirigir a login.html ── */
+    /* ── 2. Activo: ir a login.html ── */
     if (status === 'active') {
         window.location.href = 'login.html';
-        return; // la navegación se encarga; no ocultamos spinner
+        return;
     }
 
     hideCheckScreen();
 
-    /* ── VENCIDO ── */
+    /* ── 3. VENCIDO ── */
     if (status === 'expired') {
         statusBanner.textContent = '⏰  Tu membresía ha vencido — Reactívala para seguir disfrutando LLUTID+';
         statusBanner.classList.add('show', 'expired');
@@ -563,9 +562,9 @@ function checkMembershipAndRoute() {
         const fechaFmt = formatDate(expires);
         const cuanto   = relativeTime(expires);
 
-        infoCard.className   = 'info-card expired-card';
+        infoCard.className     = 'info-card expired-card';
         infoCard.style.display = 'block';
-        infoCard.innerHTML   = `
+        infoCard.innerHTML     = `
             <div class="ic-icon-row">
                 <div class="ic-icon">⏰</div>
                 <span class="ic-label">Membresía vencida</span>
@@ -583,14 +582,13 @@ function checkMembershipAndRoute() {
 
         btnSecondary.style.display = 'none';
 
-        btnLink.textContent    = 'Ya tengo cuenta activa — Iniciar sesión';
-        btnLink.style.display  = 'block';
-        btnLink.onclick        = () => window.location.href = 'login.html';
-
+        btnLink.textContent   = 'Ya tengo cuenta activa — Iniciar sesión';
+        btnLink.style.display = 'block';
+        btnLink.onclick       = () => window.location.href = 'login.html';
         return;
     }
 
-    /* ── CANCELADO ── */
+    /* ── 4. CANCELADO ── */
     if (status === 'cancelled') {
         statusBanner.textContent = '🚫  Tu cuenta fue cancelada — Usa el chat ? si crees que es un error';
         statusBanner.classList.add('show', 'cancelled');
@@ -621,11 +619,10 @@ function checkMembershipAndRoute() {
         btnLink.textContent   = 'Iniciar sesión con otra cuenta';
         btnLink.style.display = 'block';
         btnLink.onclick       = () => window.location.href = 'login.html';
-
         return;
     }
 
-    /* ── PRIMERA VEZ (null) ── */
+    /* ── 5. PRIMERA VEZ (null) ── */
     btnMain.textContent = 'Comenzar';
     btnMain.className   = 'btn btn-primary';
     btnMain.onclick     = () => window.location.href = 'registro.html';
@@ -640,10 +637,7 @@ function checkMembershipAndRoute() {
 /* ══════════════════════════════════════════════
    INICIO
 ══════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-    try { firebase.initializeApp(firebaseConfig); } catch(e) {}
-    checkMembershipAndRoute();
-});
+document.addEventListener('DOMContentLoaded', checkMembershipAndRoute);
 </script>
 </body>
 </html>
