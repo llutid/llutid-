@@ -578,13 +578,19 @@ function checkMembershipAndRoute() {
 
         btnMain.textContent = 'Reiniciar membresía';
         btnMain.className   = 'btn btn-expired';
-        btnMain.onclick     = () => window.location.href = 'registro.html';
+        btnMain.onclick     = () => {
+            localStorage.setItem(SESSION_KEY, 'true');
+            window.location.href = 'registro.html';
+        };
 
         btnSecondary.style.display = 'none';
 
         btnLink.textContent   = 'Ya tengo cuenta activa — Iniciar sesión';
         btnLink.style.display = 'block';
-        btnLink.onclick       = () => window.location.href = 'login.html';
+        btnLink.onclick       = () => {
+            localStorage.setItem(SESSION_KEY, 'true');
+            window.location.href = 'login.html';
+        };
         return;
     }
 
@@ -612,24 +618,36 @@ function checkMembershipAndRoute() {
 
         btnMain.textContent = 'Crear nueva cuenta';
         btnMain.className   = 'btn btn-new-account';
-        btnMain.onclick     = () => window.location.href = 'registro.html';
+        btnMain.onclick     = () => {
+            localStorage.setItem(SESSION_KEY, 'true');
+            window.location.href = 'registro.html';
+        };
 
         btnSecondary.style.display = 'none';
 
         btnLink.textContent   = 'Iniciar sesión con otra cuenta';
         btnLink.style.display = 'block';
-        btnLink.onclick       = () => window.location.href = 'login.html';
+        btnLink.onclick       = () => {
+            localStorage.setItem(SESSION_KEY, 'true');
+            window.location.href = 'login.html';
+        };
         return;
     }
 
     /* ── 5. PRIMERA VEZ (null) ── */
     btnMain.textContent = 'Comenzar';
     btnMain.className   = 'btn btn-primary';
-    btnMain.onclick     = () => window.location.href = 'registro.html';
+    btnMain.onclick     = () => {
+        localStorage.setItem(SESSION_KEY, 'true');
+        window.location.href = 'registro.html';
+    };
 
     btnSecondary.style.display = 'block';
     btnSecondary.textContent   = 'Iniciar sesión';
-    btnSecondary.onclick       = () => window.location.href = 'login.html';
+    btnSecondary.onclick       = () => {
+        localStorage.setItem(SESSION_KEY, 'true');
+        window.location.href = 'login.html';
+    };
 
     btnLink.style.display = 'none';
 }
