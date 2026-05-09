@@ -234,6 +234,19 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .prof-row:last-child{border-bottom:none;}
 .prof-row-label{font-size:13.5px;color:var(--muted);}
 .prof-row-val{font-size:13.5px;color:var(--white);font-weight:500;max-width:55%;text-align:right;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── EDIT FIELDS ── */
+.prof-edit-field{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+.prof-edit-field:last-child{border-bottom:none;}
+.prof-edit-field label{font-size:13px;color:var(--muted);flex-shrink:0;margin-right:12px;}
+.prof-field-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--white);font-family:var(--font-body);font-size:13.5px;outline:none;text-align:right;transition:border-color .2s;}
+.prof-field-input:focus{border-color:rgba(59,110,232,.5);}
+.prof-save-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:var(--font-body);font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,opacity .2s;margin-top:14px;box-shadow:0 4px 16px rgba(59,110,232,.35);}
+.prof-save-btn:active{transform:scale(.97);}
+.prof-save-btn:disabled{opacity:.45;cursor:not-allowed;}
+.prof-save-spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 .prof-btn{width:100%;padding:14px;border-radius:12px;border:none;font-family:var(--font-body);font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s;margin-top:10px;}
 .prof-btn:active{transform:scale(.97);}
 .prof-btn:first-child{margin-top:0;}
@@ -440,6 +453,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   <div class="player-controls"><div class="player-progress" id="playerProgress"><div class="player-bar" id="playerBar"></div></div><div class="player-row"><span class="player-time" id="playerTime">0:00 / 0:00</span><div class="player-btns"><button class="p-btn" id="pVol"><svg id="pVolOn" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="pVolOff" style="display:none" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></button><button class="p-btn p-btn-big" id="pPlayPause"><svg id="pPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg id="pPause" style="display:none" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"></path></svg></button></div></div></div>
 </div>
 
+<!-- ══ PROFILE OVERLAY ══ -->
 <div class="profile-overlay" id="profileOverlay">
   <button class="prof-close" id="profClose">×</button>
   <div class="prof-header">
@@ -450,15 +464,35 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     <p class="prof-name" id="profName">Usuario</p>
     <p class="prof-email" id="profEmailTxt">cargando...</p>
   </div>
+
+  <!-- Películas vistas -->
   <div class="prof-section" id="profWatchedSection">
     <p class="prof-sec-title">Películas Vistas</p>
     <div class="prof-watched-scroll" id="profWatchedRow"><p class="prof-watched-empty">Aún no has visto ninguna película</p></div>
   </div>
+
+  <!-- Editar información personal — con inputs guardables -->
   <div class="prof-section">
     <p class="prof-sec-title">Información personal</p>
-    <div class="prof-row"><span class="prof-row-label">Email</span><span class="prof-row-val" id="profEmailInfo">—</span></div>
-    <div class="prof-row"><span class="prof-row-label">Teléfono</span><span class="prof-row-val" id="profPhone">No registrado</span></div>
+    <div class="prof-edit-field">
+      <label for="inputNombre">Nombre</label>
+      <input class="prof-field-input" id="inputNombre" type="text" placeholder="Tu nombre" autocomplete="name">
+    </div>
+    <div class="prof-edit-field">
+      <label for="inputEmail">Email</label>
+      <input class="prof-field-input" id="inputEmail" type="email" placeholder="Tu email" autocomplete="email" readonly style="opacity:.55;cursor:not-allowed">
+    </div>
+    <div class="prof-edit-field">
+      <label for="inputTelefono">Teléfono</label>
+      <input class="prof-field-input" id="inputTelefono" type="tel" placeholder="Sin registrar" autocomplete="tel">
+    </div>
+    <button class="prof-save-btn" id="profSaveInfoBtn">
+      <div class="prof-save-spinner" id="profSaveSpinner"></div>
+      <span id="profSaveTxt">Guardar cambios</span>
+    </button>
   </div>
+
+  <!-- Seguridad -->
   <div class="prof-section">
     <p class="prof-sec-title">Seguridad</p>
     <button class="prof-btn prof-btn-primary" id="profChangePass">
@@ -470,6 +504,8 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
       Cerrar sesión
     </button>
   </div>
+
+  <!-- Soporte -->
   <div class="prof-section">
     <p class="prof-sec-title">Soporte</p>
     <button class="prof-btn prof-btn-chat" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/','_blank','noopener,noreferrer')">
@@ -479,6 +515,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
+<!-- ══ AVATAR PICKER ══ -->
 <div id="avPickerModal">
   <div class="av-sheet">
     <div class="av-sheet-handle"></div>
@@ -510,7 +547,7 @@ import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, get
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const fbConfig  = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
-const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
+const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
 
 const appMovies = initializeApp(fbConfig);
 const db        = getFirestore(appMovies);
@@ -553,7 +590,7 @@ const C = {
   set(k,v){ try{ localStorage.setItem('ll_'+k,JSON.stringify({v,t:Date.now()})) }catch(e){} }
 };
 
-/* ══ DECLARACIONES GLOBALES — PRIMERO QUE TODO ══ */
+/* ══ ESTADO GLOBAL ══ */
 let currentUser   = null;
 let userProfile   = null;
 let selectedAv    = null;
@@ -562,16 +599,17 @@ let allMovies     = [];
 
 try { movieHistory = JSON.parse(localStorage.getItem('mHist') || '[]'); } catch(e) { movieHistory = []; }
 
-/* ══ CARGA INMEDIATA DESDE LOCALSTORAGE (sin esperar Firebase) ══ */
+/* ══ PRECARGA DESDE LOCALSTORAGE (sin esperar Firebase) ══ */
 (function preloadFromStorage(){
   const email  = localStorage.getItem('llutid_correo');
   const avatar = localStorage.getItem('llutid_avatar');
   const nombre = localStorage.getItem('llutid_nombre');
+  const tel    = localStorage.getItem('llutid_telefono');
   if(email){
     userProfile = {
       email,
       nombre: nombre || email.split('@')[0],
-      telefono: '',
+      telefono: tel || '',
       avatar: avatar || MALE_AV[0],
       watchedMovies: movieHistory
     };
@@ -586,16 +624,13 @@ onAuthStateChanged(auth, async user => {
     await loadUserProfile(user.uid, user.email);
   } else {
     const email = localStorage.getItem('llutid_correo');
-    if(!email){
-      $('authGate').classList.add('show');
-    }
-    // Si hay email en localStorage → ya se cargó en preloadFromStorage
+    if(!email) $('authGate').classList.add('show');
   }
 });
 
-/* ══════════════════════════════════════════════
-   HERO
-══════════════════════════════════════════════ */
+/* ══════════════════════════════
+   HERO CAROUSEL + VIMEO
+══════════════════════════════ */
 let slides=[], slideIdx=0, slideToken=0, heroMuted=true;
 let vimeoPlayer=null, vimeoFrame=null, phaseTimer=null, logoSlot='A';
 const IMAGE_HOLD_MS=4500;
@@ -747,7 +782,7 @@ function renderMatches(matches){
   row.appendChild(frag);
 }
 
-/* ══ CATEGORY ══ */
+/* ══ CATEGORY OVERLAY ══ */
 document.querySelectorAll('.sec-more').forEach(el=>{
   el.addEventListener('click',()=>{
     const sourceRow=$(el.dataset.grid);if(!sourceRow)return;
@@ -812,26 +847,15 @@ async function addHist(m){
   }
 }
 
-/* ══ PROFILE ══ */
-$('heroProfileBtn').onclick = e => { e.stopPropagation(); openProfile(); };
-$('tbAvatar').onclick = openProfile;
-$('profClose').onclick = closeProfile;
-
-function openProfile(){
-  $('profileOverlay').classList.add('active');
-  document.body.style.overflow='hidden';
-  renderWatchedInProfile();
-}
-function closeProfile(){
-  $('profileOverlay').classList.remove('active');
-  document.body.style.overflow='';
-}
-
+/* ══════════════════════════════
+   PROFILE — CARGA Y ACTUALIZACIÓN
+══════════════════════════════ */
 async function loadUserProfile(uid, email){
   try{
     const d = await getDoc(doc(dbU,'users',uid));
     if(d.exists()){
       userProfile = {...d.data(), email};
+      // Sincronizar historial local + Firebase
       const localHist = JSON.parse(localStorage.getItem('mHist')||'[]');
       if(localHist.length){
         const fbList = userProfile.watchedMovies||[];
@@ -844,39 +868,66 @@ async function loadUserProfile(uid, email){
         await setDoc(doc(dbU,'users',uid),{watchedMovies:userProfile.watchedMovies},{merge:true}).catch(()=>{});
       }
     } else {
+      // Usuario nuevo: crear documento en Firestore
       const nombre = email.split('@')[0];
       const localHist = JSON.parse(localStorage.getItem('mHist')||'[]');
       userProfile = { email, nombre, telefono:'', avatar:MALE_AV[0], watchedMovies:localHist };
-      await setDoc(doc(dbU,'users',uid), userProfile, {merge:true});
+      await setDoc(doc(dbU,'users',uid), userProfile);
     }
-    if(userProfile.avatar) localStorage.setItem('llutid_avatar', userProfile.avatar);
-    if(userProfile.nombre) localStorage.setItem('llutid_nombre', userProfile.nombre);
-    if(userProfile.email)  localStorage.setItem('llutid_correo', userProfile.email);
+    // Sincronizar localStorage con datos de Firebase
+    if(userProfile.avatar)   localStorage.setItem('llutid_avatar',   userProfile.avatar);
+    if(userProfile.nombre)   localStorage.setItem('llutid_nombre',   userProfile.nombre);
+    if(userProfile.email)    localStorage.setItem('llutid_correo',   userProfile.email);
+    if(userProfile.telefono !== undefined) localStorage.setItem('llutid_telefono', userProfile.telefono);
   }catch(e){
+    // Fallback a localStorage si Firebase falla
     const email2 = localStorage.getItem('llutid_correo')||email;
-    userProfile = { email:email2, nombre:localStorage.getItem('llutid_nombre')||email2.split('@')[0], telefono:'', avatar:localStorage.getItem('llutid_avatar')||MALE_AV[0], watchedMovies:JSON.parse(localStorage.getItem('mHist')||'[]') };
+    userProfile = {
+      email: email2,
+      nombre: localStorage.getItem('llutid_nombre')||email2.split('@')[0],
+      telefono: localStorage.getItem('llutid_telefono')||'',
+      avatar: localStorage.getItem('llutid_avatar')||MALE_AV[0],
+      watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
+    };
   }
   updateProfileUI();
 }
 
+/* Actualiza toda la UI del perfil con los datos actuales */
 function updateProfileUI(){
   if(!userProfile) return;
-  const av = userProfile.avatar;
-  const n  = userProfile.nombre||userProfile.email?.split('@')[0]||'Usuario';
+  const av   = userProfile.avatar;
+  const n    = userProfile.nombre || userProfile.email?.split('@')[0] || 'Usuario';
   const init = n.charAt(0).toUpperCase();
+
+  // Helper: setea avatar en cualquier contenedor circular
   const setAvatar = (el, initEl) => {
     if(!el||!initEl) return;
-    if(av){ el.style.background='transparent'; initEl.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
-    else  { el.style.background=''; initEl.textContent=init; }
+    if(av){
+      el.style.background='transparent';
+      initEl.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    } else {
+      el.style.background='';
+      initEl.textContent=init;
+    }
   };
+
   setAvatar($('heroProfileBtn'), $('heroAvatarInner'));
   setAvatar($('tbAvatar'),       $('tbAvatarInner'));
+
   const pa=$('profAvatar'), pt=$('profAvatarTxt');
-  if(pa&&pt){ if(av){pa.style.background='transparent';pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}else{pa.style.background='';pt.textContent=init;} }
-  if($('profName'))      $('profName').textContent = n;
-  if($('profEmailTxt'))  $('profEmailTxt').textContent = userProfile.email||'';
-  if($('profEmailInfo')) $('profEmailInfo').textContent = userProfile.email||'';
-  if($('profPhone'))     $('profPhone').textContent = userProfile.telefono||'No registrado';
+  if(pa&&pt){
+    if(av){ pa.style.background='transparent'; pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
+    else  { pa.style.background=''; pt.textContent=init; }
+  }
+
+  if($('profName'))     $('profName').textContent     = n;
+  if($('profEmailTxt')) $('profEmailTxt').textContent = userProfile.email||'';
+
+  // Rellenar inputs del formulario de info personal
+  if($('inputNombre'))   $('inputNombre').value   = userProfile.nombre  || '';
+  if($('inputEmail'))    $('inputEmail').value     = userProfile.email   || '';
+  if($('inputTelefono')) $('inputTelefono').value  = userProfile.telefono|| '';
 }
 
 function renderWatchedInProfile(){
@@ -886,57 +937,166 @@ function renderWatchedInProfile(){
   list.forEach(m=>{ const key=m.id||m.title; if(key&&!seen.has(key)){seen.add(key);deduped.push(m);}else if(!key)deduped.push(m); });
   if(!deduped.length){ row.innerHTML='<p class="prof-watched-empty">Aún no has visto ninguna película</p>'; return; }
   row.innerHTML='';
-  deduped.slice(0,30).forEach(m=>{ const div=document.createElement('div');div.className='prof-watched-item';div.innerHTML=`<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;div.onclick=()=>{if(m.link){closeProfile();location.href=m.link;}};row.appendChild(div); });
+  deduped.slice(0,30).forEach(m=>{
+    const div=document.createElement('div');div.className='prof-watched-item';
+    div.innerHTML=`<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;
+    div.onclick=()=>{if(m.link){closeProfile();location.href=m.link;}};
+    row.appendChild(div);
+  });
 }
 
-/* ══ PROFILE ACTIONS ══ */
+/* ══ ABRIR / CERRAR PERFIL ══ */
+$('heroProfileBtn').onclick = e => { e.stopPropagation(); openProfile(); };
+$('tbAvatar').onclick = openProfile;
+$('profClose').onclick = closeProfile;
+
+function openProfile(){
+  updateProfileUI();         // refresca inputs con datos actuales
+  renderWatchedInProfile();
+  $('profileOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+}
+function closeProfile(){
+  $('profileOverlay').classList.remove('active');
+  document.body.style.overflow='';
+}
+
+/* ══════════════════════════════════════════════
+   GUARDAR INFORMACIÓN PERSONAL EN FIRESTORE ✅
+══════════════════════════════════════════════ */
+$('profSaveInfoBtn').onclick = async () => {
+  const nuevoNombre   = ($('inputNombre').value   || '').trim();
+  const nuevoTelefono = ($('inputTelefono').value || '').trim();
+
+  if(!nuevoNombre){ showPopup('Campo requerido','El nombre no puede estar vacío.'); return; }
+
+  // Mostrar spinner
+  $('profSaveSpinner').style.display = 'block';
+  $('profSaveTxt').textContent       = 'Guardando...';
+  $('profSaveInfoBtn').disabled      = true;
+
+  const updates = {
+    nombre:   nuevoNombre,
+    telefono: nuevoTelefono,
+    updatedAt: Date.now()
+  };
+
+  try {
+    // 1️⃣ Guardar en Firestore si el usuario está autenticado
+    if(currentUser){
+      await setDoc(doc(dbU,'users',currentUser.uid), updates, {merge:true});
+    }
+
+    // 2️⃣ Guardar en localStorage como respaldo
+    localStorage.setItem('llutid_nombre',   nuevoNombre);
+    localStorage.setItem('llutid_telefono', nuevoTelefono);
+
+    // 3️⃣ Actualizar estado local
+    if(!userProfile) userProfile = {};
+    userProfile.nombre   = nuevoNombre;
+    userProfile.telefono = nuevoTelefono;
+
+    // 4️⃣ Refrescar UI
+    updateProfileUI();
+
+    showPopup('¡Guardado!','Tu información se actualizó correctamente.');
+  } catch(err){
+    console.error('Error guardando perfil:', err);
+    showPopup('Error','No se pudo guardar. Intenta de nuevo.');
+  } finally {
+    $('profSaveSpinner').style.display = 'none';
+    $('profSaveTxt').textContent       = 'Guardar cambios';
+    $('profSaveInfoBtn').disabled      = false;
+  }
+};
+
+/* ══ PROFILE ACTIONS — Contraseña y Logout ══ */
 $('profChangePass').onclick = async () => {
   if(!currentUser){ showPopup('Error','Inicia sesión para cambiar la contraseña.'); return; }
   try{ await sendPasswordResetEmail(auth, currentUser.email); showPopup('Correo enviado',`Revisa ${currentUser.email}`); }
   catch(e){ showPopup('Error','No se pudo enviar el correo.'); }
 };
+
 $('profLogout').onclick = async () => {
   try{
     if(currentUser) await signOut(auth);
-    localStorage.removeItem('llutid_correo'); localStorage.removeItem('llutid_pin');
-    localStorage.removeItem('llutid_avatar'); localStorage.removeItem('llutid_nombre');
+    localStorage.removeItem('llutid_correo');
+    localStorage.removeItem('llutid_pin');
+    localStorage.removeItem('llutid_avatar');
+    localStorage.removeItem('llutid_nombre');
+    localStorage.removeItem('llutid_telefono');
     location.href='login.html';
   }catch(e){ showPopup('Error','No se pudo cerrar sesión.'); }
 };
+
 $('popupOk').onclick = () => $('popupMask').classList.remove('show');
 
-/* ══ AVATAR PICKER ══ */
+/* ══════════════════════════════════════════
+   AVATAR PICKER — Guarda en Firestore ✅
+══════════════════════════════════════════ */
 $('profEditIco').onclick = () => openAvatarPicker();
+
 function openAvatarPicker(){
-  selectedAv=null; $('avSaveBtn').disabled=true;
-  buildAvatarGrid($('avMaleGrid'),MALE_AV);
-  buildAvatarGrid($('avFemaleGrid'),FEMALE_AV);
+  selectedAv=null;
+  $('avSaveBtn').disabled=true;
+  buildAvatarGrid($('avMaleGrid'),   MALE_AV);
+  buildAvatarGrid($('avFemaleGrid'), FEMALE_AV);
   $('avPickerModal').classList.add('show');
   document.body.style.overflow='hidden';
 }
+
 function buildAvatarGrid(container, urls){
   container.innerHTML='';
   urls.forEach(url=>{
     const div=document.createElement('div');
     div.className='av-opt-big'+(userProfile?.avatar===url?' sel':'');
     div.innerHTML=`<img src="${url}" alt="" loading="lazy"><div class="av-check">✓</div>`;
-    div.onclick=()=>{ document.querySelectorAll('.av-opt-big').forEach(o=>o.classList.remove('sel')); div.classList.add('sel'); selectedAv=url; $('avSaveBtn').disabled=false; };
+    div.onclick=()=>{
+      document.querySelectorAll('.av-opt-big').forEach(o=>o.classList.remove('sel'));
+      div.classList.add('sel');
+      selectedAv=url;
+      $('avSaveBtn').disabled=false;
+    };
     container.appendChild(div);
   });
 }
-function closeAvatarPicker(){ $('avPickerModal').classList.remove('show'); document.body.style.overflow=''; }
+
+function closeAvatarPicker(){
+  $('avPickerModal').classList.remove('show');
+  document.body.style.overflow='';
+}
 $('avSheetClose').onclick = closeAvatarPicker;
 $('avPickerModal').onclick = e=>{ if(e.target===$('avPickerModal'))closeAvatarPicker(); };
+
 $('avSaveBtn').onclick = async () => {
-  if(!selectedAv)return;
+  if(!selectedAv) return;
   $('avSaveBtn').disabled=true;
+  $('avSaveBtn').textContent='Guardando...';
+
   try{
-    if(currentUser){ await setDoc(doc(dbU,'users',currentUser.uid),{avatar:selectedAv},{merge:true}); }
-    localStorage.setItem('llutid_avatar',selectedAv);
-    if(userProfile) userProfile.avatar=selectedAv;
-    updateProfileUI(); closeAvatarPicker();
+    // 1️⃣ Guardar en Firestore
+    if(currentUser){
+      await setDoc(doc(dbU,'users',currentUser.uid), { avatar: selectedAv, updatedAt: Date.now() }, {merge:true});
+    }
+
+    // 2️⃣ Guardar en localStorage como respaldo
+    localStorage.setItem('llutid_avatar', selectedAv);
+
+    // 3️⃣ Actualizar estado local
+    if(!userProfile) userProfile = {};
+    userProfile.avatar = selectedAv;
+
+    // 4️⃣ Refrescar UI
+    updateProfileUI();
+    closeAvatarPicker();
     showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
-  }catch(e){ showPopup('Error','No se pudo guardar el avatar.'); $('avSaveBtn').disabled=false; }
+  } catch(err){
+    console.error('Error guardando avatar:', err);
+    showPopup('Error','No se pudo guardar el avatar.');
+  } finally {
+    $('avSaveBtn').disabled=false;
+    $('avSaveBtn').textContent='Guardar avatar';
+  }
 };
 
 /* ══ PROMO VIDEO — dynamic color sampling ══ */
