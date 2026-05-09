@@ -18,16 +18,15 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .skeleton{background:linear-gradient(110deg,#0c0c16 30%,#1a1a2e 50%,#0c0c16 70%);background-size:300% 100%;animation:sk 1.6s linear infinite;}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ════ AUTH GATE — oculto por defecto, solo aparece si realmente no hay sesión ════ */
 #authGate{
   position:fixed;inset:0;z-index:99999;
   background:radial-gradient(ellipse at 40% 40%,#0a1228 0%,#04040A 70%);
-  display:none; /* ← CAMBIADO: oculto por defecto para evitar el flash */
+  display:none;
   flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:32px;
-  animation:agFadeIn .45s cubic-bezier(.4,0,.2,1) both; /* entrada suave */
+  animation:agFadeIn .45s cubic-bezier(.4,0,.2,1) both;
 }
-#authGate.show{display:flex;}/* se muestra solo si definitivamente no hay sesión */
+#authGate.show{display:flex;}
 @keyframes agFadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .ag-logo{font-family:var(--font-display);font-size:clamp(2.5rem,10vw,3.5rem);letter-spacing:3px;color:var(--white);margin-bottom:6px;}
 .ag-logo span{color:var(--blue-light);}
@@ -43,9 +42,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   transition:transform .15s,box-shadow .15s;letter-spacing:.3px;
 }
 .ag-btn:active{transform:scale(.96);}
-.ag-divider{width:1px;height:24px;background:rgba(255,255,255,.12);margin:0 auto 20px;}
 
-/* TOP BAR */
 .topbar{position:fixed;top:0;left:0;right:0;z-index:9000;height:62px;padding:0 20px;display:flex;align-items:center;justify-content:flex-end;pointer-events:auto;transition:background .5s,backdrop-filter .5s,border-color .5s;}
 .topbar.solid{background:rgba(4,4,10,0.92);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,255,255,0.08);pointer-events:auto;}
 .tb-logo{position:absolute;left:50%;transform:translateX(-50%) translateY(-10px);opacity:0;transition:all .4s cubic-bezier(.4,0,.2,1);font-family:var(--font-display);letter-spacing:2px;font-size:22px;color:var(--white);pointer-events:none;white-space:nowrap;}
@@ -60,7 +57,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .tb-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,0.22);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:#fff;cursor:pointer;overflow:hidden;}
 .tb-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 
-/* HERO */
 .hero-wrap{position:relative;width:100%;height:88svh;min-height:520px;overflow:hidden;background:#000;cursor:pointer;transform:translateZ(0);-webkit-transform:translateZ(0);isolation:isolate;}
 .hero-skeleton-el{width:100%;height:100%;display:block;}
 .hero-wrap.loaded .hero-skeleton-el{display:none;}
@@ -97,7 +93,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .hero-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.28);transition:all .3s;cursor:pointer;}
 .hero-dots span.active{width:20px;border-radius:3px;background:var(--white);}
 
-/* MAIN */
 .main{padding:20px 0 110px;background:var(--bg);}
 .sec-head{display:flex;justify-content:space-between;align-items:center;padding:0 20px;margin-bottom:14px;}
 .sec-title{font-family:var(--font-display);font-size:22px;letter-spacing:1.5px;color:var(--white);}
@@ -110,7 +105,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .card-shine{position:absolute;inset:0;border-radius:var(--card-radius);background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 60%);pointer-events:none;}
 .card-skeleton{width:116px;height:174px;border-radius:var(--card-radius);flex-shrink:0;}
 
-/* TOP 10 */
 .top10-wrap{overflow-x:auto;overflow-y:visible;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 20px 44px;}
 .top10-wrap::-webkit-scrollbar{display:none;}
 .top10-row{display:flex;gap:0;width:max-content;}
@@ -119,7 +113,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .top10-num.two-digit{font-size:152px;letter-spacing:-8px;bottom:-16px;left:14px;}
 .top10-img{position:absolute;right:0;top:0;width:122px;height:174px;border-radius:var(--card-radius);object-fit:cover;display:block;z-index:1;box-shadow:0 8px 32px rgba(0,0,0,.8);}
 
-/* PROMO CARD */
 .promo-card{margin:20px 20px 0;border-radius:22px;overflow:hidden;background:#1A1A26;box-shadow:0 20px 60px rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.08);transition:background 0.9s ease;}
 .promo-mosaic{position:relative;height:210px;overflow:hidden;background:#111118;}
 .promo-mosaic-inner{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:3px;position:absolute;inset:-6px -4px 0;transform:perspective(460px) rotateX(6deg) scale(1.05);transform-origin:bottom center;}
@@ -142,7 +135,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .promo-cta:active{transform:scale(.97);opacity:.9;}
 .promo-sub{font-size:12px;color:rgba(255,255,255,.38);line-height:1.75;}
 
-/* MATCH BANNERS */
 .matches-section{display:none;margin-bottom:28px;}
 .matches-row{display:flex;gap:12px;overflow-x:auto;padding:4px 20px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .matches-row::-webkit-scrollbar{display:none;}
@@ -162,7 +154,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .match-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .match-banner-skel{flex-shrink:0;width:242px;height:158px;border-radius:18px;}
 
-/* BOTTOM NAV */
 .bottom-nav{position:fixed;left:14px;right:14px;bottom:14px;height:66px;border-radius:20px;z-index:8999;background:rgba(12,12,22,0.82);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);box-shadow:0 8px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-around;padding:0 6px;}
 .nav-btn{background:none;border:none;color:rgba(242,242,248,.42);display:flex;flex-direction:column;align-items:center;gap:4px;font-family:var(--font-body);font-size:10.5px;font-weight:500;cursor:pointer;padding:8px 12px;flex:1;transition:color .25s,transform .15s;letter-spacing:.2px;}
 .nav-btn.active{color:var(--blue-light);}
@@ -170,7 +161,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .nav-btn:active{transform:scale(.88);}
 .nav-btn.active svg{filter:drop-shadow(0 0 8px rgba(94,143,255,.7));}
 
-/* SEARCH */
 .search-overlay{position:fixed;inset:0;background:rgba(4,4,10,.97);z-index:10000;display:none;overflow-y:auto;animation:fadeUp .3s cubic-bezier(.4,0,.2,1);}
 .search-overlay.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -198,7 +188,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .chip{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--white);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s;}
 .chip:active{background:rgba(59,110,232,.2);border-color:var(--blue);}
 
-/* CAT OVERLAY */
 .cat-overlay{position:fixed;inset:0;background:rgba(4,4,10,.97);z-index:10001;display:none;overflow-y:auto;animation:fadeUp .3s cubic-bezier(.4,0,.2,1);}
 .cat-overlay.active{display:block;}
 .cat-header{position:sticky;top:0;z-index:10;height:60px;display:flex;align-items:center;padding:0 16px;gap:14px;background:rgba(4,4,10,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
@@ -210,7 +199,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .cat-card:active{transform:scale(.93);}
 .cat-card img{width:100%;height:100%;object-fit:cover;display:block;}
 
-/* PLAYER */
 .player-overlay{position:fixed;inset:0;background:#000;z-index:10002;display:none;flex-direction:column;animation:fadeUp .3s ease;}
 .player-overlay.active{display:flex;}
 .player-top{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);}
@@ -229,7 +217,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .p-btn-big{width:52px;height:52px;background:rgba(255,255,255,.92);}
 .p-btn-big svg{fill:#000;width:22px;height:22px;}
 
-/* ════ PROFILE ════ */
 .profile-overlay{position:fixed;inset:0;background:var(--bg);z-index:10003;display:none;overflow-y:auto;animation:fadeUp .3s ease;}
 .profile-overlay.active{display:block;}
 .prof-close{position:fixed;top:16px;right:16px;z-index:10;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--border);color:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;}
@@ -257,8 +244,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .prof-btn-primary svg{fill:#fff;}
 .prof-btn-chat svg{fill:#fff;}
 .prof-btn-danger svg{fill:#f55;}
-
-/* Watched movies in profile */
 .prof-watched-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
 .prof-watched-scroll::-webkit-scrollbar{display:none;}
 .prof-watched-item{flex-shrink:0;width:76px;cursor:pointer;}
@@ -266,7 +251,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .prof-watched-item p{font-size:10.5px;color:var(--muted);text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;}
 .prof-watched-empty{font-size:13px;color:var(--muted);text-align:center;padding:18px 0;}
 
-/* ════ AVATAR PICKER MODAL — Premium UI ════ */
 #avPickerModal{
   position:fixed;inset:0;z-index:10010;
   background:rgba(4,4,10,.85);
@@ -276,89 +260,29 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 }
 #avPickerModal.show{display:flex;animation:avModalIn .35s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes avModalIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-.av-sheet{
-  width:100%;max-width:520px;
-  background:linear-gradient(180deg,#0e0e1e 0%,#0a0a14 100%);
-  border-radius:24px 24px 0 0;
-  border-top:1px solid rgba(255,255,255,.1);
-  border-left:1px solid rgba(255,255,255,.06);
-  border-right:1px solid rgba(255,255,255,.06);
-  max-height:88svh;
-  display:flex;flex-direction:column;
-  overflow:hidden;
-  box-shadow:0 -20px 60px rgba(0,0,0,.7);
-}
+.av-sheet{width:100%;max-width:520px;background:linear-gradient(180deg,#0e0e1e 0%,#0a0a14 100%);border-radius:24px 24px 0 0;border-top:1px solid rgba(255,255,255,.1);border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06);max-height:88svh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 -20px 60px rgba(0,0,0,.7);}
 .av-sheet-handle{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);margin:12px auto 0;flex-shrink:0;}
-.av-sheet-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 22px 14px;flex-shrink:0;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
+.av-sheet-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 14px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.06);}
 .av-sheet-title{font-family:var(--font-display);font-size:22px;letter-spacing:1.5px;color:var(--white);}
-.av-sheet-close{
-  width:34px;height:34px;border-radius:50%;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
-  color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .2s,color .2s;
-}
+.av-sheet-close{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,color .2s;}
 .av-sheet-close:hover{background:rgba(255,255,255,.14);color:#fff;}
 .av-sheet-body{overflow-y:auto;padding:18px 20px 0;flex:1;scrollbar-width:none;}
 .av-sheet-body::-webkit-scrollbar{display:none;}
-.av-group-label{
-  font-size:11px;font-weight:700;letter-spacing:1.5px;
-  text-transform:uppercase;color:rgba(255,255,255,.35);
-  margin-bottom:14px;display:flex;align-items:center;gap:8px;
-}
+.av-group-label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .av-group-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
-.av-grid-big{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-  margin-bottom:24px;
-}
-.av-opt-big{
-  aspect-ratio:1;border-radius:50%;overflow:hidden;
-  border:2.5px solid rgba(255,255,255,.1);
-  cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);
-  position:relative;
-}
+.av-grid-big{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.av-opt-big{aspect-ratio:1;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,255,255,.1);cursor:pointer;transition:all .22s cubic-bezier(.4,0,.2,1);position:relative;}
 .av-opt-big img{width:100%;height:100%;object-fit:cover;display:block;}
-.av-opt-big::after{
-  content:'';position:absolute;inset:0;border-radius:50%;
-  background:rgba(59,110,232,0);
-  transition:background .22s;
-}
-.av-opt-big.sel{
-  border-color:var(--blue-light);
-  box-shadow:0 0 0 3px rgba(59,110,232,.4),0 6px 24px rgba(59,110,232,.3);
-  transform:scale(1.08);
-}
+.av-opt-big::after{content:'';position:absolute;inset:0;border-radius:50%;background:rgba(59,110,232,0);transition:background .22s;}
+.av-opt-big.sel{border-color:var(--blue-light);box-shadow:0 0 0 3px rgba(59,110,232,.4),0 6px 24px rgba(59,110,232,.3);transform:scale(1.08);}
 .av-opt-big.sel::after{background:rgba(59,110,232,.15);}
-.av-check{
-  position:absolute;top:0;right:0;
-  width:22px;height:22px;border-radius:50%;
-  background:var(--blue-light);
-  display:none;align-items:center;justify-content:center;
-  font-size:12px;font-weight:900;color:#fff;
-  box-shadow:0 2px 8px rgba(0,0,0,.4);
-}
+.av-check{position:absolute;top:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--blue-light);display:none;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4);}
 .av-opt-big.sel .av-check{display:flex;}
-.av-sheet-footer{
-  padding:16px 20px calc(env(safe-area-inset-bottom,0px) + 16px);
-  flex-shrink:0;border-top:1px solid rgba(255,255,255,.06);
-  background:linear-gradient(to bottom,transparent,rgba(4,4,10,.6));
-}
-.av-save-btn{
-  width:100%;padding:15px;border-radius:14px;border:none;
-  background:linear-gradient(135deg,#3B6EE8,#5E8FFF);
-  color:#fff;font-family:var(--font-body);font-size:15px;font-weight:700;
-  cursor:pointer;letter-spacing:.2px;
-  box-shadow:0 6px 20px rgba(59,110,232,.4);
-  transition:transform .15s,opacity .15s;
-}
+.av-sheet-footer{padding:16px 20px calc(env(safe-area-inset-bottom,0px) + 16px);flex-shrink:0;border-top:1px solid rgba(255,255,255,.06);background:linear-gradient(to bottom,transparent,rgba(4,4,10,.6));}
+.av-save-btn{width:100%;padding:15px;border-radius:14px;border:none;background:linear-gradient(135deg,#3B6EE8,#5E8FFF);color:#fff;font-family:var(--font-body);font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.2px;box-shadow:0 6px 20px rgba(59,110,232,.4);transition:transform .15s,opacity .15s;}
 .av-save-btn:active{transform:scale(.97);opacity:.9;}
 .av-save-btn:disabled{opacity:.45;cursor:not-allowed;}
 
-/* GENERIC POPUP */
 .popup-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:99999;display:none;align-items:center;justify-content:center;}
 .popup-mask.show{display:flex;}
 .popup-box{background:var(--surface);border-radius:20px;padding:28px 24px;max-width:320px;width:90%;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.7);text-align:center;}
@@ -368,7 +292,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .popup-msg{font-size:13.5px;color:var(--muted);line-height:1.5;margin-bottom:20px;}
 .popup-ok{width:100%;padding:13px;border-radius:12px;border:none;background:var(--blue);color:#fff;font-family:var(--font-body);font-size:14.5px;font-weight:600;cursor:pointer;}
 
-/* ANNOUNCEMENT */
 .ann-mask{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);z-index:99990;display:none;align-items:center;justify-content:center;}
 .ann-mask.show{display:flex;}
 .ann-modal{max-width:480px;width:92%;border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid rgba(255,255,255,.08);box-shadow:0 30px 80px rgba(0,0,0,.9);animation:annPop .5s cubic-bezier(.34,1.56,.64,1) both;}
@@ -388,7 +311,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 </head>
 <body>
 
-<!-- ════ AUTH GATE — solo se muestra si definitivamente no hay sesión ════ -->
 <div id="authGate">
   <div class="ag-logo">LLUTID<span>+</span></div>
   <div class="ag-lock">🔐</div>
@@ -397,7 +319,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   <button class="ag-btn" onclick="window.location.href='login.html'">Ir al inicio de sesión</button>
 </div>
 
-<!-- ════ TOP BAR ════ -->
 <div class="topbar" id="topbar">
   <div class="tb-logo">LLUTID<span>+</span></div>
   <div class="tb-right" id="tbRight">
@@ -409,7 +330,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
-<!-- ════ HERO ════ -->
 <div class="hero-wrap" id="heroWrap">
   <div class="hero-skeleton-el skeleton"></div>
   <div class="hero-vimeo-wrap" id="heroVimeoWrap"></div>
@@ -437,7 +357,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
-<!-- ════ MAIN ════ -->
 <main class="main">
   <section style="margin-bottom:28px">
     <div class="sec-head"><span class="sec-title">Destacadas</span><span class="sec-more" data-cat="Destacadas" data-grid="destacadasRow">Ver más</span></div>
@@ -458,7 +377,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     <div class="row" id="popularesRow"></div>
   </section>
 
-  <!-- PROMO CARD -->
   <div class="promo-card" id="promoCard">
     <div class="promo-mosaic">
       <div class="promo-mosaic-inner" id="promoMosaicGrid">
@@ -498,7 +416,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </section>
 </main>
 
-<!-- ════ BOTTOM NAV ════ -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Home</button>
   <button class="nav-btn" onclick="window.location.href='proximasenlanzamiento.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>Próximos</button>
@@ -506,7 +423,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   <button class="nav-btn" id="openSearchBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>Buscar</button>
 </nav>
 
-<!-- ════ SEARCH OVERLAY ════ -->
 <div class="search-overlay" id="searchOverlay">
   <div class="search-header"><div class="search-bar"><button class="search-back" id="searchBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></button><div class="search-input-wrap"><input class="search-input" id="searchInput" type="text" placeholder="Buscar películas y series..." autocomplete="off"><button class="search-clear" id="searchClearBtn">×</button></div></div></div>
   <div class="search-body">
@@ -516,17 +432,14 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
-<!-- CAT OVERLAY -->
 <div class="cat-overlay" id="catOverlay"><div class="cat-header"><button class="cat-close" id="catClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></button><span class="cat-title" id="catTitle"></span></div><div class="cat-grid" id="catGrid"></div></div>
 
-<!-- PLAYER -->
 <div class="player-overlay" id="playerOverlay">
   <div class="player-top"><button class="player-back" id="playerClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></button><span class="player-title-txt">Video Promocional</span><div style="width:42px"></div></div>
   <video class="player-video" id="playerVid" autoplay muted loop playsinline><source src="./promocional.mp4" type="video/mp4"></video>
   <div class="player-controls"><div class="player-progress" id="playerProgress"><div class="player-bar" id="playerBar"></div></div><div class="player-row"><span class="player-time" id="playerTime">0:00 / 0:00</span><div class="player-btns"><button class="p-btn" id="pVol"><svg id="pVolOn" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="pVolOff" style="display:none" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></button><button class="p-btn p-btn-big" id="pPlayPause"><svg id="pPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg id="pPause" style="display:none" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"></path></svg></button></div></div></div>
 </div>
 
-<!-- ════ PROFILE OVERLAY ════ -->
 <div class="profile-overlay" id="profileOverlay">
   <button class="prof-close" id="profClose">×</button>
   <div class="prof-header">
@@ -537,20 +450,15 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     <p class="prof-name" id="profName">Usuario</p>
     <p class="prof-email" id="profEmailTxt">cargando...</p>
   </div>
-
   <div class="prof-section" id="profWatchedSection">
     <p class="prof-sec-title">Películas Vistas</p>
-    <div class="prof-watched-scroll" id="profWatchedRow">
-      <p class="prof-watched-empty">Aún no has visto ninguna película</p>
-    </div>
+    <div class="prof-watched-scroll" id="profWatchedRow"><p class="prof-watched-empty">Aún no has visto ninguna película</p></div>
   </div>
-
   <div class="prof-section">
     <p class="prof-sec-title">Información personal</p>
     <div class="prof-row"><span class="prof-row-label">Email</span><span class="prof-row-val" id="profEmailInfo">—</span></div>
     <div class="prof-row"><span class="prof-row-label">Teléfono</span><span class="prof-row-val" id="profPhone">No registrado</span></div>
   </div>
-
   <div class="prof-section">
     <p class="prof-sec-title">Seguridad</p>
     <button class="prof-btn prof-btn-primary" id="profChangePass">
@@ -562,7 +470,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
       Cerrar sesión
     </button>
   </div>
-
   <div class="prof-section">
     <p class="prof-sec-title">Soporte</p>
     <button class="prof-btn prof-btn-chat" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/','_blank','noopener,noreferrer')">
@@ -572,7 +479,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
-<!-- ════ AVATAR PICKER MODAL ════ -->
 <div id="avPickerModal">
   <div class="av-sheet">
     <div class="av-sheet-handle"></div>
@@ -592,21 +498,19 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   </div>
 </div>
 
-<!-- GENERIC POPUP -->
 <div class="popup-mask" id="popupMask"><div class="popup-box"><div class="popup-ico"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><p class="popup-title" id="popupTitle">¡Listo!</p><p class="popup-msg" id="popupMsg">Operación completada.</p><button class="popup-ok" id="popupOk">Entendido</button></div></div>
 
-<!-- ANNOUNCEMENT -->
 <div class="ann-mask" id="annMask"><div class="ann-modal" style="position:relative"><button class="ann-close" id="annClose">×</button><div class="ann-badge">📢 Anuncio</div><div class="ann-img-wrap" id="annImgWrap"><img id="annImg" src="" alt=""></div><div class="ann-body"><button class="ann-cta" id="annCta">Más información</button><div class="ann-dots" id="annDots" style="display:none"><span id="annD1"></span><span id="annD2"></span></div></div></div></div>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const fbConfig  = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
-const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
+const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
 
 const appMovies = initializeApp(fbConfig);
 const db        = getFirestore(appMovies);
@@ -649,66 +553,45 @@ const C = {
   set(k,v){ try{ localStorage.setItem('ll_'+k,JSON.stringify({v,t:Date.now()})) }catch(e){} }
 };
 
-/* ══════════════════════════════════════════════
-   AUTH GATE — Lógica sin flash
-   El gate está oculto por defecto en CSS (display:none).
-   Solo se muestra con .show si el check de auth confirma
-   que definitivamente no hay sesión ni email guardado.
-══════════════════════════════════════════════ */
+/* ══ DECLARACIONES GLOBALES — PRIMERO QUE TODO ══ */
+let currentUser   = null;
+let userProfile   = null;
+let selectedAv    = null;
+let movieHistory  = [];
+let allMovies     = [];
 
-// Pre-carga inmediata desde localStorage para el avatar/nombre
-// mientras Firebase confirma la sesión (evita el flash del gate)
-const _savedEmail  = localStorage.getItem('llutid_correo');
-const _savedAvatar = localStorage.getItem('llutid_avatar');
-const _savedNombre = localStorage.getItem('llutid_nombre');
+try { movieHistory = JSON.parse(localStorage.getItem('mHist') || '[]'); } catch(e) { movieHistory = []; }
 
-if(_savedEmail){
-  // Hay email → cargamos perfil mínimo de localStorage al instante
-  userProfile = {
-    email: _savedEmail,
-    nombre: _savedNombre || _savedEmail.split('@')[0],
-    telefono: '',
-    avatar: _savedAvatar || MALE_AV[0],
-    watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
-  };
-  updateProfileUI();
-  // El gate sigue oculto; Firebase confirmará en segundo plano
-}
+/* ══ CARGA INMEDIATA DESDE LOCALSTORAGE (sin esperar Firebase) ══ */
+(function preloadFromStorage(){
+  const email  = localStorage.getItem('llutid_correo');
+  const avatar = localStorage.getItem('llutid_avatar');
+  const nombre = localStorage.getItem('llutid_nombre');
+  if(email){
+    userProfile = {
+      email,
+      nombre: nombre || email.split('@')[0],
+      telefono: '',
+      avatar: avatar || MALE_AV[0],
+      watchedMovies: movieHistory
+    };
+    updateProfileUI();
+  }
+})();
 
-// Firebase auth check — determina si mostrar el gate o no
+/* ══ AUTH ══ */
 onAuthStateChanged(auth, async user => {
   if(user){
-    // Sesión activa → nunca mostramos el gate
     currentUser = user;
     await loadUserProfile(user.uid, user.email);
   } else {
-    // Sin sesión Firebase
     const email = localStorage.getItem('llutid_correo');
     if(!email){
-      // Sin email guardado → mostramos el gate con animación suave
       $('authGate').classList.add('show');
-    } else {
-      // Email en localStorage pero sin sesión activa →
-      // seguimos mostrando el contenido normalmente
-      // (el perfil ya fue cargado del localStorage arriba)
-      if(!userProfile){
-        userProfile = {
-          email,
-          nombre: localStorage.getItem('llutid_nombre') || email.split('@')[0],
-          telefono: '',
-          avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
-          watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
-        };
-        updateProfileUI();
-      }
     }
+    // Si hay email en localStorage → ya se cargó en preloadFromStorage
   }
 });
-
-/* ══ Variables globales ══ */
-let currentUser = null;
-let userProfile = null;
-let selectedAv  = null;
 
 /* ══════════════════════════════════════════════
    HERO
@@ -823,8 +706,6 @@ function updatePromoMosaic(movies){
 }
 
 /* ══ MOVIES ══ */
-let allMovies=[];
-let movieHistory=JSON.parse(localStorage.getItem('mHist')||'[]');
 const sectionMap={destacadas:'destacadasRow',top10:'top10Row',populares:'popularesRow',terror:'terrorRow',drama:'dramaRow',accion:'accionRow',animada:'animadaRow',comedia:'comediaRow',netflix:'netflixRow'};
 
 function renderMovies(movies){
@@ -918,114 +799,62 @@ function renderHistory(){
   movieHistory.slice(0,12).forEach(m=>{const a=document.createElement('a');a.href=m.link;a.className='search-card';a.innerHTML=`<img src="${m.image}" alt="${m.title}" loading="lazy">`;g.appendChild(a);});
 }
 
-/* ══════════════════════════════════════════════
-   GUARDAR PELÍCULAS VISTAS EN FIREBASE
-   Usa setDoc con merge:true — funciona siempre,
-   el doc exista o no.
-══════════════════════════════════════════════ */
+/* ══ HISTORIAL ══ */
 async function addHist(m){
   movieHistory = movieHistory.filter(h => h.id !== m.id);
-  const entry = {
-    id: m.id || m.title || String(Date.now()),
-    title: m.title || '',
-    image: m.image || '',
-    link: m.link || '',
-    watchedAt: Date.now()
-  };
+  const entry = { id: m.id||m.title||String(Date.now()), title:m.title||'', image:m.image||'', link:m.link||'', watchedAt:Date.now() };
   movieHistory.unshift(entry);
-  if(movieHistory.length > 50) movieHistory = movieHistory.slice(0, 50);
+  if(movieHistory.length > 50) movieHistory = movieHistory.slice(0,50);
   localStorage.setItem('mHist', JSON.stringify(movieHistory));
-
-  // Actualizar perfil local en memoria
-  if(userProfile){
-    userProfile.watchedMovies = movieHistory;
-  }
-
-  // Guardar en Firebase — setDoc merge:true es seguro siempre
+  if(userProfile) userProfile.watchedMovies = movieHistory;
   if(currentUser){
-    try{
-      await setDoc(
-        doc(dbU, 'users', currentUser.uid),
-        { watchedMovies: movieHistory },
-        { merge: true }
-      );
-    }catch(e){ console.warn('addHist Firebase error:', e); }
+    try{ await setDoc(doc(dbU,'users',currentUser.uid),{watchedMovies:movieHistory},{merge:true}); }catch(e){}
   }
 }
 
-/* ══════════════════════════════════════════════
-   PROFILE
-══════════════════════════════════════════════ */
+/* ══ PROFILE ══ */
 $('heroProfileBtn').onclick = e => { e.stopPropagation(); openProfile(); };
 $('tbAvatar').onclick = openProfile;
 $('profClose').onclick = closeProfile;
 
 function openProfile(){
   $('profileOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
   renderWatchedInProfile();
 }
 function closeProfile(){
   $('profileOverlay').classList.remove('active');
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 
-/* ══════════════════════════════════════════════
-   CARGAR PERFIL DESDE FIRESTORE
-   setDoc merge:true para crear o actualizar sin error
-══════════════════════════════════════════════ */
 async function loadUserProfile(uid, email){
   try{
-    const d = await getDoc(doc(dbU, 'users', uid));
+    const d = await getDoc(doc(dbU,'users',uid));
     if(d.exists()){
-      userProfile = { ...d.data(), email };
-
-      // Mezclar historial local con el de Firestore
-      const localHist = JSON.parse(localStorage.getItem('mHist') || '[]');
+      userProfile = {...d.data(), email};
+      const localHist = JSON.parse(localStorage.getItem('mHist')||'[]');
       if(localHist.length){
-        const fbList = userProfile.watchedMovies || [];
+        const fbList = userProfile.watchedMovies||[];
         const merged = [...localHist];
-        fbList.forEach(fb => {
-          if(!merged.some(l => l.id === fb.id)) merged.push(fb);
-        });
-        merged.sort((a,b) => (b.watchedAt||0) - (a.watchedAt||0));
-        userProfile.watchedMovies = merged.slice(0, 50);
+        fbList.forEach(fb=>{ if(!merged.some(l=>l.id===fb.id)) merged.push(fb); });
+        merged.sort((a,b)=>(b.watchedAt||0)-(a.watchedAt||0));
+        userProfile.watchedMovies = merged.slice(0,50);
         movieHistory = userProfile.watchedMovies;
-        localStorage.setItem('mHist', JSON.stringify(movieHistory));
-        // Persistir la lista mezclada en Firestore
-        await setDoc(
-          doc(dbU, 'users', uid),
-          { watchedMovies: userProfile.watchedMovies },
-          { merge: true }
-        ).catch(() => {});
+        localStorage.setItem('mHist',JSON.stringify(movieHistory));
+        await setDoc(doc(dbU,'users',uid),{watchedMovies:userProfile.watchedMovies},{merge:true}).catch(()=>{});
       }
     } else {
-      // Documento no existe → crearlo con setDoc (nunca falla con merge)
       const nombre = email.split('@')[0];
-      const localHist = JSON.parse(localStorage.getItem('mHist') || '[]');
-      userProfile = {
-        email, nombre, telefono: '',
-        avatar: MALE_AV[0],
-        watchedMovies: localHist
-      };
-      await setDoc(doc(dbU, 'users', uid), userProfile, { merge: true });
+      const localHist = JSON.parse(localStorage.getItem('mHist')||'[]');
+      userProfile = { email, nombre, telefono:'', avatar:MALE_AV[0], watchedMovies:localHist };
+      await setDoc(doc(dbU,'users',uid), userProfile, {merge:true});
     }
-
-    // Guardar datos rápidos en localStorage
     if(userProfile.avatar) localStorage.setItem('llutid_avatar', userProfile.avatar);
     if(userProfile.nombre) localStorage.setItem('llutid_nombre', userProfile.nombre);
     if(userProfile.email)  localStorage.setItem('llutid_correo', userProfile.email);
-
   }catch(e){
-    console.warn('loadUserProfile error:', e);
-    const email2 = localStorage.getItem('llutid_correo') || email;
-    userProfile = {
-      email: email2,
-      nombre: localStorage.getItem('llutid_nombre') || email2.split('@')[0],
-      telefono: '',
-      avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
-      watchedMovies: JSON.parse(localStorage.getItem('mHist') || '[]')
-    };
+    const email2 = localStorage.getItem('llutid_correo')||email;
+    userProfile = { email:email2, nombre:localStorage.getItem('llutid_nombre')||email2.split('@')[0], telefono:'', avatar:localStorage.getItem('llutid_avatar')||MALE_AV[0], watchedMovies:JSON.parse(localStorage.getItem('mHist')||'[]') };
   }
   updateProfileUI();
 }
@@ -1033,140 +862,81 @@ async function loadUserProfile(uid, email){
 function updateProfileUI(){
   if(!userProfile) return;
   const av = userProfile.avatar;
-  const n  = userProfile.nombre || userProfile.email?.split('@')[0] || 'Usuario';
+  const n  = userProfile.nombre||userProfile.email?.split('@')[0]||'Usuario';
   const init = n.charAt(0).toUpperCase();
-
   const setAvatar = (el, initEl) => {
-    if(!el || !initEl) return;
-    if(av){
-      el.style.background = 'transparent';
-      initEl.innerHTML = `<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
-    } else {
-      el.style.background = '';
-      initEl.textContent = init;
-    }
+    if(!el||!initEl) return;
+    if(av){ el.style.background='transparent'; initEl.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
+    else  { el.style.background=''; initEl.textContent=init; }
   };
-
   setAvatar($('heroProfileBtn'), $('heroAvatarInner'));
   setAvatar($('tbAvatar'),       $('tbAvatarInner'));
-
-  const pa = $('profAvatar'), pt = $('profAvatarTxt');
-  if(pa && pt){
-    if(av){ pa.style.background='transparent'; pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
-    else  { pa.style.background=''; pt.textContent=init; }
-  }
+  const pa=$('profAvatar'), pt=$('profAvatarTxt');
+  if(pa&&pt){ if(av){pa.style.background='transparent';pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}else{pa.style.background='';pt.textContent=init;} }
   if($('profName'))      $('profName').textContent = n;
-  if($('profEmailTxt'))  $('profEmailTxt').textContent = userProfile.email || '';
-  if($('profEmailInfo')) $('profEmailInfo').textContent = userProfile.email || '';
-  if($('profPhone'))     $('profPhone').textContent = userProfile.telefono || 'No registrado';
+  if($('profEmailTxt'))  $('profEmailTxt').textContent = userProfile.email||'';
+  if($('profEmailInfo')) $('profEmailInfo').textContent = userProfile.email||'';
+  if($('profPhone'))     $('profPhone').textContent = userProfile.telefono||'No registrado';
 }
 
 function renderWatchedInProfile(){
-  const row = $('profWatchedRow'); if(!row) return;
+  const row=$('profWatchedRow');if(!row)return;
   const list = userProfile?.watchedMovies?.length ? userProfile.watchedMovies : movieHistory;
-  const seen = new Set(), deduped = [];
-  list.forEach(m => {
-    const key = m.id || m.title;
-    if(key && !seen.has(key)){ seen.add(key); deduped.push(m); }
-    else if(!key) deduped.push(m);
-  });
-  if(!deduped.length){
-    row.innerHTML = '<p class="prof-watched-empty">Aún no has visto ninguna película</p>';
-    return;
-  }
-  row.innerHTML = '';
-  deduped.slice(0, 30).forEach(m => {
-    const div = document.createElement('div'); div.className = 'prof-watched-item';
-    div.innerHTML = `<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;
-    div.onclick = () => { if(m.link){ closeProfile(); location.href = m.link; } };
-    row.appendChild(div);
-  });
+  const seen=new Set(), deduped=[];
+  list.forEach(m=>{ const key=m.id||m.title; if(key&&!seen.has(key)){seen.add(key);deduped.push(m);}else if(!key)deduped.push(m); });
+  if(!deduped.length){ row.innerHTML='<p class="prof-watched-empty">Aún no has visto ninguna película</p>'; return; }
+  row.innerHTML='';
+  deduped.slice(0,30).forEach(m=>{ const div=document.createElement('div');div.className='prof-watched-item';div.innerHTML=`<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;div.onclick=()=>{if(m.link){closeProfile();location.href=m.link;}};row.appendChild(div); });
 }
 
 /* ══ PROFILE ACTIONS ══ */
 $('profChangePass').onclick = async () => {
   if(!currentUser){ showPopup('Error','Inicia sesión para cambiar la contraseña.'); return; }
-  try{
-    await sendPasswordResetEmail(auth, currentUser.email);
-    showPopup('Correo enviado', `Revisa ${currentUser.email}`);
-  }catch(e){ showPopup('Error','No se pudo enviar el correo.'); }
+  try{ await sendPasswordResetEmail(auth, currentUser.email); showPopup('Correo enviado',`Revisa ${currentUser.email}`); }
+  catch(e){ showPopup('Error','No se pudo enviar el correo.'); }
 };
-
 $('profLogout').onclick = async () => {
   try{
     if(currentUser) await signOut(auth);
-    localStorage.removeItem('llutid_correo');
-    localStorage.removeItem('llutid_pin');
-    localStorage.removeItem('llutid_avatar');
-    localStorage.removeItem('llutid_nombre');
-    location.href = 'login.html';
+    localStorage.removeItem('llutid_correo'); localStorage.removeItem('llutid_pin');
+    localStorage.removeItem('llutid_avatar'); localStorage.removeItem('llutid_nombre');
+    location.href='login.html';
   }catch(e){ showPopup('Error','No se pudo cerrar sesión.'); }
 };
-
 $('popupOk').onclick = () => $('popupMask').classList.remove('show');
 
 /* ══ AVATAR PICKER ══ */
 $('profEditIco').onclick = () => openAvatarPicker();
-
 function openAvatarPicker(){
-  selectedAv = null;
-  $('avSaveBtn').disabled = true;
-  buildAvatarGrid($('avMaleGrid'),   MALE_AV);
-  buildAvatarGrid($('avFemaleGrid'), FEMALE_AV);
+  selectedAv=null; $('avSaveBtn').disabled=true;
+  buildAvatarGrid($('avMaleGrid'),MALE_AV);
+  buildAvatarGrid($('avFemaleGrid'),FEMALE_AV);
   $('avPickerModal').classList.add('show');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
-
 function buildAvatarGrid(container, urls){
-  container.innerHTML = '';
-  urls.forEach(url => {
-    const div = document.createElement('div');
-    div.className = 'av-opt-big' + (userProfile?.avatar === url ? ' sel' : '');
-    div.innerHTML = `<img src="${url}" alt="" loading="lazy"><div class="av-check">✓</div>`;
-    div.onclick = () => {
-      document.querySelectorAll('.av-opt-big').forEach(o => o.classList.remove('sel'));
-      div.classList.add('sel');
-      selectedAv = url;
-      $('avSaveBtn').disabled = false;
-    };
+  container.innerHTML='';
+  urls.forEach(url=>{
+    const div=document.createElement('div');
+    div.className='av-opt-big'+(userProfile?.avatar===url?' sel':'');
+    div.innerHTML=`<img src="${url}" alt="" loading="lazy"><div class="av-check">✓</div>`;
+    div.onclick=()=>{ document.querySelectorAll('.av-opt-big').forEach(o=>o.classList.remove('sel')); div.classList.add('sel'); selectedAv=url; $('avSaveBtn').disabled=false; };
     container.appendChild(div);
   });
 }
-
-function closeAvatarPicker(){
-  $('avPickerModal').classList.remove('show');
-  document.body.style.overflow = '';
-}
-
+function closeAvatarPicker(){ $('avPickerModal').classList.remove('show'); document.body.style.overflow=''; }
 $('avSheetClose').onclick = closeAvatarPicker;
-$('avPickerModal').onclick = e => { if(e.target === $('avPickerModal')) closeAvatarPicker(); };
-
-/* ══════════════════════════════════════════════
-   GUARDAR AVATAR EN FIREBASE
-   setDoc merge:true — funciona aunque el doc no exista
-══════════════════════════════════════════════ */
+$('avPickerModal').onclick = e=>{ if(e.target===$('avPickerModal'))closeAvatarPicker(); };
 $('avSaveBtn').onclick = async () => {
-  if(!selectedAv) return;
-  $('avSaveBtn').disabled = true;
+  if(!selectedAv)return;
+  $('avSaveBtn').disabled=true;
   try{
-    if(currentUser){
-      await setDoc(
-        doc(dbU, 'users', currentUser.uid),
-        { avatar: selectedAv },
-        { merge: true }
-      );
-    }
-    // Actualizar localStorage y memoria siempre
-    localStorage.setItem('llutid_avatar', selectedAv);
-    if(userProfile) userProfile.avatar = selectedAv;
-    updateProfileUI();
-    closeAvatarPicker();
-    showPopup('¡Guardado!', 'Tu avatar se actualizó correctamente.');
-  }catch(e){
-    console.warn('avSave error:', e);
-    showPopup('Error', 'No se pudo guardar el avatar.');
-    $('avSaveBtn').disabled = false;
-  }
+    if(currentUser){ await setDoc(doc(dbU,'users',currentUser.uid),{avatar:selectedAv},{merge:true}); }
+    localStorage.setItem('llutid_avatar',selectedAv);
+    if(userProfile) userProfile.avatar=selectedAv;
+    updateProfileUI(); closeAvatarPicker();
+    showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
+  }catch(e){ showPopup('Error','No se pudo guardar el avatar.'); $('avSaveBtn').disabled=false; }
 };
 
 /* ══ PROMO VIDEO — dynamic color sampling ══ */
@@ -1236,7 +1006,7 @@ async function init(){
     const qs=await getDocs(query(collection(db,'heroes'),orderBy('order')));
     const h=[];qs.forEach(d=>h.push({id:d.id,...d.data()}));
     if(h.length){C.set('heroes',h);renderHeroes(h);}
-  }catch(e){}
+  }catch(e){ console.warn('heroes error:',e); }
   onSnapshot(query(collection(db,'heroes'),orderBy('order')),snap=>{
     const h=[];snap.forEach(d=>h.push({id:d.id,...d.data()}));
     if(h.length){C.set('heroes',h);renderHeroes(h);}
@@ -1247,7 +1017,7 @@ async function init(){
   onSnapshot(query(collection(db,'movies'),orderBy('order')),snap=>{
     const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));
     C.set('movies',m);renderMovies(m);
-  },()=>{});
+  },e=>{ console.warn('movies error:',e); });
 
   onSnapshot(query(collection(db,'matches'),orderBy('order')),snap=>{
     const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));
