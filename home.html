@@ -18,14 +18,17 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .skeleton{background:linear-gradient(110deg,#0c0c16 30%,#1a1a2e 50%,#0c0c16 70%);background-size:300% 100%;animation:sk 1.6s linear infinite;}
 @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ════ AUTH GATE ════ */
+/* ════ AUTH GATE — oculto por defecto, solo aparece si realmente no hay sesión ════ */
 #authGate{
   position:fixed;inset:0;z-index:99999;
   background:radial-gradient(ellipse at 40% 40%,#0a1228 0%,#04040A 70%);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  display:none; /* ← CAMBIADO: oculto por defecto para evitar el flash */
+  flex-direction:column;align-items:center;justify-content:center;
   text-align:center;padding:32px;
+  animation:agFadeIn .45s cubic-bezier(.4,0,.2,1) both; /* entrada suave */
 }
-#authGate.hidden{display:none;}
+#authGate.show{display:flex;}/* se muestra solo si definitivamente no hay sesión */
+@keyframes agFadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .ag-logo{font-family:var(--font-display);font-size:clamp(2.5rem,10vw,3.5rem);letter-spacing:3px;color:var(--white);margin-bottom:6px;}
 .ag-logo span{color:var(--blue-light);}
 .ag-lock{font-size:56px;margin-bottom:20px;animation:agPulse 2.5s ease-in-out infinite;}
@@ -385,7 +388,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 </head>
 <body>
 
-<!-- ════ AUTH GATE ════ -->
+<!-- ════ AUTH GATE — solo se muestra si definitivamente no hay sesión ════ -->
 <div id="authGate">
   <div class="ag-logo">LLUTID<span>+</span></div>
   <div class="ag-lock">🔐</div>
@@ -535,7 +538,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     <p class="prof-email" id="profEmailTxt">cargando...</p>
   </div>
 
-  <!-- Películas vistas -->
   <div class="prof-section" id="profWatchedSection">
     <p class="prof-sec-title">Películas Vistas</p>
     <div class="prof-watched-scroll" id="profWatchedRow">
@@ -543,14 +545,12 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </div>
   </div>
 
-  <!-- Información personal -->
   <div class="prof-section">
     <p class="prof-sec-title">Información personal</p>
     <div class="prof-row"><span class="prof-row-label">Email</span><span class="prof-row-val" id="profEmailInfo">—</span></div>
     <div class="prof-row"><span class="prof-row-label">Teléfono</span><span class="prof-row-val" id="profPhone">No registrado</span></div>
   </div>
 
-  <!-- Seguridad -->
   <div class="prof-section">
     <p class="prof-sec-title">Seguridad</p>
     <button class="prof-btn prof-btn-primary" id="profChangePass">
@@ -563,7 +563,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </button>
   </div>
 
-  <!-- Soporte -->
   <div class="prof-section">
     <p class="prof-sec-title">Soporte</p>
     <button class="prof-btn prof-btn-chat" onclick="window.open('https://llutid.github.io/chat-bot-llutid-/','_blank','noopener,noreferrer')">
@@ -606,7 +605,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* ══ FIREBASE CONFIGS ══ */
 const fbConfig  = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
 const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
 
@@ -616,7 +614,6 @@ const appUsers  = initializeApp(fbConfigU, "users");
 const dbU       = getFirestore(appUsers);
 const auth      = getAuth(appUsers);
 
-/* ══ AVATAR ARRAYS ══ */
 const MALE_AV = [
   'https://png.pngtree.com/png-vector/20230831/ourmid/pngtree-man-avatar-image-for-profile-png-image_9197908.png',
   'https://png.pngtree.com/png-vector/20231019/ourmid/pngtree-avatar-of-a-brunette-man-png-image_10214156.png',
@@ -647,51 +644,71 @@ const $ = id => document.getElementById(id);
 const fmt = s => isNaN(s) ? '0:00' : `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function showPopup(t, m){ $('popupTitle').textContent=t; $('popupMsg').textContent=m; $('popupMask').classList.add('show'); }
 
-/* ══ SIMPLE CACHE ══ */
 const C = {
   get(k){ try{ const d=JSON.parse(localStorage.getItem('ll_'+k)); if(d&&Date.now()-d.t<1800000)return d.v }catch(e){} return null },
   set(k,v){ try{ localStorage.setItem('ll_'+k,JSON.stringify({v,t:Date.now()})) }catch(e){} }
 };
 
 /* ══════════════════════════════════════════════
-   AUTH GATE
+   AUTH GATE — Lógica sin flash
+   El gate está oculto por defecto en CSS (display:none).
+   Solo se muestra con .show si el check de auth confirma
+   que definitivamente no hay sesión ni email guardado.
 ══════════════════════════════════════════════ */
-const savedEmail = localStorage.getItem('llutid_correo');
 
-// If no email at all, gate is already visible (default display:flex)
-// If email exists, hide gate immediately and show content optimistically
-if(savedEmail){
-  $('authGate').classList.add('hidden');
+// Pre-carga inmediata desde localStorage para el avatar/nombre
+// mientras Firebase confirma la sesión (evita el flash del gate)
+const _savedEmail  = localStorage.getItem('llutid_correo');
+const _savedAvatar = localStorage.getItem('llutid_avatar');
+const _savedNombre = localStorage.getItem('llutid_nombre');
+
+if(_savedEmail){
+  // Hay email → cargamos perfil mínimo de localStorage al instante
+  userProfile = {
+    email: _savedEmail,
+    nombre: _savedNombre || _savedEmail.split('@')[0],
+    telefono: '',
+    avatar: _savedAvatar || MALE_AV[0],
+    watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
+  };
+  updateProfileUI();
+  // El gate sigue oculto; Firebase confirmará en segundo plano
 }
 
+// Firebase auth check — determina si mostrar el gate o no
 onAuthStateChanged(auth, async user => {
   if(user){
-    // User authenticated — hide gate, load profile
-    $('authGate').classList.add('hidden');
+    // Sesión activa → nunca mostramos el gate
     currentUser = user;
     await loadUserProfile(user.uid, user.email);
   } else {
-    // No Firebase auth session
+    // Sin sesión Firebase
     const email = localStorage.getItem('llutid_correo');
     if(!email){
-      // Show gate
-      $('authGate').classList.remove('hidden');
-      $('agMsg').textContent = 'No puedes continuar sin antes ingresar tus datos en el apartado de inicio de sesión.';
+      // Sin email guardado → mostramos el gate con animación suave
+      $('authGate').classList.add('show');
     } else {
-      // Email in localStorage but no active session — session may have expired
-      // Still show content (the user is identified by email), profile loads with limited data
-      $('authGate').classList.add('hidden');
-      userProfile = {
-        email: email,
-        nombre: localStorage.getItem('llutid_nombre') || email.split('@')[0],
-        telefono: '',
-        avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
-        watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
-      };
-      updateProfileUI();
+      // Email en localStorage pero sin sesión activa →
+      // seguimos mostrando el contenido normalmente
+      // (el perfil ya fue cargado del localStorage arriba)
+      if(!userProfile){
+        userProfile = {
+          email,
+          nombre: localStorage.getItem('llutid_nombre') || email.split('@')[0],
+          telefono: '',
+          avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
+          watchedMovies: JSON.parse(localStorage.getItem('mHist')||'[]')
+        };
+        updateProfileUI();
+      }
     }
   }
 });
+
+/* ══ Variables globales ══ */
+let currentUser = null;
+let userProfile = null;
+let selectedAv  = null;
 
 /* ══════════════════════════════════════════════
    HERO
@@ -901,151 +918,216 @@ function renderHistory(){
   movieHistory.slice(0,12).forEach(m=>{const a=document.createElement('a');a.href=m.link;a.className='search-card';a.innerHTML=`<img src="${m.image}" alt="${m.title}" loading="lazy">`;g.appendChild(a);});
 }
 
-/* Save watch history to localStorage + Firebase */
+/* ══════════════════════════════════════════════
+   GUARDAR PELÍCULAS VISTAS EN FIREBASE
+   Usa setDoc con merge:true — funciona siempre,
+   el doc exista o no.
+══════════════════════════════════════════════ */
 async function addHist(m){
-  movieHistory=movieHistory.filter(h=>h.id!==m.id);
-  const entry={id:m.id,title:m.title,image:m.image,link:m.link,watchedAt:Date.now()};
+  movieHistory = movieHistory.filter(h => h.id !== m.id);
+  const entry = {
+    id: m.id || m.title || String(Date.now()),
+    title: m.title || '',
+    image: m.image || '',
+    link: m.link || '',
+    watchedAt: Date.now()
+  };
   movieHistory.unshift(entry);
-  if(movieHistory.length>50)movieHistory=movieHistory.slice(0,50);
-  localStorage.setItem('mHist',JSON.stringify(movieHistory));
+  if(movieHistory.length > 50) movieHistory = movieHistory.slice(0, 50);
+  localStorage.setItem('mHist', JSON.stringify(movieHistory));
 
-  // Sync to Firebase if user is authenticated
+  // Actualizar perfil local en memoria
+  if(userProfile){
+    userProfile.watchedMovies = movieHistory;
+  }
+
+  // Guardar en Firebase — setDoc merge:true es seguro siempre
   if(currentUser){
     try{
-      const ref=doc(dbU,'users',currentUser.uid);
-      await updateDoc(ref,{
-        watchedMovies: arrayUnion(entry)
-      }).catch(()=>setDoc(ref,{watchedMovies:[entry]},{merge:true}));
-    }catch(e){}
+      await setDoc(
+        doc(dbU, 'users', currentUser.uid),
+        { watchedMovies: movieHistory },
+        { merge: true }
+      );
+    }catch(e){ console.warn('addHist Firebase error:', e); }
   }
 }
 
 /* ══════════════════════════════════════════════
    PROFILE
 ══════════════════════════════════════════════ */
-let currentUser=null, userProfile=null, selectedAv=null;
-
-$('heroProfileBtn').onclick=e=>{e.stopPropagation();openProfile();};
-$('tbAvatar').onclick=openProfile;
-$('profClose').onclick=closeProfile;
+$('heroProfileBtn').onclick = e => { e.stopPropagation(); openProfile(); };
+$('tbAvatar').onclick = openProfile;
+$('profClose').onclick = closeProfile;
 
 function openProfile(){
   $('profileOverlay').classList.add('active');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
   renderWatchedInProfile();
 }
 function closeProfile(){
   $('profileOverlay').classList.remove('active');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-/* Load user profile from Firestore */
+/* ══════════════════════════════════════════════
+   CARGAR PERFIL DESDE FIRESTORE
+   setDoc merge:true para crear o actualizar sin error
+══════════════════════════════════════════════ */
 async function loadUserProfile(uid, email){
   try{
-    const d=await getDoc(doc(dbU,'users',uid));
+    const d = await getDoc(doc(dbU, 'users', uid));
     if(d.exists()){
-      userProfile={...d.data(), email:email};
-      // Merge local watch history into Firestore list
-      const localHist=JSON.parse(localStorage.getItem('mHist')||'[]');
-      if(localHist.length && !userProfile.watchedMovies?.length){
-        userProfile.watchedMovies = localHist;
-        await updateDoc(doc(dbU,'users',uid),{watchedMovies:localHist}).catch(()=>{});
+      userProfile = { ...d.data(), email };
+
+      // Mezclar historial local con el de Firestore
+      const localHist = JSON.parse(localStorage.getItem('mHist') || '[]');
+      if(localHist.length){
+        const fbList = userProfile.watchedMovies || [];
+        const merged = [...localHist];
+        fbList.forEach(fb => {
+          if(!merged.some(l => l.id === fb.id)) merged.push(fb);
+        });
+        merged.sort((a,b) => (b.watchedAt||0) - (a.watchedAt||0));
+        userProfile.watchedMovies = merged.slice(0, 50);
+        movieHistory = userProfile.watchedMovies;
+        localStorage.setItem('mHist', JSON.stringify(movieHistory));
+        // Persistir la lista mezclada en Firestore
+        await setDoc(
+          doc(dbU, 'users', uid),
+          { watchedMovies: userProfile.watchedMovies },
+          { merge: true }
+        ).catch(() => {});
       }
-    }else{
-      const nombre=email.split('@')[0];
-      userProfile={email,nombre,telefono:'',avatar:MALE_AV[0],watchedMovies:[]};
-      await setDoc(doc(dbU,'users',uid),userProfile);
+    } else {
+      // Documento no existe → crearlo con setDoc (nunca falla con merge)
+      const nombre = email.split('@')[0];
+      const localHist = JSON.parse(localStorage.getItem('mHist') || '[]');
+      userProfile = {
+        email, nombre, telefono: '',
+        avatar: MALE_AV[0],
+        watchedMovies: localHist
+      };
+      await setDoc(doc(dbU, 'users', uid), userProfile, { merge: true });
     }
-    // Persist avatar to localStorage for quick access
-    if(userProfile.avatar) localStorage.setItem('llutid_avatar',userProfile.avatar);
-    if(userProfile.nombre) localStorage.setItem('llutid_nombre',userProfile.nombre);
+
+    // Guardar datos rápidos en localStorage
+    if(userProfile.avatar) localStorage.setItem('llutid_avatar', userProfile.avatar);
+    if(userProfile.nombre) localStorage.setItem('llutid_nombre', userProfile.nombre);
+    if(userProfile.email)  localStorage.setItem('llutid_correo', userProfile.email);
+
   }catch(e){
-    const email2=localStorage.getItem('llutid_correo')||email;
-    userProfile={email:email2,nombre:email2.split('@')[0],telefono:'',avatar:localStorage.getItem('llutid_avatar')||MALE_AV[0],watchedMovies:JSON.parse(localStorage.getItem('mHist')||'[]')};
+    console.warn('loadUserProfile error:', e);
+    const email2 = localStorage.getItem('llutid_correo') || email;
+    userProfile = {
+      email: email2,
+      nombre: localStorage.getItem('llutid_nombre') || email2.split('@')[0],
+      telefono: '',
+      avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
+      watchedMovies: JSON.parse(localStorage.getItem('mHist') || '[]')
+    };
   }
   updateProfileUI();
 }
 
 function updateProfileUI(){
-  if(!userProfile)return;
-  const av=userProfile.avatar,n=userProfile.nombre||userProfile.email?.split('@')[0]||'Usuario',init=n.charAt(0).toUpperCase();
-  const setAvatar=(el,initEl)=>{
-    if(!el||!initEl)return;
-    if(av){el.style.background='transparent';initEl.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}
-    else{el.style.background='';initEl.textContent=init;}
+  if(!userProfile) return;
+  const av = userProfile.avatar;
+  const n  = userProfile.nombre || userProfile.email?.split('@')[0] || 'Usuario';
+  const init = n.charAt(0).toUpperCase();
+
+  const setAvatar = (el, initEl) => {
+    if(!el || !initEl) return;
+    if(av){
+      el.style.background = 'transparent';
+      initEl.innerHTML = `<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    } else {
+      el.style.background = '';
+      initEl.textContent = init;
+    }
   };
-  setAvatar($('heroProfileBtn'),$('heroAvatarInner'));
-  setAvatar($('tbAvatar'),$('tbAvatarInner'));
-  const pa=$('profAvatar'),pt=$('profAvatarTxt');
-  if(pa&&pt){if(av){pa.style.background='transparent';pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;}else{pa.style.background='';pt.textContent=init;}}
-  if($('profName'))$('profName').textContent=n;
-  if($('profEmailTxt'))$('profEmailTxt').textContent=userProfile.email||'';
-  if($('profEmailInfo'))$('profEmailInfo').textContent=userProfile.email||'';
-  if($('profPhone'))$('profPhone').textContent=userProfile.telefono||'No registrado';
+
+  setAvatar($('heroProfileBtn'), $('heroAvatarInner'));
+  setAvatar($('tbAvatar'),       $('tbAvatarInner'));
+
+  const pa = $('profAvatar'), pt = $('profAvatarTxt');
+  if(pa && pt){
+    if(av){ pa.style.background='transparent'; pt.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
+    else  { pa.style.background=''; pt.textContent=init; }
+  }
+  if($('profName'))      $('profName').textContent = n;
+  if($('profEmailTxt'))  $('profEmailTxt').textContent = userProfile.email || '';
+  if($('profEmailInfo')) $('profEmailInfo').textContent = userProfile.email || '';
+  if($('profPhone'))     $('profPhone').textContent = userProfile.telefono || 'No registrado';
 }
 
 function renderWatchedInProfile(){
-  const row=$('profWatchedRow');if(!row)return;
-  const list=userProfile?.watchedMovies||movieHistory;
-  // Deduplicate by id
-  const seen=new Set(),deduped=[];
-  list.forEach(m=>{if(m.id&&!seen.has(m.id)){seen.add(m.id);deduped.push(m);}else if(!m.id)deduped.push(m);});
-  if(!deduped.length){row.innerHTML='<p class="prof-watched-empty">Aún no has visto ninguna película</p>';return;}
-  row.innerHTML='';
-  deduped.slice(0,30).forEach(m=>{
-    const div=document.createElement('div');div.className='prof-watched-item';
-    div.innerHTML=`<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;
-    div.onclick=()=>{if(m.link){closeProfile();location.href=m.link;}};
+  const row = $('profWatchedRow'); if(!row) return;
+  const list = userProfile?.watchedMovies?.length ? userProfile.watchedMovies : movieHistory;
+  const seen = new Set(), deduped = [];
+  list.forEach(m => {
+    const key = m.id || m.title;
+    if(key && !seen.has(key)){ seen.add(key); deduped.push(m); }
+    else if(!key) deduped.push(m);
+  });
+  if(!deduped.length){
+    row.innerHTML = '<p class="prof-watched-empty">Aún no has visto ninguna película</p>';
+    return;
+  }
+  row.innerHTML = '';
+  deduped.slice(0, 30).forEach(m => {
+    const div = document.createElement('div'); div.className = 'prof-watched-item';
+    div.innerHTML = `<img src="${m.image||''}" alt="${m.title||''}" loading="lazy"><p>${m.title||''}</p>`;
+    div.onclick = () => { if(m.link){ closeProfile(); location.href = m.link; } };
     row.appendChild(div);
   });
 }
 
 /* ══ PROFILE ACTIONS ══ */
-$('profChangePass').onclick=async()=>{
-  if(!currentUser){showPopup('Error','Inicia sesión para cambiar la contraseña.');return;}
-  try{await sendPasswordResetEmail(auth,currentUser.email);showPopup('Correo enviado',`Revisa ${currentUser.email}`);}
-  catch(e){showPopup('Error','No se pudo enviar el correo.');}
-};
-$('profLogout').onclick=async()=>{
+$('profChangePass').onclick = async () => {
+  if(!currentUser){ showPopup('Error','Inicia sesión para cambiar la contraseña.'); return; }
   try{
-    if(currentUser)await signOut(auth);
+    await sendPasswordResetEmail(auth, currentUser.email);
+    showPopup('Correo enviado', `Revisa ${currentUser.email}`);
+  }catch(e){ showPopup('Error','No se pudo enviar el correo.'); }
+};
+
+$('profLogout').onclick = async () => {
+  try{
+    if(currentUser) await signOut(auth);
     localStorage.removeItem('llutid_correo');
     localStorage.removeItem('llutid_pin');
     localStorage.removeItem('llutid_avatar');
     localStorage.removeItem('llutid_nombre');
-    location.href='login.html';
-  }catch(e){showPopup('Error','No se pudo cerrar sesión.');}
-};
-$('popupOk').onclick=()=>$('popupMask').classList.remove('show');
-
-/* ══ PROFILE — edit icon opens avatar picker ══ */
-$('profEditIco').onclick=()=>{
-  openAvatarPicker();
+    location.href = 'login.html';
+  }catch(e){ showPopup('Error','No se pudo cerrar sesión.'); }
 };
 
-/* ══════════════════════════════════════════════
-   AVATAR PICKER — Premium Bottom Sheet
-══════════════════════════════════════════════ */
+$('popupOk').onclick = () => $('popupMask').classList.remove('show');
+
+/* ══ AVATAR PICKER ══ */
+$('profEditIco').onclick = () => openAvatarPicker();
+
 function openAvatarPicker(){
-  selectedAv=null;
-  $('avSaveBtn').disabled=true;
-  buildAvatarGrid($('avMaleGrid'),MALE_AV);
-  buildAvatarGrid($('avFemaleGrid'),FEMALE_AV);
+  selectedAv = null;
+  $('avSaveBtn').disabled = true;
+  buildAvatarGrid($('avMaleGrid'),   MALE_AV);
+  buildAvatarGrid($('avFemaleGrid'), FEMALE_AV);
   $('avPickerModal').classList.add('show');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
 
 function buildAvatarGrid(container, urls){
-  container.innerHTML='';
-  urls.forEach(url=>{
-    const div=document.createElement('div');
-    div.className='av-opt-big'+(userProfile?.avatar===url?' sel':'');
-    div.innerHTML=`<img src="${url}" alt="" loading="lazy"><div class="av-check">✓</div>`;
-    div.onclick=()=>{
-      document.querySelectorAll('.av-opt-big').forEach(o=>o.classList.remove('sel'));
+  container.innerHTML = '';
+  urls.forEach(url => {
+    const div = document.createElement('div');
+    div.className = 'av-opt-big' + (userProfile?.avatar === url ? ' sel' : '');
+    div.innerHTML = `<img src="${url}" alt="" loading="lazy"><div class="av-check">✓</div>`;
+    div.onclick = () => {
+      document.querySelectorAll('.av-opt-big').forEach(o => o.classList.remove('sel'));
       div.classList.add('sel');
-      selectedAv=url;
-      $('avSaveBtn').disabled=false;
+      selectedAv = url;
+      $('avSaveBtn').disabled = false;
     };
     container.appendChild(div);
   });
@@ -1053,27 +1135,37 @@ function buildAvatarGrid(container, urls){
 
 function closeAvatarPicker(){
   $('avPickerModal').classList.remove('show');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-$('avSheetClose').onclick=closeAvatarPicker;
-$('avPickerModal').onclick=e=>{if(e.target===$('avPickerModal'))closeAvatarPicker();};
+$('avSheetClose').onclick = closeAvatarPicker;
+$('avPickerModal').onclick = e => { if(e.target === $('avPickerModal')) closeAvatarPicker(); };
 
-$('avSaveBtn').onclick=async()=>{
-  if(!selectedAv)return;
-  $('avSaveBtn').disabled=true;
+/* ══════════════════════════════════════════════
+   GUARDAR AVATAR EN FIREBASE
+   setDoc merge:true — funciona aunque el doc no exista
+══════════════════════════════════════════════ */
+$('avSaveBtn').onclick = async () => {
+  if(!selectedAv) return;
+  $('avSaveBtn').disabled = true;
   try{
     if(currentUser){
-      await updateDoc(doc(dbU,'users',currentUser.uid),{avatar:selectedAv});
+      await setDoc(
+        doc(dbU, 'users', currentUser.uid),
+        { avatar: selectedAv },
+        { merge: true }
+      );
     }
-    if(userProfile) userProfile.avatar=selectedAv;
-    localStorage.setItem('llutid_avatar',selectedAv);
+    // Actualizar localStorage y memoria siempre
+    localStorage.setItem('llutid_avatar', selectedAv);
+    if(userProfile) userProfile.avatar = selectedAv;
     updateProfileUI();
     closeAvatarPicker();
-    showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
+    showPopup('¡Guardado!', 'Tu avatar se actualizó correctamente.');
   }catch(e){
-    showPopup('Error','No se pudo guardar el avatar.');
-    $('avSaveBtn').disabled=false;
+    console.warn('avSave error:', e);
+    showPopup('Error', 'No se pudo guardar el avatar.');
+    $('avSaveBtn').disabled = false;
   }
 };
 
@@ -1133,12 +1225,11 @@ async function loadAnnouncement(){
     setTimeout(()=>$('annMask').classList.add('show'),950);
     $('annClose').onclick=()=>$('annMask').classList.remove('show');
     $('annMask').onclick=e=>{if(e.target===$('annMask'))$('annMask').classList.remove('show');};
-  }catch(e){console.warn(e);}
+  }catch(e){ console.warn(e); }
 }
 
 /* ══ INIT ══ */
 async function init(){
-  // Load heroes
   const cachedH=C.get('heroes');
   if(cachedH?.length)renderHeroes(cachedH);
   try{
@@ -1151,7 +1242,6 @@ async function init(){
     if(h.length){C.set('heroes',h);renderHeroes(h);}
   },()=>{});
 
-  // Load movies
   const cachedM=C.get('movies');
   if(cachedM?.length)renderMovies(cachedM);
   onSnapshot(query(collection(db,'movies'),orderBy('order')),snap=>{
@@ -1159,7 +1249,6 @@ async function init(){
     C.set('movies',m);renderMovies(m);
   },()=>{});
 
-  // Load matches
   onSnapshot(query(collection(db,'matches'),orderBy('order')),snap=>{
     const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));
     renderMatches(m);
@@ -1170,7 +1259,6 @@ async function init(){
     }).catch(()=>{});
   });
 
-  // Load promo card config
   try{
     const pcSnap=await getDoc(doc(db,'config','promoCard'));
     if(pcSnap.exists())renderPromoCard(pcSnap.data());
