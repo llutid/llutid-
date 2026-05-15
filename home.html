@@ -37,12 +37,41 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .ag-btn{padding:15px 44px;border-radius:50px;border:none;background:linear-gradient(135deg,#3B6EE8,#5E8FFF);color:#fff;font-family:var(--font-body);font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(59,110,232,.45);transition:transform .15s,box-shadow .15s;letter-spacing:.3px;}
 .ag-btn:active{transform:scale(.96);}
 
-.topbar{position:fixed;top:0;left:0;right:0;z-index:9000;height:62px;padding:0 20px;display:flex;align-items:center;justify-content:flex-end;pointer-events:auto;transition:background .5s,backdrop-filter .5s,border-color .5s;}
-.topbar.solid{background:rgba(4,4,10,0.92);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-bottom:1px solid rgba(255,255,255,0.08);pointer-events:auto;}
-.tb-logo{position:absolute;left:50%;transform:translateX(-50%) translateY(-10px);opacity:0;transition:all .4s cubic-bezier(.4,0,.2,1);font-family:var(--font-display);letter-spacing:2px;font-size:22px;color:var(--white);pointer-events:none;white-space:nowrap;}
+/* ══════════════════════════════════
+   TOPBAR — estilo Netflix premium
+══════════════════════════════════ */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:9000;
+  height:62px;padding:0 20px;
+  display:flex;align-items:center;justify-content:flex-end;
+  pointer-events:auto;
+  background:transparent;
+  transition:background .45s cubic-bezier(.4,0,.2,1),
+             border-color .45s cubic-bezier(.4,0,.2,1),
+             box-shadow .45s cubic-bezier(.4,0,.2,1);
+}
+.topbar.solid{
+  background:linear-gradient(180deg,rgba(4,4,10,0.97) 0%,rgba(4,4,10,0.88) 100%);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255,255,255,0.055);
+  box-shadow:0 1px 0 rgba(255,255,255,0.035), 0 6px 28px rgba(0,0,0,0.55);
+}
+.tb-logo{
+  position:absolute;left:50%;
+  transform:translateX(-50%) translateY(-12px) scale(.9);
+  opacity:0;
+  transition:all .42s cubic-bezier(.34,1.2,.64,1);
+  font-family:var(--font-display);letter-spacing:2.5px;font-size:22px;
+  color:var(--white);pointer-events:none;white-space:nowrap;
+}
 .tb-logo span{color:var(--blue-light);}
-.topbar.solid .tb-logo{opacity:1;transform:translateX(-50%) translateY(0);}
-.tb-right{display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(-8px) scale(.95);transition:all .4s cubic-bezier(.4,0,.2,1) .06s;}
+.topbar.solid .tb-logo{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+.tb-right{
+  display:flex;align-items:center;gap:10px;
+  opacity:0;transform:translateY(-10px) scale(.92);
+  transition:all .42s cubic-bezier(.34,1.2,.64,1) .05s;
+}
 .topbar.solid .tb-right{opacity:1;transform:translateY(0) scale(1);}
 .tb-mute-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.22);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .2s,transform .15s;pointer-events:auto;flex-shrink:0;}
 .tb-mute-btn:active{transform:scale(.88);}
@@ -93,11 +122,32 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .sec-more{font-size:12.5px;color:var(--blue-light);font-weight:500;cursor:pointer;letter-spacing:.3px;}
 .row{display:flex;gap:12px;overflow-x:auto;padding:4px 20px 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .row::-webkit-scrollbar{display:none;}
-.card{flex-shrink:0;width:116px;height:174px;border-radius:var(--card-radius);overflow:hidden;background:var(--surface2);position:relative;cursor:pointer;transition:transform .22s cubic-bezier(.4,0,.2,1);}
+
+/* ══ CARDS — animación solo móvil ══ */
+.card{
+  flex-shrink:0;width:116px;height:174px;border-radius:var(--card-radius);
+  overflow:hidden;background:var(--surface2);position:relative;
+  cursor:pointer;
+  transition:transform .22s cubic-bezier(.4,0,.2,1);
+}
 .card:active{transform:scale(.93);}
 .card img{width:100%;height:100%;object-fit:cover;display:block;border-radius:var(--card-radius);}
 .card-shine{position:absolute;inset:0;border-radius:var(--card-radius);background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 60%);pointer-events:none;}
 .card-skeleton{width:116px;height:174px;border-radius:var(--card-radius);flex-shrink:0;}
+
+/* Animación de entrada solo en móvil */
+@media (max-width: 768px) {
+  .card, .top10-card, .match-banner {
+    opacity:0;
+    transform:translateY(22px);
+    transition:opacity .5s cubic-bezier(.4,0,.2,1),
+               transform .5s cubic-bezier(.4,0,.2,1);
+  }
+  .card.card-visible, .top10-card.card-visible, .match-banner.card-visible {
+    opacity:1;
+    transform:translateY(0);
+  }
+}
 
 .top10-wrap{overflow-x:auto;overflow-y:visible;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:4px 20px 44px;}
 .top10-wrap::-webkit-scrollbar{display:none;}
@@ -213,6 +263,7 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 
 /* ════════════════════════════════════════
    PROFILE OVERLAY — REDISEÑO PREMIUM
+   FIX: avatar ya no se corta
 ════════════════════════════════════════ */
 .profile-overlay{
   position:fixed;inset:0;z-index:10003;
@@ -223,13 +274,14 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .profile-overlay.active{display:block;}
 @keyframes profSlideUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── CABECERA HERO ── */
+/* ── CABECERA HERO — overflow:visible para que el avatar no se corte ── */
 .prof-hero{
   position:relative;
-  height:230px;
-  overflow:hidden;
+  height:200px;
+  overflow:visible;         /* ← CORREGIDO: era hidden */
   background:linear-gradient(145deg,#0a1535 0%,#08102a 60%,#04040A 100%);
   flex-shrink:0;
+  z-index:1;
 }
 .prof-hero-bg{
   position:absolute;inset:0;
@@ -237,16 +289,20 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     radial-gradient(ellipse 80% 60% at 25% 40%,rgba(59,110,232,.22) 0%,transparent 65%),
     radial-gradient(ellipse 50% 40% at 75% 70%,rgba(94,143,255,.10) 0%,transparent 60%);
   pointer-events:none;
+  border-radius:inherit;
+  overflow:hidden;
 }
 .prof-hero-noise{
   position:absolute;inset:0;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
   opacity:.5;pointer-events:none;
+  overflow:hidden;
 }
 .prof-hero-fade{
-  position:absolute;bottom:0;left:0;right:0;height:100px;
+  position:absolute;bottom:0;left:0;right:0;height:80px;
   background:linear-gradient(to bottom,transparent,var(--bg));
   pointer-events:none;
+  z-index:2;
 }
 .prof-hero-close{
   position:absolute;top:16px;right:16px;z-index:5;
@@ -260,17 +316,20 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 }
 .prof-hero-close:hover{background:rgba(255,255,255,.18);color:#fff;}
 
-/* ── AVATAR CENTRAL ── */
+/* ── AVATAR CENTRAL — posicionado fuera del clip ── */
 .prof-avatar-zone{
-  position:absolute;bottom:-42px;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;z-index:4;
+  position:absolute;
+  bottom:-50px;          /* ← sale del hero hacia abajo */
+  left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;
+  z-index:10;            /* por encima del fade */
 }
 .prof-avatar-ring{
   position:relative;
-  width:90px;height:90px;
+  width:94px;height:94px;
   border-radius:50%;
   background:conic-gradient(from 0deg,#3B6EE8,#5E8FFF,#a78bfa,#3B6EE8);
-  padding:2.5px;
+  padding:3px;
   box-shadow:0 0 30px rgba(59,110,232,.45),0 8px 32px rgba(0,0,0,.6);
   cursor:pointer;
   transition:transform .22s,box-shadow .22s;
@@ -284,18 +343,19 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 }
 .prof-avatar-inner img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .prof-avatar-cam{
-  position:absolute;bottom:1px;right:1px;
+  position:absolute;bottom:2px;right:2px;
   width:26px;height:26px;border-radius:50%;
   background:var(--blue);
-  border:2px solid var(--bg);
+  border:2.5px solid var(--bg);
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 8px rgba(59,110,232,.5);
+  z-index:2;
 }
 .prof-avatar-cam svg{width:13px;height:13px;fill:#fff;}
 
-/* ── NOMBRE / EMAIL ── */
+/* ── NOMBRE / EMAIL — margen top mayor para compensar el avatar ── */
 .prof-identity{
-  margin-top:56px;
+  margin-top:68px;        /* ← era 56px, ahora 68px para dar espacio al avatar */
   text-align:center;
   padding:0 24px 10px;
 }
@@ -412,7 +472,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 .prof-field-inp::placeholder{color:rgba(242,242,248,.22);}
 .prof-field-inp:read-only{opacity:.35;cursor:not-allowed;}
 
-/* botón guardar */
 .prof-save-btn{
   margin:14px 18px 18px;
   width:calc(100% - 36px);
@@ -436,7 +495,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* botones de acción */
 .prof-action-list{padding:6px 18px 18px;display:flex;flex-direction:column;gap:10px;}
 .prof-action-btn{
   width:100%;padding:14px 18px;border-radius:13px;
@@ -668,12 +726,8 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
   <div class="player-controls"><div class="player-progress" id="playerProgress"><div class="player-bar" id="playerBar"></div></div><div class="player-row"><span class="player-time" id="playerTime">0:00 / 0:00</span><div class="player-btns"><button class="p-btn" id="pVol"><svg id="pVolOn" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg><svg id="pVolOff" style="display:none" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg></button><button class="p-btn p-btn-big" id="pPlayPause"><svg id="pPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg id="pPause" style="display:none" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"></path></svg></button></div></div></div>
 </div>
 
-<!-- ══════════════════════════════
-     PROFILE OVERLAY — NUEVO DISEÑO
-══════════════════════════════ -->
+<!-- PROFILE OVERLAY -->
 <div class="profile-overlay" id="profileOverlay">
-
-  <!-- Cabecera hero -->
   <div class="prof-hero">
     <div class="prof-hero-bg"></div>
     <div class="prof-hero-noise"></div>
@@ -689,14 +743,12 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </div>
   </div>
 
-  <!-- Identidad -->
   <div class="prof-identity">
     <p class="prof-name-display" id="profNameDisplay">Usuario</p>
     <p class="prof-email-display" id="profEmailDisplay">cargando...</p>
     <span class="prof-plan-pill">⭐ LLUTID+ Premium</span>
   </div>
 
-  <!-- Historial de películas vistas -->
   <div class="prof-block" style="margin-top:20px">
     <div class="prof-block-head">
       <span class="prof-block-title">Vistas recientemente</span>
@@ -707,7 +759,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </div>
   </div>
 
-  <!-- Información personal -->
   <div class="prof-form-block">
     <div class="prof-form-head">
       <div class="prof-form-icon blue">
@@ -735,7 +786,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </button>
   </div>
 
-  <!-- Seguridad y acciones -->
   <div class="prof-form-block">
     <div class="prof-form-head">
       <div class="prof-form-icon red">
@@ -759,7 +809,6 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
     </div>
   </div>
 
-  <!-- Soporte -->
   <div class="prof-form-block">
     <div class="prof-form-head">
       <div class="prof-form-icon green">
@@ -808,10 +857,9 @@ body{font-family:var(--font-body);color:var(--white);-webkit-font-smoothing:anti
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-/* ══ FIREBASE CONFIG ══ */
 const fbConfig  = {apiKey:"AIzaSyAKhAbmWzOH5CXn0QDbwnOlbG49Nr9q8kU",authDomain:"peliculas-88668.firebaseapp.com",projectId:"peliculas-88668",storageBucket:"peliculas-88668.firebasestorage.app",messagingSenderId:"475189564333",appId:"1:475189564333:web:7fe74613ca5082d3890724"};
 const fbConfigU = {apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",authDomain:"llutid-18d26.firebaseapp.com",projectId:"llutid-18d26",storageBucket:"llutid-18d26.firebasestorage.app",messagingSenderId:"900505351564",appId:"1:900505351564:web:e71805939e3488170652a9"};
 
@@ -851,15 +899,14 @@ const $ = id => document.getElementById(id);
 const fmt = s => isNaN(s)?'0:00':`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function showPopup(t,m){ $('popupTitle').textContent=t; $('popupMsg').textContent=m; $('popupMask').classList.add('show'); }
 
-/* ══ ESTADO GLOBAL ══ */
 let currentUser  = null;
 let userProfile  = null;
 let selectedAv   = null;
 let allMovies    = [];
 
-/* ══ PRECARGA RÁPIDA DESDE LOCALSTORAGE (solo UI visual) ══ */
+/* ══ PRECARGA DESDE LOCALSTORAGE ══ */
 (function preloadFromStorage(){
-  const email  = localStorage.getItem('llutid_correo');
+  const email = localStorage.getItem('llutid_correo');
   if(!email) return;
   userProfile = {
     email,
@@ -882,29 +929,21 @@ onAuthStateChanged(auth, async user => {
   }
 });
 
-/* ══════════════════════════════════
-   CARGAR PERFIL DESDE FIRESTORE
-══════════════════════════════════ */
 async function loadUserProfile(uid, email){
   try {
     const snap = await getDoc(doc(dbU,'users',uid));
     if(snap.exists()){
       userProfile = { ...snap.data(), email };
     } else {
-      // Usuario nuevo — crear documento con datos iniciales
       const nombre = email.split('@')[0];
       userProfile = {
-        email,
-        nombre,
-        telefono: '',
-        avatar: MALE_AV[0],
-        watchedMovies: [],
-        createdAt: Date.now()
+        email, nombre, telefono: '',
+        avatar: localStorage.getItem('llutid_avatar') || MALE_AV[0],
+        watchedMovies: [], createdAt: Date.now()
       };
       await setDoc(doc(dbU,'users',uid), userProfile);
     }
   } catch(e) {
-    // Fallback a localStorage si Firestore no responde
     const em = localStorage.getItem('llutid_correo') || email;
     userProfile = {
       email: em,
@@ -914,22 +953,18 @@ async function loadUserProfile(uid, email){
       watchedMovies: []
     };
   }
-  // Sincronizar cache local con lo que viene de Firebase
   if(userProfile.avatar)   localStorage.setItem('llutid_avatar',   userProfile.avatar);
   if(userProfile.nombre)   localStorage.setItem('llutid_nombre',   userProfile.nombre);
   if(userProfile.email)    localStorage.setItem('llutid_correo',   userProfile.email);
   if(userProfile.telefono !== undefined) localStorage.setItem('llutid_telefono', userProfile.telefono);
-
   updateProfileAvatarUI();
 }
 
-/* ══ ACTUALIZAR SOLO AVATARES (topbar + hero) ══ */
 function updateProfileAvatarUI(){
   if(!userProfile) return;
   const av   = userProfile.avatar;
   const n    = userProfile.nombre || userProfile.email?.split('@')[0] || '?';
   const init = n.charAt(0).toUpperCase();
-
   const applyAvatar = (el, txtEl) => {
     if(!el||!txtEl) return;
     if(av){
@@ -940,27 +975,21 @@ function updateProfileAvatarUI(){
       txtEl.textContent = init;
     }
   };
-
   applyAvatar($('heroProfileBtn'), $('heroAvatarInner'));
   applyAvatar($('tbAvatar'),       $('tbAvatarInner'));
 }
 
-/* ══ ACTUALIZAR TODA LA UI DEL PERFIL ══ */
 function updateProfileUI(){
   if(!userProfile) return;
   updateProfileAvatarUI();
-
   const av   = userProfile.avatar;
   const n    = userProfile.nombre || userProfile.email?.split('@')[0] || 'Usuario';
   const init = n.charAt(0).toUpperCase();
-
-  // Avatar grande del perfil
   const ai = $('profAvatarInner'), at = $('profAvatarTxt');
   if(ai && at){
     if(av){ ai.style.background='transparent'; at.innerHTML=`<img src="${av}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`; }
     else  { ai.style.background=''; at.textContent=init; }
   }
-
   if($('profNameDisplay'))  $('profNameDisplay').textContent  = n;
   if($('profEmailDisplay')) $('profEmailDisplay').textContent = userProfile.email||'';
   if($('inputNombre'))      $('inputNombre').value            = userProfile.nombre  || '';
@@ -968,19 +997,9 @@ function updateProfileUI(){
   if($('inputTelefono'))    $('inputTelefono').value          = userProfile.telefono|| '';
 }
 
-/* ══════════════════════════
-   HISTORIAL — SOLO FIREBASE
-══════════════════════════ */
-
-/**
- * Registra una película vista:
- * – Guarda en Firestore el objeto {id, title, image, link, watchedAt}
- * – Mantiene solo las 50 más recientes (ordenadas por watchedAt desc)
- * – El array local userProfile.watchedMovies se actualiza en memoria
- */
+/* ══ HISTORIAL ══ */
 async function addHist(m){
-  if(!currentUser || !m) return;
-
+  if(!m) return;
   const entry = {
     id:        m.id    || m.title || String(Date.now()),
     title:     m.title || '',
@@ -988,41 +1007,32 @@ async function addHist(m){
     link:      m.link  || '',
     watchedAt: Date.now()
   };
-
-  // Actualizar en memoria
   const list = userProfile?.watchedMovies || [];
-  const filtered = list.filter(h => h.id !== entry.id); // quita duplicado anterior
+  const filtered = list.filter(h => h.id !== entry.id);
   const updated  = [entry, ...filtered].slice(0, 50);
   if(userProfile) userProfile.watchedMovies = updated;
-
-  // Guardar en Firestore
-  try {
-    await setDoc(doc(dbU,'users',currentUser.uid), { watchedMovies: updated }, { merge: true });
-  } catch(e) {
-    console.warn('Error guardando historial en Firestore:', e);
+  if(currentUser){
+    try {
+      await setDoc(doc(dbU,'users',currentUser.uid), { watchedMovies: updated }, { merge: true });
+    } catch(e) { console.warn('Error historial Firestore:', e); }
   }
 }
 
-/* ══ RENDER HISTORIAL EN EL PERFIL ══ */
 function renderWatchedInProfile(){
   const row = $('profWatchedRow');
   const cnt = $('profWatchedCount');
   if(!row) return;
-
   const list = userProfile?.watchedMovies || [];
   const seen = new Set(), deduped = [];
   list.forEach(m => {
     const k = m.id || m.title;
     if(k && !seen.has(k)){ seen.add(k); deduped.push(m); } else if(!k) deduped.push(m);
   });
-
   if(cnt) cnt.textContent = `${deduped.length} película${deduped.length!==1?'s':''}`;
-
   if(!deduped.length){
     row.innerHTML = '<p class="prof-watched-empty">Aún no has visto ninguna película</p>';
     return;
   }
-
   row.innerHTML = '';
   deduped.slice(0,30).forEach(m => {
     const div = document.createElement('div');
@@ -1049,31 +1059,21 @@ function closeProfile(){
   document.body.style.overflow = '';
 }
 
-/* ══════════════════════════════════════════════════
-   GUARDAR INFORMACIÓN PERSONAL → FIRESTORE ✅
-══════════════════════════════════════════════════ */
+/* ══ GUARDAR INFO PERSONAL ══ */
 $('profSaveInfoBtn').onclick = async () => {
   const nuevoNombre   = ($('inputNombre').value   || '').trim();
   const nuevoTelefono = ($('inputTelefono').value || '').trim();
-
   if(!nuevoNombre){ showPopup('Campo requerido','El nombre no puede estar vacío.'); return; }
-
   $('profSaveSpinner').style.display = 'block';
   $('profSaveTxt').textContent       = 'Guardando...';
   $('profSaveInfoBtn').disabled      = true;
-
   try {
-    const updates = { nombre: nuevoNombre, telefono: nuevoTelefono, updatedAt: Date.now() };
-
     if(currentUser){
-      await setDoc(doc(dbU,'users',currentUser.uid), updates, { merge: true });
+      await setDoc(doc(dbU,'users',currentUser.uid), { nombre: nuevoNombre, telefono: nuevoTelefono, updatedAt: Date.now() }, { merge: true });
     }
-
-    // Actualizar cache local
     localStorage.setItem('llutid_nombre',   nuevoNombre);
     localStorage.setItem('llutid_telefono', nuevoTelefono);
     if(userProfile){ userProfile.nombre = nuevoNombre; userProfile.telefono = nuevoTelefono; }
-
     updateProfileUI();
     showPopup('¡Guardado!','Tu información se actualizó correctamente.');
   } catch(err){
@@ -1110,9 +1110,7 @@ $('profLogout').onclick = async () => {
 
 $('popupOk').onclick = () => $('popupMask').classList.remove('show');
 
-/* ══════════════════════════════════════════
-   AVATAR PICKER — Guarda en Firestore ✅
-══════════════════════════════════════════ */
+/* ══ AVATAR PICKER — solo localStorage ══ */
 $('profAvatarRing').onclick  = openAvatarPicker;
 $('profAvatarCam').onclick   = e => { e.stopPropagation(); openAvatarPicker(); };
 
@@ -1148,33 +1146,32 @@ function closeAvatarPicker(){
 $('avSheetClose').onclick = closeAvatarPicker;
 $('avPickerModal').onclick = e => { if(e.target === $('avPickerModal')) closeAvatarPicker(); };
 
-$('avSaveBtn').onclick = async () => {
+/* ══ GUARDAR AVATAR — solo localStorage ══ */
+$('avSaveBtn').onclick = () => {
   if(!selectedAv) return;
   $('avSaveBtn').disabled = true;
   $('avSaveBtn').textContent = 'Guardando...';
 
-  try {
-    if(currentUser){
-      await setDoc(doc(dbU,'users',currentUser.uid), { avatar: selectedAv, updatedAt: Date.now() }, { merge: true });
-    }
-    localStorage.setItem('llutid_avatar', selectedAv);
-    if(!userProfile) userProfile = {};
-    userProfile.avatar = selectedAv;
+  /* Guardar en localStorage — sin Firestore */
+  localStorage.setItem('llutid_avatar', selectedAv);
+  if(!userProfile) userProfile = {};
+  userProfile.avatar = selectedAv;
 
-    updateProfileUI();
-    closeAvatarPicker();
-    showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
-  } catch(err){
-    showPopup('Error','No se pudo guardar el avatar.');
-  } finally {
-    $('avSaveBtn').disabled = false;
-    $('avSaveBtn').textContent = 'Guardar avatar';
+  /* Intentar sincronizar con Firebase en segundo plano (sin bloquear) */
+  if(currentUser){
+    setDoc(doc(dbU,'users',currentUser.uid), { avatar: selectedAv, updatedAt: Date.now() }, { merge: true })
+      .catch(e => console.warn('Avatar no sincronizado con Firebase:', e));
   }
+
+  updateProfileUI();
+  closeAvatarPicker();
+  showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
+
+  $('avSaveBtn').disabled = false;
+  $('avSaveBtn').textContent = 'Guardar avatar';
 };
 
-/* ══════════════════════════
-   HERO CAROUSEL + VIMEO
-══════════════════════════ */
+/* ══ HERO CAROUSEL + VIMEO ══ */
 let slides=[], slideIdx=0, slideToken=0, heroMuted=true;
 let vimeoPlayer=null, vimeoFrame=null, phaseTimer=null, logoSlot='A';
 const IMAGE_HOLD_MS=4500;
@@ -1308,6 +1305,11 @@ function renderMovies(movies){
     row.appendChild(frag);
   });
   updatePromoMosaic(movies);
+
+  /* Activar animación de entrada en móvil */
+  if(window.innerWidth <= 768){
+    requestAnimationFrame(() => observeCards());
+  }
 }
 
 /* ══ MATCHES ══ */
@@ -1324,6 +1326,37 @@ function renderMatches(matches){
     frag.appendChild(card);
   });
   row.appendChild(frag);
+  if(window.innerWidth <= 768) requestAnimationFrame(() => observeCards());
+}
+
+/* ══ INTERSECTION OBSERVER — animación de entrada solo en móvil ══ */
+let cardObserver = null;
+if(window.innerWidth <= 768){
+  cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if(entry.isIntersecting){
+        const delay = Math.min(i * 55, 300);
+        setTimeout(() => entry.target.classList.add('card-visible'), delay);
+        cardObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+}
+
+function observeCards(){
+  if(!cardObserver) return;
+  document.querySelectorAll('.card:not(.card-visible), .top10-card:not(.card-visible), .match-banner:not(.card-visible)')
+    .forEach(el => cardObserver.observe(el));
+}
+
+/* Observer para cuando se agreguen nuevas tarjetas al DOM */
+if(window.innerWidth <= 768){
+  const rowIds = ['destacadasRow','top10Row','popularesRow','terrorRow','dramaRow','accionRow','animadaRow','comediaRow','netflixRow','matchesRow'];
+  const mutObs = new MutationObserver(() => requestAnimationFrame(observeCards));
+  rowIds.forEach(id => {
+    const el = $(id);
+    if(el) mutObs.observe(el, { childList: true });
+  });
 }
 
 /* ══ CATEGORY OVERLAY ══ */
@@ -1415,10 +1448,17 @@ function renderHistoryInSearch(){
 
 /* ══ SCROLL → TOPBAR ══ */
 let scrollThreshold=0,rafPending=false;
-function calcThreshold(){scrollThreshold=Math.max(60,($('heroWrap').offsetHeight||520)*.18);}
+function calcThreshold(){ scrollThreshold=Math.max(60,($('heroWrap').offsetHeight||520)*.18); }
 calcThreshold();
 window.addEventListener('resize',calcThreshold,{passive:true});
-window.addEventListener('scroll',()=>{if(rafPending)return;rafPending=true;requestAnimationFrame(()=>{$('topbar').classList.toggle('solid',window.scrollY>scrollThreshold);rafPending=false;});},{passive:true});
+window.addEventListener('scroll',()=>{
+  if(rafPending)return;
+  rafPending=true;
+  requestAnimationFrame(()=>{
+    $('topbar').classList.toggle('solid',window.scrollY>scrollThreshold);
+    rafPending=false;
+  });
+},{passive:true});
 
 /* ══ ESC ══ */
 document.addEventListener('keydown',e=>{
