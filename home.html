@@ -37,20 +37,33 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .magic-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.011) 1px,transparent 1px);background-size:52px 52px;}
 .magic-vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 100% 100% at 50% 50%,transparent 45%,rgba(2,2,10,0.70) 100%);}
 
-/* ════ SLOW CONNECTION BANNER ════ */
-#slowConnBanner{
-  position:fixed;top:-120px;left:0;right:0;z-index:99998;
-  padding:0 14px;
-  transition:top .55s cubic-bezier(.34,1.56,.64,1);
+/* ════ SLOW CONNECTION BANNER ════
+   Solución: usamos un contenedor fijo que actúa como "stage" de altura 0.
+   El banner se anima hacia abajo con transform, no con top/margin.
+   Así nunca desplaza el contenido y no interfiere con otros elementos.
+════ */
+#slowConnStage{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:99998;
   pointer-events:none;
+  display:flex;
+  justify-content:center;
+  padding:0 14px;
+}
+#slowConnBanner{
+  width:100%;
+  max-width:420px;
+  transform:translateY(calc(-100% - 24px));
+  transition:transform 0.5s cubic-bezier(0.34,1.4,0.64,1);
+  pointer-events:none;
+  margin-top:14px;
 }
 #slowConnBanner.visible{
-  top:14px;
+  transform:translateY(0);
   pointer-events:auto;
 }
 .slow-conn-inner{
-  max-width:480px;
-  margin:0 auto;
   background:linear-gradient(135deg,#1a1a2e 0%,#161628 100%);
   border:1px solid rgba(245,190,50,0.32);
   border-radius:18px;
@@ -89,10 +102,11 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 }
 .slow-conn-speed-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
 .slow-conn-speed-bar{
-  height:100%;width:var(--spd-pct,15%);
+  height:100%;width:15%;
   background:linear-gradient(90deg,#f5a623,#f5c842);
   border-radius:2px;
   animation:speedPulse 1.4s ease-in-out infinite;
+  transition:width 0.6s ease;
 }
 @keyframes speedPulse{0%,100%{opacity:1}50%{opacity:.5}}
 .slow-conn-speed-val{font-size:11.5px;color:#f5c842;font-weight:600;white-space:nowrap;font-family:var(--font-ui);}
@@ -586,33 +600,40 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 <div class="magic-grid" aria-hidden="true"></div>
 <div class="magic-vignette" aria-hidden="true"></div>
 
-<!-- ════ SLOW CONNECTION BANNER ════ -->
-<div id="slowConnBanner" role="alert" aria-live="assertive">
-  <div class="slow-conn-inner">
-    <div class="slow-conn-bar"></div>
-    <div class="slow-conn-body">
-      <div class="slow-conn-head">
-        <div class="slow-conn-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f5c842" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#f5c842"/>
-          </svg>
+<!-- ════ SLOW CONNECTION BANNER ════
+  Stage de altura 0 en la parte superior. El banner se desliza hacia abajo
+  con transform (no top/margin), así no desplaza el contenido ni choca
+  con otros elementos fijos. Solo aparece una vez por sesión.
+════ -->
+<div id="slowConnStage" aria-live="assertive" aria-atomic="true">
+  <div id="slowConnBanner" role="alert">
+    <div class="slow-conn-inner">
+      <div class="slow-conn-bar"></div>
+      <div class="slow-conn-body">
+        <div class="slow-conn-head">
+          <div class="slow-conn-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+              <circle cx="12" cy="20" r="1" fill="#f5c842"/>
+            </svg>
+          </div>
+          <div class="slow-conn-texts">
+            <div class="slow-conn-chip">⚠ Señal débil detectada</div>
+            <div class="slow-conn-title">Tu conexión es muy lenta</div>
+          </div>
         </div>
-        <div class="slow-conn-texts">
-          <div class="slow-conn-chip">⚠ Señal débil detectada</div>
-          <div class="slow-conn-title">Tu conexión es muy lenta</div>
+        <div class="slow-conn-speed">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <div class="slow-conn-speed-bar-wrap"><div class="slow-conn-speed-bar" id="slowConnSpeedBar"></div></div>
+          <span class="slow-conn-speed-val" id="slowConnSpeedVal">Midiendo...</span>
         </div>
-      </div>
-      <div class="slow-conn-speed">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <div class="slow-conn-speed-bar-wrap"><div class="slow-conn-speed-bar" id="slowConnSpeedBar"></div></div>
-        <span class="slow-conn-speed-val" id="slowConnSpeedVal">Midiendo...</span>
-      </div>
-      <p class="slow-conn-msg">
-        Hemos detectado que tu conexión es muy lenta. Puede que el contenido tarde más en cargar o que los videos se vean con interrupciones.
-      </p>
-      <div class="slow-conn-actions">
-        <button class="slow-conn-continue" id="slowConnContinue">Continuar de todas formas</button>
-        <button class="slow-conn-dismiss" id="slowConnDismiss">Cerrar</button>
+        <p class="slow-conn-msg">Hemos detectado que tu conexión es muy lenta. El contenido puede tardar más en cargar o los videos verse con interrupciones.</p>
+        <div class="slow-conn-actions">
+          <button class="slow-conn-continue" id="slowConnContinue">Continuar de todas formas</button>
+          <button class="slow-conn-dismiss" id="slowConnDismiss">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -935,58 +956,74 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   if(sessionStorage.getItem('llutid_conn_checked')) return;
   sessionStorage.setItem('llutid_conn_checked','1');
 
-  var banner   = document.getElementById('slowConnBanner');
-  var valEl    = document.getElementById('slowConnSpeedVal');
-  var barEl    = document.getElementById('slowConnSpeedBar');
-  var btnCont  = document.getElementById('slowConnContinue');
-  var btnDism  = document.getElementById('slowConnDismiss');
-  var shown    = false;
+  var banner  = document.getElementById('slowConnBanner');
+  var valEl   = document.getElementById('slowConnSpeedVal');
+  var barEl   = document.getElementById('slowConnSpeedBar');
+  var btnCont = document.getElementById('slowConnContinue');
+  var btnDism = document.getElementById('slowConnDismiss');
+  var shown   = false;
+  var hideTimer = null;
 
   function hideBanner(){
     banner.classList.remove('visible');
+    /* Limpiar pointer-events del stage tras la animación */
+    setTimeout(function(){
+      var stage = document.getElementById('slowConnStage');
+      if(stage) stage.style.pointerEvents = 'none';
+    }, 520);
   }
-  if(btnCont) btnCont.onclick = hideBanner;
-  if(btnDism) btnDism.onclick = hideBanner;
+
+  if(btnCont) btnCont.addEventListener('click', hideBanner);
+  if(btnDism) btnDism.addEventListener('click', hideBanner);
 
   function showBanner(mbps){
     if(shown) return;
     shown = true;
-    /* Calcular el porcentaje visual de la barra (0–100%, donde 1 Mbps = 100%) */
+
+    /* Calcular porcentaje visual (1 Mbps = 100%) */
     var pct = Math.min(100, Math.round((mbps / 1) * 100));
-    if(barEl) barEl.style.setProperty('--spd-pct', pct + '%');
+    if(barEl) barEl.style.width = pct + '%';
     if(valEl){
-      if(mbps < 0.1) valEl.textContent = '< 0.1 Mbps';
-      else           valEl.textContent = mbps.toFixed(1) + ' Mbps';
+      if(mbps <= 0)      valEl.textContent = 'Sin conexión';
+      else if(mbps < 0.1) valEl.textContent = '< 0.1 Mbps';
+      else               valEl.textContent = mbps.toFixed(1) + ' Mbps';
     }
-    /* Pequeño delay para que la página empiece a mostrarse antes del banner */
-    setTimeout(function(){ banner.classList.add('visible'); }, 600);
+
+    /* Mostrar tras un pequeño delay para que la página arranque primero */
+    setTimeout(function(){
+      var stage = document.getElementById('slowConnStage');
+      if(stage) stage.style.pointerEvents = '';
+      banner.classList.add('visible');
+
+      /* Auto-ocultar tras 12 segundos */
+      hideTimer = setTimeout(hideBanner, 12000);
+    }, 900);
   }
 
-  /* ── 1. Navigator Connection API (rápido, sin red) ── */
+  /* ── 1. Navigator Connection API (instantáneo, sin red) ── */
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   if(conn){
-    var ect = conn.effectiveType; /* 'slow-2g' | '2g' | '3g' | '4g' */
-    var dl  = conn.downlink;     /* Mbps estimados */
-    if(ect === 'slow-2g' || ect === '2g' || (dl !== undefined && dl < 1)){
-      var estimatedMbps = dl !== undefined ? dl : (ect === 'slow-2g' ? 0.05 : 0.25);
-      showBanner(estimatedMbps);
-      return; /* Ya detectado, no hace falta el test de imagen */
+    var ect = conn.effectiveType;
+    var dl  = conn.downlink;
+    if(ect === 'slow-2g' || ect === '2g' || (typeof dl === 'number' && dl < 1)){
+      var est = (typeof dl === 'number') ? dl : (ect === 'slow-2g' ? 0.05 : 0.25);
+      showBanner(est);
+      return;
     }
   }
 
-  /* ── 2. Speed test con imagen pequeña (~10 KB) ── */
-  var startTime = Date.now();
-  /* Imagen pública pequeña (~11 KB) sin CORS para solo medir tiempo */
-  var testUrl = 'https://www.gstatic.com/webp/gallery/1.jpg?_=' + startTime;
-  var img = new Image();
-  var TEST_SIZE_BITS = 11 * 1024 * 8; /* 11 KB en bits */
-  var TIMEOUT_MS     = 5000;
-  var finished       = false;
+  /* ── 2. Speed test con imagen pequeña (~11 KB) ── */
+  var startTime    = Date.now();
+  var testUrl      = 'https://www.gstatic.com/webp/gallery/1.jpg?nc=' + startTime;
+  var TEST_BITS    = 11 * 1024 * 8;
+  var TIMEOUT_MS   = 5000;
+  var finished     = false;
+  var img          = new Image();
+  var timer;
 
-  var timer = setTimeout(function(){
+  timer = setTimeout(function(){
     if(finished) return;
     finished = true;
-    /* Si tardó más de 5 s en cargar 11 KB ≈ < 0.02 Mbps */
     showBanner(0.02);
   }, TIMEOUT_MS);
 
@@ -994,16 +1031,14 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
     if(finished) return;
     finished = true;
     clearTimeout(timer);
-    var durationSec = (Date.now() - startTime) / 1000;
-    var mbps        = (TEST_SIZE_BITS / durationSec) / 1e6;
-    /* Umbral: menos de 1 Mbps se considera lento */
+    var secs = (Date.now() - startTime) / 1000;
+    var mbps = (TEST_BITS / secs) / 1e6;
     if(mbps < 1) showBanner(mbps);
   };
   img.onerror = function(){
     if(finished) return;
     finished = true;
     clearTimeout(timer);
-    /* Error de carga → posible sin conexión o muy lenta */
     showBanner(0);
   };
   img.src = testUrl;
@@ -1146,18 +1181,13 @@ let currentUser = null, userProfile = null, selectedAv = null, allMovies = [];
   };
   updateProfileAvatarUI();
 
-  /* ══ PRECARGA HERO INMEDIATA desde caché local ══
-     Si hay heroes cacheados, los renderizamos ANTES de esperar Firebase
-     para que el usuario vea el hero en cuanto abra la página.        */
   try {
     const cached = localStorage.getItem('ll_heroes');
     if(cached){
       const parsed = JSON.parse(cached);
       if(parsed && parsed.v && Array.isArray(parsed.v) && parsed.v.length){
-        /* Verificar que el caché no sea muy viejo (30 min) */
         const age = Date.now() - (parsed.t || 0);
         if(age < 1800000){
-          /* Precargar la primera imagen del hero de inmediato */
           const firstImg = parsed.v[0]?.image;
           if(firstImg){
             const preImg = new Image();
@@ -1165,7 +1195,6 @@ let currentUser = null, userProfile = null, selectedAv = null, allMovies = [];
             preImg.decoding = 'sync';
             preImg.src = firstImg;
           }
-          /* Renderizar heroes cacheados sin esperar a Firebase */
           renderHeroes(parsed.v);
         }
       }
@@ -1344,22 +1373,14 @@ $('avSaveBtn').onclick = async () => {
   finally{ $('avSaveBtn').disabled=false; $('avSaveBtn').textContent='Guardar avatar'; }
 };
 
-/* ═══════════════════════════════════════════════════
-   HERO CAROUSEL + VIMEO
-   OPTIMIZACIONES DE VELOCIDAD:
-   - IMAGE_HOLD_MS reducido a 3500ms (era 5000)
-   - La primera imagen se activa con menor espera
-   - setHeroBackground no bloquea en el arranque inicial
-   - heroCache limpiado si falla para permitir reintento
-═══════════════════════════════════════════════════ */
+/* ══ HERO CAROUSEL + VIMEO ══ */
 let slides=[], slideIdx=0, slideToken=0;
 let heroMuted = localStorage.getItem('llutidHeroMuted') !== '0';
 let vimeoPlayer=null, vimeoFrame=null, phaseTimer=null, logoSlot='A';
 let activeHeroLayer='A', heroCache=new Map(), slidesSig='', heroBgLock=false;
 let vimeoCleanupTimer=null;
 
-/* MEJORA VELOCIDAD: primera carga más rápida, el resto igual */
-const IMAGE_HOLD_MS  = 3500;  /* era 5000 — primer slide dura menos antes de ir al trailer */
+const IMAGE_HOLD_MS  = 3500;
 const HERO_CACHE_MAX = 24;
 
 function cancelPhase(){ if(phaseTimer!==null){ clearTimeout(phaseTimer); phaseTimer=null; } }
@@ -1609,12 +1630,9 @@ async function renderHeroes(heroes){
 
   if(window.updateTopbar) requestAnimationFrame(window.updateTopbar);
 
-  /* MEJORA VELOCIDAD: precargar solo la primera imagen de forma prioritaria,
-     las demás en segundo plano para no bloquear el primer render */
   const firstImg = slides[0]?.image;
   if(firstImg){
     preloadHeroImage(firstImg).catch(()=>{});
-    /* Las demás se precargan con un pequeño retraso para no competir con el render */
     setTimeout(()=>{
       slides.slice(1,3).forEach(s=>s?.image&&preloadHeroImage(s.image).catch(()=>{}));
     }, 800);
@@ -1925,8 +1943,6 @@ const C={
 
 /* ══ INIT ══ */
 async function init(){
-  /* Heroes: el caché ya se renderizó en la precarga sincrona arriba si existía.
-     Solo hacemos el fetch de Firebase para actualizar. */
   const cachedH=C.get('heroes');
   if(cachedH?.length && !slides.length) renderHeroes(cachedH);
   try{
