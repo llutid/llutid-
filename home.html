@@ -37,63 +37,106 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .magic-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.011) 1px,transparent 1px);background-size:52px 52px;}
 .magic-vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 100% 100% at 50% 50%,transparent 45%,rgba(2,2,10,0.70) 100%);}
 
-/* ════ STICKY HERO CONTAINER ════
-   FIX: el hero queda fijo (sticky) y el .main sube encima de él
-   creando el efecto de que el contenido "tapa" al hero.
-   El truco es: hero-sticky-sentinel reserva el espacio
-   y hero-wrap queda position:sticky top:0 dentro de él.
-*/
-.hero-sticky-root{
-  position:relative;
-  z-index:1;
-  /* La altura del sentinel define cuánto espacio ocupa en el flujo */
-}
-/* El hero se adhiere al top=0 mientras el sentinel aún está en pantalla */
-.hero-wrap{
-  position:sticky;
-  top:0;
-  width:100%;
-  height:88svh;
-  min-height:520px;
-  overflow:hidden;
-  background:var(--bg);
-  cursor:pointer;
-  transform:translateZ(0);
-  -webkit-transform:translateZ(0);
-  isolation:isolate;
-  z-index:1;
-}
-/* El main sube SOBRE el hero gracias a z-index mayor y margin-top negativo */
-.main{
-  position:relative;
-  z-index:3;
-  /* margin-top negativo: el main empieza antes de que el hero termine,
-     así al hacer scroll el main "tapa" el hero suavemente */
-  margin-top:calc(-22svh);
-  padding:0 0 110px;
-  background:transparent;
-}
-/* Sombra/gradiente en el borde superior del main para que el corte se vea natural */
-.main::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;
-  height:120px;
-  background:linear-gradient(to bottom,transparent 0%,rgba(2,2,10,0.0) 0%);
+/* ════ SLOW CONNECTION BANNER ════ */
+#slowConnBanner{
+  position:fixed;top:-120px;left:0;right:0;z-index:99998;
+  padding:0 14px;
+  transition:top .55s cubic-bezier(.34,1.56,.64,1);
   pointer-events:none;
-  z-index:0;
 }
-.main > section:first-child{
-  padding-top:0;
+#slowConnBanner.visible{
+  top:14px;
+  pointer-events:auto;
 }
-/* El primer bloque del main tiene fondo opaco para que tape limpiamente el hero */
+.slow-conn-inner{
+  max-width:480px;
+  margin:0 auto;
+  background:linear-gradient(135deg,#1a1a2e 0%,#161628 100%);
+  border:1px solid rgba(245,190,50,0.32);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 8px 36px rgba(0,0,0,.75),0 0 0 1px rgba(245,190,50,0.07);
+}
+.slow-conn-bar{
+  height:3px;
+  background:linear-gradient(90deg,#f5a623,#ffcc55,#f5a623);
+  background-size:200% 100%;
+  animation:slowBarShim 2s linear infinite;
+}
+@keyframes slowBarShim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.slow-conn-body{padding:14px 16px 16px;}
+.slow-conn-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:11px;}
+.slow-conn-icon{
+  width:40px;height:40px;border-radius:11px;flex-shrink:0;
+  background:rgba(245,166,35,0.13);
+  border:1px solid rgba(245,166,35,0.26);
+  display:flex;align-items:center;justify-content:center;
+}
+.slow-conn-icon svg{width:20px;height:20px;stroke:#f5c842;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.slow-conn-texts{flex:1;}
+.slow-conn-chip{
+  display:inline-block;
+  font-size:9.5px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;
+  color:#f5c842;margin-bottom:3px;
+  font-family:var(--font-ui);
+}
+.slow-conn-title{font-size:14.5px;font-weight:700;color:#F5F5FF;line-height:1.25;font-family:var(--font-ui);}
+.slow-conn-speed{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 11px;margin-bottom:11px;
+  background:rgba(255,255,255,.04);
+  border-radius:9px;border:1px solid rgba(255,255,255,.06);
+}
+.slow-conn-speed-bar-wrap{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.slow-conn-speed-bar{
+  height:100%;width:var(--spd-pct,15%);
+  background:linear-gradient(90deg,#f5a623,#f5c842);
+  border-radius:2px;
+  animation:speedPulse 1.4s ease-in-out infinite;
+}
+@keyframes speedPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.slow-conn-speed-val{font-size:11.5px;color:#f5c842;font-weight:600;white-space:nowrap;font-family:var(--font-ui);}
+.slow-conn-msg{font-size:12.5px;color:rgba(245,245,255,.55);line-height:1.5;margin-bottom:13px;font-family:var(--font-body);}
+.slow-conn-actions{display:flex;gap:8px;}
+.slow-conn-continue{
+  flex:1;padding:10px 0;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#f5a623,#ffcc55);
+  color:#1a1100;font-size:13.5px;font-weight:700;cursor:pointer;
+  font-family:var(--font-ui);letter-spacing:.15px;
+  transition:opacity .15s,transform .15s;
+}
+.slow-conn-continue:active{transform:scale(.97);opacity:.9;}
+.slow-conn-dismiss{
+  padding:10px 14px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);
+  color:rgba(245,245,255,.45);font-size:13px;cursor:pointer;
+  font-family:var(--font-body);transition:background .15s;
+}
+.slow-conn-dismiss:active{background:rgba(255,255,255,.10);}
+
+/* ════ STICKY HERO CONTAINER ════ */
+.hero-sticky-root{position:relative;z-index:1;}
+.hero-wrap{
+  position:sticky;top:0;width:100%;height:88svh;min-height:520px;
+  overflow:hidden;background:var(--bg);cursor:pointer;
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+  isolation:isolate;z-index:1;
+}
+.main{
+  position:relative;z-index:3;
+  margin-top:calc(-22svh);
+  padding:0 0 110px;background:transparent;
+}
+.main::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:120px;
+  background:linear-gradient(to bottom,transparent 0%,rgba(2,2,10,0.0) 0%);
+  pointer-events:none;z-index:0;
+}
+.main > section:first-child{padding-top:0;}
 .main-surface{
-  position:relative;
-  z-index:1;
-  background:var(--bg);
-  border-radius:22px 22px 0 0;
-  padding-top:28px;
-  /* Sombra sutil hacia arriba para separar del hero */
+  position:relative;z-index:1;background:var(--bg);
+  border-radius:22px 22px 0 0;padding-top:28px;
   box-shadow:0 -18px 48px rgba(2,2,10,0.85);
 }
 
@@ -144,12 +187,9 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .tb-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 
 /* ══ HERO ══ */
-/* FIX: hero-wrap ya no usa position:relative sino sticky (definido arriba) */
-.hero-skeleton-el{width:100%;height:100%;display:block;position:absolute;inset:0;z-index:6;transition:opacity .65s ease;}
+.hero-skeleton-el{width:100%;height:100%;display:block;position:absolute;inset:0;z-index:6;transition:opacity .55s ease;}
 .hero-wrap.ready .hero-skeleton-el{opacity:0;pointer-events:none;}
 .hero-layers{position:absolute;inset:0;z-index:1;background:var(--bg);}
-
-/* FIX CROSSFADE: transición más larga y suave (2.2s) con easing mejor */
 .hero-layer{
   position:absolute;inset:0;opacity:0;z-index:1;
   transition:opacity 2.2s cubic-bezier(.4,0,.2,1);
@@ -159,7 +199,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .hero-layer img{
   width:100%;height:100%;object-fit:cover;object-position:center;
   display:block;transform:scale(1.05);
-  /* FIX: la transición de scale ahora coincide con el fade para que ambos sean uniformes */
   transition:transform 14s linear,opacity .6s ease;
   backface-visibility:hidden;-webkit-backface-visibility:hidden;
   filter:saturate(1.12) contrast(1.04) brightness(1.02);
@@ -172,82 +211,36 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .hero-vimeo-wrap.visible{opacity:1;pointer-events:auto;}
 .hero-vimeo-wrap iframe{position:absolute;top:50%;left:50%;width:177.78vh;min-width:100%;height:56.25vw;min-height:100%;transform:translate(-50%,-50%);border:0;filter:saturate(1.15) contrast(1.05);}
 
-/* FIX VISIBILIDAD INICIAL:
-   hero-badge, hero-profile-btn y hero-mute-btn
-   se muestran SIEMPRE cuando estamos en la vista del hero (.hero-ui),
-   sin depender de ninguna animación retrasada.
-   La clase .hero-ui se aplica inmediatamente en el script de topbar.
-*/
-.hero-badge,
-.hero-profile-btn,
-.hero-mute-btn{
-  z-index:9002;
+.hero-badge,.hero-profile-btn,.hero-mute-btn{z-index:9002;}
+.hero-wrap.hero-ui .hero-badge,.hero-wrap.hero-ui .hero-profile-btn{
+  position:fixed;opacity:1;visibility:visible;
+  transition:opacity .45s ease .15s,visibility .45s ease .15s;
 }
-/* Cuando hero-ui está activo → visibles con transición suave de entrada */
-.hero-wrap.hero-ui .hero-badge,
-.hero-wrap.hero-ui .hero-profile-btn{
-  position:fixed;
-  opacity:1;
-  visibility:visible;
-  /* FIX: transición de aparición suave al cargar */
-  transition:opacity .45s ease .15s, visibility .45s ease .15s;
-}
-/* Cuando no está en hero-ui → ocultos */
-.hero-wrap:not(.hero-ui) .hero-badge,
-.hero-wrap:not(.hero-ui) .hero-profile-btn{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition:opacity .3s ease, visibility .3s ease;
+.hero-wrap:not(.hero-ui) .hero-badge,.hero-wrap:not(.hero-ui) .hero-profile-btn{
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .3s ease,visibility .3s ease;
 }
 .hero-mute-btn{
-  position:fixed;
-  top:22px;right:70px;
+  position:fixed;top:22px;right:70px;
   width:38px;height:38px;border-radius:50%;
-  background:rgba(12,12,24,.5);
-  border:1.5px solid rgba(255,255,255,.25);
-  color:#fff;
-  display:none;align-items:center;justify-content:center;
-  cursor:pointer;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  transition:background .2s,transform .15s,opacity .3s,visibility .3s;
-  pointer-events:auto;
+  background:rgba(12,12,24,.5);border:1.5px solid rgba(255,255,255,.25);
+  color:#fff;display:none;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:background .2s,transform .15s,opacity .3s,visibility .3s;pointer-events:auto;
 }
 .hero-wrap.hero-ui .hero-mute-btn.visible{display:flex;opacity:1;visibility:visible;}
 .hero-wrap:not(.hero-ui) .hero-mute-btn{display:none!important;opacity:0;visibility:hidden;}
 .hero-mute-btn:active{transform:scale(.9);}
 .hero-mute-btn svg{width:16px;height:16px;flex-shrink:0;}
 
-/* FIX: sentinel al final del hero para detectar cuando sale de viewport */
-.hero-sentinel{
-  position:absolute;left:0;right:0;bottom:0;height:2px;
-  width:100%;pointer-events:none;visibility:hidden;
-}
+.hero-sentinel{position:absolute;left:0;right:0;bottom:0;height:2px;width:100%;pointer-events:none;visibility:hidden;}
 .hero-vignette{
   position:absolute;inset:0;z-index:3;pointer-events:none;
-  background:linear-gradient(
-    to bottom,
-    rgba(2,2,10,.2) 0%,transparent 14%,transparent 30%,
-    rgba(2,2,10,.18) 48%,rgba(2,2,10,.48) 62%,
-    rgba(2,2,10,.78) 76%,rgba(2,2,10,.94) 88%,
-    #02020A 96%,#02020A 100%
-  );
+  background:linear-gradient(to bottom,rgba(2,2,10,.2) 0%,transparent 14%,transparent 30%,rgba(2,2,10,.18) 48%,rgba(2,2,10,.48) 62%,rgba(2,2,10,.78) 76%,rgba(2,2,10,.94) 88%,#02020A 96%,#02020A 100%);
 }
-.hero-wrap::after{
-  content:'';position:absolute;left:0;right:0;bottom:-1px;height:120px;
-  z-index:4;pointer-events:none;
-  background:linear-gradient(to bottom,transparent 0%,rgba(2,2,10,.35) 40%,#02020A 100%);
-}
-.hero-side-vignette{
-  position:absolute;inset:0;z-index:3;pointer-events:none;
-  background:linear-gradient(to right,rgba(2,2,10,.55) 0%,transparent 38%,transparent 62%,rgba(2,2,10,.45) 100%);
-}
-.hero-badge{
-  top:max(18px,env(safe-area-inset-top));left:20px;
-  font-family:var(--font-display);font-size:22px;letter-spacing:2px;
-  color:var(--white);pointer-events:none;user-select:none;
-  text-shadow:0 2px 14px rgba(0,0,0,.9);
-}
+.hero-wrap::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:120px;z-index:4;pointer-events:none;background:linear-gradient(to bottom,transparent 0%,rgba(2,2,10,.35) 40%,#02020A 100%);}
+.hero-side-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to right,rgba(2,2,10,.55) 0%,transparent 38%,transparent 62%,rgba(2,2,10,.45) 100%);}
+.hero-badge{top:max(18px,env(safe-area-inset-top));left:20px;font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--white);pointer-events:none;user-select:none;text-shadow:0 2px 14px rgba(0,0,0,.9);}
 .hero-badge span{color:var(--blue-light);}
 .hero-profile-btn{
   top:max(12px,env(safe-area-inset-top));right:16px;
@@ -263,7 +256,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   position:absolute;left:0;right:0;bottom:0;z-index:4;
   padding:0 20px 32px;display:flex;flex-direction:column;
   align-items:center;text-align:center;
-  /* FIX: transición de entrada suave al cargar datos */
   transition:opacity .55s cubic-bezier(.33,1,.68,1),transform .55s cubic-bezier(.33,1,.68,1);
 }
 .hero-logo-wrap{position:relative;width:82%;max-width:340px;height:96px;margin:0 auto 12px;flex-shrink:0;}
@@ -271,9 +263,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   position:absolute;top:0;left:50%;transform:translateX(-50%);
   max-width:100%;max-height:96px;object-fit:contain;
   filter:drop-shadow(0 6px 28px rgba(0,0,0,.95)) drop-shadow(0 0 48px rgba(61,114,245,.25));
-  opacity:0;
-  transition:opacity .48s ease;  /* FIX: transición más suave para el logo */
-  pointer-events:none;
+  opacity:0;transition:opacity .48s ease;pointer-events:none;
 }
 .hero-logo-img.visible{opacity:1;}
 .hero-fallback-title{font-family:var(--font-ui);font-size:clamp(2rem,8vw,2.75rem);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.05;text-shadow:0 4px 28px rgba(0,0,0,.85);display:none;margin-bottom:10px;}
@@ -596,6 +586,38 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 <div class="magic-grid" aria-hidden="true"></div>
 <div class="magic-vignette" aria-hidden="true"></div>
 
+<!-- ════ SLOW CONNECTION BANNER ════ -->
+<div id="slowConnBanner" role="alert" aria-live="assertive">
+  <div class="slow-conn-inner">
+    <div class="slow-conn-bar"></div>
+    <div class="slow-conn-body">
+      <div class="slow-conn-head">
+        <div class="slow-conn-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f5c842" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#f5c842"/>
+          </svg>
+        </div>
+        <div class="slow-conn-texts">
+          <div class="slow-conn-chip">⚠ Señal débil detectada</div>
+          <div class="slow-conn-title">Tu conexión es muy lenta</div>
+        </div>
+      </div>
+      <div class="slow-conn-speed">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <div class="slow-conn-speed-bar-wrap"><div class="slow-conn-speed-bar" id="slowConnSpeedBar"></div></div>
+        <span class="slow-conn-speed-val" id="slowConnSpeedVal">Midiendo...</span>
+      </div>
+      <p class="slow-conn-msg">
+        Hemos detectado que tu conexión es muy lenta. Puede que el contenido tarde más en cargar o que los videos se vean con interrupciones.
+      </p>
+      <div class="slow-conn-actions">
+        <button class="slow-conn-continue" id="slowConnContinue">Continuar de todas formas</button>
+        <button class="slow-conn-dismiss" id="slowConnDismiss">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="authGate">
   <div class="ag-logo">LLUTID<span>+</span></div>
   <div class="ag-lock">🔐</div>
@@ -615,14 +637,9 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   </div>
 </div>
 
-<!-- FIX STICKY HERO: el hero-wrap ahora es position:sticky.
-     El contenido (.main) tiene margin-top negativo y z-index mayor,
-     así al hacer scroll el main "tapa" al hero por encima. -->
 <div class="hero-wrap" id="heroWrap">
   <div class="hero-skeleton-el skeleton"></div>
   <div class="hero-vimeo-wrap" id="heroVimeoWrap"></div>
-
-  <!-- FIX VISIBILIDAD: sin style inline opacity:0 — se controla puramente por .hero-ui en CSS -->
   <div class="hero-badge" id="heroBadge">LLUTID<span>+</span></div>
   <div class="hero-profile-btn" id="heroProfileBtn"><span id="heroAvatarInner">?</span></div>
   <button class="hero-mute-btn" id="heroMuteBtn" aria-label="Silenciar / Activar sonido">
@@ -630,13 +647,12 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
     <svg id="heroUnmuteIcon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
   </button>
   <div class="hero-layers" id="heroLayers">
-    <div class="hero-layer is-visible" id="heroLayerA"><img alt="" decoding="async" fetchpriority="high"></div>
+    <div class="hero-layer is-visible" id="heroLayerA"><img alt="" decoding="sync" fetchpriority="high"></div>
     <div class="hero-layer" id="heroLayerB"><img alt="" decoding="async"></div>
   </div>
   <div class="hero-vignette"></div>
   <div class="hero-side-vignette"></div>
   <div id="heroSentinel" class="hero-sentinel" aria-hidden="true"></div>
-  <!-- FIX: heroInfo sin display:none ni opacity:0 inline — el JS lo controla en renderHeroes -->
   <div class="hero-info" id="heroInfo" style="opacity:0;pointer-events:none">
     <div class="hero-logo-wrap" id="heroLogoWrap">
       <img class="hero-logo-img" id="heroLogoA" src="" alt="">
@@ -652,7 +668,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   </div>
 </div>
 
-<!-- FIX: .main-surface es el bloque con border-radius que "tapa" el hero al hacer scroll -->
 <main class="main">
   <div class="main-surface">
     <section style="margin-bottom:24px">
@@ -751,7 +766,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
         <div class="match-banner-skel skeleton"></div><div class="match-banner-skel skeleton"></div>
       </div>
     </section>
-  </div><!-- /.main-surface -->
+  </div>
 </main>
 
 <nav class="bottom-nav">
@@ -913,12 +928,90 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 
 <script src="https://player.vimeo.com/api/player.js"></script>
 
+<!-- ════ SLOW CONNECTION DETECTION ════ -->
 <script>
-/* ══════════════════════════════════════════
-   TOPBAR — script no-module (sin Firebase)
-   FIX: hero-ui se aplica inmediatamente al cargar
-   para que badge y avatar sean visibles desde el inicio.
-══════════════════════════════════════════ */
+(function detectSlowConnection(){
+  /* Solo una vez por sesión */
+  if(sessionStorage.getItem('llutid_conn_checked')) return;
+  sessionStorage.setItem('llutid_conn_checked','1');
+
+  var banner   = document.getElementById('slowConnBanner');
+  var valEl    = document.getElementById('slowConnSpeedVal');
+  var barEl    = document.getElementById('slowConnSpeedBar');
+  var btnCont  = document.getElementById('slowConnContinue');
+  var btnDism  = document.getElementById('slowConnDismiss');
+  var shown    = false;
+
+  function hideBanner(){
+    banner.classList.remove('visible');
+  }
+  if(btnCont) btnCont.onclick = hideBanner;
+  if(btnDism) btnDism.onclick = hideBanner;
+
+  function showBanner(mbps){
+    if(shown) return;
+    shown = true;
+    /* Calcular el porcentaje visual de la barra (0–100%, donde 1 Mbps = 100%) */
+    var pct = Math.min(100, Math.round((mbps / 1) * 100));
+    if(barEl) barEl.style.setProperty('--spd-pct', pct + '%');
+    if(valEl){
+      if(mbps < 0.1) valEl.textContent = '< 0.1 Mbps';
+      else           valEl.textContent = mbps.toFixed(1) + ' Mbps';
+    }
+    /* Pequeño delay para que la página empiece a mostrarse antes del banner */
+    setTimeout(function(){ banner.classList.add('visible'); }, 600);
+  }
+
+  /* ── 1. Navigator Connection API (rápido, sin red) ── */
+  var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if(conn){
+    var ect = conn.effectiveType; /* 'slow-2g' | '2g' | '3g' | '4g' */
+    var dl  = conn.downlink;     /* Mbps estimados */
+    if(ect === 'slow-2g' || ect === '2g' || (dl !== undefined && dl < 1)){
+      var estimatedMbps = dl !== undefined ? dl : (ect === 'slow-2g' ? 0.05 : 0.25);
+      showBanner(estimatedMbps);
+      return; /* Ya detectado, no hace falta el test de imagen */
+    }
+  }
+
+  /* ── 2. Speed test con imagen pequeña (~10 KB) ── */
+  var startTime = Date.now();
+  /* Imagen pública pequeña (~11 KB) sin CORS para solo medir tiempo */
+  var testUrl = 'https://www.gstatic.com/webp/gallery/1.jpg?_=' + startTime;
+  var img = new Image();
+  var TEST_SIZE_BITS = 11 * 1024 * 8; /* 11 KB en bits */
+  var TIMEOUT_MS     = 5000;
+  var finished       = false;
+
+  var timer = setTimeout(function(){
+    if(finished) return;
+    finished = true;
+    /* Si tardó más de 5 s en cargar 11 KB ≈ < 0.02 Mbps */
+    showBanner(0.02);
+  }, TIMEOUT_MS);
+
+  img.onload = function(){
+    if(finished) return;
+    finished = true;
+    clearTimeout(timer);
+    var durationSec = (Date.now() - startTime) / 1000;
+    var mbps        = (TEST_SIZE_BITS / durationSec) / 1e6;
+    /* Umbral: menos de 1 Mbps se considera lento */
+    if(mbps < 1) showBanner(mbps);
+  };
+  img.onerror = function(){
+    if(finished) return;
+    finished = true;
+    clearTimeout(timer);
+    /* Error de carga → posible sin conexión o muy lenta */
+    showBanner(0);
+  };
+  img.src = testUrl;
+})();
+</script>
+
+<!-- ════ TOPBAR ════ -->
+<script>
 (function initLlutidTopbar(){
   var topbar   = document.getElementById('topbar');
   var heroEl   = document.getElementById('heroWrap');
@@ -944,25 +1037,17 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
     var y    = getY();
     var rect = heroEl.getBoundingClientRect();
     var heroH = rect.height || window.innerHeight * 0.88;
-
-    /* FIX: hero-ui activo cuando el top del hero aún está cerca de 0
-       Usamos un umbral de -16px para dar margen al sticky */
     var inHeroUi = (rect.top > -16);
     heroEl.classList.toggle('hero-ui', inHeroUi);
-
     topbar.classList.remove('is-active','leaving-hero','past-hero','logo-visible','logo-centered');
     topbar.style.background          = '';
     topbar.style.backdropFilter       = '';
     topbar.style.webkitBackdropFilter = '';
-
     if(inHeroUi) return;
-
     var progress = Math.min(1, Math.max(0, (-rect.top) / Math.max(heroH - 72, 1)));
     var eased    = progress * progress * (3 - 2 * progress);
-
     topbar.classList.add('is-active','logo-visible','leaving-hero');
     if(progress >= 0.3) topbar.classList.add('logo-centered');
-
     if(progress >= 0.85 || rect.bottom <= 70){
       topbar.classList.add('past-hero');
       topbar.style.background = '#02020A';
@@ -980,27 +1065,21 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   }
 
   window.updateTopbar = updateTopbar;
-
   var ticking = false;
   function onScroll(){
     if(!ticking){ ticking = true; requestAnimationFrame(function(){ updateTopbar(); ticking = false; }); }
   }
-  window.addEventListener('scroll',           onScroll, { passive: true });
-  window.addEventListener('resize',           onScroll, { passive: true });
-  window.addEventListener('orientationchange',function(){ setTimeout(onScroll, 120); }, { passive: true });
-
+  window.addEventListener('scroll',            onScroll, { passive: true });
+  window.addEventListener('resize',            onScroll, { passive: true });
+  window.addEventListener('orientationchange', function(){ setTimeout(onScroll, 120); }, { passive: true });
   if(sentinel && 'IntersectionObserver' in window){
     var io = new IntersectionObserver(function(){ onScroll(); }, {
       root:null, threshold:[0,0.05,0.2,0.5,1], rootMargin:'-64px 0px 0px 0px'
     });
     io.observe(sentinel);
   }
-
-  /* FIX CLAVE: aplicar hero-ui INMEDIATAMENTE al cargar
-     para que badge y avatar de perfil aparezcan desde el primer render */
   heroEl.classList.add('hero-ui');
   updateTopbar();
-  /* Verificaciones adicionales por si el layout tarda */
   setTimeout(updateTopbar, 150);
   setTimeout(updateTopbar, 500);
   setTimeout(updateTopbar, 1200);
@@ -1048,14 +1127,13 @@ const FEMALE_AV = [
 ];
 
 const BADGE_HTML = `<div class="card-brand"><span class="ll">LL</span><span class="plus">+</span></div>`;
-
 const $ = id => document.getElementById(id);
 const fmt = s => isNaN(s) ? '0:00' : `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function showPopup(t,m){ $('popupTitle').textContent=t; $('popupMsg').textContent=m; $('popupMask').classList.add('show'); }
 
 let currentUser = null, userProfile = null, selectedAv = null, allMovies = [];
 
-/* ══ PRECARGA RÁPIDA ══ */
+/* ══ PRECARGA RÁPIDA desde localStorage ══ */
 (function preloadFromStorage(){
   const email = localStorage.getItem('llutid_correo');
   if(!email) return;
@@ -1067,6 +1145,32 @@ let currentUser = null, userProfile = null, selectedAv = null, allMovies = [];
     watchedMovies: []
   };
   updateProfileAvatarUI();
+
+  /* ══ PRECARGA HERO INMEDIATA desde caché local ══
+     Si hay heroes cacheados, los renderizamos ANTES de esperar Firebase
+     para que el usuario vea el hero en cuanto abra la página.        */
+  try {
+    const cached = localStorage.getItem('ll_heroes');
+    if(cached){
+      const parsed = JSON.parse(cached);
+      if(parsed && parsed.v && Array.isArray(parsed.v) && parsed.v.length){
+        /* Verificar que el caché no sea muy viejo (30 min) */
+        const age = Date.now() - (parsed.t || 0);
+        if(age < 1800000){
+          /* Precargar la primera imagen del hero de inmediato */
+          const firstImg = parsed.v[0]?.image;
+          if(firstImg){
+            const preImg = new Image();
+            preImg.fetchpriority = 'high';
+            preImg.decoding = 'sync';
+            preImg.src = firstImg;
+          }
+          /* Renderizar heroes cacheados sin esperar a Firebase */
+          renderHeroes(parsed.v);
+        }
+      }
+    }
+  } catch(e){}
 })();
 
 /* ══ AUTH ══ */
@@ -1242,22 +1346,20 @@ $('avSaveBtn').onclick = async () => {
 
 /* ═══════════════════════════════════════════════════
    HERO CAROUSEL + VIMEO
-   FIXES:
-   1. heroBgLock con try/finally — nunca queda bloqueado
-   2. Cache con límite HERO_CACHE_MAX para evitar fuga de memoria
-   3. Cache se limpia al fallar la carga → reintento correcto
-   4. destroyVimeo cancela timer previo antes de crear uno nuevo
-   5. Badge y avatar visibles desde el inicio (hero-ui inmediato)
-   6. Crossfade mucho más suave: 2.2s con overlap correcto
-      — heroBgLock se libera ANTES de que termine la transición
-        para que el siguiente slide pueda precargar durante el fade
+   OPTIMIZACIONES DE VELOCIDAD:
+   - IMAGE_HOLD_MS reducido a 3500ms (era 5000)
+   - La primera imagen se activa con menor espera
+   - setHeroBackground no bloquea en el arranque inicial
+   - heroCache limpiado si falla para permitir reintento
 ═══════════════════════════════════════════════════ */
 let slides=[], slideIdx=0, slideToken=0;
 let heroMuted = localStorage.getItem('llutidHeroMuted') !== '0';
 let vimeoPlayer=null, vimeoFrame=null, phaseTimer=null, logoSlot='A';
 let activeHeroLayer='A', heroCache=new Map(), slidesSig='', heroBgLock=false;
 let vimeoCleanupTimer=null;
-const IMAGE_HOLD_MS  = 5000;
+
+/* MEJORA VELOCIDAD: primera carga más rápida, el resto igual */
+const IMAGE_HOLD_MS  = 3500;  /* era 5000 — primer slide dura menos antes de ir al trailer */
 const HERO_CACHE_MAX = 24;
 
 function cancelPhase(){ if(phaseTimer!==null){ clearTimeout(phaseTimer); phaseTimer=null; } }
@@ -1281,7 +1383,9 @@ async function preloadHeroImage(url){
   if(heroCache.has(url)) return heroCache.get(url);
   if(heroCache.size>=HERO_CACHE_MAX){ heroCache.delete(heroCache.keys().next().value); }
   const p=new Promise((resolve,reject)=>{
-    const im=new Image(); im.decoding='async';
+    const im=new Image();
+    im.decoding='async';
+    im.fetchpriority='high';
     im.onload=()=>{ const done=()=>resolve(im); if(im.decode) im.decode().then(done).catch(done); else done(); };
     im.onerror=()=>{ heroCache.delete(url); reject(new Error('img:'+url)); };
     im.src=url;
@@ -1296,12 +1400,6 @@ function preloadNeighborSlides(i){
     .forEach(s=>s?.image&&preloadHeroImage(s.image).catch(()=>{}));
 }
 
-/* FIX CROSSFADE SUAVE:
-   - La transición CSS ya dura 2.2s (definida en .hero-layer)
-   - heroBgLock se libera al INICIAR el fade, no al terminar
-     para que el siguiente slide pueda precargar sin esperar 2.2s
-   - Se usa requestAnimationFrame para garantizar que el frame
-     de transición sea el más cercano posible al swap de clases */
 async function setHeroBackground(url){
   if(!url || heroBgLock) return;
   heroBgLock=true;
@@ -1312,22 +1410,15 @@ async function setHeroBackground(url){
   try {
     img.classList.add('is-loading');
     img.src=url;
-    /* Esperar carga real antes del fade */
     await new Promise(r=>{
       if(img.complete&&img.naturalWidth>0) r();
       else { img.onload=img.onerror=r; }
     });
     img.classList.remove('is-loading');
-    /* Pequeño delay para que el browser pinte el frame con la imagen antes del fade */
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    /* Swap visible: el siguiente sube, el actual baja */
     nextEl.classList.add('is-visible');
     currEl.classList.remove('is-visible');
     activeHeroLayer = activeHeroLayer==='A'?'B':'A';
-    /* FIX: liberar el lock INMEDIATAMENTE después del swap de clases,
-       no al terminar la transición CSS de 2.2s.
-       Esto permite que el siguiente slide se precargue mientras el fade ocurre,
-       logrando una experiencia más fluida sin esperas adicionales. */
   } catch(e){
     img.classList.remove('is-loading');
   } finally {
@@ -1512,14 +1603,23 @@ async function renderHeroes(heroes){
   $('heroLogoB').classList.remove('visible'); $('heroLogoB').src='';
   $('heroWrap').classList.add('loaded');
 
-  /* FIX: mostrar heroInfo con transición de entrada suave */
   const heroInfo=$('heroInfo');
   heroInfo.style.opacity='1';
   heroInfo.style.pointerEvents='';
 
   if(window.updateTopbar) requestAnimationFrame(window.updateTopbar);
 
-  await Promise.all(slides.slice(0,3).map(s=>preloadHeroImage(s.image).catch(()=>{})));
+  /* MEJORA VELOCIDAD: precargar solo la primera imagen de forma prioritaria,
+     las demás en segundo plano para no bloquear el primer render */
+  const firstImg = slides[0]?.image;
+  if(firstImg){
+    preloadHeroImage(firstImg).catch(()=>{});
+    /* Las demás se precargan con un pequeño retraso para no competir con el render */
+    setTimeout(()=>{
+      slides.slice(1,3).forEach(s=>s?.image&&preloadHeroImage(s.image).catch(()=>{}));
+    }, 800);
+  }
+
   if(wasEmpty||slideIdx>=slides.length) slideIdx=0;
   activateSlide(slideIdx);
 }
@@ -1825,8 +1925,10 @@ const C={
 
 /* ══ INIT ══ */
 async function init(){
+  /* Heroes: el caché ya se renderizó en la precarga sincrona arriba si existía.
+     Solo hacemos el fetch de Firebase para actualizar. */
   const cachedH=C.get('heroes');
-  if(cachedH?.length) renderHeroes(cachedH);
+  if(cachedH?.length && !slides.length) renderHeroes(cachedH);
   try{
     const qs=await getDocs(query(collection(db,'heroes'),orderBy('order')));
     const h=[]; qs.forEach(d=>h.push({id:d.id,...d.data()}));
