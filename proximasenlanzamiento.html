@@ -3,232 +3,783 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Llutid+</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Llutid+ | Próximos Estrenos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #4169E1; --black: #000; }
-        
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background: var(--black); 
-            color: #fff; 
-            font-family: 'Roboto', sans-serif; 
-            margin: 0; 
-            padding-bottom: 100px;
+        :root {
+            --blue: #3B72F2;
+            --blue-bright: #5B8FFF;
+            --blue-dim: rgba(59,114,242,0.14);
+            --blue-border: rgba(59,114,242,0.28);
+            --bg: #08090C;
+            --surface: #0F1116;
+            --surface2: #181B22;
+            --border: rgba(255,255,255,0.07);
+            --text: #FFFFFF;
+            --text-soft: rgba(255,255,255,0.75);
+            --text-muted: rgba(255,255,255,0.35);
+            --red: #F25252;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
             overflow-x: hidden;
+            padding-bottom: 90px;
         }
 
-        /* Hero Trailer Estilo Cine */
-        .hero { 
-            position: relative; 
-            width: 100%; 
-            height: 80vh; 
-            background: #000; 
-            display: none;
+        /* subtle noise */
+        body::after {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            width: 100%; height: 68vh;
+            min-height: 440px;
             overflow: hidden;
+            display: none;
         }
 
-        .hero-video {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-        }
-
+        .hero-video { position: absolute; inset: 0; z-index: 1; }
         .hero-video iframe {
-            width: 100vh; height: 56.25vh; /* Proporción 16:9 */
-            min-width: 100%; min-height: 100%;
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(1.5); /* Zoom para llenar pantalla móvil */
+            width: 177.78vh; height: 100%;
+            min-width: 100%; min-height: 56.25vw;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        /* Efecto de degradado: Oscuro arriba para el logo, claro/difuminado abajo para info */
-        .hero-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 2;
-            background: linear-gradient(to bottom, 
-                rgba(0,0,0,0.8) 0%, 
-                transparent 40%, 
-                rgba(0,0,0,0.5) 70%, 
-                var(--black) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 30px 20px;
+        .hero-gradient {
+            position: absolute; inset: 0; z-index: 2;
+            background:
+                linear-gradient(to bottom, rgba(8,9,12,0.55) 0%, transparent 28%, rgba(8,9,12,0.45) 62%, var(--bg) 100%),
+                linear-gradient(to right, rgba(8,9,12,0.6) 0%, transparent 55%);
         }
 
-        .hero-info h1 { 
-            font-family: 'Montserrat', sans-serif; 
-            font-size: 2.5rem; 
-            margin: 0; 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        /* blue accent glow on hero */
+        .hero-glow {
+            position: absolute; bottom: 0; left: -20%; width: 70%; height: 40%;
+            background: radial-gradient(ellipse at bottom left, rgba(59,114,242,0.18) 0%, transparent 70%);
+            z-index: 3; pointer-events: none;
+        }
+
+        .hero-top {
+            position: absolute; top: 20px; left: 18px;
+            z-index: 5;
+        }
+
+        .logo-type {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.75rem;
+            letter-spacing: 3px;
+            color: #fff;
             line-height: 1;
         }
+        .logo-type span { color: var(--blue-bright); }
 
-        .hero-info p { 
-            font-size: 0.95rem; 
-            color: #ddd; 
-            margin: 10px 0; 
-            line-height: 1.4;
-            text-shadow: 0 1px 5px rgba(0,0,0,0.8);
+        .hero-info {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            z-index: 5; padding: 0 20px 26px;
         }
 
-        /* Grid de Estrenos */
-        .grid-container { padding: 0 15px; }
-        .section-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            margin: 25px 0; 
-        }
-        .blue-dot { width: 8px; height: 25px; background: var(--blue); border-radius: 20px; }
-        
-        .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px; 
+        .hero-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--blue); color: #fff;
+            font-size: 0.62rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            padding: 4px 10px; border-radius: 20px;
+            margin-bottom: 10px;
         }
 
-        .card { 
-            background: #111; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #222;
+        .hero-pill::before {
+            content: ''; width: 6px; height: 6px;
+            border-radius: 50%; background: #fff;
+            animation: blink 1.4s ease-in-out infinite;
         }
 
-        .card img { width: 100%; height: 220px; object-fit: cover; }
-        
-        .card-content { padding: 12px; }
-        .card-content strong { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #fff; }
-        .card-content span { color: var(--blue); font-size: 0.8rem; font-weight: bold; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        .btn-wa {
-            width: 100%; background: #25D366; color: #fff; border: none;
-            padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px;
-            font-size: 0.75rem; display: flex; align-items: center; justify-content: center;
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.4rem, 9vw, 3.4rem);
+            letter-spacing: 1px;
+            line-height: 0.95;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.6);
         }
 
-        /* Barra Inferior */
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; right: 0; height: 75px; 
-            background: rgba(10, 10, 12, 0.98); backdrop-filter: blur(20px); 
-            display: flex; justify-content: space-around; align-items: center; 
-            border-top: 1px solid rgba(255, 255, 255, 0.1); z-index: 9999;
+        .hero-desc {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.65);
+            line-height: 1.5;
+            margin-bottom: 14px;
+            max-width: 300px;
         }
-        .nav-item { color: #888; text-decoration: none; font-size: 10px; display: flex; flex-direction: column; align-items: center; }
+
+        .hero-date {
+            font-size: 0.75rem;
+            color: var(--blue-bright);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .hero-btns { display: flex; gap: 9px; }
+
+        .btn-blue {
+            flex: 1; background: var(--blue); color: #fff;
+            border: none; padding: 13px 0; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-weight: 700;
+            font-size: 0.8rem; letter-spacing: 0.8px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-blue:active { transform: scale(0.97); background: var(--blue-bright); }
+
+        .btn-ghost {
+            flex: 1; background: rgba(255,255,255,0.07);
+            color: #fff; border: 1px solid rgba(255,255,255,0.14);
+            padding: 13px 0; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-weight: 500;
+            font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-ghost:active { transform: scale(0.97); }
+
+        /* ── TOP BAR (sin hero) ── */
+        .top-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 20px 4px;
+        }
+
+        /* ── SECTION ── */
+        .section { padding: 26px 18px 0; }
+
+        .section-header {
+            display: flex; align-items: baseline;
+            justify-content: space-between; margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem; letter-spacing: 1.5px; color: #fff;
+        }
+
+        .section-title span { color: var(--blue-bright); }
+
+        .section-count {
+            font-size: 0.68rem; color: var(--text-muted);
+            letter-spacing: 1px; text-transform: uppercase;
+        }
+
+        /* ── GRID ── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border);
+            animation: fadeUp 0.4s ease both;
+        }
+        .card:nth-child(2){animation-delay:.05s}
+        .card:nth-child(3){animation-delay:.1s}
+        .card:nth-child(4){animation-delay:.15s}
+
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(16px) }
+            to   { opacity:1; transform:translateY(0) }
+        }
+
+        .card-poster {
+            position: relative; height: 195px; overflow: hidden;
+        }
+        .card-poster img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.45s ease;
+        }
+        .card:active .card-poster img { transform: scale(1.04); }
+
+        .card-poster-fade {
+            position: absolute; inset: 0;
+            background: linear-gradient(to bottom, transparent 45%, var(--surface) 100%);
+        }
+
+        /* Like button */
+        .card-like {
+            position: absolute; top: 8px; right: 8px;
+            width: 33px; height: 33px;
+            background: rgba(8,9,12,0.72);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(8px);
+            transition: all 0.2s; z-index: 2;
+        }
+        .card-like svg {
+            width: 14px; height: 14px;
+            fill: transparent; stroke: rgba(255,255,255,0.7); stroke-width: 2;
+            transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .card-like.liked { background: rgba(242,82,82,0.18); border-color: rgba(242,82,82,0.35); }
+        .card-like.liked svg { fill: var(--red); stroke: var(--red); transform: scale(1.15); }
+        @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+        .card-like.pop { animation: pop 0.28s ease; }
+
+        .card-body { padding: 9px 11px 12px; }
+
+        .card-title {
+            font-weight: 700; font-size: 0.88rem;
+            line-height: 1.25; margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .card-meta {
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-date {
+            font-size: 0.7rem; color: var(--blue-bright); font-weight: 600;
+        }
+
+        .card-likes-row {
+            display: flex; align-items: center; gap: 3px;
+            font-size: 0.66rem; color: var(--text-muted);
+        }
+        .card-likes-row svg { width: 9px; height: 9px; fill: var(--red); }
+
+        .card-actions {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 6px; margin-top: 8px;
+        }
+
+        .btn-card {
+            padding: 8px 4px; border-radius: 6px;
+            font-size: 0.67rem; font-weight: 700;
+            letter-spacing: 0.5px; text-transform: uppercase;
+            border: none; cursor: pointer; transition: all 0.18s;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-card:active { transform: scale(0.96); }
+
+        .btn-suggest {
+            background: var(--blue-dim); color: var(--blue-bright);
+            border: 1px solid var(--blue-border);
+        }
+
+        .btn-share {
+            background: rgba(37,211,102,0.1); color: #25D366;
+            border: 1px solid rgba(37,211,102,0.22);
+        }
+
+        /* ── MODAL PEDIR PELÍCULA ── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 900;
+            background: rgba(8,9,12,0.88);
+            backdrop-filter: blur(14px);
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: var(--surface2);
+            border: 1px solid rgba(59,114,242,0.22);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            padding: 10px 22px 44px;
+            width: 100%; max-width: 480px;
+            transform: translateY(50px);
+            transition: transform 0.36s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .modal-overlay.open .modal { transform: translateY(0); }
+
+        /* blue top glow on modal */
+        .modal::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 60%; height: 1px;
+            background: linear-gradient(to right, transparent, var(--blue), transparent);
+        }
+
+        .modal-handle {
+            width: 38px; height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px; margin: 12px auto 20px;
+        }
+
+        .modal-eyebrow {
+            font-size: 0.62rem; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--blue-bright);
+            margin-bottom: 4px;
+        }
+
+        .modal-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.7rem; letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .modal-sub {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-bottom: 20px; line-height: 1.4;
+        }
+
+        /* user chip */
+        .user-chip {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(59,114,242,0.07);
+            border: 1px solid rgba(59,114,242,0.18);
+            border-radius: 10px; padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        .user-avatar {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: var(--blue); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.82rem; flex-shrink: 0;
+        }
+
+        .user-chip-name { font-size: 0.8rem; font-weight: 600; }
+        .user-chip-email { font-size: 0.68rem; color: var(--text-muted); }
+
+        .field-label {
+            display: block; font-size: 0.65rem;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 7px;
+        }
+
+        .modal input, .modal textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            color: #fff; border-radius: 8px;
+            padding: 12px 14px; font-size: 0.88rem;
+            font-family: 'DM Sans', sans-serif;
+            margin-bottom: 13px; outline: none;
+            transition: border-color 0.2s;
+        }
+        .modal input:focus, .modal textarea:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59,114,242,0.1);
+        }
+        .modal textarea { height: 85px; resize: none; }
+
+        .btn-send {
+            width: 100%; padding: 14px;
+            background: var(--blue); color: #fff;
+            border: none; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700; font-size: 0.85rem;
+            letter-spacing: 1px; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-send:active { transform: scale(0.98); background: var(--blue-bright); }
+
+        .btn-modal-cancel {
+            width: 100%; padding: 12px;
+            background: transparent; color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 8px; font-size: 0.8rem;
+            cursor: pointer; margin-top: 9px;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* ── FAB: pedir película ── */
+        .fab {
+            position: fixed; bottom: 92px; right: 18px;
+            z-index: 700;
+            width: 52px; height: 52px;
+            background: var(--blue);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(59,114,242,0.45);
+            cursor: pointer; border: none;
+            transition: all 0.2s;
+        }
+        .fab:active { transform: scale(0.92); }
+        .fab svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; }
+
+        /* Tooltip del FAB */
+        .fab-tooltip {
+            position: fixed; bottom: 100px; right: 76px;
+            background: var(--surface2); border: 1px solid var(--blue-border);
+            color: #fff; font-size: 0.75rem; font-weight: 600;
+            padding: 7px 12px; border-radius: 8px;
+            white-space: nowrap; pointer-events: none;
+            opacity: 0; transform: translateX(6px);
+            transition: all 0.25s; z-index: 700;
+        }
+        .fab:hover + .fab-tooltip,
+        .fab-tooltip.show { opacity: 1; transform: translateX(0); }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed; bottom: 95px; left: 50%;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--surface2);
+            border: 1px solid var(--blue-border);
+            color: #fff; padding: 11px 20px;
+            border-radius: 30px; font-size: 0.8rem; font-weight: 500;
+            z-index: 9999; opacity: 0; pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── EMPTY ── */
+        .empty-state {
+            grid-column: 1/-1; text-align: center;
+            padding: 50px 20px; color: var(--text-muted);
+        }
+        .empty-state svg { width: 40px; height: 40px; stroke: var(--text-muted); fill: none; margin-bottom: 12px; }
+
+        /* ── BOTTOM NAV ── */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 74px;
+            background: rgba(8,9,12,0.97);
+            backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(59,114,242,0.14);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 800;
+        }
+
+        .nav-item {
+            color: var(--text-muted); text-decoration: none;
+            font-size: 0.58rem; letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            flex: 1; transition: color 0.2s;
+        }
+        .nav-item svg { width: 21px; height: 21px; stroke: currentColor; stroke-width: 1.8; fill: none; }
         .nav-item.active { color: #fff; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
-        .nav-item.active svg { color: var(--blue); }
+        .nav-item.active svg { stroke: var(--blue-bright); }
 
+        .nav-indicator {
+            position: absolute; bottom: 0;
+            width: 20px; height: 2px;
+            background: var(--blue);
+            border-radius: 2px 2px 0 0;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .nav-item.active .nav-indicator { opacity: 1; }
+
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body onclick="activarAudio()">
+<body>
 
-    <div class="hero" id="hero">
-        <div class="hero-video" id="heroPlayer"></div>
-        <div class="hero-overlay">
-            <div class="hero-info" id="heroText"></div>
+<!-- HERO VIDEO -->
+<div class="hero" id="hero">
+    <div class="hero-video" id="heroPlayer"></div>
+    <div class="hero-gradient"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-top">
+        <div class="logo-type">Llutid<span>+</span></div>
+    </div>
+    <div class="hero-info">
+        <div class="hero-pill">Próximo estreno</div>
+        <div class="hero-title" id="heroTitle">—</div>
+        <div class="hero-desc" id="heroDesc">—</div>
+        <div class="hero-date" id="heroDate">—</div>
+        <div class="hero-btns">
+            <button class="btn-ghost" onclick="activarAudio()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:5px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                Activar audio
+            </button>
         </div>
     </div>
+</div>
 
-    <div class="grid-container">
-        <div class="section-header">
-            <div class="blue-dot"></div>
-            <h2 style="font-size: 1.1rem; margin:0;">PRÓXIMOS ESTRENOS</h2>
-        </div>
-        <div class="grid" id="mainGrid"></div>
+<!-- TOP BAR (sin hero) -->
+<div class="top-bar" id="topBar">
+    <div class="logo-type">Llutid<span>+</span></div>
+</div>
+
+<!-- CONTENT -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-title">PRÓXIMOS <span>ESTRENOS</span></div>
+        <div class="section-count" id="countLabel">—</div>
     </div>
+    <div class="cards-grid" id="mainGrid"></div>
+</div>
 
-    <nav class="bottom-nav">
-        <a href="home.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
-            <span>Home</span>
-        </a>
-        <a href="proximos.html" class="nav-item active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect></svg>
-            <span>Próximos</span>
-        </a>
-        <a href="chat.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49"></path></svg>
-            <span>En Vivo</span>
-        </a>
-        <a href="home.html" class="nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <span>Buscador</span>
-        </a>
-    </nav>
+<!-- FAB: Pedir película -->
+<button class="fab" onclick="openModal()" aria-label="Pedir una película">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+</button>
+<div class="fab-tooltip" id="fabTooltip">Pedir película</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" style="position:relative;">
+        <div class="modal-handle"></div>
+        <div class="modal-eyebrow">Comunidad Llutid+</div>
+        <div class="modal-title">PEDIR PELÍCULA</div>
+        <div class="modal-sub">¿Qué título quieres que lancemos? Danos tu idea y lo evaluamos.</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDOfpuhunnzCA_NNwJyQJVkSE2SzQbxSYs",
-            databaseURL: "https://proximos-d8810-default-rtdb.firebaseio.com",
-            projectId: "proximos-d8810",
-            appId: "1:216950431757:web:4afa59b1e7daca264f7544"
-        };
+        <div class="user-chip" id="userChip">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <div>
+                <div class="user-chip-name" id="userName">Espectador</div>
+                <div class="user-chip-email" id="userEmailDisplay">Sin cuenta detectada</div>
+            </div>
+        </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let currentVimeoId = "";
+        <label class="field-label">Nombre de la película o serie</label>
+        <input type="text" id="movieName" placeholder="Ej: Dune 3, Demon Slayer T4, Fast X..." maxlength="120">
 
-        // Activa el audio al primer toque en cualquier parte de la pantalla
-        window.activarAudio = () => {
-            if(currentVimeoId) {
-                const player = document.getElementById('vimeo-iframe');
-                if(player) player.src = `https://player.vimeo.com/video/${currentVimeoId}?autoplay=1&loop=1&muted=0`;
+        <label class="field-label">¿Por qué la quieres en Llutid+?</label>
+        <textarea id="movieReason" placeholder="Cuéntanos un poco... (opcional)" maxlength="320"></textarea>
+
+        <button class="btn-send" id="btnSend">Enviar idea</button>
+        <button class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <div class="nav-indicator"></div>
+        <span>Home</span>
+    </a>
+    <a href="proximos.html" class="nav-item active">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <div class="nav-indicator"></div>
+        <span>Próximos</span>
+    </a>
+    <a href="chat.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path></svg>
+        <div class="nav-indicator"></div>
+        <span>En Vivo</span>
+    </a>
+    <a href="buscar.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <div class="nav-indicator"></div>
+        <span>Buscar</span>
+    </a>
+</nav>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push, runTransaction } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDOfpuhunnzCA_NNwJyQJVkSE2SzQbxSYs",
+        databaseURL: "https://proximos-d8810-default-rtdb.firebaseio.com",
+        projectId: "proximos-d8810",
+        appId: "1:216950431757:web:4afa59b1e7daca264f7544"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    let currentVimeoId = '';
+
+    // ── DETECT USER FROM LOCALSTORAGE ──
+    function detectUser() {
+        const keys = ['userEmail','email','llutid_email','llutid_user','userName','user_email','currentUser'];
+        let email = '', name = '';
+        for (let k of keys) {
+            const v = localStorage.getItem(k);
+            if (v && v.includes('@')) { email = v; break; }
+        }
+        if (!email) {
+            for (let k of keys) {
+                const v = sessionStorage.getItem(k);
+                if (v && v.includes('@')) { email = v; break; }
             }
-        };
+        }
+        if (!email) {
+            for (let k of Object.keys(localStorage)) {
+                try {
+                    const p = JSON.parse(localStorage.getItem(k));
+                    if (p?.email) { email = p.email; name = p.displayName || p.name || ''; break; }
+                } catch {}
+            }
+        }
+        if (email && !name) name = email.split('@')[0].replace(/[._]/g,' ');
+        return { email, name: name || 'Espectador' };
+    }
 
-        onValue(ref(db, 'proximos'), (snapshot) => {
-            const grid = document.getElementById('mainGrid');
-            const hero = document.getElementById('hero');
-            const heroPlayer = document.getElementById('heroPlayer');
-            const heroText = document.getElementById('heroText');
-            
-            grid.innerHTML = '';
-            let estrenos = [];
-            snapshot.forEach(child => { 
-                let d = child.val(); d.id = child.key; estrenos.push(d); 
+    const user = detectUser();
+    document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userEmailDisplay').textContent = user.email || 'Sin cuenta detectada';
+
+    // ── LIKES ──
+    function getLikes() {
+        try { return JSON.parse(localStorage.getItem('llutid_likes') || '{}'); } catch { return {}; }
+    }
+    function saveLike(id, v) {
+        const l = getLikes(); if (v) l[id]=true; else delete l[id];
+        localStorage.setItem('llutid_likes', JSON.stringify(l));
+    }
+
+    // ── AUDIO ──
+    window.activarAudio = () => {
+        if (currentVimeoId) {
+            const el = document.getElementById('vimeo-iframe');
+            if (el) el.src = `https://player.vimeo.com/video/${currentVimeoId}?autoplay=1&loop=1&muted=0`;
+        }
+    };
+
+    // ── TOAST ──
+    function toast(msg, dur = 2200) {
+        const el = document.getElementById('toast');
+        el.textContent = msg; el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), dur);
+    }
+
+    // ── MODAL ──
+    window.openModal = () => {
+        document.getElementById('movieName').value = '';
+        document.getElementById('movieReason').value = '';
+        document.getElementById('modalOverlay').classList.add('open');
+    };
+
+    window.closeModal = () => document.getElementById('modalOverlay').classList.remove('open');
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+        if (e.target.id === 'modalOverlay') closeModal();
+    });
+
+    // FAB tooltip auto-show once
+    setTimeout(() => {
+        const t = document.getElementById('fabTooltip');
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2800);
+    }, 1400);
+
+    document.getElementById('btnSend').addEventListener('click', async () => {
+        const movie = document.getElementById('movieName').value.trim();
+        const reason = document.getElementById('movieReason').value.trim();
+        if (!movie) { toast('⚠ Escribe el nombre de la película'); return; }
+
+        const btn = document.getElementById('btnSend');
+        btn.textContent = 'Enviando...'; btn.disabled = true;
+
+        try {
+            await push(ref(db, 'ideas'), {
+                pelicula: movie,
+                motivo: reason,
+                usuario: user.name,
+                email: user.email,
+                fecha: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' }),
+                timestamp: Date.now(),
+                oculto: false
             });
-            estrenos.reverse();
+            closeModal();
+            toast('✦ Idea enviada — ¡gracias!');
+        } catch {
+            toast('Error al enviar. Intenta de nuevo.');
+        } finally {
+            btn.textContent = 'Enviar idea'; btn.disabled = false;
+        }
+    });
 
-            // Configurar Hero
-            const pVideo = estrenos.find(e => e.link && e.link.includes('vimeo'));
-            if(pVideo) {
-                hero.style.display = 'block';
-                currentVimeoId = pVideo.link.split('/').pop().split('?')[0];
-                heroPlayer.innerHTML = `<iframe id="vimeo-iframe" src="https://player.vimeo.com/video/${currentVimeoId}?autoplay=1&loop=1&muted=1&background=1" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
-                heroText.innerHTML = `
-                    <h1>${pVideo.titulo}</h1>
-                    <p>${pVideo.descripcion}</p>
-                    <span style="color:var(--blue); font-weight:bold;">${pVideo.fecha} • ${pVideo.hora}</span>
-                `;
-            }
+    // ── LIKE TOGGLE ──
+    window.toggleLike = (id, btn) => {
+        const likes = getLikes();
+        const newLiked = !likes[id];
+        saveLike(id, newLiked);
+        btn.classList.toggle('liked', newLiked);
+        btn.classList.add('pop');
+        setTimeout(() => btn.classList.remove('pop'), 280);
+        runTransaction(ref(db, `proximos/${id}/likes`), cur => Math.max(0, (cur||0) + (newLiked?1:-1)));
+        const cEl = document.getElementById(`lc-${id}`);
+        if (cEl) cEl.textContent = Math.max(0, (parseInt(cEl.textContent)||0) + (newLiked?1:-1));
+        toast(newLiked ? '❤ Te gusta esto' : '♡ Quitado de favoritos', 1500);
+    };
 
-            // Renderizar Grid
-            estrenos.forEach(p => {
-                grid.innerHTML += `
-                    <div class="card">
-                        <img src="${p.imagen}">
-                        <div class="card-content">
-                            <strong>${p.titulo}</strong>
-                            <span>${p.fecha}</span>
-                            <button class="btn-wa" onclick="compartir('${p.titulo}', '${p.descripcion}', '${p.fecha}')">
-                                COMPARTIR
-                            </button>
+    // ── SHARE ──
+    window.compartir = (t, d, f) => {
+        const m = encodeURIComponent(`*¡Lanzamiento en LLUTID+!* ✦\n\n*${t}*\n📅 ${f}\n${d}\n\n👉 ${window.location.href}`);
+        window.open(`https://api.whatsapp.com/send?text=${m}`, '_blank');
+    };
+
+    // ── LOAD DATA ──
+    onValue(ref(db, 'proximos'), snapshot => {
+        const grid = document.getElementById('mainGrid');
+        const hero = document.getElementById('hero');
+        const topBar = document.getElementById('topBar');
+        grid.innerHTML = '';
+
+        let list = [];
+        snapshot.forEach(c => { const d = c.val(); d._key = c.key; list.push(d); });
+        list.reverse();
+
+        document.getElementById('countLabel').textContent = `${list.length} título${list.length!==1?'s':''}`;
+
+        // Hero
+        const pVid = list.find(e => e.link && e.link.includes('vimeo'));
+        if (pVid) {
+            hero.style.display = 'block';
+            topBar.style.display = 'none';
+            currentVimeoId = pVid.link.split('/').pop().split('?')[0];
+            document.getElementById('heroPlayer').innerHTML = `<iframe id="vimeo-iframe" src="https://player.vimeo.com/video/${currentVimeoId}?autoplay=1&loop=1&muted=1&background=1" frameborder="0" allow="autoplay; fullscreen"></iframe>`;
+            document.getElementById('heroTitle').textContent = pVid.titulo;
+            document.getElementById('heroDesc').textContent = pVid.descripcion;
+            document.getElementById('heroDate').textContent = `${pVid.fecha} · ${pVid.hora}`;
+        } else {
+            hero.style.display = 'none';
+            topBar.style.display = 'flex';
+        }
+
+        if (list.length === 0) {
+            grid.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3"></rect><line x1="8" y1="2" x2="8" y2="22"></line><line x1="16" y1="2" x2="16" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg><p>Próximamente nuevos estrenos</p></div>`;
+            return;
+        }
+
+        const myLikes = getLikes();
+        list.forEach(p => {
+            const liked = !!myLikes[p._key];
+            grid.innerHTML += `
+            <div class="card">
+                <div class="card-poster">
+                    <img src="${p.imagen}" alt="${p.titulo}" loading="lazy">
+                    <div class="card-poster-fade"></div>
+                    <button class="card-like ${liked?'liked':''}" onclick="toggleLike('${p._key}',this)">
+                        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="card-title">${p.titulo}</div>
+                    <div class="card-meta">
+                        <div class="card-date">${p.fecha}</div>
+                        <div class="card-likes-row">
+                            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <span id="lc-${p._key}">${p.likes||0}</span>
                         </div>
-                    </div>`;
-            });
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-card btn-suggest" onclick="openModal()">+ Pedir</button>
+                        <button class="btn-card btn-share" onclick="compartir('${p.titulo.replace(/'/g,"\\'")}','${(p.descripcion||'').replace(/'/g,"\\'")}','${p.fecha}')">Compartir</button>
+                    </div>
+                </div>
+            </div>`;
         });
-
-        window.compartir = (t, d, f) => {
-            const m = encodeURIComponent(`*¡Lanzamiento en LLUTID+!* 🚀\n\n*${t}*\n📅 ${f}\n📝 ${d}\n\nVer aquí: ${window.location.href}`);
-            window.open(`https://api.whatsapp.com/send?text=${m}`, '_blank');
-        };
-    </script>
+    });
+</script>
 </body>
 </html>
