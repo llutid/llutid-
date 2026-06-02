@@ -16,7 +16,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ─── ZONA FIJA ARRIBA ───────────────────── */
         .top-fixed {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -24,7 +23,6 @@
             background: #000;
         }
 
-        /* ─── ZONA SCROLLEABLE (canales) ─────────── */
         .scroll-area {
             position: fixed;
             left: 0; right: 0;
@@ -34,7 +32,6 @@
             background: #000;
         }
 
-        /* ─── HEADER ─────────────────────────────── */
         .header {
             padding: 14px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -48,7 +45,6 @@
         }
         .logo-plus { color: #fff; font-weight: 900; font-size: 36px; }
 
-        /* ─── BARRA CANAL ACTIVO ─────────────────── */
         .current-channel {
             padding: 10px 20px;
             font-weight: 700;
@@ -69,7 +65,6 @@
             letter-spacing: 1px;
         }
 
-        /* ─── PLAYER ─────────────────────────────── */
         .video-container {
             position: relative;
             width: 100%;
@@ -100,7 +95,6 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        /* ─── FILTROS ────────────────────────────── */
         .filters {
             display: flex; gap: 8px;
             padding: 10px 16px;
@@ -121,7 +115,6 @@
         }
         .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
 
-        /* ─── LISTA CANALES ──────────────────────── */
         .category-header {
             padding: 16px 20px 12px;
             font-size: 17px; font-weight: 800;
@@ -168,7 +161,6 @@
         .channel-arrow { color: #2a2a2a; font-size: 18px; margin-left: 10px; }
         .channel-item.active .channel-arrow { color: #2962FF; }
 
-        /* ─── NAV INFERIOR ───────────────────────── */
         .bottom-nav {
             position: fixed;
             bottom: 0; left: 0; right: 0; height: 75px;
@@ -195,7 +187,6 @@
 </head>
 <body>
 
-<!-- ══════ ZONA FIJA ══════ -->
 <div class="top-fixed" id="topFixed">
 
     <div class="header">
@@ -226,14 +217,12 @@
 
 </div>
 
-<!-- ══════ ZONA SCROLLEABLE ══════ -->
 <div class="scroll-area" id="scrollArea">
 
     <!-- ── COLOMBIANOS ─────────────────────────── -->
     <div class="category" data-category="colombia">
         <div class="category-header">🇨🇴 Canales Colombianos</div>
 
-        <!-- Canal 1 -->
         <div class="channel-item" onclick="playChannel(this,'Canal 1','https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png','Televisión nacional')">
             <div class="channel-number">001</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png" alt="" onerror="this.parentElement.innerHTML='1️⃣'"></div>
@@ -244,7 +233,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Señal Colombia -->
         <div class="channel-item" onclick="playChannel(this,'Señal Colombia','https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8','https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB','Canal cultural')">
             <div class="channel-number">002</div>
             <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB" alt="" onerror="this.parentElement.innerHTML='🇨🇴'"></div>
@@ -255,7 +243,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Canal Institucional -->
         <div class="channel-item" onclick="playChannel(this,'Canal Institucional','https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png','Canal del Estado')">
             <div class="channel-number">003</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png" alt="" onerror="this.parentElement.innerHTML='🏛️'"></div>
@@ -266,7 +253,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Teleritmo -->
         <div class="channel-item" onclick="playChannel(this,'Teleritmo','https://mdstrm.com/live-stream-playlist/57b4dc126338448314449d0c.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png','Música tropical')">
             <div class="channel-number">004</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png" alt="" onerror="this.parentElement.innerHTML='💃'"></div>
@@ -277,7 +263,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Vive TV Colombia -->
         <div class="channel-item" onclick="playChannel(this,'Vive TV Colombia','http://192.144.113.132:1935/live/ViveTV/playlist.m3u8','https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png','Entretenimiento local')">
             <div class="channel-number">005</div>
             <div class="channel-icon"><img src="https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png" alt="" onerror="this.parentElement.innerHTML='🎭'"></div>
@@ -288,7 +273,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Canal Cali TV -->
         <div class="channel-item" onclick="playChannel(this,'Canal Cali TV','https://5ab772334c39c.streamlock.net/live-calitv/_definst_/calitv1/playlist.m3u8','https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png','Televisión regional')">
             <div class="channel-number">006</div>
             <div class="channel-icon"><img src="https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png" alt="" onerror="this.parentElement.innerHTML='🌴'"></div>
@@ -299,7 +283,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Noticias Caracol -->
         <div class="channel-item" onclick="playChannel(this,'Noticias Caracol','https://mdstrm.com/live-stream-playlist/58dc3d471cbe05ff3c8e463e.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png','Noticias Colombia')">
             <div class="channel-number">007</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png" alt="" onerror="this.parentElement.innerHTML='📺'"></div>
@@ -310,13 +293,67 @@
             <div class="channel-arrow">›</div>
         </div>
 
+        <!-- Blu Radio (nuevo) -->
+        <div class="channel-item" onclick="playChannel(this,'Blu Radio','https://mdstrm.com/live-stream-playlist/58d1921a72e2b22e2905e493.m3u8','https://play-lh.googleusercontent.com/Cq9JyDoNY6H_Qwqfd6ELwbUGYP3QOK3i-oBcCKvYCe51kHaLEpvz4p-gxv-MMaO3pHk','Radio y noticias en vivo')">
+            <div class="channel-number">008</div>
+            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/Cq9JyDoNY6H_Qwqfd6ELwbUGYP3QOK3i-oBcCKvYCe51kHaLEpvz4p-gxv-MMaO3pHk" alt="" onerror="this.parentElement.innerHTML='🔵'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Blu Radio</div>
+                <div class="channel-description">Radio y noticias en vivo</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- Cristo Visión (nuevo) -->
+        <div class="channel-item" onclick="playChannel(this,'Cristo Visión','https://5fc584f3f19c9.streamlock.net/cristovision/videocristovision/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/7/78/Cristovisi%C3%B3n_Logo.png','Canal cristiano')">
+            <div class="channel-number">009</div>
+            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Cristovisi%C3%B3n_Logo.png" alt="" onerror="this.parentElement.innerHTML='✝️'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Cristo Visión</div>
+                <div class="channel-description">Canal cristiano</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- La Kalle (nuevo) -->
+        <div class="channel-item" onclick="playChannel(this,'La Kalle','https://mdstrm.com/live-stream-playlist/58d191f07290fbb058025843.m3u8','https://play-lh.googleusercontent.com/WHwToQxa3xfF1hYl-Q3_BtcXVCDqzjxM5_0GIfATzvzANmnCo-U4MExY31y95Zq12GZ9=w240-h480-rw','Radio urbana colombiana')">
+            <div class="channel-number">010</div>
+            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/WHwToQxa3xfF1hYl-Q3_BtcXVCDqzjxM5_0GIfATzvzANmnCo-U4MExY31y95Zq12GZ9=w240-h480-rw" alt="" onerror="this.parentElement.innerHTML='🎙️'"></div>
+            <div class="channel-details">
+                <div class="channel-name">La Kalle</div>
+                <div class="channel-description">Radio urbana colombiana</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- Red+ Noticias (nuevo) -->
+        <div class="channel-item" onclick="playChannel(this,'Red+ Noticias','https://inforedvos.lcdn.claro.net.co/Content/HLS_HLS_DIR/Live/channel(REDMASHDWEB)/master.m3u8','https://static.wikia.nocookie.net/logopedia/images/6/68/Red_Noticias2019.png/revision/latest?cb=20210424015309&path-prefix=es','Noticias Colombia')">
+            <div class="channel-number">011</div>
+            <div class="channel-icon"><img src="https://static.wikia.nocookie.net/logopedia/images/6/68/Red_Noticias2019.png/revision/latest?cb=20210424015309&path-prefix=es" alt="" onerror="this.parentElement.innerHTML='📡'"></div>
+            <div class="channel-details">
+                <div class="channel-name">Red+ Noticias</div>
+                <div class="channel-description">Noticias Colombia</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
+        <!-- RCN Más (nuevo) -->
+        <div class="channel-item" onclick="playChannel(this,'RCN Más','https://rcntv-rcnmas-1-us.plex.wurl.tv/playlist.m3u8','https://i.scdn.co/image/ab6761610000e5eb2d938f9f831586b835bab49a','Entretenimiento RCN')">
+            <div class="channel-number">012</div>
+            <div class="channel-icon"><img src="https://i.scdn.co/image/ab6761610000e5eb2d938f9f831586b835bab49a" alt="" onerror="this.parentElement.innerHTML='📺'"></div>
+            <div class="channel-details">
+                <div class="channel-name">RCN Más</div>
+                <div class="channel-description">Entretenimiento RCN</div>
+            </div>
+            <div class="channel-arrow">›</div>
+        </div>
+
     </div>
 
     <!-- ── DEPORTES ──────────────────────────────── -->
     <div class="category" data-category="deportes">
         <div class="category-header">⚽ Deportes</div>
 
-        <!-- ESPN -->
         <div class="channel-item" onclick="playChannel(this,'ESPN','https://fl2.moveonjoy.com/ESPN_2/index.m3u8','https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png','Deportes en vivo')">
             <div class="channel-number">020</div>
             <div class="channel-icon"><img src="https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png" alt="" onerror="this.parentElement.innerHTML='🏆'"></div>
@@ -333,7 +370,6 @@
     <div class="category" data-category="noticias">
         <div class="category-header">📰 Noticias</div>
 
-        <!-- DW Español -->
         <div class="channel-item" onclick="playChannel(this,'DW Español','https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8','https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg','Noticias internacionales')">
             <div class="channel-number">030</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg" alt="" onerror="this.parentElement.innerHTML='🌍'"></div>
@@ -344,7 +380,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- RT Español -->
         <div class="channel-item" onclick="playChannel(this,'RT Español','https://rt-esp.rttv.com/live/rtesp/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg','Noticias desde Rusia')">
             <div class="channel-number">031</div>
             <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg" alt="" onerror="this.parentElement.innerHTML='🌐'"></div>
@@ -361,7 +396,6 @@
     <div class="category" data-category="entretenimiento">
         <div class="category-header">🎬 Entretenimiento</div>
 
-        <!-- Runtime Movies -->
         <div class="channel-item" onclick="playChannel(this,'Runtime Movies','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2153','','Películas gratis')">
             <div class="channel-number">040</div>
             <div class="channel-icon" style="font-size:26px;">🎥</div>
@@ -372,7 +406,6 @@
             <div class="channel-arrow">›</div>
         </div>
 
-        <!-- Runtime Acción -->
         <div class="channel-item" onclick="playChannel(this,'Runtime Acción','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2552','','Acción pura')">
             <div class="channel-number">041</div>
             <div class="channel-icon" style="font-size:26px;">💥</div>
@@ -389,7 +422,6 @@
     <div class="category" data-category="musica">
         <div class="category-header">🎵 Música</div>
 
-        <!-- Bandamax -->
         <div class="channel-item" onclick="playChannel(this,'Bandamax','https://stream.ads.ottera.tv/playlist.m3u8?network_id=848','','Música regional mexicana')">
             <div class="channel-number">050</div>
             <div class="channel-icon" style="font-size:26px;">🎺</div>
@@ -405,7 +437,6 @@
     <div class="list-end"></div>
 </div>
 
-<!-- ══════ NAV INFERIOR ══════ -->
 <nav class="bottom-nav">
     <a href="home.html" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
