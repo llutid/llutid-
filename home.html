@@ -37,11 +37,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .magic-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.011) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.011) 1px,transparent 1px);background-size:52px 52px;}
 .magic-vignette{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 100% 100% at 50% 50%,transparent 45%,rgba(2,2,10,0.70) 100%);}
 
-/* ════ SLOW CONNECTION BANNER ════
-   Solución: usamos un contenedor fijo que actúa como "stage" de altura 0.
-   El banner se anima hacia abajo con transform, no con top/margin.
-   Así nunca desplaza el contenido y no interfiere con otros elementos.
-════ */
+/* ════ SLOW CONNECTION BANNER ════ */
 #slowConnStage{
   position:fixed;
   top:0;left:0;right:0;
@@ -177,7 +173,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   position:fixed;top:0;left:0;right:0;z-index:9010;
   height:64px;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left));
   display:none;align-items:center;justify-content:flex-end;
-  pointer-events:none;background:#02020A;border-bottom:1px solid transparent;
+  pointer-events:none;background:transparent;border-bottom:1px solid transparent;
   box-shadow:none;transition:box-shadow .28s ease,border-color .28s ease;
 }
 .topbar>*{pointer-events:auto;}
@@ -235,7 +231,8 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   transition:opacity .3s ease,visibility .3s ease;
 }
 .hero-mute-btn{
-  position:fixed;top:22px;right:70px;
+  /* ── BAJADO: de top:22px a top:56px ── */
+  position:fixed;top:56px;right:70px;
   width:38px;height:38px;border-radius:50%;
   background:rgba(12,12,24,.5);border:1.5px solid rgba(255,255,255,.25);
   color:#fff;display:none;align-items:center;justify-content:center;
@@ -254,10 +251,14 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 }
 .hero-wrap::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:120px;z-index:4;pointer-events:none;background:linear-gradient(to bottom,transparent 0%,rgba(2,2,10,.35) 40%,#02020A 100%);}
 .hero-side-vignette{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(to right,rgba(2,2,10,.55) 0%,transparent 38%,transparent 62%,rgba(2,2,10,.45) 100%);}
-.hero-badge{top:max(18px,env(safe-area-inset-top));left:20px;font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--white);pointer-events:none;user-select:none;text-shadow:0 2px 14px rgba(0,0,0,.9);}
+
+/* ── LOGO LLUTID+ en hero BAJADO: de max(18px,...) a max(52px,...) ── */
+.hero-badge{top:max(52px,calc(env(safe-area-inset-top) + 18px));left:20px;font-family:var(--font-display);font-size:22px;letter-spacing:2px;color:var(--white);pointer-events:none;user-select:none;text-shadow:0 2px 14px rgba(0,0,0,.9);}
 .hero-badge span{color:var(--blue-light);}
+
+/* ── AVATAR en hero BAJADO: de max(12px,...) a max(46px,...) ── */
 .hero-profile-btn{
-  top:max(12px,env(safe-area-inset-top));right:16px;
+  top:max(46px,calc(env(safe-area-inset-top) + 12px));right:16px;
   width:44px;height:44px;border-radius:50%;overflow:hidden;
   border:1.5px solid rgba(255,255,255,.28);
   background:rgba(12,12,24,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
@@ -600,11 +601,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 <div class="magic-grid" aria-hidden="true"></div>
 <div class="magic-vignette" aria-hidden="true"></div>
 
-<!-- ════ SLOW CONNECTION BANNER ════
-  Stage de altura 0 en la parte superior. El banner se desliza hacia abajo
-  con transform (no top/margin), así no desplaza el contenido ni choca
-  con otros elementos fijos. Solo aparece una vez por sesión.
-════ -->
 <div id="slowConnStage" aria-live="assertive" aria-atomic="true">
   <div id="slowConnBanner" role="alert">
     <div class="slow-conn-inner">
@@ -952,7 +948,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 <!-- ════ SLOW CONNECTION DETECTION ════ -->
 <script>
 (function detectSlowConnection(){
-  /* Solo una vez por sesión */
   if(sessionStorage.getItem('llutid_conn_checked')) return;
   sessionStorage.setItem('llutid_conn_checked','1');
 
@@ -966,7 +961,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 
   function hideBanner(){
     banner.classList.remove('visible');
-    /* Limpiar pointer-events del stage tras la animación */
     setTimeout(function(){
       var stage = document.getElementById('slowConnStage');
       if(stage) stage.style.pointerEvents = 'none';
@@ -979,8 +973,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
   function showBanner(mbps){
     if(shown) return;
     shown = true;
-
-    /* Calcular porcentaje visual (1 Mbps = 100%) */
     var pct = Math.min(100, Math.round((mbps / 1) * 100));
     if(barEl) barEl.style.width = pct + '%';
     if(valEl){
@@ -988,19 +980,14 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
       else if(mbps < 0.1) valEl.textContent = '< 0.1 Mbps';
       else               valEl.textContent = mbps.toFixed(1) + ' Mbps';
     }
-
-    /* Mostrar tras un pequeño delay para que la página arranque primero */
     setTimeout(function(){
       var stage = document.getElementById('slowConnStage');
       if(stage) stage.style.pointerEvents = '';
       banner.classList.add('visible');
-
-      /* Auto-ocultar tras 12 segundos */
       hideTimer = setTimeout(hideBanner, 12000);
     }, 900);
   }
 
-  /* ── 1. Navigator Connection API (instantáneo, sin red) ── */
   var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
   if(conn){
     var ect = conn.effectiveType;
@@ -1012,7 +999,6 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
     }
   }
 
-  /* ── 2. Speed test con imagen pequeña (~11 KB) ── */
   var startTime    = Date.now();
   var testUrl      = 'https://www.gstatic.com/webp/gallery/1.jpg?nc=' + startTime;
   var TEST_BITS    = 11 * 1024 * 8;
