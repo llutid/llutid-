@@ -1,569 +1,682 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>llutid+ | TV en vivo</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>llutid+ | TV en vivo</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    -webkit-touch-callout:none;
+    user-select:none; -webkit-user-select:none; }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #000;
-            color: #fff;
-            -webkit-font-smoothing: antialiased;
-        }
+html,body {
+  height:100%; overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  background:#000; color:#fff; -webkit-font-smoothing:antialiased;
+}
 
-        .top-fixed {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-            background: #000;
-        }
+.top-fixed { position:fixed; top:0; left:0; right:0; z-index:100; background:#000; }
+.scroll-area { position:fixed; left:0; right:0; bottom:75px; overflow-y:auto; -webkit-overflow-scrolling:touch; background:#000; }
 
-        .scroll-area {
-            position: fixed;
-            left: 0; right: 0;
-            bottom: 75px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            background: #000;
-        }
+/* ─ HEADER ─ */
+.header { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.1); position:relative; }
+.logo { font-size:32px; font-weight:900; text-align:center; letter-spacing:-1px; }
+.logo-llutid { background:linear-gradient(135deg,#2962FF 0%,#1E88E5 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.logo-plus { color:#fff; font-weight:900; font-size:36px; }
 
-        .header {
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .logo { font-size: 32px; font-weight: 900; text-align: center; letter-spacing: -1px; }
-        .logo-llutid {
-            background: linear-gradient(135deg, #2962FF 0%, #1E88E5 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .logo-plus { color: #fff; font-weight: 900; font-size: 36px; }
+/* ─ BALL BUTTON — imagen circular con fondo blanco ─ */
+.ball-btn {
+  position:absolute; right:20px; top:50%; transform:translateY(-50%);
+  background:none; border:none; cursor:pointer; padding:4px;
+  display:none;
+}
+.ball-btn.visible { display:block; }
+.ball-wrap { position:relative; display:inline-block; }
+.ball-circle {
+  width:42px; height:42px; border-radius:50%;
+  background:#fff; border:2px solid #e0e0e0;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+.ball-circle img {
+  width:34px; height:34px; object-fit:contain;
+}
+.ball-circle-default {
+  width:34px; height:34px;
+}
+.ball-notif {
+  position:absolute; top:-3px; right:-3px;
+  width:11px; height:11px; background:#e53935; border-radius:50%;
+  border:2px solid #000;
+  animation:notifPulse 1.5s infinite;
+}
+@keyframes notifPulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,.8);}
+  50%{box-shadow:0 0 0 6px rgba(229,57,53,0);}
+}
 
-        .current-channel {
-            padding: 10px 20px;
-            font-weight: 700;
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .channel-info { display: flex; align-items: center; gap: 8px; }
-        .live-badge {
-            background: #e53935;
-            color: #fff;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
+/* ─ MATCH PICKER ─ */
+.match-picker {
+  position:fixed; inset:0; background:rgba(0,0,0,.75);
+  display:none; align-items:flex-end; justify-content:center; z-index:300;
+  backdrop-filter:blur(6px);
+}
+.match-picker.open { display:flex; }
+.match-sheet {
+  background:#111; border:1px solid rgba(255,255,255,.12);
+  border-radius:20px 20px 0 0; padding:24px; width:100%;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.match-sheet h3 { font-size:16px; font-weight:800; margin-bottom:16px; text-align:center; }
+.match-option {
+  background:#0d0d0d; border:1px solid rgba(255,255,255,.08);
+  border-radius:12px; padding:16px; margin-bottom:10px; cursor:pointer;
+  transition:background .2s;
+}
+.match-option:hover { background:#161616; }
+.match-option .mo-label { font-size:15px; font-weight:700; }
+.match-option .mo-ch { font-size:12px; color:#555; margin-top:4px; }
+.match-cancel { width:100%; background:rgba(255,255,255,.05); border:none; border-radius:12px;
+  padding:14px; color:#888; font-size:14px; font-weight:600; cursor:pointer; margin-top:4px; }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%;
-            background: #000;
-        }
-        .video-container video {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; border: none;
-        }
-        .placeholder {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); text-align: center;
-        }
-        .placeholder-icon { font-size: 48px; opacity: 0.2; margin-bottom: 10px; }
-        .placeholder-text { font-size: 13px; color: #555; }
-        .loading-spinner {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 44px; height: 44px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top: 3px solid #fff;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-        }
-        @keyframes spin {
-            0%   { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
+/* ─ BALL ANIMATION ─ */
+@keyframes ballFly {
+  0%{transform:scale(1) translateY(0); opacity:1;}
+  100%{transform:scale(0.3) translateY(200px); opacity:0;}
+}
+.ball-flying { animation:ballFly .5s ease forwards; }
 
-        .filters {
-            display: flex; gap: 8px;
-            padding: 10px 16px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .filters::-webkit-scrollbar { display: none; }
-        .filter-btn {
-            padding: 8px 16px;
-            background: #111;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            color: #888;
-            font-size: 12px; font-weight: 600;
-            cursor: pointer; white-space: nowrap;
-            transition: all 0.25s; flex-shrink: 0;
-        }
-        .filter-btn.active { background: #fff; color: #000; border-color: #fff; }
+/* ─ CURRENT CHANNEL ─ */
+.current-channel {
+  padding:10px 20px; font-weight:700; font-size:15px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.channel-info { display:flex; align-items:center; gap:8px; }
+.live-badge { background:#e53935; color:#fff; padding:3px 8px; border-radius:4px; font-size:10px; font-weight:900; letter-spacing:1px; }
 
-        .category-header {
-            padding: 16px 20px 12px;
-            font-size: 17px; font-weight: 800;
-            color: #fff;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .channel-item {
-            display: flex; align-items: center;
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .channel-item:hover  { background: #0d0d0d; }
-        .channel-item.active { background: #111; border-left: 3px solid #2962FF; }
-        .channel-number {
-            font-size: 15px; font-weight: 800;
-            color: #444; min-width: 44px; margin-right: 12px;
-        }
-        .channel-item.active .channel-number { color: #fff; }
-        .channel-icon {
-            width: 46px; height: 46px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px;
-            margin-right: 14px;
-            background: #0d0d0d;
-            border-radius: 10px;
-            overflow: hidden; flex-shrink: 0;
-        }
-        .channel-icon img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
-        .channel-details { flex: 1; min-width: 0; }
-        .channel-name {
-            font-size: 15px; font-weight: 700; color: #fff;
-            margin-bottom: 3px;
-            display: flex; align-items: center; gap: 6px;
-        }
-        .language-badge {
-            background: rgba(255,255,255,0.08); color: #666;
-            padding: 1px 6px; border-radius: 3px;
-            font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
-            text-transform: uppercase; flex-shrink: 0;
-        }
-        .channel-description { font-size: 12px; color: #555; }
-        .channel-arrow { color: #2a2a2a; font-size: 18px; margin-left: 10px; }
-        .channel-item.active .channel-arrow { color: #2962FF; }
+/* ─ PLAYER ─ */
+.video-container { position:relative; width:100%; padding-bottom:56.25%; background:#000; }
+.video-container video { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+.placeholder { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+.placeholder-icon { font-size:48px; opacity:.2; margin-bottom:10px; }
+.placeholder-text { font-size:13px; color:#555; }
+.loading-spinner {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:44px; height:44px;
+  border:3px solid rgba(255,255,255,.1); border-top:3px solid #fff;
+  border-radius:50%; animation:spin .9s linear infinite;
+}
+@keyframes spin { 0%{transform:translate(-50%,-50%) rotate(0)} 100%{transform:translate(-50%,-50%) rotate(360deg)} }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; right: 0; height: 75px;
-            background: rgba(10,10,12,0.97);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            z-index: 200;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: #666; text-decoration: none; font-size: 10px; font-weight: 500;
-            transition: all 0.25s; opacity: 0.7;
-            background: none; border: none; cursor: pointer;
-        }
-        .nav-item.active { color: #fff; opacity: 1; transform: translateY(-2px); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
-        .nav-item.active svg { color: #2962FF; filter: drop-shadow(0 0 6px rgba(41,98,255,0.5)); }
+/* ─ FILTERS ─ */
+.filters {
+  display:flex; gap:8px; padding:10px 16px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.filters::-webkit-scrollbar { display:none; }
+.filter-btn {
+  padding:8px 16px; background:#111; border:1px solid rgba(255,255,255,.1);
+  border-radius:20px; color:#888; font-size:12px; font-weight:600;
+  cursor:pointer; white-space:nowrap; transition:all .25s; flex-shrink:0;
+  display:flex; align-items:center; gap:6px;
+}
+.filter-btn.active { background:#fff; color:#000; border-color:#fff; }
+.filter-btn img { width:14px; height:14px; object-fit:contain; }
 
-        .list-end { height: 16px; }
-    </style>
+/* ─ CATEGORY HEADER ─ */
+.category-header {
+  padding:16px 20px 12px; font-size:17px; font-weight:800; color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex; align-items:center; gap:10px;
+}
+.cat-logo { width:22px; height:22px; object-fit:contain; }
+
+/* ─ CHANNEL ITEM ─ */
+.channel-item {
+  display:flex; align-items:center; padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,.05); cursor:pointer; transition:background .15s;
+}
+.channel-item:hover { background:#0d0d0d; }
+.channel-item.active { background:#111; border-left:3px solid #2962FF; }
+.channel-number { font-size:15px; font-weight:800; color:#444; min-width:44px; margin-right:12px; }
+.channel-item.active .channel-number { color:#fff; }
+.channel-icon {
+  width:46px; height:46px; display:flex; align-items:center; justify-content:center;
+  font-size:26px; margin-right:14px; background:#0d0d0d;
+  border-radius:10px; overflow:hidden; flex-shrink:0;
+}
+.channel-icon img { width:100%; height:100%; object-fit:contain; padding:5px; }
+.channel-details { flex:1; min-width:0; }
+.channel-name { font-size:15px; font-weight:700; color:#fff; margin-bottom:3px; display:flex; align-items:center; gap:6px; }
+.language-badge { background:rgba(255,255,255,.08); color:#666; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; flex-shrink:0; }
+.channel-description { font-size:12px; color:#555; }
+.channel-arrow { color:#2a2a2a; font-size:18px; margin-left:10px; }
+.channel-item.active .channel-arrow { color:#2962FF; }
+
+/* ─ FAVORITE HEART ─ */
+.fav-btn {
+  width:36px; height:36px; background:none; border:none;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; margin-left:8px; padding:6px; border-radius:50%;
+  transition:background .2s; flex-shrink:0; position:relative; z-index:10;
+}
+.fav-btn:active { background:rgba(229,57,53,.15); }
+.fav-btn svg { width:18px; height:18px; pointer-events:none; }
+.fav-btn.liked svg { fill:#e53935; stroke:#e53935; }
+.fav-btn:not(.liked) svg { fill:none; stroke:#444; }
+
+/* ─ SCHEDULE PILL ─ */
+.sched-pill {
+  display:inline-block; background:rgba(41,98,255,.15);
+  color:#5B8FFF; font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:12px; margin-left:6px;
+}
+
+/* ─ BOTTOM NAV ─ */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0; height:75px;
+  background:rgba(10,10,12,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  display:flex; justify-content:space-around; align-items:center;
+  border-top:1px solid rgba(255,255,255,.08); z-index:200;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item {
+  display:flex; flex-direction:column; align-items:center;
+  color:#666; text-decoration:none; font-size:10px; font-weight:500;
+  transition:all .25s; opacity:.7; background:none; border:none; cursor:pointer;
+}
+.nav-item.active { color:#fff; opacity:1; transform:translateY(-2px); }
+.nav-item svg { width:24px; height:24px; margin-bottom:4px; }
+.nav-item.active svg { color:#2962FF; filter:drop-shadow(0 0 6px rgba(41,98,255,.5)); }
+
+.list-end { height:16px; }
+</style>
 </head>
 <body>
 
 <div class="top-fixed" id="topFixed">
-
-    <div class="header">
-        <div class="logo">
-            <span class="logo-llutid">llutid</span><span class="logo-plus">+</span>
+  <div class="header">
+    <div class="logo">
+      <span class="logo-llutid">llutid</span><span class="logo-plus">+</span>
+    </div>
+    <!-- Balón: oculto hasta Firebase -->
+    <button class="ball-btn" id="ballBtn" id="ballBtnOuter">
+      <div class="ball-wrap" id="ballWrap">
+        <div class="ball-circle" id="ballCircle">
+          <!-- Imagen dinámica desde Firebase (ballImageUrl) -->
+          <svg class="ball-circle-default" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" id="ballDefaultSvg">
+            <circle cx="50" cy="50" r="48" fill="#222" stroke="#333" stroke-width="2"/>
+            <polygon points="50,20 62,38 58,58 42,58 38,38" fill="#fff"/>
+            <polygon points="20,35 38,38 42,58 26,68 14,52" fill="#fff"/>
+            <polygon points="80,35 62,38 58,58 74,68 86,52" fill="#fff"/>
+            <polygon points="50,82 42,58 58,58 68,74 56,84" fill="#fff"/>
+            <polygon points="32,82 26,68 42,58 50,82 36,88" fill="#fff"/>
+            <polygon points="68,82 74,68 58,58 50,82 64,88" fill="#fff"/>
+          </svg>
+          <img id="ballImg" src="" alt="" style="display:none;width:34px;height:34px;object-fit:contain;">
         </div>
-    </div>
+        <div class="ball-notif" id="ballNotif" style="display:none;"></div>
+      </div>
+    </button>
+  </div>
 
-    <div class="current-channel" id="currentChannel">
-        <span class="channel-info">📺 Selecciona un canal</span>
-    </div>
+  <div class="current-channel" id="currentChannel">
+    <span class="channel-info">📺 Selecciona un canal</span>
+  </div>
 
-    <div class="video-container" id="playerContainer">
-        <div class="placeholder">
-            <div class="placeholder-icon">📺</div>
-            <div class="placeholder-text">Selecciona un canal para empezar</div>
-        </div>
+  <div class="video-container" id="playerContainer">
+    <div class="placeholder">
+      <div class="placeholder-icon">📺</div>
+      <div class="placeholder-text">Selecciona un canal para empezar</div>
     </div>
+  </div>
 
-    <div class="filters">
-        <button class="filter-btn active" onclick="filterChannels('all',this)">Todos</button>
-        <button class="filter-btn" onclick="filterChannels('colombia',this)">🇨🇴 Colombia</button>
-        <button class="filter-btn" onclick="filterChannels('deportes',this)">⚽ Deportes</button>
-        <button class="filter-btn" onclick="filterChannels('noticias',this)">📰 Noticias</button>
-        <button class="filter-btn" onclick="filterChannels('entretenimiento',this)">🎬 Entretenimiento</button>
-        <button class="filter-btn" onclick="filterChannels('musica',this)">🎵 Música</button>
-    </div>
-
+  <div class="filters" id="filtersBar">
+    <button class="filter-btn active" id="filterAll">Todos</button>
+  </div>
 </div>
 
 <div class="scroll-area" id="scrollArea">
-
-    <!-- ── COLOMBIANOS ─────────────────────────── -->
-    <div class="category" data-category="colombia">
-        <div class="category-header">🇨🇴 Canales Colombianos</div>
-
-        <div class="channel-item" onclick="playChannel(this,'Canal 1','https://mdstrm.com/live-stream-playlist/5a5e1c2568b1910913db5fe2.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png','Televisión nacional')">
-            <div class="channel-number">001</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Canal_1_colombia.png" alt="" onerror="this.parentElement.innerHTML='1️⃣'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Canal 1</div>
-                <div class="channel-description">Televisión nacional</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Señal Colombia','https://streaming.rtvc.gov.co/TV_Senal_Colombia_live/smil:live.smil/playlist.m3u8','https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB','Canal cultural')">
-            <div class="channel-number">002</div>
-            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/EnLecLVpSTkMnX_H6wl7j-6EkDi3mTbGN3wjvzGgim2a5AiL2bUTWWpB--W9Xir10UJB" alt="" onerror="this.parentElement.innerHTML='🇨🇴'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Señal Colombia</div>
-                <div class="channel-description">Canal cultural</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Canal Institucional','https://streaming.rtvc.gov.co/TV_CanalInstitucional_live/smil:live.smil/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png','Canal del Estado')">
-            <div class="channel-number">003</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Se%C3%B1al_Institucional_logo_4.svg/1280px-Se%C3%B1al_Institucional_logo_4.svg.png" alt="" onerror="this.parentElement.innerHTML='🏛️'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Canal Institucional</div>
-                <div class="channel-description">Canal del Estado</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Teleritmo','https://mdstrm.com/live-stream-playlist/57b4dc126338448314449d0c.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png','Música tropical')">
-            <div class="channel-number">004</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Teleritmo_2022.svg/1280px-Teleritmo_2022.svg.png" alt="" onerror="this.parentElement.innerHTML='💃'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Teleritmo</div>
-                <div class="channel-description">Música tropical</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Vive TV Colombia','http://192.144.113.132:1935/live/ViveTV/playlist.m3u8','https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png','Entretenimiento local')">
-            <div class="channel-number">005</div>
-            <div class="channel-icon"><img src="https://static.wixstatic.com/media/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png/v1/fit/w_2500,h_1330,al_c/178329_1bec007cc5914e4497450b9ba5befda9~mv2.png" alt="" onerror="this.parentElement.innerHTML='🎭'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Vive TV Colombia</div>
-                <div class="channel-description">Entretenimiento local</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Canal Cali TV','https://5ab772334c39c.streamlock.net/live-calitv/_definst_/calitv1/playlist.m3u8','https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png','Televisión regional')">
-            <div class="channel-number">006</div>
-            <div class="channel-icon"><img src="https://www.canalcalitv.com/wp-content/uploads/2015/11/Logo_CaliTV2.png" alt="" onerror="this.parentElement.innerHTML='🌴'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Canal Cali TV</div>
-                <div class="channel-description">Televisión regional</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Noticias Caracol','https://mdstrm.com/live-stream-playlist/58dc3d471cbe05ff3c8e463e.m3u8','https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png','Noticias Colombia')">
-            <div class="channel-number">007</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Noticias_Caracol_2021.svg/1280px-Noticias_Caracol_2021.svg.png" alt="" onerror="this.parentElement.innerHTML='📺'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Noticias Caracol</div>
-                <div class="channel-description">Noticias Colombia</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <!-- Blu Radio (nuevo) -->
-        <div class="channel-item" onclick="playChannel(this,'Blu Radio','https://mdstrm.com/live-stream-playlist/58d1921a72e2b22e2905e493.m3u8','https://play-lh.googleusercontent.com/Cq9JyDoNY6H_Qwqfd6ELwbUGYP3QOK3i-oBcCKvYCe51kHaLEpvz4p-gxv-MMaO3pHk','Radio y noticias en vivo')">
-            <div class="channel-number">008</div>
-            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/Cq9JyDoNY6H_Qwqfd6ELwbUGYP3QOK3i-oBcCKvYCe51kHaLEpvz4p-gxv-MMaO3pHk" alt="" onerror="this.parentElement.innerHTML='🔵'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Blu Radio</div>
-                <div class="channel-description">Radio y noticias en vivo</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <!-- Cristo Visión (nuevo) -->
-        <div class="channel-item" onclick="playChannel(this,'Cristo Visión','https://5fc584f3f19c9.streamlock.net/cristovision/videocristovision/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/7/78/Cristovisi%C3%B3n_Logo.png','Canal cristiano')">
-            <div class="channel-number">009</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Cristovisi%C3%B3n_Logo.png" alt="" onerror="this.parentElement.innerHTML='✝️'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Cristo Visión</div>
-                <div class="channel-description">Canal cristiano</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <!-- La Kalle (nuevo) -->
-        <div class="channel-item" onclick="playChannel(this,'La Kalle','https://mdstrm.com/live-stream-playlist/58d191f07290fbb058025843.m3u8','https://play-lh.googleusercontent.com/WHwToQxa3xfF1hYl-Q3_BtcXVCDqzjxM5_0GIfATzvzANmnCo-U4MExY31y95Zq12GZ9=w240-h480-rw','Radio urbana colombiana')">
-            <div class="channel-number">010</div>
-            <div class="channel-icon"><img src="https://play-lh.googleusercontent.com/WHwToQxa3xfF1hYl-Q3_BtcXVCDqzjxM5_0GIfATzvzANmnCo-U4MExY31y95Zq12GZ9=w240-h480-rw" alt="" onerror="this.parentElement.innerHTML='🎙️'"></div>
-            <div class="channel-details">
-                <div class="channel-name">La Kalle</div>
-                <div class="channel-description">Radio urbana colombiana</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <!-- Red+ Noticias (nuevo) -->
-        <div class="channel-item" onclick="playChannel(this,'Red+ Noticias','https://inforedvos.lcdn.claro.net.co/Content/HLS_HLS_DIR/Live/channel(REDMASHDWEB)/master.m3u8','https://static.wikia.nocookie.net/logopedia/images/6/68/Red_Noticias2019.png/revision/latest?cb=20210424015309&path-prefix=es','Noticias Colombia')">
-            <div class="channel-number">011</div>
-            <div class="channel-icon"><img src="https://static.wikia.nocookie.net/logopedia/images/6/68/Red_Noticias2019.png/revision/latest?cb=20210424015309&path-prefix=es" alt="" onerror="this.parentElement.innerHTML='📡'"></div>
-            <div class="channel-details">
-                <div class="channel-name">Red+ Noticias</div>
-                <div class="channel-description">Noticias Colombia</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <!-- RCN Más (nuevo) -->
-        <div class="channel-item" onclick="playChannel(this,'RCN Más','https://rcntv-rcnmas-1-us.plex.wurl.tv/playlist.m3u8','https://i.scdn.co/image/ab6761610000e5eb2d938f9f831586b835bab49a','Entretenimiento RCN')">
-            <div class="channel-number">012</div>
-            <div class="channel-icon"><img src="https://i.scdn.co/image/ab6761610000e5eb2d938f9f831586b835bab49a" alt="" onerror="this.parentElement.innerHTML='📺'"></div>
-            <div class="channel-details">
-                <div class="channel-name">RCN Más</div>
-                <div class="channel-description">Entretenimiento RCN</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-    </div>
-
-    <!-- ── DEPORTES ──────────────────────────────── -->
-    <div class="category" data-category="deportes">
-        <div class="category-header">⚽ Deportes</div>
-
-        <div class="channel-item" onclick="playChannel(this,'ESPN','https://fl2.moveonjoy.com/ESPN_2/index.m3u8','https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png','Deportes en vivo')">
-            <div class="channel-number">020</div>
-            <div class="channel-icon"><img src="https://static.vecteezy.com/system/resources/previews/027/127/453/non_2x/espn-logo-espn-icon-transparent-free-png.png" alt="" onerror="this.parentElement.innerHTML='🏆'"></div>
-            <div class="channel-details">
-                <div class="channel-name">ESPN <span class="language-badge">Inglés</span></div>
-                <div class="channel-description">Deportes en vivo</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-    </div>
-
-    <!-- ── NOTICIAS ──────────────────────────────── -->
-    <div class="category" data-category="noticias">
-        <div class="category-header">📰 Noticias</div>
-
-        <div class="channel-item" onclick="playChannel(this,'DW Español','https://dwamdstream104.akamaized.net/hls/live/2015530/dwstream104/index.m3u8','https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg','Noticias internacionales')">
-            <div class="channel-number">030</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/7/75/Deutsche_Welle_symbol_2012.svg" alt="" onerror="this.parentElement.innerHTML='🌍'"></div>
-            <div class="channel-details">
-                <div class="channel-name">DW Español</div>
-                <div class="channel-description">Noticias internacionales</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'RT Español','https://rt-esp.rttv.com/live/rtesp/playlist.m3u8','https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg','Noticias desde Rusia')">
-            <div class="channel-number">031</div>
-            <div class="channel-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a0/Russia-today-logo.svg" alt="" onerror="this.parentElement.innerHTML='🌐'"></div>
-            <div class="channel-details">
-                <div class="channel-name">RT Español</div>
-                <div class="channel-description">Noticias desde Rusia</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-    </div>
-
-    <!-- ── ENTRETENIMIENTO ───────────────────────── -->
-    <div class="category" data-category="entretenimiento">
-        <div class="category-header">🎬 Entretenimiento</div>
-
-        <div class="channel-item" onclick="playChannel(this,'Runtime Movies','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2153','','Películas gratis')">
-            <div class="channel-number">040</div>
-            <div class="channel-icon" style="font-size:26px;">🎥</div>
-            <div class="channel-details">
-                <div class="channel-name">Runtime Movies <span class="language-badge">Inglés</span></div>
-                <div class="channel-description">Películas gratis</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-        <div class="channel-item" onclick="playChannel(this,'Runtime Acción','https://stream.ads.ottera.tv/playlist.m3u8?network_id=2552','','Acción pura')">
-            <div class="channel-number">041</div>
-            <div class="channel-icon" style="font-size:26px;">💥</div>
-            <div class="channel-details">
-                <div class="channel-name">Runtime Acción <span class="language-badge">Inglés</span></div>
-                <div class="channel-description">Acción pura</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-    </div>
-
-    <!-- ── MÚSICA ────────────────────────────────── -->
-    <div class="category" data-category="musica">
-        <div class="category-header">🎵 Música</div>
-
-        <div class="channel-item" onclick="playChannel(this,'Bandamax','https://stream.ads.ottera.tv/playlist.m3u8?network_id=848','','Música regional mexicana')">
-            <div class="channel-number">050</div>
-            <div class="channel-icon" style="font-size:26px;">🎺</div>
-            <div class="channel-details">
-                <div class="channel-name">Bandamax</div>
-                <div class="channel-description">Música regional mexicana</div>
-            </div>
-            <div class="channel-arrow">›</div>
-        </div>
-
-    </div>
-
-    <div class="list-end"></div>
+  <div id="channelList">
+    <div style="padding:40px;text-align:center;color:#444;font-size:13px;">Cargando canales…</div>
+  </div>
+  <div class="list-end"></div>
 </div>
 
+<!-- Bottom nav -->
 <nav class="bottom-nav">
-    <a href="home.html" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-        <span>Home</span>
-    </a>
-    <button class="nav-item" onclick="location.href='proximasenlanzamiento.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        <span>Próximos</span>
-    </button>
-    <button class="nav-item active" onclick="location.href='en-vivo.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="2"></circle>
-            <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
-        </svg>
-        <span>En Vivo</span>
-    </button>
-    <button class="nav-item" onclick="location.href='home.html'">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <span>Buscador</span>
-    </button>
+  <a href="home.html" class="nav-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </a>
+  <button class="nav-item" onclick="location.href='proximasenlanzamiento.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Próximos</span>
+  </button>
+  <button class="nav-item active" onclick="location.href='en-vivo.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/></svg>
+    <span>En Vivo</span>
+  </button>
+  <button class="nav-item" onclick="location.href='home.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span>Buscador</span>
+  </button>
 </nav>
 
+<!-- Match picker sheet -->
+<div class="match-picker" id="matchPicker">
+  <div class="match-sheet">
+    <h3>Partido en vivo — ¿Cuál quieres ver?</h3>
+    <div id="matchOptions"></div>
+    <button class="match-cancel" id="matchCancel">Cancelar</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-    let hls = null;
-    let isDragging = false;
-    let touchStartY = 0;
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, onValue, get, set, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-    function adjustLayout() {
-        const h = document.getElementById('topFixed').offsetHeight;
-        document.getElementById('scrollArea').style.top = h + 'px';
+const firebaseConfig = {
+  apiKey:"AIzaSyBUaTunBig1_8LQgQmCND4Sm6m_s6E0FSs",
+  authDomain:"llutid-18d26.firebaseapp.com",
+  databaseURL:"https://llutid-18d26-default-rtdb.firebaseio.com",
+  projectId:"llutid-18d26",
+  storageBucket:"llutid-18d26.firebasestorage.app",
+  messagingSenderId:"900505351564",
+  appId:"1:900505351564:web:e71805939e3488170652a9",
+  measurementId:"G-VL8X5NWH1S"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+let userId = null;
+let hls = null;
+let isDragging = false, touchStartY = 0;
+let _channels = [], _categories = [], _likes = {}, _ball = {};
+let _activeChannelId = null;
+let _currentFilter = 'all';
+let _authReady = false;
+
+// ─ Anonymous auth ─
+// FIX: Ensure auth completes before likes can be written
+async function initAuth() {
+  try {
+    const cred = await signInAnonymously(auth);
+    userId = cred.user.uid;
+    _authReady = true;
+    loadUserLikes();
+  } catch(e) {
+    console.warn('Auth anónimo falló:', e);
+  }
+}
+initAuth();
+
+// ─ Load categories ─
+onValue(ref(db,'categories'), snap => {
+  const data = snap.val()||{};
+  _categories = Object.entries(data).map(([id,v])=>({id,...v})).sort((a,b)=>(a.order||99)-(b.order||99));
+  renderFilters();
+  renderChannelList();
+});
+
+// ─ Load channels ─
+onValue(ref(db,'channels'), snap => {
+  const data = snap.val()||{};
+  _channels = Object.entries(data).map(([id,v])=>({id,...v}))
+    .filter(c=>c.visible!==false)
+    .sort((a,b)=>(a.num||0)-(b.num||0));
+  renderChannelList();
+  setTimeout(()=>{
+    if(_channels.length && !_activeChannelId){
+      playChannel(_channels[0]);
     }
+  }, 400);
+});
 
-    window.addEventListener('load', adjustLayout);
-    window.addEventListener('resize', adjustLayout);
+// ─ Load ball ─
+onValue(ref(db,'ball'), snap => {
+  _ball = snap.val()||{};
+  updateBallUI();
+});
 
-    function playChannel(el, name, url, logoUrl, description) {
-        if (isDragging) return;
-
-        const playerContainer = document.getElementById('playerContainer');
-        const currentChannelDiv = document.getElementById('currentChannel');
-
-        const headerIcon = logoUrl
-            ? `<img src="${logoUrl}" style="width:26px;height:26px;object-fit:contain;border-radius:4px;background:#111;" onerror="this.style.display='none'">`
-            : '📺';
-
-        currentChannelDiv.innerHTML = `
-            <span class="channel-info">${headerIcon} ${name}</span>
-            <span class="live-badge">● LIVE</span>
-        `;
-
-        document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-
-        playerContainer.innerHTML = '<div class="loading-spinner"></div>';
-        setTimeout(adjustLayout, 50);
-
-        setTimeout(() => {
-            playerContainer.innerHTML = '';
-            const video = document.createElement('video');
-            video.controls = true;
-            video.autoplay = true;
-            video.playsInline = true;
-            video.style.cssText = 'width:100%;height:100%;position:absolute;top:0;left:0;background:#000;';
-            playerContainer.appendChild(video);
-
-            if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                video.src = url;
-                video.play().catch(() => {});
-            } else if (Hls.isSupported()) {
-                if (hls) hls.destroy();
-                hls = new Hls({ enableWorker: true, lowLatencyMode: true, maxBufferLength: 30 });
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-                hls.on(Hls.Events.ERROR, (ev, data) => {
-                    if (data.fatal) {
-                        playerContainer.innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">No se pudo cargar el canal</div></div>`;
-                    }
-                });
-            } else {
-                playerContainer.innerHTML = `<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">Navegador no compatible</div></div>`;
-            }
-            setTimeout(adjustLayout, 100);
-        }, 200);
-    }
-
-    function filterChannels(type, btn) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.category').forEach(cat => {
-            cat.style.display = (type === 'all' || cat.dataset.category === type) ? 'block' : 'none';
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        adjustLayout();
-        setTimeout(() => {
-            const first = document.querySelector('.channel-item');
-            if (first) first.click();
-        }, 300);
-
-        document.querySelectorAll('.channel-item').forEach(card => {
-            card.addEventListener('touchstart', e => {
-                touchStartY = e.touches[0].clientY;
-                isDragging = false;
-            }, { passive: true });
-            card.addEventListener('touchmove', e => {
-                if (Math.abs(e.touches[0].clientY - touchStartY) > 8) isDragging = true;
-            }, { passive: true });
-            card.addEventListener('touchend', e => {
-                if (!isDragging) { e.preventDefault(); card.click(); }
-                setTimeout(() => isDragging = false, 100);
-            }, { passive: false });
-        });
+// ─ Load user likes ─
+function loadUserLikes() {
+  if(!userId) return;
+  onValue(ref(db,'likes'), snap => {
+    const data = snap.val()||{};
+    _likes = {};
+    Object.entries(data).forEach(([chId, users])=>{
+      if(users && users[userId]) _likes[chId] = true;
     });
+    // Update only heart buttons without re-rendering the whole list
+    document.querySelectorAll('.fav-btn').forEach(btn => {
+      const chId = btn.dataset.chid;
+      if(chId) btn.classList.toggle('liked', !!_likes[chId]);
+    });
+  });
+}
+
+// ─ BALL UI ─
+function updateBallUI() {
+  const btn = document.getElementById('ballBtn');
+  const notif = document.getElementById('ballNotif');
+  const ballImg = document.getElementById('ballImg');
+  const ballDefaultSvg = document.getElementById('ballDefaultSvg');
+  const now = Date.now();
+
+  // Update ball image if URL provided
+  const imgUrl = _ball.imageUrl||'';
+  if(imgUrl) {
+    ballImg.src = imgUrl;
+    ballImg.style.display = 'block';
+    ballDefaultSvg.style.display = 'none';
+  } else {
+    ballImg.style.display = 'none';
+    ballDefaultSvg.style.display = 'block';
+  }
+
+  let active = false;
+  if(_ball.status==='on') active = true;
+  else if(_ball.status==='scheduled'){
+    const s = _ball.start ? new Date(_ball.start).getTime() : 0;
+    const e = _ball.end ? new Date(_ball.end).getTime() : Infinity;
+    active = (now>=s && now<=e);
+  }
+  btn.classList.toggle('visible', active);
+  notif.style.display = active ? 'block' : 'none';
+}
+
+// ─ BALL TAP ─
+document.getElementById('ballBtn').addEventListener('click', () => {
+  const m1 = _ball.match1||'';
+  const m2 = _ball.match2||'';
+  if(m1 && m2) {
+    const opts = document.getElementById('matchOptions');
+    const matches = [
+      {label:m1, ch:_ball.ch1||_ball.channel1},
+      {label:m2, ch:_ball.ch2}
+    ].filter(x=>x.label);
+    opts.innerHTML = matches.map(x=>`
+      <div class="match-option" data-ch="${x.ch}">
+        <div class="mo-label">${x.label}</div>
+        <div class="mo-ch">${getChName(x.ch)}</div>
+      </div>`).join('');
+    opts.querySelectorAll('.match-option').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        closeMatchPicker();
+        animateBallToChannel(el.dataset.ch);
+      });
+    });
+    document.getElementById('matchPicker').classList.add('open');
+  } else {
+    animateBallToChannel(_ball.ch1||_ball.channel1);
+  }
+});
+
+document.getElementById('matchCancel').addEventListener('click', closeMatchPicker);
+
+function closeMatchPicker() {
+  document.getElementById('matchPicker').classList.remove('open');
+}
+
+function getChName(chId) {
+  const c = _channels.find(x=>x.id===chId);
+  return c ? c.name : '—';
+}
+
+function animateBallToChannel(chId) {
+  const wrap = document.getElementById('ballWrap');
+  wrap.classList.add('ball-flying');
+  setTimeout(()=>{
+    wrap.classList.remove('ball-flying');
+    const el = document.querySelector(`.channel-item[data-chid="${chId}"]`);
+    const ch = _channels.find(x=>x.id===chId);
+    if(el){
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(()=>{ playChannel(ch); },400);
+    } else if(ch) {
+      playChannel(ch);
+    }
+  },550);
+}
+
+// ─ FILTERS ─
+function renderFilters() {
+  const bar = document.getElementById('filtersBar');
+  bar.innerHTML = `<button class="filter-btn ${_currentFilter==='all'?'active':''}" data-filter="all">Todos</button>`
+    + _categories.map(c=>{
+        // Solo logo imagen, SIN emoji en el botón
+        const icon = c.logo
+          ? `<img src="${c.logo}" alt="" onerror="this.style.display='none'">`
+          : '';
+        return `<button class="filter-btn ${_currentFilter===c.id?'active':''}" data-filter="${c.id}">${icon}${c.name||c.id}</button>`;
+      }).join('');
+
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _currentFilter = btn.dataset.filter;
+      bar.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderChannelList();
+    });
+  });
+}
+
+// ─ CHANNEL LIST ─
+function renderChannelList() {
+  const container = document.getElementById('channelList');
+  const cats = _currentFilter==='all' ? _categories : _categories.filter(c=>c.id===_currentFilter);
+  let html = '';
+
+  for(const cat of cats){
+    const chs = _channels.filter(c=>c.category===cat.id);
+    if(!chs.length) continue;
+
+    // Solo logo imagen en header, SIN emoji
+    const catLogoHtml = cat.logo
+      ? `<img src="${cat.logo}" class="cat-logo" onerror="this.style.display='none'">`
+      : '';
+    html += `<div class="category" data-category="${cat.id}">
+      <div class="category-header">${catLogoHtml}${cat.name||cat.id}</div>`;
+
+    for(const c of chs){
+      const isActive = c.id===_activeChannelId;
+      const isLiked = !!_likes[c.id];
+      html += `
+        <div class="channel-item${isActive?' active':''}" data-chid="${c.id}">
+          <div class="channel-number">${String(c.num||0).padStart(3,'0')}</div>
+          <div class="channel-icon">${c.logo?`<img src="${c.logo}" alt="" onerror="this.parentElement.innerHTML='📺'">`:'📺'}</div>
+          <div class="channel-details">
+            <div class="channel-name">${c.name||'Canal'}${c.lang?` <span class="language-badge">${c.lang}</span>`:''}</div>
+            <div class="channel-description" id="desc-${c.id}">${c.desc||''}</div>
+          </div>
+          <button class="fav-btn${isLiked?' liked':''}" data-chid="${c.id}" aria-label="Favorito">
+            <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <div class="channel-arrow">›</div>
+        </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Sin categoría
+  const noCat = _channels.filter(c=>!_categories.find(cat=>cat.id===c.category));
+  if(noCat.length && _currentFilter==='all'){
+    html += `<div class="category"><div class="category-header">Otros</div>`;
+    for(const c of noCat){
+      const isActive = c.id===_activeChannelId;
+      const isLiked = !!_likes[c.id];
+      html += `<div class="channel-item${isActive?' active':''}" data-chid="${c.id}">
+        <div class="channel-number">${String(c.num||0).padStart(3,'0')}</div>
+        <div class="channel-icon">${c.logo?`<img src="${c.logo}" alt="" onerror="this.parentElement.innerHTML='📺'">`:'📺'}</div>
+        <div class="channel-details"><div class="channel-name">${c.name}</div><div class="channel-description" id="desc-${c.id}">${c.desc||''}</div></div>
+        <button class="fav-btn${isLiked?' liked':''}" data-chid="${c.id}" aria-label="Favorito">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+        <div class="channel-arrow">›</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  container.innerHTML = html || '<div style="padding:40px;text-align:center;color:#444;font-size:13px;">Sin canales disponibles</div>';
+
+  // ─── Attach events AFTER innerHTML ───
+  // Channel tap — play
+  container.querySelectorAll('.channel-item').forEach(item => {
+    item.addEventListener('click', e => {
+      if(isDragging) return;
+      // If the click was on the fav button, ignore
+      if(e.target.closest('.fav-btn')) return;
+      const chId = item.dataset.chid;
+      const ch = _channels.find(x=>x.id===chId);
+      if(ch) playChannel(ch);
+    });
+  });
+
+  // FIX: Fav buttons — event delegation avoids onclick-in-module issues
+  container.querySelectorAll('.fav-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      const chId = btn.dataset.chid;
+      if(!chId) return;
+
+      // Wait for auth if not ready
+      if(!userId) {
+        try {
+          const cred = await signInAnonymously(auth);
+          userId = cred.user.uid;
+          _authReady = true;
+          loadUserLikes();
+        } catch(err) {
+          console.error('Auth falló:', err);
+          return;
+        }
+      }
+
+      const favRef = ref(db, `likes/${chId}/${userId}`);
+
+      // Optimistic UI update
+      const isNowLiked = !_likes[chId];
+      _likes[chId] = isNowLiked || undefined;
+      if(!isNowLiked) delete _likes[chId];
+      btn.classList.toggle('liked', isNowLiked);
+
+      // Write to Firebase
+      try {
+        if(isNowLiked) {
+          await set(favRef, true);
+        } else {
+          await remove(favRef);
+        }
+      } catch(err) {
+        // Rollback on error
+        _likes[chId] = !isNowLiked || undefined;
+        if(!(!isNowLiked)) delete _likes[chId];
+        btn.classList.toggle('liked', !isNowLiked);
+        console.error('Error guardando favorito:', err);
+      }
+    });
+  });
+
+  loadScheduleDescriptions();
+  adjustLayout();
+}
+
+// ─ Schedule descriptions ─
+function loadScheduleDescriptions() {
+  const today = new Date().toISOString().split('T')[0];
+  const nowTime = new Date().toTimeString().slice(0,5);
+  _channels.forEach(c=>{
+    get(ref(db,`schedule/${c.id}/${today}`)).then(snap=>{
+      const data = snap.val()||{};
+      const items = Object.values(data).filter(i=>i.start<=nowTime&&(!i.end||i.end>=nowTime));
+      const el = document.getElementById(`desc-${c.id}`);
+      if(el && items.length){
+        el.innerHTML = `${items[0].desc||items[0].name||''} <span class="sched-pill">EN VIVO</span>`;
+      }
+    });
+  });
+}
+
+// ─ Touch drag detection ─
+document.addEventListener('touchstart', e=>{
+  touchStartY = e.touches[0].clientY;
+  isDragging = false;
+}, {passive:true});
+document.addEventListener('touchmove', e=>{
+  if(Math.abs(e.touches[0].clientY-touchStartY)>8) isDragging=true;
+}, {passive:true});
+document.addEventListener('touchend', ()=>{
+  setTimeout(()=>isDragging=false, 100);
+}, {passive:true});
+
+// ─ PLAY ─
+function playChannel(ch) {
+  _activeChannelId = ch.id;
+  const playerContainer = document.getElementById('playerContainer');
+  const currentChannelDiv = document.getElementById('currentChannel');
+
+  currentChannelDiv.innerHTML = `
+    <span class="channel-info">
+      ${ch.logo?`<img src="${ch.logo}" style="width:26px;height:26px;object-fit:contain;border-radius:4px;background:#111;" onerror="this.style.display='none'">`:'📺'}
+      ${ch.name}
+    </span>
+    <span class="live-badge">● LIVE</span>`;
+
+  document.querySelectorAll('.channel-item').forEach(i=>{
+    i.classList.toggle('active', i.dataset.chid===ch.id);
+  });
+
+  playerContainer.innerHTML = '<div class="loading-spinner"></div>';
+  setTimeout(adjustLayout, 50);
+
+  setTimeout(()=>{
+    playerContainer.innerHTML='';
+    const video = document.createElement('video');
+    video.controls=true; video.autoplay=true; video.playsInline=true;
+    video.style.cssText='width:100%;height:100%;position:absolute;top:0;left:0;background:#000;';
+    playerContainer.appendChild(video);
+
+    if(video.canPlayType('application/vnd.apple.mpegurl')){
+      video.src=ch.url; video.play().catch(()=>{});
+    } else if(window.Hls && Hls.isSupported()){
+      if(hls) hls.destroy();
+      hls = new Hls({enableWorker:true,lowLatencyMode:true,maxBufferLength:30});
+      hls.loadSource(ch.url); hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,()=>video.play().catch(()=>{}));
+      hls.on(Hls.Events.ERROR,(_,data)=>{
+        if(data.fatal) playerContainer.innerHTML='<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">No se pudo cargar el canal</div></div>';
+      });
+    } else {
+      playerContainer.innerHTML='<div class="placeholder"><div class="placeholder-icon">⚠️</div><div class="placeholder-text">Navegador no compatible</div></div>';
+    }
+    setTimeout(adjustLayout,100);
+  },200);
+}
+
+function adjustLayout(){
+  const h = document.getElementById('topFixed').offsetHeight;
+  document.getElementById('scrollArea').style.top = h+'px';
+}
+
+window.addEventListener('load', adjustLayout);
+window.addEventListener('resize', adjustLayout);
+setInterval(loadScheduleDescriptions, 60000);
+setInterval(updateBallUI, 60000);
 </script>
 </body>
 </html>
