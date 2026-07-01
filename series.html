@@ -18,13 +18,13 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;min-height:100%;background:#000;color:#fff;overflow-x:hidden;font-family:'Netflix Sans','Roboto',sans-serif;}
 
-/* ── HEADER ── */
-header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+/* ── HEADER (efecto vidrio/transparente, con logo) ── */
+header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06);}
 .header-left{display:flex;align-items:center;}
 .header-back{color:#fff;font-size:26px;margin-right:14px;cursor:pointer;transition:opacity .2s;}
 .header-back:hover{opacity:.7}
-.header-logo{font-size:1.7rem;font-weight:800;color:#1e90ff;text-shadow:0 0 8px rgba(30,144,255,0.4);text-decoration:none;}
-.header-logo span{color:#fff;}
+.header-logo{display:flex;align-items:center;font-size:1.55rem;font-weight:800;color:#1e90ff;text-shadow:0 0 8px rgba(30,144,255,0.4);text-decoration:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.5px;}
+.header-logo span{color:#fff;font-family:'Barlow',sans-serif;font-weight:900;margin-left:1px;}
 .header-right i{color:#fff;font-size:22px;margin-left:18px;cursor:pointer;}
 
 /* ── HERO TRAILER ── */
@@ -35,10 +35,10 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 .video-background{position:absolute;inset:0;z-index:1;}
 .video-background iframe,.video-background video{width:100%;height:100%;border:none;display:block;position:absolute;inset:0;object-fit:cover;}
 .video-background img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.movie-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,rgba(0,0,0,0) 38%);z-index:3;pointer-events:none;}
-.movie-overlay-content{position:absolute;bottom:14px;left:16px;z-index:4;}
+.movie-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0) 40%);z-index:3;pointer-events:none;}
+.movie-overlay-content{position:absolute;bottom:14px;left:16px;z-index:4;display:flex;gap:6px;}
 .movie-badge{background:#1e90ff;color:#fff;padding:4px 10px;border-radius:4px;font-size:0.72rem;font-weight:700;display:inline-block;letter-spacing:.5px;}
-.badge-temp{background:#e50914;margin-left:6px;}
+.badge-temp{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);}
 .hero-mute-btn{position:absolute;bottom:14px;right:14px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.65);border:1.5px solid rgba(255,255,255,.3);color:#fff;display:none;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
 .hero-mute-btn:hover{background:rgba(255,255,255,.2);}
 .hero-mute-btn svg{width:15px;height:15px;}
@@ -73,27 +73,46 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 .info-details{font-size:.9rem;line-height:1.65;color:#a3a3a3;}
 .info-details strong{color:#fff;}
 
-/* ── TEMPORADAS TABS ── */
+/* ══ TEMPORADAS — selector compacto tipo Netflix/Apple TV ══ */
 .seasons-section{padding:0 20px 28px;}
-.seasons-title{font-size:1.1rem;font-weight:700;color:#1e90ff;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.season-tabs-wrap{display:flex;gap:8px;margin-bottom:18px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
-.season-tabs-wrap::-webkit-scrollbar{display:none;}
-.season-tab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.65);padding:7px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Netflix Sans',sans-serif;white-space:nowrap;transition:all .2s;flex-shrink:0;}
-.season-tab.active{background:#1e90ff;color:#fff;border-color:#1e90ff;box-shadow:0 4px 14px rgba(30,144,255,0.4);}
+.seasons-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.seasons-title{font-size:1.25rem;font-weight:800;color:#fff;}
+.season-select-wrap{position:relative;}
+.season-select-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;padding:8px 14px;border-radius:8px;font-size:.85rem;font-weight:700;font-family:'Netflix Sans',sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.season-select-btn i{font-size:.7rem;transition:transform .2s;color:#8ab8ff;}
+.season-select-btn.open i{transform:rotate(180deg);}
+.season-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#181818;border:1px solid rgba(255,255,255,.12);border-radius:10px;min-width:170px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.6);z-index:30;display:none;}
+.season-dropdown.open{display:block;}
+.season-dropdown button{display:block;width:100%;text-align:left;background:none;border:none;color:#ddd;padding:11px 16px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:'Netflix Sans',sans-serif;}
+.season-dropdown button:hover{background:rgba(255,255,255,.07);}
+.season-dropdown button.active{color:#1e90ff;}
 
-/* ── EPISODIOS GRID ── */
-.episodes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;}
-.episode-card{background:#141414;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid rgba(255,255,255,.07);transition:border-color .2s,transform .2s;}
-.episode-card:active{transform:scale(.95);}
-.episode-card:hover{border-color:#1e90ff;}
-.number-bg{height:105px;display:flex;justify-content:center;align-items:center;background:#0f0f0f;position:relative;overflow:hidden;}
-.big-number{font-family:'Montserrat',sans-serif;font-size:5rem;font-weight:900;background:linear-gradient(to bottom,#444,#111);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:.6;position:absolute;bottom:-18px;right:4px;}
-.play-overlay{position:absolute;color:#fff;font-size:1.7rem;opacity:.88;}
-.ep-progress-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.08);}
-.ep-progress-fill{height:100%;background:linear-gradient(90deg,#0055ff,#0099ff);border-radius:0;}
-.episode-info{padding:9px 11px 10px;}
-.ep-label{color:#1e90ff;font-size:.68rem;font-weight:700;letter-spacing:.3px;}
-.ep-name{font-size:.78rem;font-weight:600;margin-top:3px;color:#efefef;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* ══ EPISODIOS — filas horizontales, no grilla ══ */
+.episodes-list{display:flex;flex-direction:column;gap:6px;}
+.episode-row{display:flex;gap:12px;padding:10px 6px;border-radius:10px;cursor:pointer;transition:background .18s;align-items:flex-start;}
+.episode-row:active{background:rgba(255,255,255,.06);}
+.ep-thumb-wrap{position:relative;flex:0 0 128px;width:128px;height:72px;border-radius:8px;overflow:hidden;background:#111;}
+@media(min-width:420px){.ep-thumb-wrap{flex-basis:150px;width:150px;height:84px;}}
+.ep-thumb-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#0f0f0f;overflow:hidden;}
+.ep-thumb-fallback .big-number{font-family:'Montserrat',sans-serif;font-size:3.4rem;font-weight:900;background:linear-gradient(to bottom,#3a3a3a,#111);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:.7;}
+.ep-thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s;}
+.ep-thumb.loaded{opacity:1;}
+.ep-thumb.loaded ~ .ep-thumb-fallback{display:none;}
+.ep-play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background .18s;}
+.episode-row:hover .ep-play-badge{background:rgba(0,0,0,.25);}
+.ep-play-badge i{color:#fff;font-size:1.1rem;opacity:0;transition:opacity .18s;text-shadow:0 2px 6px rgba(0,0,0,.6);}
+.episode-row:hover .ep-play-badge i{opacity:.95;}
+.ep-duration-badge{position:absolute;bottom:4px;right:5px;background:rgba(0,0,0,.65);color:#eee;font-size:.62rem;font-weight:700;padding:2px 5px;border-radius:4px;letter-spacing:.2px;}
+.ep-progress-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.15);}
+.ep-progress-fill{height:100%;background:linear-gradient(90deg,#0055ff,#0099ff);}
+
+.ep-row-info{flex:1;min-width:0;padding-top:1px;}
+.ep-row-top{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
+.ep-row-label{color:#1e90ff;font-size:.72rem;font-weight:800;letter-spacing:.3px;flex-shrink:0;}
+.ep-row-title{font-size:.9rem;font-weight:700;color:#f2f2f2;line-height:1.3;}
+.ep-row-desc{font-size:.78rem;color:#9a9a9a;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:4px;}
+.ep-row-meta{display:flex;align-items:center;gap:6px;font-size:.72rem;color:#777;}
+.ep-row-menu{background:none;border:none;color:#777;font-size:1rem;padding:6px;cursor:pointer;flex-shrink:0;align-self:flex-start;}
 
 /* ── NEXT SEASON BTN ── */
 .next-season-wrap{padding:0 20px 32px;}
@@ -172,7 +191,7 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 #next-ep-overlay{
   position:absolute;inset:0;z-index:60;
   background:rgba(0,0,0,.88);
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   animation:fadeInNE .4s ease both;
   backdrop-filter:blur(6px);
 }
@@ -180,6 +199,7 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 @keyframes fadeInNE{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 .ne-badge{background:rgba(30,144,255,.2);border:1px solid rgba(30,144,255,.5);color:#1e90ff;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;}
 .ne-series-title{font-family:'Montserrat',sans-serif;font-size:clamp(13px,3vw,18px);font-weight:800;color:rgba(255,255,255,.55);text-align:center;max-width:80vw;}
+.ne-ep-tag{font-family:'Barlow Condensed',sans-serif;font-size:clamp(12px,2.4vw,15px);font-weight:700;color:#1e90ff;letter-spacing:.5px;}
 .ne-ep-title{font-family:'Montserrat',sans-serif;font-size:clamp(16px,4vw,24px);font-weight:900;color:#fff;text-align:center;max-width:82vw;line-height:1.2;}
 /* Círculo countdown */
 .ne-countdown-ring{position:relative;width:80px;height:80px;cursor:pointer;}
@@ -216,9 +236,9 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 #p-error button{padding:11px 26px;border-radius:30px;background:rgba(0,80,255,.25);border:1.5px solid rgba(0,140,255,.5);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;}
 
 @media(max-width:600px){
-  .episodes-grid{grid-template-columns:1fr 1fr;}
   .movie-title-main{font-size:1.6rem;}
   .movie-info-line{font-size:.85rem;}
+  .seasons-title{font-size:1.1rem;}
 }
 </style>
 </head>
@@ -293,18 +313,21 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
 
   <!-- EPISODIOS -->
   <section class="seasons-section">
-    <div class="seasons-title">
-      <i class="fas fa-list"></i> Episodios
+    <div class="seasons-head">
+      <div class="seasons-title" id="seasonsHeadTitle">Temporada 1</div>
+      <div class="season-select-wrap" id="seasonSelectWrap">
+        <button class="season-select-btn" id="seasonSelectBtn"><span id="seasonSelectLabel">T1</span> <i class="fas fa-chevron-down"></i></button>
+        <div class="season-dropdown" id="seasonDropdown"></div>
+      </div>
     </div>
-    <div class="season-tabs-wrap" id="seasonTabs"></div>
-    <div class="episodes-grid" id="episodesGrid"></div>
+    <div class="episodes-list" id="episodesGrid"></div>
   </section>
 
   <!-- BOTÓN SIGUIENTE TEMPORADA -->
   <div class="next-season-wrap" id="nextSeasonWrap" style="display:none">
     <button class="btn-next-season" id="nextSeasonBtn">
       <i class="fas fa-step-forward"></i>
-      <span id="nextSeasonTxt">Continuar con Temporada 2</span>
+      <span id="nextSeasonTxt">Temporada 2</span>
     </button>
   </div>
 
@@ -385,6 +408,7 @@ header{background:rgba(0,0,0,0.88);padding:14px 20px;display:flex;align-items:ce
     <div id="next-ep-overlay">
       <div class="ne-badge">A CONTINUACIÓN</div>
       <div class="ne-series-title" id="ne-series-name"></div>
+      <div class="ne-ep-tag" id="ne-ep-tag"></div>
       <div class="ne-ep-title" id="ne-ep-name"></div>
       <div class="ne-countdown-ring" id="ne-ring" title="Reproducir ahora">
         <svg class="ne-ring-svg" viewBox="0 0 80 80">
@@ -438,14 +462,77 @@ let playerSi=0,playerEi=0;  // episodio actualmente en el player
 let rotateHintShown=false,playerStarted=false;
 
 function fmtTime(s){if(!s||isNaN(s)||!isFinite(s))return'0:00';const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60).toString().padStart(2,'0');return h?`${h}:${m.toString().padStart(2,'0')}:${sec}`:`${m}:${sec}`;}
+function fmtMin(sec){if(!sec)return'';return Math.round(sec/60)+' min';}
 function isVimeo(u){return u&&u.includes('vimeo.com');}
 function isYouTube(u){return u&&(u.includes('youtube.com')||u.includes('youtu.be'));}
+function isDrive(u){return u&&u.includes('drive.google.com');}
 function extractVimeoId(url){const m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/);return m?m[1]:null;}
 function toDirectUrl(url){
   if(!url)return'';
   if(url.includes('archive.org/details/')){const id=url.split('/details/')[1].split('/')[0].split('?')[0];return`https://archive.org/download/${id}/${id}.mp4`;}
   if(url.includes('drive.google.com/file/d/')){const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);if(m)return`https://drive.google.com/file/d/${m[1]}/preview`;}
   return url;
+}
+
+// ══════════════════════════════════════════════
+// MINIATURAS: captura un frame real del video (no del inicio, sino
+// de un punto intermedio) y lo usa como carátula del episodio.
+// Nota importante: esto solo funciona con archivos de video directos
+// (mp4 servidos con cabeceras CORS abiertas, como archive.org). Los
+// episodios embebidos por iframe (Google Drive, Vimeo) no exponen sus
+// fotogramas al navegador por seguridad, así que para esos se usa
+// automáticamente el respaldo con el número de capítulo.
+// ══════════════════════════════════════════════
+const thumbCache={};
+const thumbObserver=('IntersectionObserver' in window)?new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el=entry.target;
+      thumbObserver.unobserve(el);
+      const{si,ei,url}=el.dataset;
+      captureThumbnail(parseInt(si),parseInt(ei),url,el.querySelector('.ep-thumb'));
+    }
+  });
+},{rootMargin:'200px'}):null;
+
+function captureThumbnail(si,ei,url,imgEl){
+  const key=`${si}-${ei}`;
+  if(!imgEl)return;
+  if(thumbCache[key]){imgEl.src=thumbCache[key];imgEl.classList.add('loaded');return;}
+  if(!url||isDrive(url)||isVimeo(url)||isYouTube(url))return; // no se puede leer un iframe
+
+  const v=document.createElement('video');
+  v.crossOrigin='anonymous';
+  v.preload='auto';
+  v.muted=true;
+  v.playsInline=true;
+  v.src=toDirectUrl(url);
+
+  const cleanup=()=>{v.src='';v.removeAttribute('src');v.load();};
+
+  v.addEventListener('loadedmetadata',()=>{
+    if(!isFinite(v.duration)||v.duration<=0){v.currentTime=1;return;}
+    // punto medio-ish, evitando intros/creditos: ~35% del metraje, tope 90s
+    const t=Math.min(v.duration*0.35,90,Math.max(v.duration-2,1));
+    v.currentTime=t>0?t:1;
+  });
+  v.addEventListener('seeked',()=>{
+    try{
+      const canvas=document.createElement('canvas');
+      canvas.width=320;canvas.height=180;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(v,0,0,canvas.width,canvas.height);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.72);
+      thumbCache[key]=dataUrl;
+      imgEl.src=dataUrl;
+      imgEl.classList.add('loaded');
+    }catch(e){
+      // canvas "manchado" por CORS: nos quedamos con el respaldo del número
+      console.warn('No se pudo capturar miniatura del episodio (posible restricción CORS):',e.message);
+    }
+    cleanup();
+  },{once:true});
+  v.addEventListener('error',()=>cleanup(),{once:true});
 }
 
 // ── LOAD SERIES ──
@@ -483,7 +570,7 @@ function renderInfo(s){
   }
 
   setupTrailer(s);
-  buildSeasonTabs(seasons);
+  buildSeasonSelector(seasons);
   renderEpisodes(0);
   setupPlayButton(seasons);
   refreshInfoProgress(seasons);
@@ -491,48 +578,90 @@ function renderInfo(s){
   $('shareButton').addEventListener('click',()=>shareSeries(s));
 }
 
-function buildSeasonTabs(seasons){
-  const wrap=$('seasonTabs');wrap.innerHTML='';
+// ── Selector de temporada compacto (T1, T2…) ──
+function buildSeasonSelector(seasons){
+  const dd=$('seasonDropdown');dd.innerHTML='';
   seasons.forEach((sea,i)=>{
     const btn=document.createElement('button');
-    btn.className='season-tab'+(i===0?' active':'');
+    btn.className=i===0?'active':'';
     btn.textContent=sea.title||`Temporada ${i+1}`;
-    btn.onclick=()=>{currentSi=i;document.querySelectorAll('.season-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEpisodes(i);updateNextSeasonBtn(i,seasons);};
-    wrap.appendChild(btn);
+    btn.onclick=()=>{
+      currentSi=i;
+      updateSeasonSelectorUI(seasons);
+      renderEpisodes(i);
+      updateNextSeasonBtn(i,seasons);
+      closeSeasonDropdown();
+    };
+    dd.appendChild(btn);
   });
+  updateSeasonSelectorUI(seasons);
   updateNextSeasonBtn(0,seasons);
+
+  const selectBtn=$('seasonSelectBtn');
+  const wrap=$('seasonSelectWrap');
+  if(seasons.length<=1){wrap.style.display='none';}else{wrap.style.display='';}
+  selectBtn.onclick=()=>{
+    const open=dd.classList.toggle('open');
+    selectBtn.classList.toggle('open',open);
+  };
+  document.addEventListener('click',(e)=>{if(!wrap.contains(e.target))closeSeasonDropdown();});
+}
+function closeSeasonDropdown(){$('seasonDropdown').classList.remove('open');$('seasonSelectBtn').classList.remove('open');}
+function updateSeasonSelectorUI(seasons){
+  $('seasonSelectLabel').textContent=`T${currentSi+1}`;
+  $('seasonsHeadTitle').textContent=(seasons[currentSi]&&seasons[currentSi].title)||`Temporada ${currentSi+1}`;
+  document.querySelectorAll('#seasonDropdown button').forEach((b,i)=>b.classList.toggle('active',i===currentSi));
 }
 
 function renderEpisodes(si){
   const seasons=seriesData?.seasons||[];
   const eps=(seasons[si]||{}).episodes||[];
   const grid=$('episodesGrid');
+  if(thumbObserver)thumbObserver.disconnect();
   if(!eps.length){grid.innerHTML='<p style="color:#666;font-size:13px">Sin episodios en esta temporada.</p>';return;}
   grid.innerHTML=eps.map((ep,ei)=>{
     const saved=loadProgress(si,ei);
     const hasProg=saved>5;
-    return`<div class="episode-card" onclick="openEpisode(${si},${ei})">
-      <div class="number-bg">
-        <span class="big-number">${ep.n||ei+1}</span>
-        <i class="fas fa-play play-overlay"></i>
-        <div class="ep-progress-bar"><div class="ep-progress-fill" style="width:${hasProg?Math.min(100,(saved/3600)*100):0}%"></div></div>
+    const estDuration=ep.durationSec||0;
+    const pct=hasProg&&estDuration?Math.min(100,(saved/estDuration)*100):0;
+    return`<div class="episode-row" data-si="${si}" data-ei="${ei}" data-url="${(ep.url||'').replace(/"/g,'&quot;')}" onclick="openEpisode(${si},${ei})">
+      <div class="ep-thumb-wrap">
+        <img class="ep-thumb" alt="">
+        <div class="ep-thumb-fallback"><span class="big-number">${ep.n||ei+1}</span></div>
+        <div class="ep-play-badge"><i class="fas fa-play"></i></div>
+        ${ep.duration?`<div class="ep-duration-badge">${ep.duration}</div>`:''}
+        ${hasProg?`<div class="ep-progress-bar"><div class="ep-progress-fill" style="width:${pct||8}%"></div></div>`:''}
       </div>
-      <div class="episode-info">
-        <span class="ep-label">CAP. ${ep.n||ei+1}</span>
-        <div class="ep-name">${ep.title||`Capítulo ${ep.n||ei+1}`}</div>
+      <div class="ep-row-info">
+        <div class="ep-row-top">
+          <span class="ep-row-label">E${ep.n||ei+1}</span>
+          <span class="ep-row-title">${ep.title||`Capítulo ${ep.n||ei+1}`}</span>
+        </div>
+        ${ep.desc?`<p class="ep-row-desc">${ep.desc}</p>`:''}
+        <div class="ep-row-meta">${ep.duration?`<i class="fas fa-play"></i> ${ep.duration}`:''}</div>
       </div>
+      <button class="ep-row-menu" onclick="event.stopPropagation()"><i class="fas fa-ellipsis-vertical"></i></button>
     </div>`;
   }).join('');
+
+  // Miniaturas: se cargan solo cuando la fila entra en pantalla (perezoso)
+  grid.querySelectorAll('.episode-row').forEach(row=>{
+    if(thumbObserver)thumbObserver.observe(row);
+    else{ // sin soporte de IntersectionObserver, capturamos directo
+      const{si:si2,ei:ei2,url}=row.dataset;
+      captureThumbnail(parseInt(si2),parseInt(ei2),url,row.querySelector('.ep-thumb'));
+    }
+  });
 }
 
 function updateNextSeasonBtn(si,seasons){
   const wrap=$('nextSeasonWrap');
   if(si<seasons.length-1){
     wrap.style.display='block';
-    $('nextSeasonTxt').textContent=`Continuar con ${seasons[si+1].title||'Temporada '+(si+2)}`;
+    $('nextSeasonTxt').textContent=`Temporada ${si+2}`;
     $('nextSeasonBtn').onclick=()=>{
       currentSi=si+1;
-      document.querySelectorAll('.season-tab').forEach((b,i)=>b.classList.toggle('active',i===currentSi));
+      updateSeasonSelectorUI(seasons);
       renderEpisodes(currentSi);updateNextSeasonBtn(currentSi,seasons);
       document.querySelector('.seasons-section')?.scrollIntoView({behavior:'smooth'});
     };
@@ -543,7 +672,7 @@ function setupPlayButton(seasons){
   const last=getLastWatched();
   if(last){
     const sea=seasons[last.si];const ep=(sea?.episodes||[])[last.ei];
-    if(ep){$('playBtnText').textContent=`Continuar: ${sea.title||'T'+(last.si+1)} – Cap. ${ep.n||last.ei+1}`;$('playFirstBtn').onclick=()=>openEpisode(last.si,last.ei);return;}
+    if(ep){$('playBtnText').textContent=`Continuar: T${last.si+1}:E${ep.n||last.ei+1}`;$('playFirstBtn').onclick=()=>openEpisode(last.si,last.ei);return;}
   }
   $('playBtnText').textContent='Reproducir desde el inicio';
   $('playFirstBtn').onclick=()=>{const eps=(seasons[0]||{}).episodes||[];if(eps.length)openEpisode(0,0);};
@@ -817,8 +946,8 @@ function showNextEpOverlay(){
   }
   pvid.pause();
   $('ne-series-name').textContent=seriesData?.title||'';
-  const seaTitle=next.season?.title||`Temporada ${next.si+1}`;
-  $('ne-ep-name').textContent=`${seaTitle} · Cap. ${next.ep.n||next.ei+1}: ${next.ep.title||''}`;
+  $('ne-ep-tag').textContent=`T${next.si+1} · E${next.ep.n||next.ei+1}`;
+  $('ne-ep-name').textContent=next.ep.title||'';
   overlay.classList.add('show');
   startCountdown(next);
 }
@@ -866,8 +995,7 @@ function loadEpisode(si,ei){
   const seasons=seriesData?.seasons||[];
   const ep=(seasons[si]?.episodes||[])[ei];
   if(!ep){showPlayerError('Episodio no encontrado','No se pudo cargar este capítulo.');return;}
-  const seaTitle=seasons[si]?.title||`Temporada ${si+1}`;
-  pTopTitle.textContent=`${seriesData?.title||''} · ${seaTitle} – Cap. ${ep.n||ei+1}`;
+  pTopTitle.textContent=`${seriesData?.title||''} · T${si+1}:E${ep.n||ei+1}`;
   pError.classList.remove('on');
   nextEpShown=false;
 
@@ -903,8 +1031,7 @@ function initPlayer(si,ei){
   const seasons=seriesData.seasons||[];
   const ep=(seasons[si]?.episodes||[])[ei];
   if(!ep){showPlayerError('Episodio no encontrado','Verifica los datos de la serie.');return;}
-  const seaTitle=seasons[si]?.title||`Temporada ${si+1}`;
-  pTopTitle.textContent=`${seriesData.title||''} · ${seaTitle} – Cap. ${ep.n||ei+1}`;
+  pTopTitle.textContent=`${seriesData.title||''} · T${si+1}:E${ep.n||ei+1}`;
   pError.classList.remove('on');
   nextEpShown=false;
 
