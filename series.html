@@ -18,8 +18,17 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;min-height:100%;background:#000;color:#fff;overflow-x:hidden;font-family:'Netflix Sans','Roboto',sans-serif;}
 
+/* ── INTRO (igual a la plantilla de películas) ── */
+.intro-screen{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#000,#0a0a0a);display:flex;justify-content:center;align-items:center;z-index:10000;pointer-events:none;}
+.intro-screen.done{display:none;}
+.logo-container-intro{font-size:4rem;font-weight:800;color:white;opacity:0;letter-spacing:4px;animation:fadeInZoom 2s ease-out forwards,fadeOut 1s ease-in forwards 3.8s;text-shadow:0 0 10px #00bfff88,0 0 20px #00bfff44;font-family:'Montserrat',sans-serif;}
+@keyframes fadeInZoom{0%{opacity:0;transform:scale(0.5);}100%{opacity:1;transform:scale(1);}}
+@keyframes fadeOut{to{opacity:0;transform:scale(1.05);}}
+
 /* ── HEADER (efecto vidrio/transparente, con logo) ── */
-header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06);}
+/* position:fixed (no sticky) para que quede pegado arriba siempre, flotando
+   sobre el contenido, igual que en las apps de streaming de referencia. */
+header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06);}
 .header-left{display:flex;align-items:center;}
 .header-back{color:#fff;font-size:26px;margin-right:14px;cursor:pointer;transition:opacity .2s;}
 .header-back:hover{opacity:.7}
@@ -235,7 +244,8 @@ header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:ce
 #p-error p{color:rgba(255,255,255,.55);font-size:.9rem;max-width:300px;line-height:1.5;}
 #p-error button{padding:11px 26px;border-radius:30px;background:rgba(0,80,255,.25);border:1.5px solid rgba(0,140,255,.5);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;}
 
-@media(max-width:600px){
+@media(max-width:768px){
+  .movie-hero{padding-top:58%;}
   .movie-title-main{font-size:1.6rem;}
   .movie-info-line{font-size:.85rem;}
   .seasons-title{font-size:1.1rem;}
@@ -244,8 +254,12 @@ header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:ce
 </head>
 <body>
 
+<div class="intro-screen" id="introScreen">
+  <div class="logo-container-intro">LLUTID</div>
+</div>
+
 <!-- ══ VISTA INFO ══ -->
-<div id="view-info" style="display:flex;flex-direction:column;min-height:100vh;">
+<div id="view-info" style="display:none;flex-direction:column;min-height:100vh;">
 
   <header>
     <div class="header-left">
@@ -489,17 +503,44 @@ const thumbObserver=('IntersectionObserver' in window)?new IntersectionObserver(
     if(entry.isIntersecting){
       const el=entry.target;
       thumbObserver.unobserve(el);
-      const{si,ei,url}=el.dataset;
-      captureThumbnail(parseInt(si),parseInt(ei),url,el.querySelector('.ep-thumb'));
+      if(typeof el._thumbTrigger==='function')el._thumbTrigger();
     }
   });
 },{rootMargin:'200px'}):null;
 
-function captureThumbnail(si,ei,url,imgEl){
+function captureThumbnail(si,ei,url,imgEl,manualThumb){
   const key=`${si}-${ei}`;
   if(!imgEl)return;
+
+  // 1) Si el episodio ya trae una foto de portada guardada (ep.thumb en la
+  //    base de datos), esa es la fuente más confiable: úsala directo.
+  if(manualThumb){imgEl.src=manualThumb;imgEl.classList.add('loaded');return;}
+
   if(thumbCache[key]){imgEl.src=thumbCache[key];imgEl.classList.add('loaded');return;}
-  if(!url||isDrive(url)||isVimeo(url)||isYouTube(url))return; // no se puede leer un iframe
+
+  // 2) Google Drive genera automáticamente una miniatura real del video.
+  //    No es un fotograma que capturemos nosotros, pero sí es una foto
+  //    verdadera del contenido, y funciona para archivos compartidos
+  //    públicamente (que es como deben estar para reproducirse igual).
+  if(isDrive(url)){
+    const m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m){
+      const thumbUrl=`https://drive.google.com/thumbnail?id=${m[1]}&sz=w400`;
+      const testImg=new Image();
+      testImg.onload=()=>{thumbCache[key]=thumbUrl;imgEl.src=thumbUrl;imgEl.classList.add('loaded');};
+      testImg.onerror=()=>{}; // si Drive la niega (archivo privado, límite de cuota), se queda el número de respaldo
+      testImg.src=thumbUrl;
+    }
+    return;
+  }
+
+  // 3) Sin foto guardada ni Drive: intentamos capturar un fotograma del
+  //    video. Esto SOLO puede funcionar con un archivo .mp4 directo
+  //    servido con cabeceras CORS abiertas. Vimeo y YouTube muestran el
+  //    video dentro de un iframe ajeno, y el navegador nunca permite leer
+  //    los píxeles de un iframe de otro dominio (restricción de seguridad
+  //    del navegador, no un límite de este código).
+  if(!url||isVimeo(url)||isYouTube(url))return;
 
   const v=document.createElement('video');
   v.crossOrigin='anonymous';
@@ -624,7 +665,7 @@ function renderEpisodes(si){
     const hasProg=saved>5;
     const estDuration=ep.durationSec||0;
     const pct=hasProg&&estDuration?Math.min(100,(saved/estDuration)*100):0;
-    return`<div class="episode-row" data-si="${si}" data-ei="${ei}" data-url="${(ep.url||'').replace(/"/g,'&quot;')}" onclick="openEpisode(${si},${ei})">
+    return`<div class="episode-row" onclick="openEpisode(${si},${ei})">
       <div class="ep-thumb-wrap">
         <img class="ep-thumb" alt="">
         <div class="ep-thumb-fallback"><span class="big-number">${ep.n||ei+1}</span></div>
@@ -645,12 +686,13 @@ function renderEpisodes(si){
   }).join('');
 
   // Miniaturas: se cargan solo cuando la fila entra en pantalla (perezoso)
-  grid.querySelectorAll('.episode-row').forEach(row=>{
-    if(thumbObserver)thumbObserver.observe(row);
-    else{ // sin soporte de IntersectionObserver, capturamos directo
-      const{si:si2,ei:ei2,url}=row.dataset;
-      captureThumbnail(parseInt(si2),parseInt(ei2),url,row.querySelector('.ep-thumb'));
-    }
+  grid.querySelectorAll('.episode-row').forEach((row,ei)=>{
+    const ep=eps[ei];
+    const trigger=()=>captureThumbnail(si,ei,ep.url,row.querySelector('.ep-thumb'),ep.thumb);
+    if(thumbObserver){
+      row._thumbTrigger=trigger;
+      thumbObserver.observe(row);
+    }else trigger();
   });
 }
 
@@ -1076,6 +1118,10 @@ function _startPlayback(si,ei,savedTime){
 }
 
 // ── BOOT ──
+setTimeout(()=>{
+  $('introScreen').classList.add('done');
+  $('view-info').style.display='flex';
+},4800);
 loadSeries();
 </script>
 </body>
