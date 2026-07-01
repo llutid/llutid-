@@ -28,7 +28,7 @@ html,body{width:100%;min-height:100%;background:#000;color:#fff;overflow-x:hidde
 /* ── HEADER (efecto vidrio/transparente, con logo) ── */
 /* position:fixed (no sticky) para que quede pegado arriba siempre, flotando
    sobre el contenido, igual que en las apps de streaming de referencia. */
-header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06);}
+header{background:rgba(0,0,0,0.72);height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.06);}
 .header-left{display:flex;align-items:center;}
 .header-back{color:#fff;font-size:26px;margin-right:14px;cursor:pointer;transition:opacity .2s;}
 .header-back:hover{opacity:.7}
@@ -259,7 +259,7 @@ header{background:rgba(0,0,0,0.72);padding:14px 20px;display:flex;align-items:ce
 </div>
 
 <!-- ══ VISTA INFO ══ -->
-<div id="view-info" style="display:none;flex-direction:column;min-height:100vh;">
+<div id="view-info" style="display:none;flex-direction:column;min-height:100vh;padding-top:60px;">
 
   <header>
     <div class="header-left">
