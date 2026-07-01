@@ -185,6 +185,11 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .hero-profile-btn{top:max(12px,env(safe-area-inset-top));right:16px;width:44px;height:44px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(255,255,255,.28);background:rgba(12,12,24,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:600;font-size:17px;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.4);pointer-events:auto;}
 .hero-profile-btn:active{transform:scale(.93);}
 .hero-info{position:absolute;left:0;right:0;bottom:0;z-index:4;padding:0 20px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:opacity .55s cubic-bezier(.33,1,.68,1),transform .55s cubic-bezier(.33,1,.68,1);}
+.hero-live-badge{display:none;align-items:center;gap:6px;background:rgba(220,38,38,.92);border:1px solid rgba(255,255,255,.28);border-radius:20px;padding:5px 12px 5px 9px;font-size:11.5px;font-weight:700;letter-spacing:.4px;color:#fff;margin-bottom:12px;box-shadow:0 4px 18px rgba(220,38,38,.4);text-transform:uppercase;}
+.hero-live-badge.show{display:inline-flex;}
+.hero-live-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulseHero 1.4s ease-in-out infinite;flex-shrink:0;}
+@keyframes livePulseHero{0%,100%{opacity:1}50%{opacity:.35}}
+.hero-live-time{font-weight:500;opacity:.9;text-transform:none;letter-spacing:0;margin-left:2px;}
 .hero-logo-wrap{position:relative;width:82%;max-width:340px;height:96px;margin:0 auto 12px;flex-shrink:0;}
 .hero-logo-img{position:absolute;top:0;left:50%;transform:translateX(-50%);max-width:100%;max-height:96px;object-fit:contain;filter:drop-shadow(0 6px 28px rgba(0,0,0,.95)) drop-shadow(0 0 48px rgba(61,114,245,.25));opacity:0;transition:opacity .48s ease;pointer-events:none;}
 .hero-logo-img.visible{opacity:1;}
@@ -273,7 +278,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .match-banner:active{transform:scale(.94);}
 .match-banner-top{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
 .match-time-pill{background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.12);color:var(--white);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;backdrop-filter:blur(6px);letter-spacing:.2px;}
-.match-time-pill.live{background:rgba(220,38,38,.85);border-color:rgba(255,255,255,.25);animation:livePulse 1.5s ease-in-out infinite;}
+.match-time-pill.live{background:rgba(220,38,38,.85);border-color:rgba(255,255,255,.25);animation:livePulse 1.5s ease-in-out infinite;display:flex;align-items:center;gap:5px;}
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.65}}
 .match-time-pill.today{background:rgba(61,114,245,.85);}
 .match-time-pill.finished{background:rgba(255,255,255,.12);color:rgba(245,245,255,.7);}
@@ -284,6 +289,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
 .match-logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .match-logo-wrap.empty::after{content:'?';font-size:18px;color:rgba(255,255,255,.3);}
 .match-sep{font-size:20px;font-weight:300;color:rgba(255,255,255,.3);flex-shrink:0;user-select:none;}
+.match-score-live{font-size:19px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.6);}
 .match-banner-bottom{position:relative;z-index:1;}
 .match-name{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .match-banner-skel{flex-shrink:0;width:242px;height:158px;border-radius:18px;}
@@ -567,10 +573,10 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
         <div class="slow-conn-head">
           <div class="slow-conn-icon">
             <svg viewBox="0 0 24 24">
-              <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
-              <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
-              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-              <circle cx="12" cy="20" r="1" fill="#f5c842"/>
+              <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+              <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+              <circle cx="12" cy="20" r="1" fill="#f5c842"></circle>
             </svg>
           </div>
           <div class="slow-conn-texts">
@@ -579,7 +585,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
           </div>
         </div>
         <div class="slow-conn-speed">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
           <div class="slow-conn-speed-bar-wrap"><div class="slow-conn-speed-bar" id="slowConnSpeedBar"></div></div>
           <span class="slow-conn-speed-val" id="slowConnSpeedVal">Midiendo...</span>
         </div>
@@ -633,6 +639,7 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
     <button class="hmt-btn" data-mode="series">Series</button>
   </div>
   <div class="hero-info" id="heroInfo" style="opacity:0;pointer-events:none">
+    <div class="hero-live-badge" id="heroLiveBadge"><span class="hero-live-dot"></span><span id="heroLiveLabel">EN VIVO</span><span class="hero-live-time" id="heroLiveTime"></span></div>
     <div class="hero-logo-wrap" id="heroLogoWrap">
       <img class="hero-logo-img" id="heroLogoA" src="" alt="">
       <img class="hero-logo-img" id="heroLogoB" src="" alt="">
@@ -813,17 +820,17 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
       <span class="prof-block-title">Reproducción</span>
     </div>
     <div class="prof-settings-row">
-      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 010 7.07"/></svg></div>
+      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 010 7.07"></path></svg></div>
       <div class="prof-settings-body"><p class="prof-settings-title">Sonido en inicio</p><p class="prof-settings-sub">Hero y trailers automáticos</p></div>
       <div class="prof-switch" id="profSwitchSound" role="switch" aria-checked="false"></div>
     </div>
     <div class="prof-settings-row">
-      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"></path></svg></div>
       <div class="prof-settings-body"><p class="prof-settings-title">Calidad de video</p><p class="prof-settings-sub">Ajuste automático según conexión</p></div>
       <span style="font-size:12px;color:rgba(245,245,255,.6);font-weight:600">Auto</span>
     </div>
     <div class="prof-settings-row">
-      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg></div>
       <div class="prof-settings-body"><p class="prof-settings-title">Descargas solo con Wi‑Fi</p><p class="prof-settings-sub">Ahorra datos móviles</p></div>
       <div class="prof-switch on" id="profSwitchWifi" role="switch" aria-checked="true"></div>
     </div>
@@ -833,12 +840,12 @@ body{min-height:100%;overflow-x:hidden;background:var(--bg);font-family:var(--fo
       <span class="prof-block-title">Aplicación</span>
     </div>
     <div class="prof-settings-row">
-      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg></div>
       <div class="prof-settings-body"><p class="prof-settings-title">Notificaciones</p><p class="prof-settings-sub">Estrenos y novedades</p></div>
       <div class="prof-switch on" id="profSwitchNotif" role="switch" aria-checked="true"></div>
     </div>
     <div class="prof-settings-row">
-      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div class="prof-settings-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></div>
       <div class="prof-settings-body"><p class="prof-settings-title">Reproducción automática</p><p class="prof-settings-sub">Previews al pasar contenido</p></div>
       <div class="prof-switch on" id="profSwitchAutoplay" role="switch" aria-checked="true"></div>
     </div>
@@ -1021,7 +1028,30 @@ const $=id=>document.getElementById(id);
 const fmt=s=>isNaN(s)?'0:00':`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function showPopup(t,m){$('popupTitle').textContent=t;$('popupMsg').textContent=m;$('popupMask').classList.add('show');}
 
+/* ══ Helper: formatea "HH:MM" (24h, del <input type=time>) a "8:00 PM" para mostrar ══ */
+function formatTime12(t){
+  if(!t)return'';
+  const m=String(t).trim().match(/^(\d{1,2}):(\d{2})/);
+  if(!m)return t; // ya viene en formato libre (partidos viejos)
+  let h=parseInt(m[1],10);const min=m[2];const ap=h>=12?'PM':'AM';
+  h=h%12;if(h===0)h=12;
+  return `${h}:${min} ${ap}`;
+}
+
 let currentUser=null,userProfile=null,selectedAv=null,allMovies=[];
+let moviesData=[],seriesData=[];
+
+/* ══ Identidad del usuario: se guarda por EMAIL, no solo por uid de Firebase Auth,
+   porque el login de LLUTID+ no siempre crea sesión de Firebase Auth. Así el avatar,
+   nombre, teléfono e historial quedan ligados de forma confiable al correo. ══ */
+function currentEmail(){
+  return (userProfile?.email||currentUser?.email||localStorage.getItem('llutid_correo')||'').trim().toLowerCase();
+}
+function userDocRef(){
+  const email=currentEmail();
+  if(!email)return null;
+  return doc(dbU,'users',email);
+}
 
 (function preloadFromStorage(){
   const email=localStorage.getItem('llutid_correo');
@@ -1032,27 +1062,39 @@ let currentUser=null,userProfile=null,selectedAv=null,allMovies=[];
     const cached=localStorage.getItem('ll_heroes');
     if(cached){const parsed=JSON.parse(cached);if(parsed&&parsed.v&&Array.isArray(parsed.v)&&parsed.v.length){const age=Date.now()-(parsed.t||0);if(age<1800000){const firstImg=parsed.v[0]?.image;if(firstImg){const preImg=new Image();preImg.fetchpriority='high';preImg.decoding='sync';preImg.src=firstImg;}renderHeroes(parsed.v);}}}
   }catch(e){}
+  // Carga inmediata desde Firestore usando el email como llave (no depende de Firebase Auth)
+  loadUserProfileByEmail(email);
 })();
 
 onAuthStateChanged(auth,async user=>{
-  if(user){currentUser=user;await loadUserProfile(user.uid,user.email);}
+  if(user){currentUser=user;await loadUserProfileByEmail(user.email||currentEmail());}
   else{if(!localStorage.getItem('llutid_correo'))$('authGate').classList.add('show');}
 });
 
-async function loadUserProfile(uid,email){
+async function loadUserProfileByEmail(email){
+  if(!email)return;
+  email=email.trim().toLowerCase();
   try{
-    const snap=await getDoc(doc(dbU,'users',uid));
-    if(snap.exists()){userProfile={...snap.data(),email};}
-    else{const nombre=email.split('@')[0];userProfile={email,nombre,telefono:'',avatar:MALE_AV[0],watchedMovies:[],createdAt:Date.now()};await setDoc(doc(dbU,'users',uid),userProfile);}
+    const ref=doc(dbU,'users',email);
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      // Mezclamos: lo que venga de Firestore manda, pero conservamos lo que ya
+      // teníamos en memoria (p. ej. avatar recién elegido) si Firestore no lo tiene aún.
+      userProfile={...(userProfile||{}),...snap.data(),email};
+    }else{
+      const nombre=userProfile?.nombre||email.split('@')[0];
+      userProfile={email,nombre,telefono:userProfile?.telefono||'',avatar:userProfile?.avatar||MALE_AV[0],watchedMovies:userProfile?.watchedMovies||[],createdAt:Date.now()};
+      await setDoc(ref,userProfile,{merge:true});
+    }
   }catch(e){
-    const em=localStorage.getItem('llutid_correo')||email;
-    userProfile={email:em,nombre:localStorage.getItem('llutid_nombre')||em.split('@')[0],telefono:localStorage.getItem('llutid_telefono')||'',avatar:localStorage.getItem('llutid_avatar')||MALE_AV[0],watchedMovies:[]};
+    console.warn('No se pudo cargar el perfil desde Firestore:',e);
   }
   if(userProfile.avatar)localStorage.setItem('llutid_avatar',userProfile.avatar);
   if(userProfile.nombre)localStorage.setItem('llutid_nombre',userProfile.nombre);
   if(userProfile.email)localStorage.setItem('llutid_correo',userProfile.email);
   if(userProfile.telefono!==undefined)localStorage.setItem('llutid_telefono',userProfile.telefono);
   updateProfileAvatarUI();
+  if($('profileOverlay').classList.contains('active')){updateProfileUI();renderWatchedInProfile();}
 }
 
 function updateProfileAvatarUI(){
@@ -1088,13 +1130,15 @@ function updateProfileUI(){
 }
 
 async function addHist(m){
-  if(!currentUser||!m)return;
+  if(!m)return;
+  const ref=userDocRef();
   const entry={id:m.id||m.title||String(Date.now()),title:m.title||'',image:m.image||'',link:m.link||'',watchedAt:Date.now()};
   const list=userProfile?.watchedMovies||[];
   const filtered=list.filter(h=>h.id!==entry.id);
   const updated=[entry,...filtered].slice(0,50);
   if(userProfile)userProfile.watchedMovies=updated;
-  try{await setDoc(doc(dbU,'users',currentUser.uid),{watchedMovies:updated},{merge:true});}
+  if(!ref)return; // sin identidad de usuario aún, no hay dónde guardar
+  try{await setDoc(ref,{watchedMovies:updated,email:currentEmail()},{merge:true});}
   catch(e){console.warn('Error historial:',e);}
 }
 
@@ -1128,17 +1172,18 @@ $('profSaveInfoBtn').onclick=async()=>{
   if(!nuevoNombre){showPopup('Campo requerido','El nombre no puede estar vacío.');return;}
   $('profSaveSpinner').style.display='block';$('profSaveTxt').textContent='Guardando...';$('profSaveInfoBtn').disabled=true;
   try{
-    const updates={nombre:nuevoNombre,telefono:nuevoTelefono,updatedAt:Date.now()};
-    if(currentUser)await setDoc(doc(dbU,'users',currentUser.uid),updates,{merge:true});
+    const ref=userDocRef();
+    const updates={nombre:nuevoNombre,telefono:nuevoTelefono,email:currentEmail(),updatedAt:Date.now()};
+    if(ref)await setDoc(ref,updates,{merge:true});
     localStorage.setItem('llutid_nombre',nuevoNombre);localStorage.setItem('llutid_telefono',nuevoTelefono);
     if(userProfile){userProfile.nombre=nuevoNombre;userProfile.telefono=nuevoTelefono;}
     updateProfileUI();showPopup('¡Guardado!','Tu información se actualizó correctamente.');
-  }catch(err){showPopup('Error','No se pudo guardar. Intenta de nuevo.');}
+  }catch(err){console.warn(err);showPopup('Error','No se pudo guardar. Intenta de nuevo.');}
   finally{$('profSaveSpinner').style.display='none';$('profSaveTxt').textContent='Guardar cambios';$('profSaveInfoBtn').disabled=false;}
 };
 
 $('profChangePass').onclick=async()=>{
-  if(!currentUser){showPopup('Error','Inicia sesión para cambiar la contraseña.');return;}
+  if(!currentUser){showPopup('Cuenta sin Firebase Auth','Este usuario no inició sesión con autenticación de Firebase, así que no podemos enviar un correo de restablecimiento automático. Contacta soporte.');return;}
   try{await sendPasswordResetEmail(auth,currentUser.email);showPopup('Correo enviado',`Revisa tu bandeja: ${currentUser.email}`);}
   catch(e){showPopup('Error','No se pudo enviar el correo.');}
 };
@@ -1169,11 +1214,14 @@ $('avPickerModal').onclick=e=>{if(e.target===$('avPickerModal'))closeAvatarPicke
 $('avSaveBtn').onclick=async()=>{
   if(!selectedAv)return;
   $('avSaveBtn').disabled=true;$('avSaveBtn').textContent='Guardando...';
+  // Actualiza memoria y localStorage de inmediato (feedback instantáneo)
+  localStorage.setItem('llutid_avatar',selectedAv);if(!userProfile)userProfile={email:currentEmail()};userProfile.avatar=selectedAv;
+  updateProfileUI();
   try{
-    if(currentUser)await setDoc(doc(dbU,'users',currentUser.uid),{avatar:selectedAv,updatedAt:Date.now()},{merge:true});
-    localStorage.setItem('llutid_avatar',selectedAv);if(!userProfile)userProfile={};userProfile.avatar=selectedAv;
-    updateProfileUI();closeAvatarPicker();showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
-  }catch(err){showPopup('Error','No se pudo guardar el avatar.');}
+    const ref=userDocRef();
+    if(ref)await setDoc(ref,{avatar:selectedAv,email:currentEmail(),updatedAt:Date.now()},{merge:true});
+    closeAvatarPicker();showPopup('¡Guardado!','Tu avatar se actualizó correctamente.');
+  }catch(err){console.warn(err);showPopup('Guardado local','El avatar se aplicó en este dispositivo, pero no se pudo sincronizar con el servidor.');closeAvatarPicker();}
   finally{$('avSaveBtn').disabled=false;$('avSaveBtn').textContent='Guardar avatar';}
 };
 
@@ -1236,13 +1284,24 @@ function updateLogo(url){
   if(inEl.complete&&inEl.naturalWidth>0)doSwap();else{inEl.onload=doSwap;inEl.onerror=doSwap;}
 }
 
+function updateHeroLiveBadge(slide){
+  const badge=$('heroLiveBadge'),lbl=$('heroLiveLabel'),tm=$('heroLiveTime');
+  if(slide&&slide.isLive){
+    badge.classList.add('show');
+    lbl.textContent=slide.liveLabel||'EN VIVO';
+    tm.textContent=slide.liveTime?('· '+slide.liveTime):'';
+  }else{
+    badge.classList.remove('show');
+  }
+}
+
 function applySlideMeta(slide){
   const info=$('heroInfo');info.classList.add('is-fading');
   requestAnimationFrame(()=>{setTimeout(()=>{
     $('heroDesc').textContent=slide.description||slide.subtitle||'';
     const tags=$('heroTags');tags.innerHTML='';
     (slide.tags||[]).forEach(t=>{const s=document.createElement('span');s.className='hero-tag';s.textContent=t;tags.appendChild(s);});
-    updateLogo(slide.logo||'');info.classList.remove('is-fading');
+    updateLogo(slide.logo||'');updateHeroLiveBadge(slide);info.classList.remove('is-fading');
   },160);});
 }
 
@@ -1324,8 +1383,8 @@ function bindHeroHandlers(){
 
 async function renderHeroes(heroes){
   if(!heroes?.length)return;
-  const sig=heroes.map(h=>h.id).join('|');
-  const mapped=heroes.map(h=>({image:(h.images?.length)?h.images[0]:(h.image||''),logo:h.logo||'',subtitle:h.subtitle||'',description:h.description||'',link:h.link||'',tags:h.tags||[],trailerUrl:h.trailerUrl||null,trailerDuration:h.trailerDuration||15}));
+  const sig=heroes.map(h=>h.id+'|'+(h.isLive?1:0)+'|'+(h.liveTime||'')).join('|');
+  const mapped=heroes.map(h=>({image:(h.images?.length)?h.images[0]:(h.image||''),logo:h.logo||'',subtitle:h.subtitle||'',description:h.description||'',link:h.link||'',tags:h.tags||[],trailerUrl:h.trailerUrl||null,trailerDuration:h.trailerDuration||15,isLive:!!h.isLive,liveLabel:h.liveLabel||'EN VIVO',liveTime:h.liveTime||''}));
   if(sig===slidesSig&&mapped.length===slides.length)return;
   const wasEmpty=!slides.length;
   slidesSig=sig;slides=mapped;
@@ -1379,6 +1438,13 @@ function updatePromoMosaic(movies){
 const sectionMap={destacadas:'destacadasRow',top10:'top10Row',populares:'popularesRow',terror:'terrorRow',drama:'dramaRow',accion:'accionRow',animada:'animadaRow',comedia:'comediaRow',netflix:'netflixRow',series:'seriesRow',top10series:'top10SeriesRow'};
 const TOP10_SECTIONS=new Set(['top10','top10series']);
 
+/* ══ Combina películas (colección 'movies') y series (colección 'series') en una sola
+   lista para poder repartirlas por sección/fila y para que el buscador encuentre ambas ══ */
+function recombineContent(){
+  const combined=[...moviesData,...seriesData];
+  renderMovies(combined);
+}
+
 function renderMovies(movies){
   allMovies=movies.map(m=>({...m,titleLow:m.title?.toLowerCase()||''}));
   Object.entries(sectionMap).forEach(([sec,rowId])=>{
@@ -1401,12 +1467,14 @@ function renderMovies(movies){
     const secEl=row.closest('section');
     if(secEl){const showSeries=heroMode==='series';const isSeriesSec=SERIES_SECTIONS.includes(sec);if(showSeries!==isSeriesSec)secEl.style.display='none';else secEl.style.display=sm.length?'':'none';}
   });
-  updatePromoMosaic(movies);
+  updatePromoMosaic(movies.filter(m=>m.type!=='serie'));
 }
 
 function getMatchState(m){
   if(!m.date||!m.time)return'upcoming';
-  const start=new Date(`${m.date}T${m.time}:00`);const duration=(m.durationMin||90)+20;const end=new Date(start.getTime()+duration*60000);const expireEnd=new Date(end.getTime()+24*3600000);const now=new Date();
+  const start=new Date(`${m.date}T${m.time}:00`);
+  if(isNaN(start.getTime()))return'upcoming';
+  const duration=(m.durationMin||90)+20;const end=new Date(start.getTime()+duration*60000);const expireEnd=new Date(end.getTime()+24*3600000);const now=new Date();
   if(now<start){const sameDay=now.toDateString()===start.toDateString();return sameDay?'today':'upcoming';}
   if(now>=start&&now<=end)return'live';if(now>end&&now<=expireEnd)return'finished';return'expired';
 }
@@ -1419,10 +1487,13 @@ function renderMatches(matches){
   enriched.sort((a,b)=>{const oa=order[a._state],ob=order[b._state];if(oa!==ob)return oa-ob;const da=new Date(`${a.date||'2100-01-01'}T${a.time||'00:00'}`),db=new Date(`${b.date||'2100-01-01'}T${b.time||'00:00'}`);return da-db;});
   sec.dataset.hasContent='1';if(heroMode!=='series')sec.style.display='block';row.innerHTML='';const frag=document.createDocumentFragment();
   enriched.forEach(m=>{
-    let badge=m.time||'TBD',badgeClass='match-time-pill';
-    if(m._state==='live'){badge='🔴 EN VIVO';badgeClass+=' live';}else if(m._state==='today'){badge='HOY · '+(m.time||'');badgeClass+=' today';}else if(m._state==='finished'){badge=`${m.score1??'-'} - ${m.score2??'-'} FINAL`;badgeClass+=' finished';}
+    let badge=formatTime12(m.time)||'TBD',badgeClass='match-time-pill',showScoreInTeams=false;
+    if(m._state==='live'){badge='<span style="width:6px;height:6px;border-radius:50%;background:#fff;display:inline-block"></span> EN VIVO';badgeClass+=' live';showScoreInTeams=true;}
+    else if(m._state==='today'){badge='HOY · '+(formatTime12(m.time)||'');badgeClass+=' today';}
+    else if(m._state==='finished'){badge=`${m.score1??'-'} - ${m.score2??'-'} FINAL`;badgeClass+=' finished';}
+    const scoreHtml=showScoreInTeams?`<span class="match-score-live">${m.score1??0} - ${m.score2??0}</span>`:'<span class="match-sep">/</span>';
     const card=document.createElement('div');card.className='match-banner';
-    card.innerHTML=`<div class="match-banner-top"><span class="${badgeClass}">${badge}</span><span class="match-platform-logo">LLUTID<span>+</span></span></div><div class="match-teams"><div class="match-logo-wrap${m.team1Logo?'':' empty'}">${m.team1Logo?`<img src="${m.team1Logo}" alt="" loading="lazy">`:''}</div><span class="match-sep">/</span><div class="match-logo-wrap${m.team2Logo?'':' empty'}">${m.team2Logo?`<img src="${m.team2Logo}" alt="" loading="lazy">`:''}</div></div><div class="match-banner-bottom"><div class="match-name">${m.title||'Partido'}</div></div>`;
+    card.innerHTML=`<div class="match-banner-top"><span class="${badgeClass}">${badge}</span><span class="match-platform-logo">LLUTID<span>+</span></span></div><div class="match-teams"><div class="match-logo-wrap${m.team1Logo?'':' empty'}">${m.team1Logo?`<img src="${m.team1Logo}" alt="" loading="lazy">`:''}</div>${scoreHtml}<div class="match-logo-wrap${m.team2Logo?'':' empty'}">${m.team2Logo?`<img src="${m.team2Logo}" alt="" loading="lazy">`:''}</div></div><div class="match-banner-bottom"><div class="match-name">${m.title||'Partido'}</div></div>`;
     card.onclick=()=>{if(m.link)window.open(m.link,'_blank');};frag.appendChild(card);
   });
   row.appendChild(frag);
@@ -1535,8 +1606,16 @@ async function init(){
   const cachedH=C.get('heroes');if(cachedH?.length&&!slides.length)renderHeroes(cachedH);
   try{const qs=await getDocs(query(collection(db,'heroes'),orderBy('order')));const h=[];qs.forEach(d=>h.push({id:d.id,...d.data()}));if(h.length){C.set('heroes',h);if(heroMode==='movies')renderHeroes(h);}}catch(e){console.warn('heroes:',e);}
   onSnapshot(query(collection(db,'heroes'),orderBy('order')),snap=>{const h=[];snap.forEach(d=>h.push({id:d.id,...d.data()}));if(h.length){C.set('heroes',h);if(heroMode==='movies')renderHeroes(h);}},()=>{});
-  const cachedM=C.get('movies');if(cachedM?.length)renderMovies(cachedM);
-  onSnapshot(query(collection(db,'movies'),orderBy('order')),snap=>{const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));C.set('movies',m);renderMovies(m);},e=>{console.warn('movies:',e);});
+
+  const cachedM=C.get('movies');if(cachedM?.length){moviesData=cachedM;recombineContent();}
+  const cachedS=C.get('series');if(cachedS?.length){seriesData=cachedS;recombineContent();}
+
+  // Colección 'movies' — solo películas
+  onSnapshot(query(collection(db,'movies'),orderBy('order')),snap=>{moviesData=snap.docs.map(d=>({id:d.id,...d.data()}));C.set('movies',moviesData);recombineContent();},e=>{console.warn('movies:',e);});
+
+  // Colección 'series' — antes NUNCA se leía en el sitio, por eso no aparecían las series ni el Top 10 de series
+  onSnapshot(query(collection(db,'series'),orderBy('order')),snap=>{seriesData=snap.docs.map(d=>({id:d.id,...d.data(),type:'serie'}));C.set('series',seriesData);recombineContent();},e=>{console.warn('series:',e);});
+
   onSnapshot(query(collection(db,'matches'),orderBy('order')),snap=>{const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));renderMatches(m);},()=>{getDocs(collection(db,'matches')).then(snap=>{const m=[];snap.forEach(d=>m.push({id:d.id,...d.data()}));renderMatches(m);}).catch(()=>{});});
   try{const pcSnap=await getDoc(doc(db,'config','promoCard'));if(pcSnap.exists())renderPromoCard(pcSnap.data());}catch(e){}
   onSnapshot(doc(db,'config','promoCard'),snap=>{if(snap.exists())renderPromoCard(snap.data());},()=>{});
